@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>RegExp named capture groups • Exploring ES2018 and ES2019</title>
+    <link rel="stylesheet" href="site.css" type="text/css">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="top-bar-content">
+            <a href="toc.html">Table of contents</a><br>
+            Please support this book:
+            <a href="https://payhip.com/b/JrTz">buy it (PDF, EPUB, MOBI)</a>
+            or
+            <a href="http://www.2ality.com/p/donate.html">donate</a>
+        </div>
+    </div>
+
+    <div id="page-content">
+
+        <div id="adbox">
+        <div id="adbox-explain">(Ad, please don’t block.)</div>
+                    <script async type="text/javascript" src="https://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+                </div>
+
+        <h2 id="ch_regexp-named-capture-groups">RegExp named capture groups</h2>
+<p>This chapter explains proposal “<a href="https://github.com/tc39/proposal-regexp-named-groups">RegExp Named Capture Groups</a>” by Gorkem Yakin, Daniel Ehrenberg.</p>
+<p>Before we get to named capture groups, let’s take a look at numbered capture groups; to introduce the idea of capture groups.</p>
+<h3 id="numbered-capture-groups">Numbered capture groups</h3>
+<p>Numbered capture groups enable you to take apart a string with a regular expression.</p>
+<p>Successfully matching a regular expression against a string returns a match object <code>matchObj</code>. Putting a fragment of the regular expression in parentheses turns that fragment into a <em>capture group</em>: the part of the string that it matches is stored in <code>matchObj</code>.</p>
+<p>Prior to this proposal, all capture groups were accessed by number: the capture group starting with the first parenthesis via <code>matchObj[1]</code>, the capture group starting with the second parenthesis via <code>matchObj[2]</code>, etc.</p>
+<p>For example, the following code shows how numbered capture groups are used to extract year, month and day from a date in ISO format:</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb69-1" data-line-number="1"><span class="kw">const</span> RE_DATE <span class="op">=</span> <span class="ss">/</span><span class="sc">([0-9]{4})</span><span class="ss">-</span><span class="sc">([0-9]{2})</span><span class="ss">-</span><span class="sc">([0-9]{2})</span><span class="ss">/</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb69-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb69-3" data-line-number="3"><span class="kw">const</span> matchObj <span class="op">=</span> <span class="va">RE_DATE</span>.<span class="at">exec</span>(<span class="st">&#39;1999-12-31&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb69-4" data-line-number="4"><span class="kw">const</span> year <span class="op">=</span> matchObj[<span class="dv">1</span>]<span class="op">;</span> <span class="co">// 1999</span></a>
+<a class="sourceLine" id="cb69-5" data-line-number="5"><span class="kw">const</span> month <span class="op">=</span> matchObj[<span class="dv">2</span>]<span class="op">;</span> <span class="co">// 12</span></a>
+<a class="sourceLine" id="cb69-6" data-line-number="6"><span class="kw">const</span> day <span class="op">=</span> matchObj[<span class="dv">3</span>]<span class="op">;</span> <span class="co">// 31</span></a></code></pre></div>
+<p>Referring to capture groups via numbers has several disadvantages:</p>
+<ol type="1">
+<li>Finding the number of a capture group is a hassle: you have to count parentheses.</li>
+<li>You need to see the regular expression if you want to understand what the groups are for.</li>
+<li>If you change the order of the capture groups, you also have to change the matching code.</li>
+</ol>
+<p>All issues can be somewhat mitigated by defining constants for the numbers of the capture groups. However, capture groups are an all-around superior solution.</p>
+<h3 id="named-capture-groups">Named capture groups</h3>
+<p>The proposed feature is about identifying capture groups via names:</p>
+<pre class="text"><code>(?&lt;year&gt;[0-9]{4})</code></pre>
+<p>Here we have tagged the previous capture group #1 with the name <code>year</code>. The name must be a legal JavaScript identifier (think variable name or property name). After matching, you can access the captured string via <code>matchObj.groups.year</code>.</p>
+<p>The captured strings are not properties of <code>matchObj</code>, because you don’t want them to clash with current or future properties created by the regular expression API.</p>
+<p>Let’s rewrite the previous code so that it uses named capture groups:</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb71-1" data-line-number="1"><span class="kw">const</span> RE_DATE <span class="op">=</span> <span class="ss">/</span><span class="sc">(?</span><span class="ss">&lt;year&gt;</span><span class="sc">[0-9]{4})</span><span class="ss">-</span><span class="sc">(?</span><span class="ss">&lt;month&gt;</span><span class="sc">[0-9]{2})</span><span class="ss">-</span><span class="sc">(?</span><span class="ss">&lt;day&gt;</span><span class="sc">[0-9]{2})</span><span class="ss">/</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb71-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb71-3" data-line-number="3"><span class="kw">const</span> matchObj <span class="op">=</span> <span class="va">RE_DATE</span>.<span class="at">exec</span>(<span class="st">&#39;1999-12-31&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb71-4" data-line-number="4"><span class="kw">const</span> year <span class="op">=</span> <span class="va">matchObj</span>.<span class="va">groups</span>.<span class="at">year</span><span class="op">;</span> <span class="co">// 1999</span></a>
+<a class="sourceLine" id="cb71-5" data-line-number="5"><span class="kw">const</span> month <span class="op">=</span> <span class="va">matchObj</span>.<span class="va">groups</span>.<span class="at">month</span><span class="op">;</span> <span class="co">// 12</span></a>
+<a class="sourceLine" id="cb71-6" data-line-number="6"><span class="kw">const</span> day <span class="op">=</span> <span class="va">matchObj</span>.<span class="va">groups</span>.<span class="at">day</span><span class="op">;</span> <span class="co">// 31</span></a></code></pre></div>
+<p>Named capture groups also create indexed entries; as if they were numbered capture groups:</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb72-1" data-line-number="1"><span class="kw">const</span> year2 <span class="op">=</span> matchObj[<span class="dv">1</span>]<span class="op">;</span> <span class="co">// 1999</span></a>
+<a class="sourceLine" id="cb72-2" data-line-number="2"><span class="kw">const</span> month2 <span class="op">=</span> matchObj[<span class="dv">2</span>]<span class="op">;</span> <span class="co">// 12</span></a>
+<a class="sourceLine" id="cb72-3" data-line-number="3"><span class="kw">const</span> day2 <span class="op">=</span> matchObj[<span class="dv">3</span>]<span class="op">;</span> <span class="co">// 31</span></a></code></pre></div>
+<p><a href="../es6/ch_destructuring.html">Destructuring</a> can help with getting data out of the match object:</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb73-1" data-line-number="1"><span class="kw">const</span> <span class="op">{</span><span class="dt">groups</span><span class="op">:</span> <span class="op">{</span>day<span class="op">,</span> year<span class="op">}}</span> <span class="op">=</span> <span class="va">RE_DATE</span>.<span class="at">exec</span>(<span class="st">&#39;1999-12-31&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb73-2" data-line-number="2"><span class="va">console</span>.<span class="at">log</span>(year)<span class="op">;</span> <span class="co">// 1999</span></a>
+<a class="sourceLine" id="cb73-3" data-line-number="3"><span class="va">console</span>.<span class="at">log</span>(day)<span class="op">;</span> <span class="co">// 31</span></a></code></pre></div>
+<p>Named capture groups have the following benefits:</p>
+<ul>
+<li>It’s easier to find the “ID” of a capture group.</li>
+<li>The matching code becomes self-descriptive, as the ID of a capture group describes what is being captured.</li>
+<li>You don’t have to change the matching code if you change the order of the capture groups.</li>
+<li>The names of the capture groups also make the regular expression easier to understand, as you can see directly what each group is for.</li>
+</ul>
+<p>You can freely mix numbered and named capture groups.</p>
+<h3 id="backreferences">Backreferences</h3>
+<p><code>\k&lt;name&gt;</code> in a regular expression means: match the string that was previously matched by the named capture group <code>name</code>. For example:</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb74-1" data-line-number="1"><span class="kw">const</span> RE_TWICE <span class="op">=</span> <span class="ss">/</span><span class="sc">^(?</span><span class="ss">&lt;word&gt;</span><span class="sc">[a-z]+)</span><span class="ss">!</span><span class="sc">\k</span><span class="ss">&lt;word&gt;</span><span class="sc">$</span><span class="ss">/</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb74-2" data-line-number="2"><span class="va">RE_TWICE</span>.<span class="at">test</span>(<span class="st">&#39;abc!abc&#39;</span>)<span class="op">;</span> <span class="co">// true</span></a>
+<a class="sourceLine" id="cb74-3" data-line-number="3"><span class="va">RE_TWICE</span>.<span class="at">test</span>(<span class="st">&#39;abc!ab&#39;</span>)<span class="op">;</span> <span class="co">// false</span></a></code></pre></div>
+<p>The backreference syntax for numbered capture groups works for named capture groups, too:</p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb75-1" data-line-number="1"><span class="kw">const</span> RE_TWICE <span class="op">=</span> <span class="ss">/</span><span class="sc">^(?</span><span class="ss">&lt;word&gt;</span><span class="sc">[a-z]+)</span><span class="ss">!</span><span class="sc">\1$</span><span class="ss">/</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb75-2" data-line-number="2"><span class="va">RE_TWICE</span>.<span class="at">test</span>(<span class="st">&#39;abc!abc&#39;</span>)<span class="op">;</span> <span class="co">// true</span></a>
+<a class="sourceLine" id="cb75-3" data-line-number="3"><span class="va">RE_TWICE</span>.<span class="at">test</span>(<span class="st">&#39;abc!ab&#39;</span>)<span class="op">;</span> <span class="co">// false</span></a></code></pre></div>
+<p>You can freely mix both syntaxes:</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb76-1" data-line-number="1"><span class="kw">const</span> RE_TWICE <span class="op">=</span> <span class="ss">/</span><span class="sc">^(?</span><span class="ss">&lt;word&gt;</span><span class="sc">[a-z]+)</span><span class="ss">!</span><span class="sc">\k</span><span class="ss">&lt;word&gt;!</span><span class="sc">\1$</span><span class="ss">/</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb76-2" data-line-number="2"><span class="va">RE_TWICE</span>.<span class="at">test</span>(<span class="st">&#39;abc!abc!abc&#39;</span>)<span class="op">;</span> <span class="co">// true</span></a>
+<a class="sourceLine" id="cb76-3" data-line-number="3"><span class="va">RE_TWICE</span>.<span class="at">test</span>(<span class="st">&#39;abc!abc!ab&#39;</span>)<span class="op">;</span> <span class="co">// false</span></a></code></pre></div>
+<h3 id="replace-and-named-capture-groups"><code>replace()</code> and named capture groups</h3>
+<p>The string method <code>replace()</code> supports named capture groups in two ways.</p>
+<p>First, you can mention their names in the replacement string:</p>
+<div class="sourceCode" id="cb77"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb77-1" data-line-number="1"><span class="kw">const</span> RE_DATE <span class="op">=</span> <span class="ss">/</span><span class="sc">(?</span><span class="ss">&lt;year&gt;</span><span class="sc">[0-9]{4})</span><span class="ss">-</span><span class="sc">(?</span><span class="ss">&lt;month&gt;</span><span class="sc">[0-9]{2})</span><span class="ss">-</span><span class="sc">(?</span><span class="ss">&lt;day&gt;</span><span class="sc">[0-9]{2})</span><span class="ss">/</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb77-2" data-line-number="2"><span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;1999-12-31&#39;</span>.<span class="at">replace</span>(RE_DATE<span class="op">,</span></a>
+<a class="sourceLine" id="cb77-3" data-line-number="3">    <span class="st">&#39;$&lt;month&gt;/$&lt;day&gt;/$&lt;year&gt;&#39;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb77-4" data-line-number="4">    <span class="co">// 12/31/1999</span></a></code></pre></div>
+<p>Second, each replacement function receives an additional parameter that holds an object with data captured via named groups. For example (line A):</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb78-1" data-line-number="1"><span class="kw">const</span> RE_DATE <span class="op">=</span> <span class="ss">/</span><span class="sc">(?</span><span class="ss">&lt;year&gt;</span><span class="sc">[0-9]{4})</span><span class="ss">-</span><span class="sc">(?</span><span class="ss">&lt;month&gt;</span><span class="sc">[0-9]{2})</span><span class="ss">-</span><span class="sc">(?</span><span class="ss">&lt;day&gt;</span><span class="sc">[0-9]{2})</span><span class="ss">/</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb78-2" data-line-number="2"><span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;1999-12-31&#39;</span>.<span class="at">replace</span>(</a>
+<a class="sourceLine" id="cb78-3" data-line-number="3">    RE_DATE<span class="op">,</span></a>
+<a class="sourceLine" id="cb78-4" data-line-number="4">    (g0<span class="op">,</span>y<span class="op">,</span>m<span class="op">,</span>d<span class="op">,</span>offset<span class="op">,</span>input<span class="op">,</span> <span class="op">{</span>year<span class="op">,</span> month<span class="op">,</span> day<span class="op">}</span>) <span class="op">=&gt;</span> <span class="co">// (A)</span></a>
+<a class="sourceLine" id="cb78-5" data-line-number="5">        month<span class="op">+</span><span class="st">&#39;/&#39;</span><span class="op">+</span>day<span class="op">+</span><span class="st">&#39;/&#39;</span><span class="op">+</span>year))<span class="op">;</span></a>
+<a class="sourceLine" id="cb78-6" data-line-number="6">    <span class="co">// 12/31/1999</span></a></code></pre></div>
+<p>These are the parameters of the callback in line A:</p>
+<ul>
+<li><code>g0</code> contains the whole matched substring, <code>'1999-12-31'</code></li>
+<li><code>y</code>, <code>m</code>, <code>d</code> are matches for the numbered groups 1–3 (which are created via the named groups <code>year</code>, <code>month</code>, <code>day</code>).</li>
+<li><code>offset</code> specifies where the match was found.</li>
+<li><code>input</code> contains the complete input string.</li>
+<li>The last parameter is new and contains one property for each of the three named capture groups <code>year</code>, <code>month</code> and <code>day</code>. We use destructuring to access those properties.</li>
+</ul>
+<p>The following code shows another way of accessing the last argument:</p>
+<div class="sourceCode" id="cb79"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb79-1" data-line-number="1"><span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;1999-12-31&#39;</span>.<span class="at">replace</span>(RE_DATE<span class="op">,</span></a>
+<a class="sourceLine" id="cb79-2" data-line-number="2">    (...<span class="at">args</span>) <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb79-3" data-line-number="3">        <span class="kw">const</span> <span class="op">{</span>year<span class="op">,</span> month<span class="op">,</span> day<span class="op">}</span> <span class="op">=</span> args[<span class="va">args</span>.<span class="at">length</span><span class="dv">-1</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb79-4" data-line-number="4">        <span class="cf">return</span> month<span class="op">+</span><span class="st">&#39;/&#39;</span><span class="op">+</span>day<span class="op">+</span><span class="st">&#39;/&#39;</span><span class="op">+</span>year<span class="op">;</span></a>
+<a class="sourceLine" id="cb79-5" data-line-number="5">    <span class="op">}</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb79-6" data-line-number="6">    <span class="co">// 12/31/1999</span></a></code></pre></div>
+<p>We receive all arguments via the rest parameter <code>args</code>. The last element of the Array <code>args</code> is the object with the data from the named groups. We access it via the index <code>args.length-1</code>.</p>
+<h3 id="named-groups-that-dont-match">Named groups that don’t match</h3>
+<p>If an optional named group does not match, its property is set to <code>undefined</code> (but still exists):</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb80-1" data-line-number="1"><span class="kw">const</span> RE_OPT_A <span class="op">=</span> <span class="ss">/</span><span class="sc">^(?</span><span class="ss">&lt;as&gt;a</span><span class="sc">+)?$</span><span class="ss">/</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb80-2" data-line-number="2"><span class="kw">const</span> matchObj <span class="op">=</span> <span class="va">RE_OPT_A</span>.<span class="at">exec</span>(<span class="st">&#39;&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb80-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb80-4" data-line-number="4"><span class="co">// We have a match:</span></a>
+<a class="sourceLine" id="cb80-5" data-line-number="5"><span class="va">console</span>.<span class="at">log</span>(matchObj[<span class="dv">0</span>] <span class="op">===</span> <span class="st">&#39;&#39;</span>)<span class="op">;</span> <span class="co">// true</span></a>
+<a class="sourceLine" id="cb80-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb80-7" data-line-number="7"><span class="co">// Group &lt;as&gt; didn’t match anything:</span></a>
+<a class="sourceLine" id="cb80-8" data-line-number="8"><span class="va">console</span>.<span class="at">log</span>(<span class="va">matchObj</span>.<span class="va">groups</span>.<span class="at">as</span> <span class="op">===</span> <span class="kw">undefined</span>)<span class="op">;</span> <span class="co">// true</span></a>
+<a class="sourceLine" id="cb80-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb80-10" data-line-number="10"><span class="co">// But property `as` exists:</span></a>
+<a class="sourceLine" id="cb80-11" data-line-number="11"><span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;as&#39;</span> <span class="kw">in</span> <span class="va">matchObj</span>.<span class="at">groups</span>)<span class="op">;</span> <span class="co">// true</span></a></code></pre></div>
+<h3 id="implementations">Implementations</h3>
+<ul>
+<li><a href="https://github.com/DmitrySoshnikov/babel-plugin-transform-modern-regexp#named-capturing-groups">The Babel plugin <code>transform-modern-regexp</code></a> by Dmitry Soshnikov supports named capture groups.</li>
+<li>V8 6.0+ has <a href="https://bugs.chromium.org/p/v8/issues/detail?id=5437">support behind the flag <code>--harmony_regexp_named_captures</code></a>.</li>
+</ul>
+<p>You can check the version of V8 in your Node.js via:</p>
+<pre><code>node -p process.versions.v8</code></pre>
+<p>In Chrome Canary (60.0+), you can enable named capture groups as follows. First, look up the path of the Chrome Canary binary via the <a href="about:"><code>about:</code></a> URL. Then start Canary like this (you only need the double quotes if the path contains a space):</p>
+<pre class="text"><code>$ alias canary=&#39;&quot;/tmp/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary&quot;&#39;
+$ canary --js-flags=&#39;--harmony-regexp-named-captures&#39;</code></pre>
+<h3 id="further-reading-2">Further reading</h3>
+<ul>
+<li>Chapter “<a href="http://speakingjs.com/es5/ch19.html">Regular Expressions</a>” in “Speaking JavaScript”</li>
+<li>Chapter “<a href="../es6/ch_regexp.html">New regular expression features</a>” in “Exploring ES6”</li>
+<li>Chapter “<a href="../es6/ch_destructuring.html">Destructuring</a>” in “Exploring ES6”</li>
+</ul>
+
+        <div class="footer">
+            <div>
+                                <a id="commentLink" href="https://github.com/rauschma/exploring-es2018-es2019/issues/3">Comments</a>
+                <script defer src="count-comments.js"></script>
+                            </div>
+                        <div>
+                Next: <a href="ch_regexp-unicode-property-escapes.html">RegExp Unicode property escapes</a>
+            </div>
+                    </div>
+    </div>
+</body>
+</html>

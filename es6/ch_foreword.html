@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Foreword</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>Foreword</b><br>
+        <a href="index.html#toc_ch_foreword">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_foreword">Foreword <a class="header-anchor" href="ch_foreword.html#ch_foreword" aria-hidden="true">#</a></h2>
+
+<p>Edge cases! My life as the project editor of the ES6 specification has been all about edge cases. Like most software, the design of a programming language feature is typically driven by specific use cases. But programmers can and often do use language features in novel ways that are well outside the scope of those original use cases.  In addition, no language feature stands alone.  Every feature potentially interacts with every other feature.  Those unexpected uses and feature interactions are the realm of edge cases.</p>
+
+<p>For example, consider a function that has a parameter default value initialization expression that uses the eval function to first declare a local variable that has the same name as a local variable declared in the function body and then returns, as the parameter value, an arrow function that references that name. What happens if code in the function body accesses the parameter value and calls the arrow function?  Which variable is accessed? Is there an error that should be detected and reported? It&#x2019;s edge cases like this that kept me up at night while ES6 was being designed.</p>
+
+<p>A good language design must at least consider such edge cases.  The specification of a massively popular language that will have multiple implementations must pin down what happens for all the edge cases. Otherwise, different implementation of the language will handle edge cases differently and programs won&#x2019;t work the same everywhere.</p>
+
+<p>If you really want to understand ES6, you have to understand how each feature works, even when you&#x2019;re dealing with  unusual situations and edge cases.  What sets Axel Rauschmayer&#x2019;s Exploring ES6 apart from other books is that it really cares about the inner workings of ECMAScript.  It doesn&#x2019;t just describe the common use cases that you probably already understand. It digs deep into the semantics and, where necessary, wallows in the edge cases.  It explains why features work the way that they work and how they are used in realistic code.  Assimilate the material in this book and you will be an ES6 expert.</p>
+
+<p>Allen Wirfs-Brock<br>
+ECMAScript 2015 (ES6) Specification Editor</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_preface.html">Preface</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

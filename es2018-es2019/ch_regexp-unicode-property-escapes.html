@@ -1,0 +1,214 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>RegExp Unicode property escapes • Exploring ES2018 and ES2019</title>
+    <link rel="stylesheet" href="site.css" type="text/css">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="top-bar-content">
+            <a href="toc.html">Table of contents</a><br>
+            Please support this book:
+            <a href="https://payhip.com/b/JrTz">buy it (PDF, EPUB, MOBI)</a>
+            or
+            <a href="http://www.2ality.com/p/donate.html">donate</a>
+        </div>
+    </div>
+
+    <div id="page-content">
+
+        <div id="adbox">
+        <div id="adbox-explain">(Ad, please don’t block.)</div>
+                    <script async type="text/javascript" src="https://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+                </div>
+
+        <h2 id="ch_regexp-unicode-property-escapes">RegExp Unicode property escapes</h2>
+<p>This chapter explains the proposal “<a href="https://github.com/tc39/proposal-regexp-unicode-property-escapes">RegExp Unicode Property Escapes</a>” by Mathias Bynens.</p>
+<h3 id="overview">Overview</h3>
+<p>JavaScript lets you match characters by mentioning the “names” of sets of characters. For example, <code>\s</code> stands for “whitespace”:</p>
+<pre class="repl"><code>&gt; /^\s+$/u.test(&#39;\t \n\r&#39;)
+true</code></pre>
+<p>The proposal lets you additionally match characters by mentioning their Unicode character properties (what those are is explained next) inside the curly braces of <code>\p{}</code>. Two examples:</p>
+<pre class="repl"><code>&gt; /^\p{White_Space}+$/u.test(&#39;\t \n\r&#39;)
+true
+&gt; /^\p{Script=Greek}+$/u.test(&#39;μετά&#39;)
+true</code></pre>
+<p>As you can see, one of the benefits of property escapes is is that they make regular expressions more self-descriptive. Additional benefits will become clear later.</p>
+<p>Before we delve into how property escapes work, let’s examine what Unicode character properties are.</p>
+<h3 id="unicode-character-properties">Unicode character properties</h3>
+<p>In the Unicode standard, each character has <em>properties</em> – metadata describing it. Properties play an important role in defining the nature of a character. Quoting <a href="http://www.unicode.org/versions/Unicode9.0.0/ch03.pdf">the Unicode Standard, Sect. 3.3, D3</a>:</p>
+<blockquote>
+<p>The semantics of a character are determined by its identity, normative properties, and behavior.</p>
+</blockquote>
+<h4 id="examples-of-properties">Examples of properties</h4>
+<p>These are a few examples of properties:</p>
+<ul>
+<li><code>Name</code>: a unique name, composed of uppercase letters, digits, hyphens and spaces. For example:
+<ul>
+<li>A: <code>Name = LATIN CAPITAL LETTER A</code></li>
+<li>😀: <code>Name = GRINNING FACE</code></li>
+</ul></li>
+<li><code>General_Category</code>: categorizes characters. For example:
+<ul>
+<li>x: <code>General_Category = Lowercase_Letter</code></li>
+<li>$: <code>General_Category = Currency_Symbol</code></li>
+</ul></li>
+<li><code>White_Space</code>: used for marking invisible spacing characters, such as spaces, tabs and newlines. For example:
+<ul>
+<li>\t: <code>White_Space = True</code></li>
+<li>π: <code>White_Space = False</code></li>
+</ul></li>
+<li><code>Age</code>: version of the Unicode Standard in which a character was introduced. For example: The Euro sign € was added in version 2.1 of the Unicode standard.
+<ul>
+<li>€: <code>Age = 2.1</code></li>
+</ul></li>
+<li><code>Block</code>: a contiguous range of code points. Blocks don’t overlap and their names are unique. For example:
+<ul>
+<li>S: <code>Block = Basic_Latin</code> (range U+0000..U+007F)</li>
+<li>😀: <code>Block = Emoticons</code> (range U+1F600..U+1F64F)</li>
+</ul></li>
+<li><code>Script</code>: is a collection of characters used by one or more writing systems.
+<ul>
+<li>Some scripts support several writing systems. For example, the Latin script supports the writing systems English, French, German, Latin, etc.</li>
+<li>Some languages can be written in multiple alternate writing systems that are supported by multiple scripts. For example, Turkish used the Arabic script before it transitioned to the Latin script in the early 20th century.</li>
+<li>Examples:
+<ul>
+<li>α: <code>Script = Greek</code></li>
+<li>Д: <code>Script = Cyrillic</code></li>
+</ul></li>
+</ul></li>
+</ul>
+<h4 id="types-of-properties">Types of properties</h4>
+<p>The following types of properties exist:</p>
+<ul>
+<li>Enumerated property: a property whose values are few and named. <code>General_Category</code> is an enumerated property.</li>
+<li>Closed enumerated property: an enumerated property whose set of values is fixed and will not be changed in future versions of the Unicode Standard.</li>
+<li>Boolean property: a closed enumerated property whose values are <code>True</code> and <code>False</code>. Boolean properties are also called <em>binary</em>, because they are like markers that characters either have or not. <code>White_Space</code> is a binary property.</li>
+<li>Numeric property: has values that are integers or real numbers.</li>
+<li>String-valued property: a property whose values are strings.</li>
+<li>Catalog property: an enumerated property that may be extended as the Unicode Standard evolves. <code>Age</code> and <code>Script</code> are catalog properties.</li>
+<li>Miscellaneous property: a property whose values are not Boolean, enumerated, numeric, string or catalog values. <code>Name</code> is a miscellaneous property.</li>
+</ul>
+<h4 id="matching-properties-and-property-values">Matching properties and property values</h4>
+<p>Properties and property values are matched as follows:</p>
+<ul>
+<li>Loose matching: case, whitespace, underscores and hyphens are ignored when comparing properties and property values. For example, <code>&quot;General_Category&quot;</code>, <code>&quot;general category&quot;</code>, <code>&quot;-general-category-&quot;</code>, <code>&quot;GeneralCategory&quot;</code> are all considered to be the same property.</li>
+<li>Aliases: the data files <a href="http://unicode.org/Public/UNIDATA/PropertyAliases.txt"><code>PropertyAliases.txt</code></a> and <a href="http://unicode.org/Public/UNIDATA/PropertyValueAliases.txt"><code>PropertyValueAliases.txt</code></a> define alternative ways of referring to properties and property values.
+<ul>
+<li>Most aliases have long forms and short forms. For example:
+<ul>
+<li>Long form: <code>General_Category</code></li>
+<li>Short form: <code>gc</code></li>
+</ul></li>
+<li>Examples of property value aliases (per line, all values are considered equal):
+<ul>
+<li><code>Lowercase_Letter</code>, <code>Ll</code></li>
+<li><code>Currency_Symbol</code>, <code>Sc</code></li>
+<li><code>True</code>, <code>T</code>, <code>Yes</code>, <code>Y</code></li>
+<li><code>False</code>, <code>F</code>, <code>No</code>, <code>N</code></li>
+</ul></li>
+</ul></li>
+</ul>
+<h3 id="unicode-property-escapes-for-regular-expressions">Unicode property escapes for regular expressions</h3>
+<p>Unicode property escapes look like this:</p>
+<ol type="1">
+<li><p>Match all characters whose property <code>prop</code> has the value <code>value</code>:</p>
+<pre class="text"><code>\p{prop=value}</code></pre></li>
+<li><p>Match all characters that do not have a property <code>prop</code> whose value is <code>value</code>:</p>
+<pre class="text"><code>\P{prop=value}</code></pre></li>
+<li><p>Match all characters whose binary property <code>bin_prop</code> is True:</p>
+<pre class="text"><code>\p{bin_prop}</code></pre></li>
+<li><p>Match all characters whose binary property <code>bin_prop</code> is False:</p>
+<pre class="text"><code>\P{bin_prop}</code></pre></li>
+</ol>
+<p>Forms (3) and (4) can also be used as an abbreviation for <code>General_Category</code>. For example: <code>\p{Lowercase_Letter}</code> is an abbreviation for <code>\p{General_Category=Lowercase_Letter}</code></p>
+<p><strong>Important:</strong> In order to use property escapes, regular expressions must have the flag <code>/u</code>. Prior to <code>/u</code>, <code>\p</code> is the same as <code>p</code>.</p>
+<h4 id="details">Details</h4>
+<p>Things to note:</p>
+<ul>
+<li>Property escapes do not support loose matching. You must use aliases exactly as they are mentioned in <a href="http://unicode.org/Public/UNIDATA/PropertyAliases.txt"><code>PropertyAliases.txt</code></a> and <a href="http://unicode.org/Public/UNIDATA/PropertyValueAliases.txt"><code>PropertyValueAliases.txt</code></a></li>
+<li>Implementations must support at least the following Unicode properties and their aliases:
+<ul>
+<li><code>General_Category</code></li>
+<li><code>Script</code></li>
+<li><code>Script_Extensions</code></li>
+<li>The binary properties <a href="https://tc39.github.io/proposal-regexp-unicode-property-escapes/#sec-static-semantics-unicodematchproperty-p">listed in the specification</a> (and no others, to guarantee interoperability). These include, among others: <code>Alphabetic</code>, <code>Uppercase</code>, <code>Lowercase</code>, <code>White_Space</code>, <code>Noncharacter_Code_Point</code>, <code>Default_Ignorable_Code_Point</code>, <code>Any</code>, <code>ASCII</code>, <code>Assigned</code>, <code>ID_Start</code>, <code>ID_Continue</code>, <code>Join_Control</code>, <code>Emoji_Presentation</code>, <code>Emoji_Modifier</code>, <code>Emoji_Modifier_Base</code>.</li>
+</ul></li>
+</ul>
+<h3 id="examples-1">Examples</h3>
+<p>Matching whitespace:</p>
+<pre class="repl"><code>&gt; /^\p{White_Space}+$/u.test(&#39;\t \n\r&#39;)
+true</code></pre>
+<p>Matching letters:</p>
+<pre class="repl"><code>&gt; /^\p{Letter}+$/u.test(&#39;πüé&#39;)
+true</code></pre>
+<p>Matching Greek letters:</p>
+<pre class="repl"><code>&gt; /^\p{Script=Greek}+$/u.test(&#39;μετά&#39;)
+true</code></pre>
+<p>Matching Latin letters:</p>
+<pre class="repl"><code>&gt; /^\p{Script=Latin}+$/u.test(&#39;Grüße&#39;)
+true
+&gt; /^\p{Script=Latin}+$/u.test(&#39;façon&#39;)
+true
+&gt; /^\p{Script=Latin}+$/u.test(&#39;mañana&#39;)
+true</code></pre>
+<p>Matching lone surrogate characters:</p>
+<pre class="repl"><code>&gt; /^\p{Surrogate}+$/u.test(&#39;\u{D83D}&#39;)
+true
+&gt; /^\p{Surrogate}+$/u.test(&#39;\u{DE00}&#39;)
+true</code></pre>
+<p>Note that Unicode code points in astral planes (such as emojis) are composed of two JavaScript characters (a leading surrogate and a trailing surrogate). Therefore, you’d expect the previous regular expression to match the emoji <code>😀</code>, which is all surrogates:</p>
+<pre class="repl"><code>&gt; &#39;😀&#39;.length
+2
+&gt; &#39;😀&#39;.charCodeAt(0).toString(16)
+&#39;d83d&#39;
+&gt; &#39;😀&#39;.charCodeAt(1).toString(16)
+&#39;de00&#39;</code></pre>
+<p>However, with the <code>/u</code> flag, property escapes match code points, not JavaScript characters:</p>
+<pre class="repl"><code>&gt; /^\p{Surrogate}+$/u.test(&#39;😀&#39;)
+false</code></pre>
+<p>In other words, <code>😀</code> is considered to be a single character:</p>
+<pre class="repl"><code>&gt; /^.$/u.test(&#39;😀&#39;)
+true</code></pre>
+<h3 id="trying-it-out">Trying it out</h3>
+<p>V8 5.8+ implement this proposal, it is switched on via <code>--harmony_regexp_property</code>:</p>
+<ul>
+<li>Node.js: <code>node --harmony_regexp_property</code>
+<ul>
+<li>Check Node’s version of V8 via <code>npm version</code></li>
+</ul></li>
+<li>Chrome:
+<ul>
+<li>Go to <a href="chrome://version/"><code>chrome://version/</code></a></li>
+<li>Check the version of V8.</li>
+<li>Find the “Executable Path”. For example: <code>/Applications/Google Chrome.app/Contents/MacOS/Google Chrome</code></li>
+<li>Start Chrome: <code>'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --js-flags=&quot;--harmony_regexp_property&quot;</code></li>
+</ul></li>
+</ul>
+<h3 id="further-reading-3">Further reading</h3>
+<p>JavaScript:</p>
+<ul>
+<li>“<a href="http://speakingjs.com/es5/ch24.html">Unicode and JavaScript</a>” (in “Speaking JavaScript”)</li>
+<li>Regular expressions: “<a href="../es6/ch_regexp.html#sec_regexp-flag-u">New flag <code>/u</code> (unicode)</a>” (in “Exploring ES6”)</li>
+</ul>
+<p>The Unicode standard:</p>
+<ul>
+<li>Unicode Technical Report #23: <a href="http://unicode.org/reports/tr23/">The Unicode Character Property Model</a> (Editors: Ken Whistler, Asmus Freytag)</li>
+<li>Unicode® Standard Annex #44: <a href="http://www.unicode.org/reports/tr44/">Unicode Character Database</a> (Editors: Mark Davis, Laurențiu Iancu, Ken Whistler)</li>
+<li>Unicode Character Database: <a href="http://unicode.org/Public/UNIDATA/PropList.txt"><code>PropList.txt</code></a>, <a href="http://unicode.org/Public/UNIDATA/PropertyAliases.txt"><code>PropertyAliases.txt</code></a>, <a href="http://unicode.org/Public/UNIDATA/PropertyValueAliases.txt"><code>PropertyValueAliases.txt</code></a></li>
+<li>“<a href="https://en.wikipedia.org/wiki/Unicode_character_property">Unicode character property</a>” (Wikipedia)</li>
+</ul>
+
+        <div class="footer">
+            <div>
+                                <a id="commentLink" href="https://github.com/rauschma/exploring-es2018-es2019/issues/4">Comments</a>
+                <script defer src="count-comments.js"></script>
+                            </div>
+                        <div>
+                Next: <a href="ch_regexp-lookbehind-assertions.html">RegExp lookbehind assertions</a>
+            </div>
+                    </div>
+    </div>
+</body>
+</html>

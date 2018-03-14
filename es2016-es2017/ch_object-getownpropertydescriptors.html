@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>9. Object.getOwnPropertyDescriptors()</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+    <div id="top-bar-content">
+        <a href="index.html#toc_ch_object-getownpropertydescriptors">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es2016-es2017/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="page-content">
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+
+<h2 id="ch_object-getownpropertydescriptors">
+<span class="section-number">9. </span><code>Object.getOwnPropertyDescriptors()</code>
+ <a class="header-anchor" href="ch_object-getownpropertydescriptors.html#ch_object-getownpropertydescriptors" aria-hidden="true">#</a></h2>
+
+<p>This chapter explains the ECMAScript 2017 feature &#x201C;<a href="https://tc39.github.io/proposal-object-getownpropertydescriptors/"><code>Object.getOwnPropertyDescriptors()</code></a>&#x201D; by Jordan Harband and Andrea Giammarchi.</p>
+
+<h3 id="_overview-5">
+<span class="section-number">9.1 </span>Overview <a class="header-anchor" href="ch_object-getownpropertydescriptors.html#_overview-5" aria-hidden="true">#</a></h3>
+
+<p><code>Object.getOwnPropertyDescriptors(obj)</code> returns the property descriptors of all own properties of <code>obj</code>, in an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;foo&apos;</code><code class="p">)]</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code>
+    <code class="nx">get</code> <code class="nx">bar</code><code class="p">()</code> <code class="p">{</code> <code class="k">return</code> <code class="s1">&apos;abc&apos;</code> <code class="p">},</code>
+<code class="p">};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptors</code><code class="p">(</code><code class="nx">obj</code><code class="p">));</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// { [Symbol(&apos;foo&apos;)]:</code>
+<code class="c1">//    { value: 123,</code>
+<code class="c1">//      writable: true,</code>
+<code class="c1">//      enumerable: true,</code>
+<code class="c1">//      configurable: true },</code>
+<code class="c1">//   bar:</code>
+<code class="c1">//    { get: [Function: bar],</code>
+<code class="c1">//      set: undefined,</code>
+<code class="c1">//      enumerable: true,</code>
+<code class="c1">//      configurable: true } }</code>
+</pre></div>
+
+</figure>
+
+<h3 id="_objectgetownpropertydescriptors">
+<span class="section-number">9.2 </span><code>Object.getOwnPropertyDescriptors()</code>
+ <a class="header-anchor" href="ch_object-getownpropertydescriptors.html#_objectgetownpropertydescriptors" aria-hidden="true">#</a></h3>
+
+<p><code>Object.getOwnPropertyDescriptors(obj)</code> accepts an object <code>obj</code> and returns an object <code>result</code>:</p>
+
+<ul>
+  <li>For each own (non-inherited) property of <code>obj</code>, it adds a property to <code>result</code> whose key is the same and whose value is the the former property&#x2019;s <em>descriptor</em>.</li>
+</ul>
+
+<p>Property descriptors describe the <em>attributes</em> of a property (its value, whether it is writable, etc.). For more information, consult Sect. &#x201C;<a href="http://speakingjs.com/es5/ch17.html#property_attributes">Property Attributes and Property Descriptors</a>&#x201D; in &#x201C;Speaking JavaScript&#x201D;.</p>
+
+<p>This is an example of using <code>Object.getOwnPropertyDescriptors()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;foo&apos;</code><code class="p">)]</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code>
+    <code class="nx">get</code> <code class="nx">bar</code><code class="p">()</code> <code class="p">{</code> <code class="k">return</code> <code class="s1">&apos;abc&apos;</code> <code class="p">},</code>
+<code class="p">};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptors</code><code class="p">(</code><code class="nx">obj</code><code class="p">));</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// { [Symbol(&apos;foo&apos;)]:</code>
+<code class="c1">//    { value: 123,</code>
+<code class="c1">//      writable: true,</code>
+<code class="c1">//      enumerable: true,</code>
+<code class="c1">//      configurable: true },</code>
+<code class="c1">//   bar:</code>
+<code class="c1">//    { get: [Function: bar],</code>
+<code class="c1">//      set: undefined,</code>
+<code class="c1">//      enumerable: true,</code>
+<code class="c1">//      configurable: true } }</code>
+</pre></div>
+
+</figure>
+
+<p>This is how you would implement <code>Object.getOwnPropertyDescriptors()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">getOwnPropertyDescriptors</code><code class="p">(</code><code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">result</code> <code class="o">=</code> <code class="p">{};</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kd">let</code> <code class="nx">key</code> <code class="k">of</code> <code class="nx">Reflect</code><code class="p">.</code><code class="nx">ownKeys</code><code class="p">(</code><code class="nx">obj</code><code class="p">))</code> <code class="p">{</code>
+        <code class="nx">result</code><code class="p">[</code><code class="nx">key</code><code class="p">]</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="nx">key</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">result</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h3 id="_use-cases-for-objectgetownpropertydescriptors">
+<span class="section-number">9.3 </span>Use cases for <code>Object.getOwnPropertyDescriptors()</code>
+ <a class="header-anchor" href="ch_object-getownpropertydescriptors.html#_use-cases-for-objectgetownpropertydescriptors" aria-hidden="true">#</a></h3>
+
+<h4 id="_use-case-copying-properties-into-an-object">
+<span class="section-number">9.3.1 </span>Use case: copying properties into an object <a class="header-anchor" href="ch_object-getownpropertydescriptors.html#_use-case-copying-properties-into-an-object" aria-hidden="true">#</a></h4>
+
+<p>Since ES6, JavaScript already has a tool method for copying properties: <code>Object.assign()</code>. However, this method uses simple get and set operations to copy a property whose key is <code>key</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">value</code> <code class="o">=</code> <code class="nx">source</code><code class="p">[</code><code class="nx">key</code><code class="p">];</code> <code class="c1">// get</code>
+<code class="nx">target</code><code class="p">[</code><code class="nx">key</code><code class="p">]</code> <code class="o">=</code> <code class="nx">value</code><code class="p">;</code> <code class="c1">// set</code>
+</pre></div>
+
+</figure>
+
+<p>That means that it doesn&#x2019;t properly copy properties with non-default attributes (getters, setters, non-writable properties, etc.). The following example illustrates this limitation. The object <code>source</code> has a setter whose key is <code>foo</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">source</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">set</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">value</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">source</code><code class="p">,</code> <code class="s1">&apos;foo&apos;</code><code class="p">));</code>
+<code class="c1">// { get: undefined,</code>
+<code class="c1">//   set: [Function: foo],</code>
+<code class="c1">//   enumerable: true,</code>
+<code class="c1">//   configurable: true }</code>
+</pre></div>
+
+</figure>
+
+<p>Using <code>Object.assign()</code> to copy property <code>foo</code> to object <code>target</code> fails:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">target1</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">(</code><code class="nx">target1</code><code class="p">,</code> <code class="nx">source</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">target1</code><code class="p">,</code> <code class="s1">&apos;foo&apos;</code><code class="p">));</code>
+<code class="c1">// { value: undefined,</code>
+<code class="c1">//   writable: true,</code>
+<code class="c1">//   enumerable: true,</code>
+<code class="c1">//   configurable: true }</code>
+</pre></div>
+
+</figure>
+
+<p>Fortunately, using <code>Object.getOwnPropertyDescriptors()</code> together with <a href="http://speakingjs.com/es5/ch17.html#Object.defineProperties"><code>Object.defineProperties()</code></a> works:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">target2</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperties</code><code class="p">(</code><code class="nx">target2</code><code class="p">,</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptors</code><code class="p">(</code><code class="nx">source</code><code class="p">));</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">target2</code><code class="p">,</code> <code class="s1">&apos;foo&apos;</code><code class="p">));</code>
+<code class="c1">// { get: undefined,</code>
+<code class="c1">//   set: [Function: foo],</code>
+<code class="c1">//   enumerable: true,</code>
+<code class="c1">//   configurable: true }</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_use-case-cloning-objects">
+<span class="section-number">9.3.2 </span>Use case: cloning objects <a class="header-anchor" href="ch_object-getownpropertydescriptors.html#_use-case-cloning-objects" aria-hidden="true">#</a></h4>
+
+<p>Shallow cloning is similar to copying properties, which is why <code>Object.getOwnPropertyDescriptors()</code> is a good choice here, too.</p>
+
+<p>This time, we use <a href="http://speakingjs.com/es5/ch17.html#Object.create"><code>Object.create()</code></a> that has two parameters:</p>
+
+<ul>
+  <li>The first parameter specifies the prototype of the object it returns.</li>
+  <li>The optional second parameter is a property descriptor collection like the ones returned by <code>Object.getOwnPropertyDescriptors()</code>.</li>
+</ul>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">clone</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nb">Object</code><code class="p">.</code><code class="nx">getPrototypeOf</code><code class="p">(</code><code class="nx">obj</code><code class="p">),</code>
+    <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptors</code><code class="p">(</code><code class="nx">obj</code><code class="p">));</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_use-case-cross-platform-object-literals-with-arbitrary-prototypes">
+<span class="section-number">9.3.3 </span>Use case: cross-platform object literals with arbitrary prototypes <a class="header-anchor" href="ch_object-getownpropertydescriptors.html#_use-case-cross-platform-object-literals-with-arbitrary-prototypes" aria-hidden="true">#</a></h4>
+
+<p>The syntactically nicest way of using an object literal to create an object with an arbitrary prototype <code>prot</code> is to use the special property <code>__proto__</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">__proto__</code><code class="o">:</code> <code class="nx">prot</code><code class="p">,</code>
+    <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Alas, that feature is only guaranteed to be there in browsers. The common work-around is <code>Object.create()</code> and assignment:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nx">prot</code><code class="p">);</code>
+<code class="nx">obj</code><code class="p">.</code><code class="nx">foo</code> <code class="o">=</code> <code class="mi">123</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>But you can also use <code>Object.getOwnPropertyDescriptors()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code>
+    <code class="nx">prot</code><code class="p">,</code>
+    <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptors</code><code class="p">({</code>
+        <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code>
+    <code class="p">})</code>
+<code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>Another alternative is <code>Object.assign()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">(</code>
+    <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nx">prot</code><code class="p">),</code>
+    <code class="p">{</code>
+        <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code>
+    <code class="p">}</code>
+<code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<h3 id="_pitfall-copying-methods-that-use-super">
+<span class="section-number">9.4 </span>Pitfall: copying methods that use <code>super</code>
+ <a class="header-anchor" href="ch_object-getownpropertydescriptors.html#_pitfall-copying-methods-that-use-super" aria-hidden="true">#</a></h3>
+
+<p>A method that uses <code>super</code> is firmly connected with its <em>home object</em> (the object it is stored in). There is currently no way to copy or move such a method to a different object.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_trailing-comma-parameters.html">10. Trailing commas in function parameter lists and calls</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

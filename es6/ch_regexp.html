@@ -1,0 +1,1007 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>23. New regular expression features</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>23. New regular expression features</b><br>
+        <a href="index.html#toc_ch_regexp">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_regexp">
+<span class="section-number">23. </span>New regular expression features <a class="header-anchor" href="ch_regexp.html#ch_regexp" aria-hidden="true">#</a></h2>
+
+<p>This chapter explains new regular expression features in ECMAScript 6. It helps if you are familiar with ES5 regular expression features and Unicode. Consult the following two chapters of &#x201C;Speaking JavaScript&#x201D; if necessary:</p>
+
+<ul>
+  <li>&#x201C;<a href="http://speakingjs.com/es5/ch19.html">Regular Expressions</a>&#x201D;</li>
+  <li>&#x201C;<a href="http://speakingjs.com/es5/ch24.html">Unicode and JavaScript</a>&#x201D;</li>
+</ul>
+
+<hr class="scene-break">
+
+<ul>
+  <li>23.1. <a href="ch_regexp.html#sec_regexp">Overview</a>
+</li>
+  <li>23.2. <a href="ch_regexp.html#sec_regexp-flag-y">New flag <code>/y</code> (sticky)</a>
+    <ul>
+      <li>23.2.1. <code>RegExp.prototype.exec(str)</code>
+</li>
+      <li>23.2.2. <code>RegExp.prototype.test(str)</code>
+</li>
+      <li>23.2.3. <code>String.prototype.search(regex)</code>
+</li>
+      <li>23.2.4. <code>String.prototype.match(regex)</code>
+</li>
+      <li>23.2.5. <code>String.prototype.split(separator, limit)</code>
+</li>
+      <li>23.2.6. <code>String.prototype.replace(search, replacement)</code>
+</li>
+      <li>23.2.7. Example: using sticky matching for tokenizing</li>
+      <li>23.2.8. Example: manually implementing sticky matching</li>
+    </ul>
+  </li>
+  <li>23.3. <a href="ch_regexp.html#sec_regexp-flag-u">New flag <code>/u</code> (unicode)</a>
+    <ul>
+      <li>23.3.1. Consequence: lone surrogates in the regular expression only match lone surrogates</li>
+      <li>23.3.2. Consequence: you can put code points in character classes</li>
+      <li>23.3.3. Consequence: the dot operator (<code>.</code>) matches code points, not code units</li>
+      <li>23.3.4. Consequence: quantifiers apply to code points, not code units</li>
+    </ul>
+  </li>
+  <li>23.4. <a href="ch_regexp.html#sec_regexp-data-property-flags">New data property <code>flags</code></a>
+</li>
+  <li>23.5. <a href="ch_regexp.html#sec_regexp-copy-constructor"><code>RegExp()</code> can be used as a copy constructor</a>
+    <ul>
+      <li>23.5.1. Example: an iterable version of <code>exec()</code>
+</li>
+    </ul>
+  </li>
+  <li>23.6. <a href="ch_regexp.html#sec_string-methods-delegating-to-regexp">String methods that delegate to regular expression methods</a>
+</li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_regexp">
+<span class="section-number">23.1 </span>Overview <a class="header-anchor" href="ch_regexp.html#sec_regexp" aria-hidden="true">#</a></h3>
+
+<p>The following regular expression features are new in ECMAScript 6:</p>
+
+<ul>
+  <li>The new flag <code>/y</code> (sticky) anchors each match of a regular expression to the end of the previous match.</li>
+  <li>The new flag <code>/u</code> (unicode) handles surrogate pairs (such as <code>\uD83D\uDE80</code>) as code points and lets you use Unicode code point escapes (such as <code>\u{1F680}</code>) in regular expressions.</li>
+  <li>The new data property <code>flags</code> gives you access to the flags of a regular expression, just like <code>source</code> already gives you access to the pattern in ES5:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; /abc/ig.source // ES5
+  &apos;abc&apos;
+  &gt; /abc/ig.flags // ES6
+  &apos;gi&apos;
+</pre></div>
+
+    </figure>
+  </li>
+  <li>You can use the constructor <code>RegExp()</code> to make a copy of a regular expression:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; new RegExp(/abc/ig).flags
+  &apos;gi&apos;
+  &gt; new RegExp(/abc/ig, &apos;i&apos;).flags // change flags
+  &apos;i&apos;
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+
+<h3 id="sec_regexp-flag-y">
+<span class="section-number">23.2 </span>New flag <code>/y</code> (sticky) <a class="header-anchor" href="ch_regexp.html#sec_regexp-flag-y" aria-hidden="true">#</a></h3>
+
+<p>The new flag <code>/y</code> changes two things while matching a regular expression <code>re</code> against a string:</p>
+
+<ul>
+  <li>Anchored to <code>re.lastIndex</code>: The match must start at <code>re.lastIndex</code> (the index after the previous match). This behavior is similar to the <code>^</code> anchor, but with that anchor, matches must always start at index 0.</li>
+  <li>Match repeatedly: If a match was found, <code>re.lastIndex</code> is set to the index after the match. This behavior is similar to the <code>/g</code> flag. Like <code>/g</code>, <code>/y</code> is normally used to match multiple times.</li>
+</ul>
+
+<p>The main use case for this matching behavior is tokenizing, where you want each match to immediately follow its predecessor. An example of tokenizing via a sticky regular expression and <code>exec()</code> is given later.</p>
+
+<p>Let&#x2019;s look at how various regular expression operations react to the <code>/y</code> flag. The following tables give an overview. I&#x2019;ll provide more details afterwards.</p>
+
+<p>Methods of regular expressions (<code>re</code> is the regular expression that a method is invoked on):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>&#xA0;</th>
+      <th>Flags</th>
+      <th>Start matching</th>
+      <th>Anchored to</th>
+      <th>Result if match</th>
+      <th>No match</th>
+      <th>re.lastIndex</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>exec()</td>
+      <td>&#x2013;</td>
+      <td>0</td>
+      <td>&#x2013;</td>
+      <td>Match object</td>
+      <td>null</td>
+      <td>unchanged</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>/g</td>
+      <td><code>re.lastIndex</code></td>
+      <td>&#x2013;</td>
+      <td>Match object</td>
+      <td>null</td>
+      <td>index after match</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>/y</td>
+      <td><code>re.lastIndex</code></td>
+      <td><code>re.lastIndex</code></td>
+      <td>Match object</td>
+      <td>null</td>
+      <td>index after match</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>/gy</td>
+      <td><code>re.lastIndex</code></td>
+      <td><code>re.lastIndex</code></td>
+      <td>Match object</td>
+      <td>null</td>
+      <td>index after match</td>
+    </tr>
+    <tr>
+      <td>test()</td>
+      <td>(Any)</td>
+      <td>(like exec())</td>
+      <td>(like exec())</td>
+      <td>true</td>
+      <td>false</td>
+      <td>(like exec())</td>
+    </tr>
+  </tbody>
+
+</table>
+
+<p>Methods of strings (<code>str</code> is the string that a method is invoked on, <code>r</code> is the regular expression parameter):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>&#xA0;</th>
+      <th>Flags</th>
+      <th>Start matching</th>
+      <th>Anchored to</th>
+      <th>Result if match</th>
+      <th>No match</th>
+      <th>r.lastIndex</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>search()</td>
+      <td>&#x2013;, /g</td>
+      <td>0</td>
+      <td>&#x2013;</td>
+      <td>Index of match</td>
+      <td>-1</td>
+      <td>unchanged</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>/y, /gy</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Index of match</td>
+      <td>-1</td>
+      <td>unchanged</td>
+    </tr>
+    <tr>
+      <td>match()</td>
+      <td>&#x2013;</td>
+      <td>0</td>
+      <td>&#x2013;</td>
+      <td>Match object</td>
+      <td>null</td>
+      <td>unchanged</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>/y</td>
+      <td><code>r.lastIndex</code></td>
+      <td><code>r.lastIndex</code></td>
+      <td>Match object</td>
+      <td>null</td>
+      <td>index after</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>match</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>/g</td>
+      <td>After prev.</td>
+      <td>&#x2013;</td>
+      <td>Array with matches</td>
+      <td>null</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>match (loop)</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>/gy</td>
+      <td>After prev.</td>
+      <td>After prev.</td>
+      <td>Array with matches</td>
+      <td>null</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>match (loop)</td>
+      <td>match</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+    </tr>
+    <tr>
+      <td>split()</td>
+      <td>&#x2013;, /g</td>
+      <td>After prev.</td>
+      <td>&#x2013;</td>
+      <td>Array with strings</td>
+      <td><code>[str]</code></td>
+      <td>unchanged</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>match (loop)</td>
+      <td>&#xA0;</td>
+      <td>between matches</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>/y, /gy</td>
+      <td>After prev.</td>
+      <td>After prev.</td>
+      <td>Arr. w/ empty strings</td>
+      <td><code>[str]</code></td>
+      <td>unchanged</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>match (loop)</td>
+      <td>match</td>
+      <td>between matches</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+    </tr>
+    <tr>
+      <td>replace()</td>
+      <td>&#x2013;</td>
+      <td>0</td>
+      <td>&#x2013;</td>
+      <td>First match replaced</td>
+      <td>No repl.</td>
+      <td>unchanged</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>/y</td>
+      <td>0</td>
+      <td>0</td>
+      <td>First match replaced</td>
+      <td>No repl.</td>
+      <td>unchanged</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>/g</td>
+      <td>After prev.</td>
+      <td>&#x2013;</td>
+      <td>All matches replaced</td>
+      <td>No repl.</td>
+      <td>unchanged</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>match (loop)</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>/gy</td>
+      <td>After prev.</td>
+      <td>After prev.</td>
+      <td>All matches replaced</td>
+      <td>No repl.</td>
+      <td>unchanged</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>match (loop)</td>
+      <td>match</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+    </tr>
+  </tbody>
+
+</table>
+
+<h4 id="_regexpprototypeexecstr">
+<span class="section-number">23.2.1 </span><code>RegExp.prototype.exec(str)</code>
+ <a class="header-anchor" href="ch_regexp.html#_regexpprototypeexecstr" aria-hidden="true">#</a></h4>
+
+<p>If <code>/g</code> is not set, matching always starts at the beginning, but skips ahead until a match is found. <code>REGEX.lastIndex</code> is not changed.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="sr">/a/</code><code class="p">;</code>
+
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">7</code><code class="p">;</code> <code class="c1">// ignored</code>
+<code class="kr">const</code> <code class="nx">match</code> <code class="o">=</code> <code class="nx">REGEX</code><code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">match</code><code class="p">.</code><code class="nx">index</code><code class="p">);</code> <code class="c1">// 1</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code><code class="p">);</code> <code class="c1">// 7 (unchanged)</code>
+</pre></div>
+
+</figure>
+
+<p>If <code>/g</code> is set, matching starts at <code>REGEX.lastIndex</code> and skips ahead until a match is found. <code>REGEX.lastIndex</code> is set to the position after the match. That means that you receive all matches if you loop until <code>exec()</code> returns <code>null</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="sr">/a/g</code><code class="p">;</code>
+
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">2</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">match</code> <code class="o">=</code> <code class="nx">REGEX</code><code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">match</code><code class="p">.</code><code class="nx">index</code><code class="p">);</code> <code class="c1">// 3</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code><code class="p">);</code> <code class="c1">// 4 (updated)</code>
+
+<code class="c1">// No match at index 4 or later</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">));</code> <code class="c1">// null</code>
+</pre></div>
+
+</figure>
+
+<p>If only <code>/y</code> is set, matching starts at <code>REGEX.lastIndex</code> and is anchored to that position (no skipping ahead until a match is found). <code>REGEX.lastIndex</code> is updated similarly to when <code>/g</code> is set.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="err">/a/y;</code>
+
+<code class="c1">// No match at index 2</code>
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">2</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">));</code> <code class="c1">// null</code>
+
+<code class="c1">// Match at index 3</code>
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">3</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">match</code> <code class="o">=</code> <code class="nx">REGEX</code><code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">match</code><code class="p">.</code><code class="nx">index</code><code class="p">);</code> <code class="c1">// 3</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code><code class="p">);</code> <code class="c1">// 4</code>
+</pre></div>
+
+</figure>
+
+<p>Setting both <code>/y</code> and <code>/g</code> is the same as only setting <code>/y</code>.</p>
+
+<h4 id="_regexpprototypeteststr">
+<span class="section-number">23.2.2 </span><code>RegExp.prototype.test(str)</code>
+ <a class="header-anchor" href="ch_regexp.html#_regexpprototypeteststr" aria-hidden="true">#</a></h4>
+
+<p><code>test()</code> works the same as <code>exec()</code>, but it returns <code>true</code> or <code>false</code> (instead of a match object or <code>null</code>) when matching succeeds or fails:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="err">/a/y;</code>
+
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">2</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">test</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">));</code> <code class="c1">// false</code>
+
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">3</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">test</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">));</code> <code class="c1">// true</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code><code class="p">);</code> <code class="c1">// 4</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_stringprototypesearchregex">
+<span class="section-number">23.2.3 </span><code>String.prototype.search(regex)</code>
+ <a class="header-anchor" href="ch_regexp.html#_stringprototypesearchregex" aria-hidden="true">#</a></h4>
+
+<p><code>search()</code> ignores the flag <code>/g</code> and <code>lastIndex</code> (which is not changed, either). Starting at the beginning of the string, it looks for the first match and returns its index (or <code>-1</code> if there was no match):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="sr">/a/</code><code class="p">;</code>
+
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">2</code><code class="p">;</code> <code class="c1">// ignored</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">.</code><code class="nx">search</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">));</code> <code class="c1">// 1</code>
+</pre></div>
+
+</figure>
+
+<p>If you set the flag <code>/y</code>, <code>lastIndex</code> is still ignored, but the regular expression is now anchored to index 0.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="err">/a/y;</code>
+
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code> <code class="c1">// ignored</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">.</code><code class="nx">search</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">));</code> <code class="c1">// -1 (no match)</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_stringprototypematchregex">
+<span class="section-number">23.2.4 </span><code>String.prototype.match(regex)</code>
+ <a class="header-anchor" href="ch_regexp.html#_stringprototypematchregex" aria-hidden="true">#</a></h4>
+
+<p><code>match()</code> has two modes:</p>
+
+<ul>
+  <li>If <code>/g</code> is not set, it works like <code>exec()</code>.</li>
+  <li>If <code>/g</code> is set, it returns an Array with the string parts that matched, or <code>null</code>.</li>
+</ul>
+
+<p>If the flag <code>/g</code> is not set, <code>match()</code> captures groups like <code>exec()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="sr">/a/</code><code class="p">;</code>
+
+    <code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">7</code><code class="p">;</code> <code class="c1">// ignored</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">.</code><code class="nx">match</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">).</code><code class="nx">index</code><code class="p">);</code> <code class="c1">// 1</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code><code class="p">);</code> <code class="c1">// 7 (unchanged)</code>
+<code class="p">}</code>
+<code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="err">/a/y;</code>
+
+    <code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">2</code><code class="p">;</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">.</code><code class="nx">match</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">));</code> <code class="c1">// null</code>
+
+    <code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">3</code><code class="p">;</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">.</code><code class="nx">match</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">).</code><code class="nx">index</code><code class="p">);</code> <code class="c1">// 3</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code><code class="p">);</code> <code class="c1">// 4</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>If only the flag <code>/g</code> is set then <code>match()</code> returns all matching substrings in an Array (or <code>null</code>). Matching always starts at position 0.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="sr">/a|b/g</code><code class="p">;</code>
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">7</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;xaxb&apos;</code><code class="p">.</code><code class="nx">match</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">));</code> <code class="c1">// [&apos;a&apos;, &apos;b&apos;]</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code><code class="p">);</code> <code class="c1">// 0</code>
+</pre></div>
+
+</figure>
+
+<p>If you additionally set the flag <code>/y</code>, then matching is still performed repeatedly, while anchoring the regular expression to the index after the previous match (or 0).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="err">/a|b/gy;</code>
+
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code> <code class="c1">// ignored</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;xab&apos;</code><code class="p">.</code><code class="nx">match</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">));</code> <code class="c1">// null</code>
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code> <code class="c1">// ignored</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;xab&apos;</code><code class="p">.</code><code class="nx">match</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">));</code> <code class="c1">// null</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;ab&apos;</code><code class="p">.</code><code class="nx">match</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">));</code> <code class="c1">// [&apos;a&apos;, &apos;b&apos;]</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;axb&apos;</code><code class="p">.</code><code class="nx">match</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">));</code> <code class="c1">// [&apos;a&apos;]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_stringprototypesplitseparator-limit">
+<span class="section-number">23.2.5 </span><code>String.prototype.split(separator, limit)</code>
+ <a class="header-anchor" href="ch_regexp.html#_stringprototypesplitseparator-limit" aria-hidden="true">#</a></h4>
+
+<p>The complete details of <code>split()</code> <a href="http://speakingjs.com/es5/ch19.html#String.prototype.match">are explained in Speaking JavaScript</a>.</p>
+
+<p>For ES6, it is interesting to see how things change if you use the flag <code>/y</code>.</p>
+
+<p>With <code>/y</code>, the string must start with a separator:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;x##&apos;.split(/#/y) // no match
+[ &apos;x##&apos; ]
+&gt; &apos;##x&apos;.split(/#/y) // 2 matches
+[ &apos;&apos;, &apos;&apos;, &apos;x&apos; ]
+</pre></div>
+
+</figure>
+
+<p>Subsequent separators are only recognized if they immediately follow the first separator:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;#x#&apos;.split(/#/y) // 1 match
+[ &apos;&apos;, &apos;x#&apos; ]
+&gt; &apos;##&apos;.split(/#/y) // 2 matches
+[ &apos;&apos;, &apos;&apos;, &apos;&apos; ]
+</pre></div>
+
+</figure>
+
+<p>That means that the string before the first separator and the strings between separators are always empty.</p>
+
+<p>As usual, you can use groups to put parts of the separators into the result array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;##&apos;.split(/(#)/y)
+[ &apos;&apos;, &apos;#&apos;, &apos;&apos;, &apos;#&apos;, &apos;&apos; ]
+</pre></div>
+
+</figure>
+
+<h4 id="_stringprototypereplacesearch-replacement">
+<span class="section-number">23.2.6 </span><code>String.prototype.replace(search, replacement)</code>
+ <a class="header-anchor" href="ch_regexp.html#_stringprototypereplacesearch-replacement" aria-hidden="true">#</a></h4>
+
+<p>Without the flag <code>/g</code>, <code>replace()</code> only replaces the first match:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="sr">/a/</code><code class="p">;</code>
+
+<code class="c1">// One match</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">,</code> <code class="s1">&apos;-&apos;</code><code class="p">));</code> <code class="c1">// &apos;x-xa&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>If only <code>/y</code> is set, you also get at most one match, but that match is always anchored to the beginning of the string. <code>lastIndex</code> is ignored and unchanged.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="err">/a/y;</code>
+
+<code class="c1">// Anchored to beginning of string, no match</code>
+<code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code> <code class="c1">// ignored</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">,</code> <code class="s1">&apos;-&apos;</code><code class="p">));</code> <code class="c1">// &apos;xaxa&apos;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">.</code><code class="nx">lastIndex</code><code class="p">);</code> <code class="c1">// 1 (unchanged)</code>
+
+<code class="c1">// One match</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;axa&apos;</code><code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">,</code> <code class="s1">&apos;-&apos;</code><code class="p">));</code> <code class="c1">// &apos;-xa&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>With <code>/g</code> set, <code>replace()</code> replaces all matches:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="sr">/a/g</code><code class="p">;</code>
+
+<code class="c1">// Multiple matches</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;xaxa&apos;</code><code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">,</code> <code class="s1">&apos;-&apos;</code><code class="p">));</code> <code class="c1">// &apos;x-x-&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>With <code>/gy</code> set, <code>replace()</code> replaces all matches, but each match is anchored to the end of the previous match:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">REGEX</code> <code class="o">=</code> <code class="err">/a/gy;</code>
+
+<code class="c1">// Multiple matches</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;aaxa&apos;</code><code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="nx">REGEX</code><code class="p">,</code> <code class="s1">&apos;-&apos;</code><code class="p">));</code> <code class="c1">// &apos;--xa&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>The parameter <code>replacement</code> can also be a function, <a href="http://speakingjs.com/es5/ch19.html#String.prototype.replace">consult &#x201C;Speaking JavaScript&#x201D; for details</a>.</p>
+
+<h4 id="_example-using-sticky-matching-for-tokenizing">
+<span class="section-number">23.2.7 </span>Example: using sticky matching for tokenizing <a class="header-anchor" href="ch_regexp.html#_example-using-sticky-matching-for-tokenizing" aria-hidden="true">#</a></h4>
+
+<p>The main use case for sticky matching is <em>tokenizing</em>, turning a text into a sequence of tokens. One important trait about tokenizing is that tokens are fragments of the text and that there must be no gaps between them. Therefore, sticky matching is perfect here.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">tokenize</code><code class="p">(</code><code class="nx">TOKEN_REGEX</code><code class="p">,</code> <code class="nx">str</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">result</code> <code class="o">=</code> <code class="p">[];</code>
+    <code class="kd">let</code> <code class="nx">match</code><code class="p">;</code>
+    <code class="k">while</code> <code class="p">(</code><code class="nx">match</code> <code class="o">=</code> <code class="nx">TOKEN_REGEX</code><code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="nx">str</code><code class="p">))</code> <code class="p">{</code>
+        <code class="nx">result</code><code class="p">.</code><code class="nx">push</code><code class="p">(</code><code class="nx">match</code><code class="p">[</code><code class="mi">1</code><code class="p">]);</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">result</code><code class="p">;</code>
+<code class="p">}</code>
+
+<code class="kr">const</code> <code class="nx">TOKEN_GY</code> <code class="o">=</code> <code class="err">/\s*(\+|[0-9]+)\s*/gy;</code>
+<code class="kr">const</code> <code class="nx">TOKEN_G</code>  <code class="o">=</code> <code class="sr">/\s*(\+|[0-9]+)\s*/g</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>In a legal sequence of tokens, sticky matching and non-sticky matching produce the same output:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; tokenize(TOKEN_GY, &apos;3 + 4&apos;)
+[ &apos;3&apos;, &apos;+&apos;, &apos;4&apos; ]
+&gt; tokenize(TOKEN_G, &apos;3 + 4&apos;)
+[ &apos;3&apos;, &apos;+&apos;, &apos;4&apos; ]
+</pre></div>
+
+</figure>
+
+<p>If, however, there is non-token text in the string then sticky matching stops tokenizing, while non-sticky matching skips the non-token text:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; tokenize(TOKEN_GY, &apos;3x + 4&apos;)
+[ &apos;3&apos; ]
+&gt; tokenize(TOKEN_G, &apos;3x + 4&apos;)
+[ &apos;3&apos;, &apos;+&apos;, &apos;4&apos; ]
+</pre></div>
+
+</figure>
+
+<p>The behavior of sticky matching during tokenizing helps with error handling.</p>
+
+<h4 id="_example-manually-implementing-sticky-matching">
+<span class="section-number">23.2.8 </span>Example: manually implementing sticky matching <a class="header-anchor" href="ch_regexp.html#_example-manually-implementing-sticky-matching" aria-hidden="true">#</a></h4>
+
+<p>If you wanted to manually implement sticky matching, you&#x2019;d do it as follows: The function <code>execSticky()</code> works like <code>RegExp.prototype.exec()</code> in sticky mode.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code> <code class="kd">function</code> <code class="nx">execSticky</code><code class="p">(</code><code class="nx">regex</code><code class="p">,</code> <code class="nx">str</code><code class="p">)</code> <code class="p">{</code>
+     <code class="c1">// Anchor the regex to the beginning of the string</code>
+     <code class="kd">let</code> <code class="nx">matchSource</code> <code class="o">=</code> <code class="nx">regex</code><code class="p">.</code><code class="nx">source</code><code class="p">;</code>
+     <code class="k">if</code> <code class="p">(</code><code class="o">!</code><code class="nx">matchSource</code><code class="p">.</code><code class="nx">startsWith</code><code class="p">(</code><code class="s1">&apos;^&apos;</code><code class="p">))</code> <code class="p">{</code>
+         <code class="nx">matchSource</code> <code class="o">=</code> <code class="s1">&apos;^&apos;</code> <code class="o">+</code> <code class="nx">matchSource</code><code class="p">;</code>
+     <code class="p">}</code>
+     <code class="c1">// Ensure that instance property `lastIndex` is updated</code>
+     <code class="kd">let</code> <code class="nx">matchFlags</code> <code class="o">=</code> <code class="nx">regex</code><code class="p">.</code><code class="nx">flags</code><code class="p">;</code> <code class="c1">// ES6 feature!</code>
+     <code class="k">if</code> <code class="p">(</code><code class="o">!</code><code class="nx">regex</code><code class="p">.</code><code class="nx">global</code><code class="p">)</code> <code class="p">{</code>
+         <code class="nx">matchFlags</code> <code class="o">=</code> <code class="nx">matchFlags</code> <code class="o">+</code> <code class="s1">&apos;g&apos;</code><code class="p">;</code>
+     <code class="p">}</code>
+     <code class="kr">const</code> <code class="nx">matchRegex</code> <code class="o">=</code> <code class="k">new</code> <code class="nb">RegExp</code><code class="p">(</code><code class="nx">matchSource</code><code class="p">,</code> <code class="nx">matchFlags</code><code class="p">);</code>
+
+     <code class="c1">// Ensure we start matching `str` at `regex.lastIndex`</code>
+     <code class="kr">const</code> <code class="nx">matchOffset</code> <code class="o">=</code> <code class="nx">regex</code><code class="p">.</code><code class="nx">lastIndex</code><code class="p">;</code>
+     <code class="kr">const</code> <code class="nx">matchStr</code> <code class="o">=</code> <code class="nx">str</code><code class="p">.</code><code class="nx">slice</code><code class="p">(</code><code class="nx">matchOffset</code><code class="p">);</code>
+     <code class="kd">let</code> <code class="nx">match</code> <code class="o">=</code> <code class="nx">matchRegex</code><code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="nx">matchStr</code><code class="p">);</code>
+
+     <code class="c1">// Translate indices from `matchStr` to `str`</code>
+     <code class="nx">regex</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">=</code> <code class="nx">matchRegex</code><code class="p">.</code><code class="nx">lastIndex</code> <code class="o">+</code> <code class="nx">matchOffset</code><code class="p">;</code>
+     <code class="nx">match</code><code class="p">.</code><code class="nx">index</code> <code class="o">=</code> <code class="nx">match</code><code class="p">.</code><code class="nx">index</code> <code class="o">+</code> <code class="nx">matchOffset</code><code class="p">;</code>
+     <code class="k">return</code> <code class="nx">match</code><code class="p">;</code>
+ <code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_regexp-flag-u">
+<span class="section-number">23.3 </span>New flag <code>/u</code> (unicode) <a class="header-anchor" href="ch_regexp.html#sec_regexp-flag-u" aria-hidden="true">#</a></h3>
+
+<p>The flag <code>/u</code> switches on a special Unicode mode for a regular expression. That mode has two features:</p>
+
+<ol class="numeric">
+  <li>You can use Unicode code point escape sequences such as <code>\u{1F42A}</code> for specifying characters via code points. Normal Unicode escapes such as <code>\u03B1</code> only have a range of four hexadecimal digits (which equals the basic multilingual plane).</li>
+  <li>&#x201C;characters&#x201D; in the regular expression pattern and the string are code points (not UTF-16 code units). Code units are converted into code points.</li>
+</ol>
+
+<p><a href="ch_unicode.html#sec_escape-sequences">A section in the chapter on Unicode</a> has more information on escape sequences. I&#x2019;ll explain the consequences of feature 2 next. Instead of Unicode code point escapes (e.g., <code>\u{1F680}</code>), I&#x2019;m using two UTF-16 code units (e.g., <code>\uD83D\uDE80</code>). That makes it clear that surrogate pairs are grouped in Unicode mode and works in both Unicode mode and non-Unicode mode.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;\u{1F680}&apos; === &apos;\uD83D\uDE80&apos; // code point vs. surrogate pairs
+true
+</pre></div>
+
+</figure>
+
+<h4 id="_consequence-lone-surrogates-in-the-regular-expression-only-match-lone-surrogates">
+<span class="section-number">23.3.1 </span>Consequence: lone surrogates in the regular expression only match lone surrogates <a class="header-anchor" href="ch_regexp.html#_consequence-lone-surrogates-in-the-regular-expression-only-match-lone-surrogates" aria-hidden="true">#</a></h4>
+
+<p>In non-Unicode mode, a lone surrogate in a regular expression is even found inside (surrogate pairs encoding) code points:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; /\uD83D/.test(&apos;\uD83D\uDC2A&apos;)
+true
+</pre></div>
+
+</figure>
+
+<p>In Unicode mode, surrogate pairs become atomic units and lone surrogates are not found &#x201C;inside&#x201D; them:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; /\uD83D/u.test(&apos;\uD83D\uDC2A&apos;)
+false
+</pre></div>
+
+</figure>
+
+<p>Actual lone surrogate are still found:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; /\uD83D/u.test(&apos;\uD83D \uD83D\uDC2A&apos;)
+true
+&gt; /\uD83D/u.test(&apos;\uD83D\uDC2A \uD83D&apos;)
+true
+</pre></div>
+
+</figure>
+
+<h4 id="_consequence-you-can-put-code-points-in-character-classes">
+<span class="section-number">23.3.2 </span>Consequence: you can put code points in character classes <a class="header-anchor" href="ch_regexp.html#_consequence-you-can-put-code-points-in-character-classes" aria-hidden="true">#</a></h4>
+
+<p>In Unicode mode, you can put code points into character classes and they won&#x2019;t be interpreted as two characters, anymore.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; /^[\uD83D\uDC2A]$/u.test(&apos;\uD83D\uDC2A&apos;)
+true
+&gt; /^[\uD83D\uDC2A]$/.test(&apos;\uD83D\uDC2A&apos;)
+false
+
+&gt; /^[\uD83D\uDC2A]$/u.test(&apos;\uD83D&apos;)
+false
+&gt; /^[\uD83D\uDC2A]$/.test(&apos;\uD83D&apos;)
+true
+</pre></div>
+
+</figure>
+
+<h4 id="_consequence-the-dot-operator--matches-code-points-not-code-units">
+<span class="section-number">23.3.3 </span>Consequence: the dot operator (<code>.</code>) matches code points, not code units <a class="header-anchor" href="ch_regexp.html#_consequence-the-dot-operator--matches-code-points-not-code-units" aria-hidden="true">#</a></h4>
+
+<p>In Unicode mode, the dot operator matches code points (one or two code units). In non-Unicode mode, it matches single code units. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;\uD83D\uDE80&apos;.match(/./gu).length
+1
+&gt; &apos;\uD83D\uDE80&apos;.match(/./g).length
+2
+</pre></div>
+
+</figure>
+
+<h4 id="_consequence-quantifiers-apply-to-code-points-not-code-units">
+<span class="section-number">23.3.4 </span>Consequence: quantifiers apply to code points, not code units <a class="header-anchor" href="ch_regexp.html#_consequence-quantifiers-apply-to-code-points-not-code-units" aria-hidden="true">#</a></h4>
+
+<p>In Unicode mode, quantifiers apply to code points (one or two code units). In non-Unicode mode, they apply to single code units. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; /\uD83D\uDE80{2}/u.test(&apos;\uD83D\uDE80\uD83D\uDE80&apos;)
+true
+
+&gt; /\uD83D\uDE80{2}/.test(&apos;\uD83D\uDE80\uD83D\uDE80&apos;)
+false
+&gt; /\uD83D\uDE80{2}/.test(&apos;\uD83D\uDE80\uDE80&apos;)
+true
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_regexp-data-property-flags">
+<span class="section-number">23.4 </span>New data property <code>flags</code>
+ <a class="header-anchor" href="ch_regexp.html#sec_regexp-data-property-flags" aria-hidden="true">#</a></h3>
+
+<p>In ECMAScript 6, regular expressions have the following data properties:</p>
+
+<ul>
+  <li>The pattern: <code>source</code>
+</li>
+  <li>The flags: <code>flags</code>
+</li>
+  <li>Individual flags: <code>global</code>, <code>ignoreCase</code>, <code>multiline</code>, <code>sticky</code>, <code>unicode</code>
+</li>
+  <li>Other: <code>lastIndex</code>
+</li>
+</ul>
+
+<p>As an aside, <code>lastIndex</code> is the only instance property now, all other data properties are implemented via internal instance properties and getters such as <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-get-regexp.prototype.global"><code>get RegExp.prototype.global</code></a>.</p>
+
+<p>The property <code>source</code> (which already existed in ES5) contains the regular expression pattern as a string:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; /abc/ig.source
+&apos;abc&apos;
+</pre></div>
+
+</figure>
+
+<p>The property <code>flags</code> is new, it contains the flags as a string, with one character per flag:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; /abc/ig.flags
+&apos;gi&apos;
+</pre></div>
+
+</figure>
+
+<p>You can&#x2019;t change the flags of an existing regular expression (<code>ignoreCase</code> etc. have always been immutable), but <code>flags</code> allows you to make a copy where the flags are changed:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">copyWithIgnoreCase</code><code class="p">(</code><code class="nx">regex</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="k">new</code> <code class="nb">RegExp</code><code class="p">(</code><code class="nx">regex</code><code class="p">.</code><code class="nx">source</code><code class="p">,</code> <code class="nx">regex</code><code class="p">.</code><code class="nx">flags</code><code class="o">+</code><code class="s1">&apos;i&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The next section explains another way to make modified copies of regular expressions.</p>
+
+
+<h3 id="sec_regexp-copy-constructor">
+<span class="section-number">23.5 </span><code>RegExp()</code> can be used as a copy constructor <a class="header-anchor" href="ch_regexp.html#sec_regexp-copy-constructor" aria-hidden="true">#</a></h3>
+
+<p>In ES6 there are two variants of the constructor <code>RegExp()</code> (the second one is new):</p>
+
+<ul>
+  <li>
+<code>new RegExp(pattern : string, flags = &apos;&apos;)</code><br>
+A new regular expression is created as specified via <code>pattern</code>. If <code>flags</code> is missing, the empty string <code>&apos;&apos;</code> is used.</li>
+  <li>
+<code>new RegExp(regex : RegExp, flags = regex.flags)</code><br>
+<code>regex</code> is cloned. If <code>flags</code> is provided then it determines the flags of the copy.</li>
+</ul>
+
+<p>The following interaction demonstrates the latter variant:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; new RegExp(/abc/ig).flags
+&apos;gi&apos;
+&gt; new RegExp(/abc/ig, &apos;i&apos;).flags // change flags
+&apos;i&apos;
+</pre></div>
+
+</figure>
+
+<p>Therefore, the <code>RegExp</code> constructor gives us another way to change flags:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">copyWithIgnoreCase</code><code class="p">(</code><code class="nx">regex</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="k">new</code> <code class="nb">RegExp</code><code class="p">(</code><code class="nx">regex</code><code class="p">,</code> <code class="nx">regex</code><code class="p">.</code><code class="nx">flags</code><code class="o">+</code><code class="s1">&apos;i&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_example-an-iterable-version-of-exec">
+<span class="section-number">23.5.1 </span>Example: an iterable version of <code>exec()</code>
+ <a class="header-anchor" href="ch_regexp.html#_example-an-iterable-version-of-exec" aria-hidden="true">#</a></h4>
+
+<p>The following function <code>execAll()</code> is an iterable version of <code>exec()</code> that fixes several issues with using <code>exec()</code> to retrieve all matches of a regular expression:</p>
+
+<ul>
+  <li>Looping over the matches is unnecessarily complicated (you call <code>exec()</code> until it returns <code>null</code>).</li>
+  <li>
+<code>exec()</code> mutates the regular expression, which means that side effects can become a problem.</li>
+  <li>The flag <code>/g</code> must be set. Otherwise, only the first match is returned.</li>
+</ul>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code><code class="o">*</code> <code class="nx">execAll</code><code class="p">(</code><code class="nx">regex</code><code class="p">,</code> <code class="nx">str</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// Make sure flag /g is set and regex.index isn&#x2019;t changed</code>
+    <code class="kr">const</code> <code class="nx">localCopy</code> <code class="o">=</code> <code class="k">new</code> <code class="nb">RegExp</code><code class="p">(</code><code class="nx">regex</code><code class="p">,</code> <code class="nx">regex</code><code class="p">.</code><code class="nx">flags</code><code class="o">+</code><code class="s1">&apos;g&apos;</code><code class="p">);</code>
+    <code class="kd">let</code> <code class="nx">match</code><code class="p">;</code>
+    <code class="k">while</code> <code class="p">(</code><code class="nx">match</code> <code class="o">=</code> <code class="nx">localCopy</code><code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="nx">str</code><code class="p">))</code> <code class="p">{</code>
+        <code class="k">yield</code> <code class="nx">match</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Using <code>execAll()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">str</code> <code class="o">=</code> <code class="s1">&apos;&quot;fee&quot; &quot;fi&quot; &quot;fo&quot; &quot;fum&quot;&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">regex</code> <code class="o">=</code> <code class="sr">/&quot;([^&quot;]*)&quot;/</code><code class="p">;</code>
+
+<code class="c1">// Access capture of group #1 via destructuring</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[,</code> <code class="nx">group1</code><code class="p">]</code> <code class="k">of</code> <code class="nx">execAll</code><code class="p">(</code><code class="nx">regex</code><code class="p">,</code> <code class="nx">str</code><code class="p">))</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">group1</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// fee</code>
+<code class="c1">// fi</code>
+<code class="c1">// fo</code>
+<code class="c1">// fum</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_string-methods-delegating-to-regexp">
+<span class="section-number">23.6 </span>String methods that delegate to regular expression methods <a class="header-anchor" href="ch_regexp.html#sec_string-methods-delegating-to-regexp" aria-hidden="true">#</a></h3>
+
+<p>The following string methods now delegate some of their work to regular expression methods:</p>
+
+<ul>
+  <li>
+<code>String.prototype.match</code> calls <code>RegExp.prototype[Symbol.match]</code>.</li>
+  <li>
+<code>String.prototype.replace</code> calls <code>RegExp.prototype[Symbol.replace]</code>.</li>
+  <li>
+<code>String.prototype.search</code> calls <code>RegExp.prototype[Symbol.search]</code>.</li>
+  <li>
+<code>String.prototype.split</code> calls <code>RegExp.prototype[Symbol.split]</code>.</li>
+</ul>
+
+<p>For more information, consult Sect. &#x201C;<a href="ch_strings.html#sec_delegating-string-methods-regexp">String methods that delegate regular expression work to their parameters</a>&#x201D; in the chapter on strings.</p>
+
+
+<aside class="generic_inbar blurb external-link icon-external-link">
+    <h3 id="_further-reading-3">Further reading <a class="header-anchor" href="ch_regexp.html#_further-reading-3" aria-hidden="true">#</a></h3>
+
+  <p>If you want to know in more detail how the regular expression flag <code>/u</code> works, I recommend the article &#x201C;<a href="https://mathiasbynens.be/notes/es6-unicode-regex">Unicode-aware regular expressions in ECMAScript 6</a>&#x201D; by Mathias Bynens.</p>
+
+</aside>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_async.html">24. Asynchronous programming (background)</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

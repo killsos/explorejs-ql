@@ -1,0 +1,1471 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>19. Maps and Sets</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>19. Maps and Sets</b><br>
+        <a href="index.html#toc_ch_maps-sets">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_maps-sets">
+<span class="section-number">19. </span>Maps and Sets <a class="header-anchor" href="ch_maps-sets.html#ch_maps-sets" aria-hidden="true">#</a></h2>
+
+<hr class="scene-break">
+
+<ul>
+  <li>19.1. <a href="ch_maps-sets.html#sec_overview-maps-sets">Overview</a>
+    <ul>
+      <li>19.1.1. Maps</li>
+      <li>19.1.2. Sets</li>
+      <li>19.1.3. WeakMaps</li>
+    </ul>
+  </li>
+  <li>19.2. <a href="ch_maps-sets.html#sec_map">Map</a>
+    <ul>
+      <li>19.2.1. Basic operations</li>
+      <li>19.2.2. Setting up a Map</li>
+      <li>19.2.3. Keys</li>
+      <li>19.2.4. Iterating over Maps</li>
+      <li>19.2.5. Looping over Map entries</li>
+      <li>19.2.6. Mapping and filtering Maps</li>
+      <li>19.2.7. Combining Maps</li>
+      <li>19.2.8. Arbitrary Maps as JSON via Arrays of pairs</li>
+      <li>19.2.9. String Maps as JSON via objects</li>
+      <li>19.2.10. Map API</li>
+    </ul>
+  </li>
+  <li>19.3. <a href="ch_maps-sets.html#sec_weakmap">WeakMap</a>
+    <ul>
+      <li>19.3.1. WeakMap keys are objects</li>
+      <li>19.3.2. WeakMap keys are weakly held</li>
+      <li>19.3.3. You can&#x2019;t get an overview of a WeakMap or clear it</li>
+      <li>19.3.4. Use cases for WeakMaps</li>
+      <li>19.3.5. WeakMap API</li>
+    </ul>
+  </li>
+  <li>19.4. <a href="ch_maps-sets.html#sec_set">Set</a>
+    <ul>
+      <li>19.4.1. Basic operations</li>
+      <li>19.4.2. Setting up a Set</li>
+      <li>19.4.3. Comparing Set elements</li>
+      <li>19.4.4. Iterating</li>
+      <li>19.4.5. Mapping and filtering</li>
+      <li>19.4.6. Union, intersection, difference</li>
+      <li>19.4.7. Set API</li>
+    </ul>
+  </li>
+  <li>19.5. <a href="ch_maps-sets.html#sec_weakset">WeakSet</a>
+    <ul>
+      <li>19.5.1. Use cases for WeakSets</li>
+      <li>19.5.2. WeakSet API</li>
+    </ul>
+  </li>
+  <li>19.6. <a href="ch_maps-sets.html#sec_faq-maps-sets">FAQ: Maps and Sets</a>
+    <ul>
+      <li>19.6.1. Why do Maps and Sets have the property <code>size</code> and not <code>length</code>?</li>
+      <li>19.6.2. Why can&#x2019;t I configure how Maps and Sets compare keys and values?</li>
+      <li>19.6.3. Is there a way to specify a default value when getting something out of a Map?</li>
+      <li>19.6.4. When should I use a Map, when an object?</li>
+      <li>19.6.5. When would I use an object as a key in a Map?</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-maps-sets">
+<span class="section-number">19.1 </span>Overview <a class="header-anchor" href="ch_maps-sets.html#sec_overview-maps-sets" aria-hidden="true">#</a></h3>
+
+<p>Among others, the following four data structures are new in ECMAScript 6: <code>Map</code>, <code>WeakMap</code>, <code>Set</code> and <code>WeakSet</code>.</p>
+
+<h4 id="_maps">
+<span class="section-number">19.1.1 </span>Maps <a class="header-anchor" href="ch_maps-sets.html#_maps" aria-hidden="true">#</a></h4>
+
+<p>The keys of a Map can be arbitrary values:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const map = new Map(); // create an empty Map
+&gt; const KEY = {};
+
+&gt; map.set(KEY, 123);
+&gt; map.get(KEY)
+123
+&gt; map.has(KEY)
+true
+&gt; map.delete(KEY);
+true
+&gt; map.has(KEY)
+false
+</pre></div>
+
+</figure>
+
+<p>You can use an Array (or any iterable) with [key, value] pairs to set up the initial data in the Map:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">([</code>
+    <code class="p">[</code> <code class="mi">1</code><code class="p">,</code> <code class="s1">&apos;one&apos;</code> <code class="p">],</code>
+    <code class="p">[</code> <code class="mi">2</code><code class="p">,</code> <code class="s1">&apos;two&apos;</code> <code class="p">],</code>
+    <code class="p">[</code> <code class="mi">3</code><code class="p">,</code> <code class="s1">&apos;three&apos;</code> <code class="p">],</code> <code class="c1">// trailing comma is ignored</code>
+<code class="p">]);</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_sets">
+<span class="section-number">19.1.2 </span>Sets <a class="header-anchor" href="ch_maps-sets.html#_sets" aria-hidden="true">#</a></h4>
+
+<p>A Set is a collection of unique elements:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>const arr = [5, 1, 5, 7, 7, 5];
+const unique = [...new Set(arr)]; // [ 5, 1, 7 ]
+</pre></div>
+
+</figure>
+
+<p>As you can see, you can initialize a Set with elements if you hand the constructor an iterable (<code>arr</code> in the example) over those elements.</p>
+
+<h4 id="_weakmaps">
+<span class="section-number">19.1.3 </span>WeakMaps <a class="header-anchor" href="ch_maps-sets.html#_weakmaps" aria-hidden="true">#</a></h4>
+
+<p>A WeakMap is a Map that doesn&#x2019;t prevent its keys from being garbage-collected. That means that you can associate data with objects without having to worry about memory leaks. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//----- Manage listeners</code>
+
+<code class="kr">const</code> <code class="nx">_objToListeners</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">WeakMap</code><code class="p">();</code>
+
+<code class="kd">function</code> <code class="nx">addListener</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="nx">listener</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="o">!</code> <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="nx">obj</code><code class="p">))</code> <code class="p">{</code>
+        <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">());</code>
+    <code class="p">}</code>
+    <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">obj</code><code class="p">).</code><code class="nx">add</code><code class="p">(</code><code class="nx">listener</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="kd">function</code> <code class="nx">triggerListeners</code><code class="p">(</code><code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">listeners</code> <code class="o">=</code> <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">listeners</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">listener</code> <code class="k">of</code> <code class="nx">listeners</code><code class="p">)</code> <code class="p">{</code>
+            <code class="nx">listener</code><code class="p">();</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="c1">//----- Example: attach listeners to an object</code>
+
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="nx">addListener</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;hello&apos;</code><code class="p">));</code>
+<code class="nx">addListener</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;world&apos;</code><code class="p">));</code>
+
+<code class="c1">//----- Example: trigger listeners</code>
+
+<code class="nx">triggerListeners</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// hello</code>
+<code class="c1">// world</code>
+</pre></div>
+
+</figure>
+
+
+
+<h3 id="sec_map">
+<span class="section-number">19.2 </span>Map <a class="header-anchor" href="ch_maps-sets.html#sec_map" aria-hidden="true">#</a></h3>
+
+<p>JavaScript has always had a very spartan standard library. Sorely missing was a data structure for mapping values to values. The best you can get in ECMAScript 5 is a Map from strings to arbitrary values, by abusing objects. Even then there are <a href="http://speakingjs.com/es5/ch17.html#_pitfalls_using_an_object_as_a_map">several pitfalls</a> that can trip you up.</p>
+
+<p>The <code>Map</code> data structure in ECMAScript 6 lets you use arbitrary values as keys and is highly welcome.</p>
+
+
+<h4 id="_basic-operations">
+<span class="section-number">19.2.1 </span>Basic operations <a class="header-anchor" href="ch_maps-sets.html#_basic-operations" aria-hidden="true">#</a></h4>
+
+<p>Working with single entries:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const map = new Map();
+
+&gt; map.set(&apos;foo&apos;, 123);
+&gt; map.get(&apos;foo&apos;)
+123
+
+&gt; map.has(&apos;foo&apos;)
+true
+&gt; map.delete(&apos;foo&apos;)
+true
+&gt; map.has(&apos;foo&apos;)
+false
+</pre></div>
+
+</figure>
+
+<p>Determining the size of a Map and clearing it:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const map = new Map();
+&gt; map.set(&apos;foo&apos;, true);
+&gt; map.set(&apos;bar&apos;, false);
+
+&gt; map.size
+2
+&gt; map.clear();
+&gt; map.size
+0
+</pre></div>
+
+</figure>
+
+
+<h4 id="_setting-up-a-map">
+<span class="section-number">19.2.2 </span>Setting up a Map <a class="header-anchor" href="ch_maps-sets.html#_setting-up-a-map" aria-hidden="true">#</a></h4>
+
+<p>You can set up a Map via an iterable over key-value &#x201C;pairs&#x201D; (Arrays with 2 elements). One possibility is to use an Array (which is iterable):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">([</code>
+    <code class="p">[</code> <code class="mi">1</code><code class="p">,</code> <code class="s1">&apos;one&apos;</code> <code class="p">],</code>
+    <code class="p">[</code> <code class="mi">2</code><code class="p">,</code> <code class="s1">&apos;two&apos;</code> <code class="p">],</code>
+    <code class="p">[</code> <code class="mi">3</code><code class="p">,</code> <code class="s1">&apos;three&apos;</code> <code class="p">],</code> <code class="c1">// trailing comma is ignored</code>
+<code class="p">]);</code>
+</pre></div>
+
+</figure>
+
+<p>Alternatively, the <code>set()</code> method is chainable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">()</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">1</code><code class="p">,</code> <code class="s1">&apos;one&apos;</code><code class="p">)</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">2</code><code class="p">,</code> <code class="s1">&apos;two&apos;</code><code class="p">)</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">3</code><code class="p">,</code> <code class="s1">&apos;three&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_keys">
+<span class="section-number">19.2.3 </span>Keys <a class="header-anchor" href="ch_maps-sets.html#_keys" aria-hidden="true">#</a></h4>
+
+<p>Any value can be a key, even an object:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">();</code>
+
+<code class="kr">const</code> <code class="nx">KEY1</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="nx">map</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="nx">KEY1</code><code class="p">,</code> <code class="s1">&apos;hello&apos;</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">map</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">KEY1</code><code class="p">));</code> <code class="c1">// hello</code>
+
+<code class="kr">const</code> <code class="nx">KEY2</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="nx">map</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="nx">KEY2</code><code class="p">,</code> <code class="s1">&apos;world&apos;</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">map</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">KEY2</code><code class="p">));</code> <code class="c1">// world</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_what-keys-are-considered-equal">
+<span class="section-number">19.2.3.1 </span>What keys are considered equal? <a class="header-anchor" href="ch_maps-sets.html#_what-keys-are-considered-equal" aria-hidden="true">#</a></h5>
+
+<p>Most Map operations need to check whether a value is equal to one of the keys. They do so via the internal operation <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-samevaluezero">SameValueZero</a>, which works like <code>===</code>, but considers <code>NaN</code> to be equal to itself.</p>
+
+<p>Let&#x2019;s first see how <code>===</code> handles <code>NaN</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; NaN === NaN
+false
+</pre></div>
+
+</figure>
+
+<p>Conversely, you can use <code>NaN</code> as a key in Maps, just like any other value:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const map = new Map();
+
+&gt; map.set(NaN, 123);
+&gt; map.get(NaN)
+123
+</pre></div>
+
+</figure>
+
+<p>Like <code>===</code>, <code>-0</code> and <code>+0</code> are considered the same value. That is normally the best way to handle the two zeros (<a href="http://speakingjs.com/es5/ch11.html#two_zeros">details are explained in &#x201C;Speaking JavaScript&#x201D;</a>).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; map.set(-0, 123);
+&gt; map.get(+0)
+123
+</pre></div>
+
+</figure>
+
+<p>Different objects are always considered different. That is something that can&#x2019;t be configured (yet), <a href="ch_maps-sets.html#sec_configuring-comparison-maps-sets">as explained later, in the FAQ</a>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; new Map().set({}, 1).set({}, 2).size
+2
+</pre></div>
+
+</figure>
+
+<p>Getting an unknown key produces <code>undefined</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; new Map().get(&apos;asfddfsasadf&apos;)
+undefined
+</pre></div>
+
+</figure>
+
+
+<h4 id="_iterating-over-maps">
+<span class="section-number">19.2.4 </span>Iterating over Maps <a class="header-anchor" href="ch_maps-sets.html#_iterating-over-maps" aria-hidden="true">#</a></h4>
+
+<p>Let&#x2019;s set up a Map to demonstrate how one can iterate over it.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">([</code>
+    <code class="p">[</code><code class="kc">false</code><code class="p">,</code> <code class="s1">&apos;no&apos;</code><code class="p">],</code>
+    <code class="p">[</code><code class="kc">true</code><code class="p">,</code>  <code class="s1">&apos;yes&apos;</code><code class="p">],</code>
+<code class="p">]);</code>
+</pre></div>
+
+</figure>
+
+<p>Maps record the order in which elements are inserted and honor that order when iterating over keys, values or entries.</p>
+
+<h5 id="_iterables-for-keys-and-values">
+<span class="section-number">19.2.4.1 </span>Iterables for keys and values <a class="header-anchor" href="ch_maps-sets.html#_iterables-for-keys-and-values" aria-hidden="true">#</a></h5>
+
+<p><code>keys()</code> returns an <a href="ch_iteration.html#ch_iteration">iterable</a> over the keys in the Map:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">key</code> <code class="k">of</code> <code class="nx">map</code><code class="p">.</code><code class="nx">keys</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">key</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// false</code>
+<code class="c1">// true</code>
+</pre></div>
+
+</figure>
+
+<p><code>values()</code> returns an iterable over the values in the Map:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">value</code> <code class="k">of</code> <code class="nx">map</code><code class="p">.</code><code class="nx">values</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">value</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// no</code>
+<code class="c1">// yes</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_iterables-for-entries">
+<span class="section-number">19.2.4.2 </span>Iterables for entries <a class="header-anchor" href="ch_maps-sets.html#_iterables-for-entries" aria-hidden="true">#</a></h5>
+
+<p><code>entries()</code> returns the entries of the Map as an iterable over [key,value] pairs (Arrays).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">entry</code> <code class="k">of</code> <code class="nx">map</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">entry</code><code class="p">[</code><code class="mi">0</code><code class="p">],</code> <code class="nx">entry</code><code class="p">[</code><code class="mi">1</code><code class="p">]);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// false no</code>
+<code class="c1">// true yes</code>
+</pre></div>
+
+</figure>
+
+<p>Destructuring enables you to access the keys and values directly:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">key</code><code class="p">,</code> <code class="nx">value</code><code class="p">]</code> <code class="k">of</code> <code class="nx">map</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">key</code><code class="p">,</code> <code class="nx">value</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The default way of iterating over a Map is <code>entries()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; map[Symbol.iterator] === map.entries
+true
+</pre></div>
+
+</figure>
+
+<p>Thus, you can make the previous code snippet even shorter:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">key</code><code class="p">,</code> <code class="nx">value</code><code class="p">]</code> <code class="k">of</code> <code class="nx">map</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">key</code><code class="p">,</code> <code class="nx">value</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h5 id="sec_spreading-maps">
+<span class="section-number">19.2.4.3 </span>Converting iterables (incl. Maps) to Arrays <a class="header-anchor" href="ch_maps-sets.html#sec_spreading-maps" aria-hidden="true">#</a></h5>
+
+<p><a href="ch_parameter-handling.html#sec_spread-operator">The spread operator (<code>...</code>)</a> can turn an iterable into an Array. That lets us convert the result of <code>Map.prototype.keys()</code> (an iterable) into an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const map = new Map().set(false, &apos;no&apos;).set(true, &apos;yes&apos;);
+&gt; [...map.keys()]
+[ false, true ]
+</pre></div>
+
+</figure>
+
+<p>Maps are also iterable, which means that the spread operator can turn Maps into Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const map = new Map().set(false, &apos;no&apos;).set(true, &apos;yes&apos;);
+&gt; [...map]
+[ [ false, &apos;no&apos; ],
+  [ true, &apos;yes&apos; ] ]
+</pre></div>
+
+</figure>
+
+
+<h4 id="_looping-over-map-entries">
+<span class="section-number">19.2.5 </span>Looping over Map entries <a class="header-anchor" href="ch_maps-sets.html#_looping-over-map-entries" aria-hidden="true">#</a></h4>
+
+<p>The <code>Map</code> method <code>forEach</code> has the following signature:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">Map</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">forEach</code><code class="p">((</code><code class="nx">value</code><code class="p">,</code> <code class="nx">key</code><code class="p">,</code> <code class="nx">map</code><code class="p">)</code> <code class="o">=&gt;</code> <code class="k">void</code><code class="p">,</code> <code class="nx">thisArg</code><code class="o">?</code><code class="p">)</code> <code class="o">:</code> <code class="k">void</code>
+</pre></div>
+
+</figure>
+
+<p>The signature of the first parameter mirrors the signature of the callback of <code>Array.prototype.forEach</code>, which is why the value comes first.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">([</code>
+    <code class="p">[</code><code class="kc">false</code><code class="p">,</code> <code class="s1">&apos;no&apos;</code><code class="p">],</code>
+    <code class="p">[</code><code class="kc">true</code><code class="p">,</code>  <code class="s1">&apos;yes&apos;</code><code class="p">],</code>
+<code class="p">]);</code>
+<code class="nx">map</code><code class="p">.</code><code class="nx">forEach</code><code class="p">((</code><code class="nx">value</code><code class="p">,</code> <code class="nx">key</code><code class="p">)</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">key</code><code class="p">,</code> <code class="nx">value</code><code class="p">);</code>
+<code class="p">});</code>
+<code class="c1">// Output:</code>
+<code class="c1">// false no</code>
+<code class="c1">// true yes</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_mapping-and-filtering-maps">
+<span class="section-number">19.2.6 </span>Mapping and filtering Maps <a class="header-anchor" href="ch_maps-sets.html#_mapping-and-filtering-maps" aria-hidden="true">#</a></h4>
+
+<p>You can <code>map()</code> and <code>filter()</code> Arrays, but there are no such operations for Maps. The solution is:</p>
+
+<ol class="numeric">
+  <li>Convert the Map into an Array of [key,value] pairs.</li>
+  <li>Map or filter the Array.</li>
+  <li>Convert the result back to a Map.</li>
+</ol>
+
+<p>I&#x2019;ll use the following Map to demonstrate how that works.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">originalMap</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">()</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">1</code><code class="p">,</code> <code class="s1">&apos;a&apos;</code><code class="p">)</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">2</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">)</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">3</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>Mapping <code>originalMap</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">mappedMap</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">(</code> <code class="c1">// step 3</code>
+    <code class="p">[...</code><code class="nx">originalMap</code><code class="p">]</code> <code class="c1">// step 1</code>
+    <code class="p">.</code><code class="nx">map</code><code class="p">(([</code><code class="nx">k</code><code class="p">,</code> <code class="nx">v</code><code class="p">])</code> <code class="o">=&gt;</code> <code class="p">[</code><code class="nx">k</code> <code class="o">*</code> <code class="mi">2</code><code class="p">,</code> <code class="s1">&apos;_&apos;</code> <code class="o">+</code> <code class="nx">v</code><code class="p">])</code> <code class="c1">// step 2</code>
+<code class="p">);</code>
+<code class="c1">// Resulting Map: {2 =&gt; &apos;_a&apos;, 4 =&gt; &apos;_b&apos;, 6 =&gt; &apos;_c&apos;}</code>
+</pre></div>
+
+</figure>
+
+<p>Filtering <code>originalMap</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">filteredMap</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">(</code> <code class="c1">// step 3</code>
+    <code class="p">[...</code><code class="nx">originalMap</code><code class="p">]</code> <code class="c1">// step 1</code>
+    <code class="p">.</code><code class="nx">filter</code><code class="p">(([</code><code class="nx">k</code><code class="p">,</code> <code class="nx">v</code><code class="p">])</code> <code class="o">=&gt;</code> <code class="nx">k</code> <code class="o">&lt;</code> <code class="mi">3</code><code class="p">)</code> <code class="c1">// step 2</code>
+<code class="p">);</code>
+<code class="c1">// Resulting Map: {1 =&gt; &apos;a&apos;, 2 =&gt; &apos;b&apos;}</code>
+</pre></div>
+
+</figure>
+
+<p>Step 1 is performed by the spread operator (<code>...</code>) which <a href="ch_maps-sets.html#sec_spreading-maps">I have explained previously</a>.</p>
+
+
+<h4 id="_combining-maps">
+<span class="section-number">19.2.7 </span>Combining Maps <a class="header-anchor" href="ch_maps-sets.html#_combining-maps" aria-hidden="true">#</a></h4>
+
+<p>There are no methods for combining Maps, which is why the approach from the previous section must be used to do so.</p>
+
+<p>Let&#x2019;s combine the following two Maps:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map1</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">()</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">1</code><code class="p">,</code> <code class="s1">&apos;a1&apos;</code><code class="p">)</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">2</code><code class="p">,</code> <code class="s1">&apos;b1&apos;</code><code class="p">)</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">3</code><code class="p">,</code> <code class="s1">&apos;c1&apos;</code><code class="p">);</code>
+
+<code class="kr">const</code> <code class="nx">map2</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">()</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">2</code><code class="p">,</code> <code class="s1">&apos;b2&apos;</code><code class="p">)</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">3</code><code class="p">,</code> <code class="s1">&apos;c2&apos;</code><code class="p">)</code>
+<code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="mi">4</code><code class="p">,</code> <code class="s1">&apos;d2&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>To combine <code>map1</code> and <code>map2</code>, I turn them into Arrays via the spread operator (<code>...</code>) and concatenate those Arrays. Afterwards, I convert the result back to a Map. All of that is done in the first line.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const combinedMap = new Map([...map1, ...map2])
+&gt; [...combinedMap] // convert to Array to display
+[ [ 1, &apos;a1&apos; ],
+  [ 2, &apos;b2&apos; ],
+  [ 3, &apos;c2&apos; ],
+  [ 4, &apos;d2&apos; ] ]
+</pre></div>
+
+</figure>
+
+
+<h4 id="_arbitrary-maps-as-json-via-arrays-of-pairs">
+<span class="section-number">19.2.8 </span>Arbitrary Maps as JSON via Arrays of pairs <a class="header-anchor" href="ch_maps-sets.html#_arbitrary-maps-as-json-via-arrays-of-pairs" aria-hidden="true">#</a></h4>
+
+<p>If a Map contains arbitrary (JSON-compatible) data, we can convert it to JSON by encoding it as an Array of key-value pairs (2-element Arrays). Let&#x2019;s examine first how to achieve that encoding.</p>
+
+<h5 id="_converting-maps-to-and-from-arrays-of-pairs">
+<span class="section-number">19.2.8.1 </span>Converting Maps to and from Arrays of pairs <a class="header-anchor" href="ch_maps-sets.html#_converting-maps-to-and-from-arrays-of-pairs" aria-hidden="true">#</a></h5>
+
+<p><a href="ch_parameter-handling.html#sec_spread-operator">The spread operator</a> lets you convert a Map to an Array of pairs:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nt">const</code> <code class="nt">myMap</code> <code class="o">=</code> <code class="nt">new</code> <code class="nt">Map</code><code class="o">()</code><code class="nc">.set</code><code class="o">(</code><code class="nt">true</code><code class="o">,</code> <code class="nt">7</code><code class="o">)</code><code class="nc">.set</code><code class="o">(</code><code class="p">{</code><code class="n">foo</code><code class="o">:</code> <code class="m">3</code><code class="p">}</code><code class="o">,</code> <code class="cp">[</code><code class="s1">&apos;abc&apos;</code><code class="cp">]</code><code class="o">);</code>
+<code class="o">&gt;</code> <code class="cp">[</code><code class="nx">...myMap</code><code class="cp">]</code>
+<code class="cp">[</code> <code class="err">[</code> <code class="kc">true</code><code class="p">,</code> <code class="mi">7</code> <code class="cp">]</code><code class="o">,</code> <code class="cp">[</code> <code class="p">{</code> <code class="nx">foo</code><code class="p">:</code> <code class="mi">3</code> <code class="p">},</code> <code class="err">[</code> <code class="s1">&apos;abc&apos;</code> <code class="cp">]</code> <code class="o">]</code> <code class="o">]</code>
+</pre></div>
+
+</figure>
+
+<p>The <code>Map</code> constructor lets you convert an Array of pairs to a Map:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; new Map([[true, 7], [{foo: 3}, [&apos;abc&apos;]]])
+Map {true =&gt; 7, Object {foo: 3} =&gt; [&apos;abc&apos;]}
+</pre></div>
+
+</figure>
+
+<h5 id="_the-conversion-to-and-from-json">
+<span class="section-number">19.2.8.2 </span>The conversion to and from JSON <a class="header-anchor" href="ch_maps-sets.html#_the-conversion-to-and-from-json" aria-hidden="true">#</a></h5>
+
+<p>Let&#x2019;s use this knowledge to convert any Map with JSON-compatible data to JSON and back:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">mapToJson</code><code class="p">(</code><code class="nx">map</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">JSON</code><code class="p">.</code><code class="nx">stringify</code><code class="p">([...</code><code class="nx">map</code><code class="p">]);</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">jsonToMap</code><code class="p">(</code><code class="nx">jsonStr</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">(</code><code class="nx">JSON</code><code class="p">.</code><code class="nx">parse</code><code class="p">(</code><code class="nx">jsonStr</code><code class="p">));</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The following interaction demonstrates how these functions are used:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nt">const</code> <code class="nt">myMap</code> <code class="o">=</code> <code class="nt">new</code> <code class="nt">Map</code><code class="o">()</code><code class="nc">.set</code><code class="o">(</code><code class="nt">true</code><code class="o">,</code> <code class="nt">7</code><code class="o">)</code><code class="nc">.set</code><code class="o">(</code><code class="p">{</code><code class="n">foo</code><code class="o">:</code> <code class="m">3</code><code class="p">}</code><code class="o">,</code> <code class="cp">[</code><code class="s1">&apos;abc&apos;</code><code class="cp">]</code><code class="o">);</code>
+
+<code class="o">&gt;</code> <code class="nt">mapToJson</code><code class="o">(</code><code class="nt">myMap</code><code class="o">)</code>
+<code class="s1">&apos;</code><code class="cp">[</code><code class="err">[</code><code class="kc">true</code><code class="p">,</code><code class="mi">7</code><code class="cp">]</code><code class="s1">,</code><code class="cp">[</code><code class="p">{</code><code class="s2">&quot;foo&quot;</code><code class="p">:</code><code class="mi">3</code><code class="p">},</code><code class="err">[</code><code class="s2">&quot;abc&quot;</code><code class="cp">]</code><code class="s1">]]&apos;</code>
+
+<code class="o">&gt;</code> <code class="nt">jsonToMap</code><code class="o">(</code><code class="s1">&apos;</code><code class="cp">[</code><code class="err">[</code><code class="kc">true</code><code class="p">,</code><code class="mi">7</code><code class="cp">]</code><code class="s1">,</code><code class="cp">[</code><code class="p">{</code><code class="s2">&quot;foo&quot;</code><code class="p">:</code><code class="mi">3</code><code class="p">},</code><code class="err">[</code><code class="s2">&quot;abc&quot;</code><code class="cp">]</code><code class="s1">]]&apos;</code><code class="o">)</code>
+<code class="nt">Map</code> <code class="p">{</code><code class="n">true</code> <code class="o">=&gt;</code> <code class="m">7</code><code class="o">,</code> <code class="n">Object</code> <code class="err">{</code><code class="n">foo</code><code class="o">:</code> <code class="m">3</code><code class="p">}</code> <code class="o">=&gt;</code> <code class="cp">[</code><code class="s1">&apos;abc&apos;</code><code class="cp">]</code><code class="err">}</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_string-maps-as-json-via-objects">
+<span class="section-number">19.2.9 </span>String Maps as JSON via objects <a class="header-anchor" href="ch_maps-sets.html#_string-maps-as-json-via-objects" aria-hidden="true">#</a></h4>
+
+<p>Whenever a Map only has strings as keys, you can convert it to JSON by encoding it as an object. Let&#x2019;s examine first how to achieve that encoding.</p>
+
+<h5 id="_converting-a-string-map-to-and-from-an-object">
+<span class="section-number">19.2.9.1 </span>Converting a string Map to and from an object <a class="header-anchor" href="ch_maps-sets.html#_converting-a-string-map-to-and-from-an-object" aria-hidden="true">#</a></h5>
+
+<p>The following two function convert string Maps to and from objects:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">strMapToObj</code><code class="p">(</code><code class="nx">strMap</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="kc">null</code><code class="p">);</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">k</code><code class="p">,</code><code class="nx">v</code><code class="p">]</code> <code class="k">of</code> <code class="nx">strMap</code><code class="p">)</code> <code class="p">{</code>
+        <code class="c1">// We don&#x2019;t escape the key &apos;__proto__&apos;</code>
+        <code class="c1">// which can cause problems on older engines</code>
+        <code class="nx">obj</code><code class="p">[</code><code class="nx">k</code><code class="p">]</code> <code class="o">=</code> <code class="nx">v</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">obj</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">objToStrMap</code><code class="p">(</code><code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">strMap</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">();</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">k</code> <code class="k">of</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">keys</code><code class="p">(</code><code class="nx">obj</code><code class="p">))</code> <code class="p">{</code>
+        <code class="nx">strMap</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="nx">k</code><code class="p">,</code> <code class="nx">obj</code><code class="p">[</code><code class="nx">k</code><code class="p">]);</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">strMap</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Let&#x2019;s use these two functions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const myMap = new Map().set(&apos;yes&apos;, true).set(&apos;no&apos;, false);
+
+&gt; strMapToObj(myMap)
+{ yes: true, no: false }
+
+&gt; objToStrMap({yes: true, no: false})
+[ [ &apos;yes&apos;, true ], [ &apos;no&apos;, false ] ]
+</pre></div>
+
+</figure>
+
+<h5 id="_the-conversion-to-and-from-json-1">
+<span class="section-number">19.2.9.2 </span>The conversion to and from JSON <a class="header-anchor" href="ch_maps-sets.html#_the-conversion-to-and-from-json-1" aria-hidden="true">#</a></h5>
+
+<p>With these helper functions, the conversion to JSON works as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">strMapToJson</code><code class="p">(</code><code class="nx">strMap</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">JSON</code><code class="p">.</code><code class="nx">stringify</code><code class="p">(</code><code class="nx">strMapToObj</code><code class="p">(</code><code class="nx">strMap</code><code class="p">));</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">jsonToStrMap</code><code class="p">(</code><code class="nx">jsonStr</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">objToStrMap</code><code class="p">(</code><code class="nx">JSON</code><code class="p">.</code><code class="nx">parse</code><code class="p">(</code><code class="nx">jsonStr</code><code class="p">));</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>This is an example of using these functions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const myMap = new Map().set(&apos;yes&apos;, true).set(&apos;no&apos;, false);
+
+&gt; strMapToJson(myMap)
+&apos;{&quot;yes&quot;:true,&quot;no&quot;:false}&apos;
+
+&gt; jsonToStrMap(&apos;{&quot;yes&quot;:true,&quot;no&quot;:false}&apos;);
+Map {&apos;yes&apos; =&gt; true, &apos;no&apos; =&gt; false}
+</pre></div>
+
+</figure>
+
+
+<h4 id="_map-api">
+<span class="section-number">19.2.10 </span>Map API <a class="header-anchor" href="ch_maps-sets.html#_map-api" aria-hidden="true">#</a></h4>
+
+<p>
+  <strong>Constructor:</strong>
+</p>
+
+<ul>
+  <li>
+<code>new Map(entries? : Iterable&lt;[any,any]&gt;)</code><br>
+  If you don&#x2019;t provide the parameter <code>iterable</code> then an empty Map is created. If you do provide an iterable over [key, value] pairs then those pairs are used to add entries to the Map. For example:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">([</code>
+      <code class="p">[</code> <code class="mi">1</code><code class="p">,</code> <code class="s1">&apos;one&apos;</code> <code class="p">],</code>
+      <code class="p">[</code> <code class="mi">2</code><code class="p">,</code> <code class="s1">&apos;two&apos;</code> <code class="p">],</code>
+      <code class="p">[</code> <code class="mi">3</code><code class="p">,</code> <code class="s1">&apos;three&apos;</code> <code class="p">],</code> <code class="c1">// trailing comma is ignored</code>
+  <code class="p">]);</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>
+  <strong>Handling single entries:</strong>
+</p>
+
+<ul>
+  <li>
+<code>Map.prototype.get(key) : any</code><br>
+Returns the <code>value</code> that <code>key</code> is mapped to in this Map. If there is no key <code>key</code> in this Map, <code>undefined</code> is returned.</li>
+  <li>
+<code>Map.prototype.set(key, value) : this</code><br>
+Maps the given key to the given value. If there is already an entry whose key is <code>key</code>, it is updated. Otherwise, a new entry is created. This method returns <code>this</code>, which means that you can chain it.</li>
+  <li>
+<code>Map.prototype.has(key) : boolean</code><br>
+Returns whether the given key exists in this Map.</li>
+  <li>
+<code>Map.prototype.delete(key) : boolean</code><br>
+If there is an entry whose key is <code>key</code>, it is removed and <code>true</code> is returned. Otherwise, nothing happens and <code>false</code> is returned.</li>
+</ul>
+
+<p>
+  <strong>Handling all entries:</strong>
+</p>
+
+<ul>
+  <li>
+<code>get Map.prototype.size : number</code><br>
+Returns how many entries there are in this Map.</li>
+  <li>
+<code>Map.prototype.clear() : void</code><br>
+Removes all entries from this Map.</li>
+</ul>
+
+<p><strong>Iterating and looping:</strong> happens in the order in which entries were added to a Map.</p>
+
+<ul>
+  <li>
+<code>Map.prototype.entries() : Iterable&lt;[any,any]&gt;</code><br>
+Returns an iterable with one [key,value] pair for each entry in this Map. The pairs are Arrays of length 2.</li>
+  <li>
+<code>Map.prototype.forEach((value, key, collection) =&gt; void, thisArg?) : void</code><br>
+The first parameter is a callback that is invoked once for each entry in this Map. If <code>thisArg</code> is provided, <code>this</code> is set to it for each invocation. Otherwise, <code>this</code> is set to <code>undefined</code>.</li>
+  <li>
+<code>Map.prototype.keys() : Iterable&lt;any&gt;</code><br>
+Returns an iterable over all keys in this Map.</li>
+  <li>
+<code>Map.prototype.values() : Iterable&lt;any&gt;</code><br>
+Returns an iterable over all values in this Map.</li>
+  <li>
+<code>Map.prototype[Symbol.iterator]() : Iterable&lt;[any,any]&gt;</code><br>
+The default way of iterating over Maps. Refers to <code>Map.prototype.entries</code>.</li>
+</ul>
+
+
+<h3 id="sec_weakmap">
+<span class="section-number">19.3 </span>WeakMap <a class="header-anchor" href="ch_maps-sets.html#sec_weakmap" aria-hidden="true">#</a></h3>
+
+<p>WeakMaps work mostly like Maps, with the following differences:</p>
+
+<ul>
+  <li>WeakMap keys are objects (values can be arbitrary values)</li>
+  <li>WeakMap keys are weakly held</li>
+  <li>You can&#x2019;t get an overview of the contents of a WeakMap</li>
+  <li>You can&#x2019;t clear a WeakMap</li>
+</ul>
+
+<p>The following sections explain each of these differences.</p>
+
+<h4 id="_weakmap-keys-are-objects">
+<span class="section-number">19.3.1 </span>WeakMap keys are objects <a class="header-anchor" href="ch_maps-sets.html#_weakmap-keys-are-objects" aria-hidden="true">#</a></h4>
+
+<p>If you add an entry to a WeakMap then the key must be an object:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">wm</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">WeakMap</code><code class="p">()</code>
+
+<code class="nx">wm</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="s1">&apos;abc&apos;</code><code class="p">,</code> <code class="mi">123</code><code class="p">);</code> <code class="c1">// TypeError</code>
+<code class="nx">wm</code><code class="p">.</code><code class="nx">set</code><code class="p">({},</code> <code class="mi">123</code><code class="p">);</code> <code class="c1">// OK</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_weakmap-keys-are-weakly-held">
+<span class="section-number">19.3.2 </span>WeakMap keys are weakly held <a class="header-anchor" href="ch_maps-sets.html#_weakmap-keys-are-weakly-held" aria-hidden="true">#</a></h4>
+
+<p>The keys in a WeakMap are <em>weakly held</em>: Normally, an object that isn&#x2019;t referred to by any storage location (variable, property, etc.) can be garbage-collected. WeakMap keys do not count as storage locations in that sense. In other words: an object being a key in a WeakMap does not prevent the object being garbage-collected.</p>
+
+<p>Additionally, once a key is gone, its entry will also disappear (eventually, but there is no way to detect when, anyway).</p>
+
+<h4 id="_you-cant-get-an-overview-of-a-weakmap-or-clear-it">
+<span class="section-number">19.3.3 </span>You can&#x2019;t get an overview of a WeakMap or clear it <a class="header-anchor" href="ch_maps-sets.html#_you-cant-get-an-overview-of-a-weakmap-or-clear-it" aria-hidden="true">#</a></h4>
+
+<p>It is impossible to inspect the innards of a WeakMap, to get an overview of them. That includes not being able to iterate over keys, values or entries. Put differently: to get content out of a WeakMap, you need a key. There is no way to clear a WeakMap, either (as a work-around, you can create a completely new instance).</p>
+
+<p>These restrictions enable a security property. Quoting <a href="https://github.com/rwaldron/tc39-notes/blob/master/es6/2014-11/nov-19.md#412-should-weakmapweakset-have-a-clear-method-markm">Mark Miller</a>: &#x201C;The mapping from weakmap/key pair value can only be observed or affected by someone who has both the weakmap and the key. With <code>clear()</code>, someone with only the WeakMap would&#x2019;ve been able to affect the WeakMap-and-key-to-value mapping.&#x201D;</p>
+
+<p>Additionally, iteration would be difficult to implement, because you&#x2019;d have to guarantee that keys remain weakly held.</p>
+
+<h4 id="_use-cases-for-weakmaps">
+<span class="section-number">19.3.4 </span>Use cases for WeakMaps <a class="header-anchor" href="ch_maps-sets.html#_use-cases-for-weakmaps" aria-hidden="true">#</a></h4>
+
+<p>WeakMaps are useful for associating data with objects whose life cycle you can&#x2019;t (or don&#x2019;t want to) control. In this section, we look at two examples:</p>
+
+<ul>
+  <li>Caching computed results</li>
+  <li>Managing listeners</li>
+  <li>Keeping private data</li>
+</ul>
+
+<h5 id="_caching-computed-results-via-weakmaps">
+<span class="section-number">19.3.4.1 </span>Caching computed results via WeakMaps <a class="header-anchor" href="ch_maps-sets.html#_caching-computed-results-via-weakmaps" aria-hidden="true">#</a></h5>
+
+<p>With WeakMaps, you can associate previously computed results with objects, without having to worry about memory management. The following function <code>countOwnKeys</code> is an example: it caches previous results in the WeakMap <code>cache</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">cache</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">WeakMap</code><code class="p">();</code>
+<code class="kd">function</code> <code class="nx">countOwnKeys</code><code class="p">(</code><code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">cache</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="nx">obj</code><code class="p">))</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;Cached&apos;</code><code class="p">);</code>
+        <code class="k">return</code> <code class="nx">cache</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;Computed&apos;</code><code class="p">);</code>
+        <code class="kr">const</code> <code class="nx">count</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">keys</code><code class="p">(</code><code class="nx">obj</code><code class="p">).</code><code class="nx">length</code><code class="p">;</code>
+        <code class="nx">cache</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="nx">count</code><code class="p">);</code>
+        <code class="k">return</code> <code class="nx">count</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>If we use this function with an object <code>obj</code>, you can see that the result is only computed for the first invocation, while a cached value is used for the second invocation:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nt">const</code> <code class="nt">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="n">foo</code><code class="o">:</code> <code class="m">1</code><code class="o">,</code> <code class="n">bar</code><code class="o">:</code> <code class="m">2</code><code class="p">}</code><code class="o">;</code>
+<code class="o">&gt;</code> <code class="nt">countOwnKeys</code><code class="o">(</code><code class="nt">obj</code><code class="o">)</code>
+<code class="nt">Computed</code>
+<code class="nt">2</code>
+<code class="o">&gt;</code> <code class="nt">countOwnKeys</code><code class="o">(</code><code class="nt">obj</code><code class="o">)</code>
+<code class="nt">Cached</code>
+<code class="nt">2</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_managing-listeners">
+<span class="section-number">19.3.4.2 </span>Managing listeners <a class="header-anchor" href="ch_maps-sets.html#_managing-listeners" aria-hidden="true">#</a></h5>
+
+<p>Let&#x2019;s say we want to attach listeners to objects without changing the objects. You&#x2019;d be able to add listeners to an object <code>obj</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="nx">addListener</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;hello&apos;</code><code class="p">));</code>
+<code class="nx">addListener</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;world&apos;</code><code class="p">));</code>
+</pre></div>
+
+</figure>
+
+<p>And you&#x2019;d be able to trigger the listeners:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">triggerListeners</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// hello</code>
+<code class="c1">// world</code>
+</pre></div>
+
+</figure>
+
+<p>The two functions <code>addListener()</code> and <code>triggerListeners()</code> can be implemented as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">_objToListeners</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">WeakMap</code><code class="p">();</code>
+
+<code class="kd">function</code> <code class="nx">addListener</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="nx">listener</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="o">!</code> <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="nx">obj</code><code class="p">))</code> <code class="p">{</code>
+        <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">());</code>
+    <code class="p">}</code>
+    <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">obj</code><code class="p">).</code><code class="nx">add</code><code class="p">(</code><code class="nx">listener</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="kd">function</code> <code class="nx">triggerListeners</code><code class="p">(</code><code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">listeners</code> <code class="o">=</code> <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">listeners</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">listener</code> <code class="k">of</code> <code class="nx">listeners</code><code class="p">)</code> <code class="p">{</code>
+            <code class="nx">listener</code><code class="p">();</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<p>The advantage of using a WeakMap here is that, once an object is garbage-collected, its listeners will be garbage-collected, too. In other words: there won&#x2019;t be any memory leaks.</p>
+
+<h5 id="_keeping-private-data-via-weakmaps">
+<span class="section-number">19.3.4.3 </span>Keeping private data via WeakMaps <a class="header-anchor" href="ch_maps-sets.html#_keeping-private-data-via-weakmaps" aria-hidden="true">#</a></h5>
+
+<p>In the following code, the WeakMaps <code>_counter</code> and <code>_action</code> are used to store the data of virtual properties of instances of <code>Countdown</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">_counter</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">WeakMap</code><code class="p">();</code>
+<code class="kr">const</code> <code class="nx">_action</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">WeakMap</code><code class="p">();</code>
+<code class="kr">class</code> <code class="nx">Countdown</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">counter</code><code class="p">,</code> <code class="nx">action</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">_counter</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="nx">counter</code><code class="p">);</code>
+        <code class="nx">_action</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="nx">action</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="nx">dec</code><code class="p">()</code> <code class="p">{</code>
+        <code class="kd">let</code> <code class="nx">counter</code> <code class="o">=</code> <code class="nx">_counter</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="k">this</code><code class="p">);</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">counter</code> <code class="o">&lt;</code> <code class="mi">1</code><code class="p">)</code> <code class="k">return</code><code class="p">;</code>
+        <code class="nx">counter</code><code class="o">--</code><code class="p">;</code>
+        <code class="nx">_counter</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="nx">counter</code><code class="p">);</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">counter</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+            <code class="nx">_action</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="k">this</code><code class="p">)();</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>More information on this technique is given in <a href="ch_classes.html#sec_private-data-via-weakmaps">the chapter on classes</a>.</p>
+
+<h4 id="_weakmap-api">
+<span class="section-number">19.3.5 </span>WeakMap API <a class="header-anchor" href="ch_maps-sets.html#_weakmap-api" aria-hidden="true">#</a></h4>
+
+<p>The constructor and the four methods of <code>WeakMap</code> work the same as their <code>Map</code> equivalents:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">new</code> <code class="nx">WeakMap</code><code class="p">(</code><code class="nx">entries</code><code class="o">?</code> <code class="o">:</code> <code class="nx">Iterable</code><code class="o">&lt;</code><code class="p">[</code><code class="nx">any</code><code class="p">,</code><code class="nx">any</code><code class="p">]</code><code class="o">&gt;</code><code class="p">)</code>
+
+<code class="nx">WeakMap</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">key</code><code class="p">)</code> <code class="o">:</code> <code class="nx">any</code>
+<code class="nx">WeakMap</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="nx">key</code><code class="p">,</code> <code class="nx">value</code><code class="p">)</code> <code class="o">:</code> <code class="k">this</code>
+<code class="nx">WeakMap</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="nx">key</code><code class="p">)</code> <code class="o">:</code> <code class="kr">boolean</code>
+<code class="nx">WeakMap</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="k">delete</code><code class="p">(</code><code class="nx">key</code><code class="p">)</code> <code class="o">:</code> <code class="kr">boolean</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_set">
+<span class="section-number">19.4 </span>Set <a class="header-anchor" href="ch_maps-sets.html#sec_set" aria-hidden="true">#</a></h3>
+
+<p>ECMAScript 5 doesn&#x2019;t have a Set data structure, either. There are two possible work-arounds:</p>
+
+<ul>
+  <li>Use the keys of an object to store the elements of a set of strings.</li>
+  <li>Store (arbitrary) set elements in an Array: Check whether it contains an element via <code>indexOf()</code>, remove elements via <code>filter()</code>, etc. This is not a very fast solution, but it&#x2019;s easy to implement. One issue to be aware of is that <code>indexOf()</code> can&#x2019;t find the value <code>NaN</code>.</li>
+</ul>
+
+<p>ECMAScript 6 has the data structure <code>Set</code> which works for arbitrary values, is fast and handles <code>NaN</code> correctly.</p>
+
+<h4 id="_basic-operations-1">
+<span class="section-number">19.4.1 </span>Basic operations <a class="header-anchor" href="ch_maps-sets.html#_basic-operations-1" aria-hidden="true">#</a></h4>
+
+<p>Managing single elements:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const set = new Set();
+&gt; set.add(&apos;red&apos;)
+
+&gt; set.has(&apos;red&apos;)
+true
+&gt; set.delete(&apos;red&apos;)
+true
+&gt; set.has(&apos;red&apos;)
+false
+</pre></div>
+
+</figure>
+
+<p>Determining the size of a Set and clearing it:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const set = new Set();
+&gt; set.add(&apos;red&apos;)
+&gt; set.add(&apos;green&apos;)
+
+&gt; set.size
+2
+&gt; set.clear();
+&gt; set.size
+0
+</pre></div>
+
+</figure>
+
+<h4 id="_setting-up-a-set">
+<span class="section-number">19.4.2 </span>Setting up a Set <a class="header-anchor" href="ch_maps-sets.html#_setting-up-a-set" aria-hidden="true">#</a></h4>
+
+<p>You can set up a Set via an iterable over the elements that make up the Set. For example, via an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;red&apos;</code><code class="p">,</code> <code class="s1">&apos;green&apos;</code><code class="p">,</code> <code class="s1">&apos;blue&apos;</code><code class="p">]);</code>
+</pre></div>
+
+</figure>
+
+<p>Alternatively, the <code>add</code> method is chainable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">().</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;red&apos;</code><code class="p">).</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;green&apos;</code><code class="p">).</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;blue&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_pitfall-new-set-has-at-most-one-argument">
+<span class="section-number">19.4.2.1 </span>Pitfall: <code>new Set()</code> has at most one argument <a class="header-anchor" href="ch_maps-sets.html#_pitfall-new-set-has-at-most-one-argument" aria-hidden="true">#</a></h5>
+
+<p>The <code>Set</code> constructor has zero or one arguments:</p>
+
+<ul>
+  <li>Zero arguments: an empty Set is created.</li>
+  <li>One argument: the argument needs to be iterable; the iterated items define the elements of the Set.</li>
+</ul>
+
+<p>Further arguments are ignored, which may lead to unexpected results:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Array.from(new Set([&apos;foo&apos;, &apos;bar&apos;]))
+[ &apos;foo&apos;, &apos;bar&apos; ]
+&gt; Array.from(new Set(&apos;foo&apos;, &apos;bar&apos;))
+[ &apos;f&apos;, &apos;o&apos; ]
+</pre></div>
+
+</figure>
+
+<p>For the second Set, only <code>&apos;foo&apos;</code> is used (which is iterable) to define the Set.</p>
+
+<h4 id="_comparing-set-elements">
+<span class="section-number">19.4.3 </span>Comparing Set elements <a class="header-anchor" href="ch_maps-sets.html#_comparing-set-elements" aria-hidden="true">#</a></h4>
+
+<p>As with Maps, elements are compared similarly to <code>===</code>, with the exception of <code>NaN</code> being like any other value.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const set = new Set([NaN]);
+&gt; set.size
+1
+&gt; set.has(NaN)
+true
+</pre></div>
+
+</figure>
+
+<p>Adding an element a second time has no effect:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const set = new Set();
+
+&gt; set.add(&apos;foo&apos;);
+&gt; set.size
+1
+
+&gt; set.add(&apos;foo&apos;);
+&gt; set.size
+1
+</pre></div>
+
+</figure>
+
+<p>Similarly to <code>===</code>, two different objects are never considered equal (which can&#x2019;t currently be customized, <a href="ch_maps-sets.html#sec_configuring-comparison-maps-sets">as explained later, in the FAQ</a>, later):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const set = new Set();
+
+&gt; set.add({});
+&gt; set.size
+1
+
+&gt; set.add({});
+&gt; set.size
+2
+</pre></div>
+
+</figure>
+
+<h4 id="_iterating">
+<span class="section-number">19.4.4 </span>Iterating <a class="header-anchor" href="ch_maps-sets.html#_iterating" aria-hidden="true">#</a></h4>
+
+<p>Sets are iterable and the <code>for-of</code> loop works as you&#x2019;d expect:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;red&apos;</code><code class="p">,</code> <code class="s1">&apos;green&apos;</code><code class="p">,</code> <code class="s1">&apos;blue&apos;</code><code class="p">]);</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">set</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// red</code>
+<code class="c1">// green</code>
+<code class="c1">// blue</code>
+</pre></div>
+
+</figure>
+
+<p>As you can see, Sets preserve iteration order. That is, elements are always iterated over in the order in which they were inserted.</p>
+
+<p><a href="ch_maps-sets.html#sec_spreading-maps">The previously explained spread operator (<code>...</code>)</a> works with iterables and thus lets you convert a Set to an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;red&apos;</code><code class="p">,</code> <code class="s1">&apos;green&apos;</code><code class="p">,</code> <code class="s1">&apos;blue&apos;</code><code class="p">]);</code>
+<code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[...</code><code class="nx">set</code><code class="p">];</code> <code class="c1">// [&apos;red&apos;, &apos;green&apos;, &apos;blue&apos;]</code>
+</pre></div>
+
+</figure>
+
+<p>We now have a concise way to convert an Array to a Set and back, which has the effect of eliminating duplicates from the Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="mi">3</code><code class="p">,</code> <code class="mi">5</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">5</code><code class="p">,</code> <code class="mi">5</code><code class="p">];</code>
+<code class="kr">const</code> <code class="nx">unique</code> <code class="o">=</code> <code class="p">[...</code><code class="k">new</code> <code class="nx">Set</code><code class="p">(</code><code class="nx">arr</code><code class="p">)];</code> <code class="c1">// [3, 5, 2]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_mapping-and-filtering">
+<span class="section-number">19.4.5 </span>Mapping and filtering <a class="header-anchor" href="ch_maps-sets.html#_mapping-and-filtering" aria-hidden="true">#</a></h4>
+
+<p>In contrast to Arrays, Sets don&#x2019;t have the methods <code>map()</code> and <code>filter()</code>. A work-around is to convert them to Arrays and back.</p>
+
+<p>Mapping:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">3</code><code class="p">]);</code>
+<code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([...</code><code class="nx">set</code><code class="p">].</code><code class="nx">map</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code> <code class="o">*</code> <code class="mi">2</code><code class="p">));</code>
+<code class="c1">// Resulting Set: {2, 4, 6}</code>
+</pre></div>
+
+</figure>
+
+<p>Filtering:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">3</code><code class="p">,</code> <code class="mi">4</code><code class="p">,</code> <code class="mi">5</code><code class="p">]);</code>
+<code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([...</code><code class="nx">set</code><code class="p">].</code><code class="nx">filter</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="p">(</code><code class="nx">x</code> <code class="o">%</code> <code class="mi">2</code><code class="p">)</code> <code class="o">==</code> <code class="mi">0</code><code class="p">));</code>
+<code class="c1">// Resulting Set: {2, 4}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_union-intersection-difference">
+<span class="section-number">19.4.6 </span>Union, intersection, difference <a class="header-anchor" href="ch_maps-sets.html#_union-intersection-difference" aria-hidden="true">#</a></h4>
+
+<p>ECMAScript 6 Sets have no methods for computing the union (e.g. <code>addAll</code>), intersection (e.g. <code>retainAll</code>) or difference (e.g. <code>removeAll</code>). This section explains how to work around that limitation.</p>
+
+<h5 id="_union">
+<span class="section-number">19.4.6.1 </span>Union <a class="header-anchor" href="ch_maps-sets.html#_union" aria-hidden="true">#</a></h5>
+
+<p>Union (<code>a</code> &#x222A; <code>b</code>): create a Set that contains the elements of both Set <code>a</code> and Set <code>b</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">a</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="mi">1</code><code class="p">,</code><code class="mi">2</code><code class="p">,</code><code class="mi">3</code><code class="p">]);</code>
+<code class="kr">const</code> <code class="nx">b</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="mi">4</code><code class="p">,</code><code class="mi">3</code><code class="p">,</code><code class="mi">2</code><code class="p">]);</code>
+<code class="kr">const</code> <code class="nx">union</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([...</code><code class="nx">a</code><code class="p">,</code> <code class="p">...</code><code class="nx">b</code><code class="p">]);</code>
+    <code class="c1">// {1,2,3,4}</code>
+</pre></div>
+
+</figure>
+
+<p>The pattern is always the same:</p>
+
+<ul>
+  <li>Convert one or both Sets to Arrays.</li>
+  <li>Perform the operation.</li>
+  <li>Convert the result back to a Set.</li>
+</ul>
+
+<p><a href="ch_parameter-handling.html#sec_spread-operator">The spread operator (<code>...</code>)</a> inserts the elements of something iterable (such as a Set) into an Array. Therefore, <code>[...a, ...b]</code> means that <code>a</code> and <code>b</code> are converted to Arrays and concatenated. It is equivalent to <code>[...a].concat([...b])</code>.</p>
+
+<h5 id="_intersection">
+<span class="section-number">19.4.6.2 </span>Intersection <a class="header-anchor" href="ch_maps-sets.html#_intersection" aria-hidden="true">#</a></h5>
+
+<p>Intersection (<code>a</code> &#x2229; <code>b</code>): create a Set that contains those elements of Set <code>a</code> that are also in Set <code>b</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">a</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="mi">1</code><code class="p">,</code><code class="mi">2</code><code class="p">,</code><code class="mi">3</code><code class="p">]);</code>
+<code class="kr">const</code> <code class="nx">b</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="mi">4</code><code class="p">,</code><code class="mi">3</code><code class="p">,</code><code class="mi">2</code><code class="p">]);</code>
+<code class="kr">const</code> <code class="nx">intersection</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">(</code>
+    <code class="p">[...</code><code class="nx">a</code><code class="p">].</code><code class="nx">filter</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">b</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="nx">x</code><code class="p">)));</code>
+    <code class="c1">// {2,3}</code>
+</pre></div>
+
+</figure>
+
+<p>Steps: Convert <code>a</code> to an Array, filter the elements, convert the result to a Set.</p>
+
+<h5 id="_difference">
+<span class="section-number">19.4.6.3 </span>Difference <a class="header-anchor" href="ch_maps-sets.html#_difference" aria-hidden="true">#</a></h5>
+
+<p>Difference (<code>a</code> \ <code>b</code>): create a Set that contains those elements of Set <code>a</code> that are not in Set <code>b</code>. This operation is also sometimes called <em>minus</em> (<code>-</code>).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">a</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="mi">1</code><code class="p">,</code><code class="mi">2</code><code class="p">,</code><code class="mi">3</code><code class="p">]);</code>
+<code class="kr">const</code> <code class="nx">b</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="mi">4</code><code class="p">,</code><code class="mi">3</code><code class="p">,</code><code class="mi">2</code><code class="p">]);</code>
+<code class="kr">const</code> <code class="nx">difference</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">(</code>
+    <code class="p">[...</code><code class="nx">a</code><code class="p">].</code><code class="nx">filter</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="o">!</code><code class="nx">b</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="nx">x</code><code class="p">)));</code>
+    <code class="c1">// {1}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_set-api">
+<span class="section-number">19.4.7 </span>Set API <a class="header-anchor" href="ch_maps-sets.html#_set-api" aria-hidden="true">#</a></h4>
+
+<p>
+  <strong>Constructor:</strong>
+</p>
+
+<ul>
+  <li>
+<code>new Set(elements? : Iterable&lt;any&gt;)</code><br>
+  If you don&#x2019;t provide the parameter <code>iterable</code> then an empty Set is created. If you do then the iterated values are added as elements to the Set. For example:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;red&apos;</code><code class="p">,</code> <code class="s1">&apos;green&apos;</code><code class="p">,</code> <code class="s1">&apos;blue&apos;</code><code class="p">]);</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>
+  <strong>Single Set elements:</strong>
+</p>
+
+<ul>
+  <li>
+<code>Set.prototype.add(value) : this</code><br>
+Adds <code>value</code> to this Set. This method returns <code>this</code>, which means that it can be chained.</li>
+  <li>
+<code>Set.prototype.has(value) : boolean</code><br>
+Checks whether <code>value</code> is in this Set.</li>
+  <li>
+<code>Set.prototype.delete(value) : boolean</code><br>
+Removes <code>value</code> from this Set.</li>
+</ul>
+
+<p>
+  <strong>All Set elements:</strong>
+</p>
+
+<ul>
+  <li>
+<code>get Set.prototype.size : number</code><br>
+Returns how many elements there are in this Set.</li>
+  <li>
+<code>Set.prototype.clear() : void</code><br>
+Removes all elements from this Set.</li>
+</ul>
+
+<p>
+  <strong>Iterating and looping:</strong>
+</p>
+
+<ul>
+  <li>
+<code>Set.prototype.values() : Iterable&lt;any&gt;</code><br>
+Returns an iterable over all elements of this Set.</li>
+  <li>
+<code>Set.prototype[Symbol.iterator]() : Iterable&lt;any&gt;</code><br>
+The default way of iterating over Sets. Points to <code>Set.prototype.values</code>.</li>
+  <li>
+<code>Set.prototype.forEach((value, key, collection) =&gt; void, thisArg?)</code><br>
+Loops over the elements of this Set and invokes the callback (first parameter) for each one. <code>value</code> and <code>key</code> are both set to the element, so that this method works similarly to <code>Map.prototype.forEach</code>. If <code>thisArg</code> is provided, <code>this</code> is set to it for each call. Otherwise, <code>this</code> is set to <code>undefined</code>.</li>
+</ul>
+
+<p><strong>Symmetry with <code>Map</code>:</strong> The following two methods only exist so that the interface of Sets is similar to the interface of Maps. Each Set element is handled as if it were a Map entry whose key and value are the element.</p>
+
+<ul>
+  <li><code>Set.prototype.entries() : Iterable&lt;[any,any]&gt;</code></li>
+  <li><code>Set.prototype.keys() : Iterable&lt;any&gt;</code></li>
+</ul>
+
+<p><code>entries()</code> allows you to convert a Set to a Map:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">]);</code>
+<code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">(</code><code class="nx">set</code><code class="p">.</code><code class="nx">entries</code><code class="p">());</code>
+    <code class="c1">// Map { &apos;a&apos; =&gt; &apos;a&apos;, &apos;b&apos; =&gt; &apos;b&apos;, &apos;c&apos; =&gt; &apos;c&apos; }</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_weakset">
+<span class="section-number">19.5 </span>WeakSet <a class="header-anchor" href="ch_maps-sets.html#sec_weakset" aria-hidden="true">#</a></h3>
+
+<p>A <code>WeakSet</code> is a Set that doesn&#x2019;t prevent its elements from being garbage-collected. Consult the section on <code>WeakMap</code> for an explanation of why WeakSets don&#x2019;t allow iteration, looping and clearing.</p>
+
+<h4 id="_use-cases-for-weaksets">
+<span class="section-number">19.5.1 </span>Use cases for WeakSets <a class="header-anchor" href="ch_maps-sets.html#_use-cases-for-weaksets" aria-hidden="true">#</a></h4>
+
+<p>Given that you can&#x2019;t iterate over their elements, there are not that many use cases for WeakSets. They do enable you to mark objects.</p>
+
+<h5 id="_marking-objects-created-by-a-factory-function">
+<span class="section-number">19.5.1.1 </span>Marking objects created by a factory function <a class="header-anchor" href="ch_maps-sets.html#_marking-objects-created-by-a-factory-function" aria-hidden="true">#</a></h5>
+
+<p>For example, if you have a factory function for proxies, you can use a WeakSet to record which objects were created by that factory:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">_proxies</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">WeakSet</code><code class="p">();</code>
+
+<code class="kd">function</code> <code class="nx">createProxy</code><code class="p">(</code><code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">proxy</code> <code class="o">=</code> <code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">;</code>
+    <code class="nx">_proxies</code><code class="p">.</code><code class="nx">add</code><code class="p">(</code><code class="nx">proxy</code><code class="p">);</code>
+    <code class="k">return</code> <code class="nx">proxy</code><code class="p">;</code>
+<code class="p">}</code>
+
+<code class="kd">function</code> <code class="nx">isProxy</code><code class="p">(</code><code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">_proxies</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The complete example is shown in <a href="ch_proxies.html#sec_detect-proxies">the chapter on proxies</a>.</p>
+
+<p><code>_proxies</code> must be a WeakSet, because a normal Set would prevent a proxy from being garbage-collected once it isn&#x2019;t referred to, anymore.</p>
+
+<h5 id="_marking-objects-as-safe-to-use-with-a-method">
+<span class="section-number">19.5.1.2 </span>Marking objects as safe to use with a method <a class="header-anchor" href="ch_maps-sets.html#_marking-objects-as-safe-to-use-with-a-method" aria-hidden="true">#</a></h5>
+
+<p><a href="https://mail.mozilla.org/pipermail/es-discuss/2015-June/043027.html">Domenic Denicola shows</a> how a class <code>Foo</code> can ensure that its methods are only applied to instances that were created by it:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">foos</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">WeakSet</code><code class="p">();</code>
+
+<code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">()</code> <code class="p">{</code>
+        <code class="nx">foos</code><code class="p">.</code><code class="nx">add</code><code class="p">(</code><code class="k">this</code><code class="p">);</code>
+    <code class="p">}</code>
+
+    <code class="nx">method</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">if</code> <code class="p">(</code><code class="o">!</code><code class="nx">foos</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="k">this</code><code class="p">))</code> <code class="p">{</code>
+            <code class="k">throw</code> <code class="k">new</code> <code class="nx">TypeError</code><code class="p">(</code><code class="s1">&apos;Incompatible object!&apos;</code><code class="p">);</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_weakset-api">
+<span class="section-number">19.5.2 </span>WeakSet API <a class="header-anchor" href="ch_maps-sets.html#_weakset-api" aria-hidden="true">#</a></h4>
+
+<p>The constructor and the three methods of <code>WeakSet</code> work the same as their <code>Set</code> equivalents:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">new</code> <code class="nx">WeakSet</code><code class="p">(</code><code class="nx">elements</code><code class="o">?</code> <code class="o">:</code> <code class="nx">Iterable</code><code class="o">&lt;</code><code class="nx">any</code><code class="o">&gt;</code><code class="p">)</code>
+
+<code class="nx">WeakSet</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">add</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code>
+<code class="nx">WeakSet</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code>
+<code class="nx">WeakSet</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="k">delete</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_faq-maps-sets">
+<span class="section-number">19.6 </span>FAQ: Maps and Sets <a class="header-anchor" href="ch_maps-sets.html#sec_faq-maps-sets" aria-hidden="true">#</a></h3>
+
+<h4 id="_why-do-maps-and-sets-have-the-property-size-and-not-length">
+<span class="section-number">19.6.1 </span>Why do Maps and Sets have the property <code>size</code> and not <code>length</code>? <a class="header-anchor" href="ch_maps-sets.html#_why-do-maps-and-sets-have-the-property-size-and-not-length" aria-hidden="true">#</a></h4>
+
+<p>Arrays have the property <code>length</code> to count the number of entries. Maps and Sets have a different property, <code>size</code>.</p>
+
+<p>The reason for this difference is that <code>length</code> is for sequences, data structures that are indexable &#x2013; like Arrays. <code>size</code> is for collections that are primarily unordered &#x2013; like Maps and Sets.</p>
+
+<h4 id="sec_configuring-comparison-maps-sets">
+<span class="section-number">19.6.2 </span>Why can&#x2019;t I configure how Maps and Sets compare keys and values? <a class="header-anchor" href="ch_maps-sets.html#sec_configuring-comparison-maps-sets" aria-hidden="true">#</a></h4>
+
+<p>It would be nice if there were a way to configure what Map keys and what Set elements are considered equal. But that feature has been postponed, as it is difficult to implement properly and efficiently.</p>
+
+<h4 id="_is-there-a-way-to-specify-a-default-value-when-getting-something-out-of-a-map">
+<span class="section-number">19.6.3 </span>Is there a way to specify a default value when getting something out of a Map? <a class="header-anchor" href="ch_maps-sets.html#_is-there-a-way-to-specify-a-default-value-when-getting-something-out-of-a-map" aria-hidden="true">#</a></h4>
+
+<p>If you use a key to get something out of a Map, you&#x2019;d occasionally like to specify a default value that is returned if the key is not in the Map. ES6 Maps don&#x2019;t let you do this directly. But you can use the <code>Or</code> operator (<code>||</code>), as demonstrated in the following code. <code>countChars</code> returns a Map that maps characters to numbers of occurrences.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">countChars</code><code class="p">(</code><code class="nx">chars</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">charCounts</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">();</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">ch</code> <code class="k">of</code> <code class="nx">chars</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">ch</code> <code class="o">=</code> <code class="nx">ch</code><code class="p">.</code><code class="nx">toLowerCase</code><code class="p">();</code>
+        <code class="kr">const</code> <code class="nx">prevCount</code> <code class="o">=</code> <code class="nx">charCounts</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">ch</code><code class="p">)</code> <code class="o">||</code> <code class="mi">0</code><code class="p">;</code> <code class="c1">// (A)</code>
+        <code class="nx">charCounts</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="nx">ch</code><code class="p">,</code> <code class="nx">prevCount</code><code class="o">+</code><code class="mi">1</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">charCounts</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In line A, the default <code>0</code> is used if <code>ch</code> is not in the <code>charCounts</code> and <code>get()</code> returns <code>undefined</code>.</p>
+
+<h4 id="_when-should-i-use-a-map-when-an-object">
+<span class="section-number">19.6.4 </span>When should I use a Map, when an object? <a class="header-anchor" href="ch_maps-sets.html#_when-should-i-use-a-map-when-an-object" aria-hidden="true">#</a></h4>
+
+<p>If you map anything other than strings to any kind of data, you have no choice: you must use a Map.</p>
+
+<p>If, however, you are mapping strings to arbitrary data, you must decide whether or not to use an object. A rough general guideline is:</p>
+
+<ul>
+  <li>Is there a fixed set of keys (known at development time)?<br>
+Then use an object and access the values via fixed keys: <code>obj.key</code>
+</li>
+  <li>Can the set of keys change at runtime?<br>
+Then use a Map and access the values via keys stored in variables: <code>map.get(theKey)</code>
+</li>
+</ul>
+
+<h4 id="_when-would-i-use-an-object-as-a-key-in-a-map">
+<span class="section-number">19.6.5 </span>When would I use an object as a key in a Map? <a class="header-anchor" href="ch_maps-sets.html#_when-would-i-use-an-object-as-a-key-in-a-map" aria-hidden="true">#</a></h4>
+
+<p>Map keys mainly make sense if they are compared by value (the same &#x201C;content&#x201D; means that two values are considered equal, not the same identity). That excludes objects. There is one use case &#x2013; externally attaching data to objects, but that use case is better served by WeakMaps where an entry goes away when the key disappears.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_typed-arrays.html">20. Typed Arrays</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

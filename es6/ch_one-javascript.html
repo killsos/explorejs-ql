@@ -1,0 +1,300 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>3. One JavaScript: avoiding versioning in ECMAScript 6</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>3. One JavaScript: avoiding versioning in ECMAScript 6</b><br>
+        <a href="index.html#toc_ch_one-javascript">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_one-javascript">
+<span class="section-number">3. </span>One JavaScript: avoiding versioning in ECMAScript 6 <a class="header-anchor" href="ch_one-javascript.html#ch_one-javascript" aria-hidden="true">#</a></h2>
+
+<p>What is the best way to add new features to a language? This chapter describes the approach taken by ECMAScript 6. It is called <em>One JavaScript</em>, because it avoids versioning.</p>
+
+<hr class="scene-break">
+
+<ul>
+  <li>3.1. <a href="ch_one-javascript.html#sec_versioning">Versioning</a>
+    <ul>
+      <li>3.1.1. Evolution without versioning</li>
+    </ul>
+  </li>
+  <li>3.2. <a href="ch_one-javascript.html#sec_strict-mode-and-es6">Strict mode and ECMAScript 6</a>
+    <ul>
+      <li>3.2.1. Supporting sloppy (non-strict) mode</li>
+      <li>3.2.2. <code>let</code> declarations in sloppy mode</li>
+      <li>3.2.3. Block-level function declarations in sloppy mode</li>
+      <li>3.2.4. Other keywords</li>
+      <li>3.2.5. Implicit strict mode</li>
+      <li>3.2.6. Things that can&#x2019;t be fixed</li>
+    </ul>
+  </li>
+  <li>3.3. <a href="ch_one-javascript.html#sec_breaking-changes-es6">Breaking changes in ES6</a>
+</li>
+  <li>3.4. <a href="ch_one-javascript.html#sec_conclusion-one-javascript">Conclusion</a>
+</li>
+  <li>3.5. <a href="ch_one-javascript.html#sec_further-reading-one-javascript">Further reading</a>
+</li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_versioning">
+<span class="section-number">3.1 </span>Versioning <a class="header-anchor" href="ch_one-javascript.html#sec_versioning" aria-hidden="true">#</a></h3>
+
+<p>In principle, a new version of a language is a chance to clean it up, by removing outdated features or by changing how features work. That means that new code doesn&#x2019;t work in older implementations of the language and that old code doesn&#x2019;t work in a new implementation. Each piece of code is linked to a specific version of the language. Two approaches are common for dealing with versions being different.</p>
+
+<p>First, you can take an &#x201C;all or nothing&#x201D; approach and demand that, if a code base wants to use the new version, it must be upgraded completely. Python took that approach when upgrading from Python 2 to Python 3. A problem with it is that it may not be feasible to migrate all of an existing code base at once, especially if it is large. Furthermore, the approach is not an option for the web, where you&#x2019;ll always have old code and where JavaScript engines are updated automatically.</p>
+
+<p>Second, you can permit a code base to contain code in multiple versions, by tagging code with versions. On the web, you could tag ECMAScript 6 code via a dedicated <a href="http://en.wikipedia.org/wiki/Internet_media_type">Internet media type</a>. Such a media type can be associated with a file via an HTTP header:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>Content-Type: application/ecmascript;version=6
+</pre></div>
+
+</figure>
+
+<p>It can also be associated via the <code>type</code> attribute of the <code>&lt;script&gt;</code> element (whose <a href="http://www.w3.org/TR/html5/scripting-1.html#attr-script-type">default value</a> is <code>text/javascript</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">&lt;</code><code class="nt">script</code> <code class="na">type</code><code class="o">=</code><code class="s">&quot;application/ecmascript;version=6&quot;</code><code class="p">&gt;</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">&lt;/</code><code class="nt">script</code><code class="p">&gt;</code>
+</pre></div>
+
+</figure>
+
+<p>This specifies the version <em>out of band</em>, externally to the actual content. Another option is to specify the version inside the content (<em>in-band</em>). For example, by starting a file with the following line:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">use</code> <code class="nx">version</code> <code class="mi">6</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>Both ways of tagging are problematic: out-of-band versions are brittle and can get lost, in-band versions add clutter to code.</p>
+
+<p>A more fundamental issue is that allowing multiple versions per code base effectively forks a language into sub-languages that have to be maintained in parallel. This causes problems:</p>
+
+<ul>
+  <li>Engines become bloated, because they need to implement the semantics of all versions. The same applies to tools analyzing the language (e.g. style checkers such as JSLint).</li>
+  <li>Programmers need to remember how the versions differ.</li>
+  <li>Code becomes harder to refactor, because you need to take versions into consideration when you move pieces of code.</li>
+</ul>
+
+<p>Therefore, versioning is something to avoid, especially for JavaScript and the web.</p>
+
+<h4 id="_evolution-without-versioning">
+<span class="section-number">3.1.1 </span>Evolution without versioning <a class="header-anchor" href="ch_one-javascript.html#_evolution-without-versioning" aria-hidden="true">#</a></h4>
+
+<p>But how can we get rid of versioning? By always being backward-compatible. That means we must give up some of our ambitions w.r.t. cleaning up JavaScript: We can&#x2019;t introduce breaking changes. Being backward-compatible means not removing features and not changing features. The slogan for this principle is: &#x201C;don&#x2019;t break the web&#x201D;.</p>
+
+<p>We can, however, add new features and make existing features more powerful.</p>
+
+<p>As a consequence, no versions are needed for new engines, because they can still run all old code. David Herman calls this approach to avoiding versioning <a href="ch_one-javascript.html#one-js_1"><em>One JavaScript</em> (1JS) [1]</a>, because it avoids splitting up JavaScript into different versions or modes. As we shall see later, 1JS even undoes some of a split that already exists, due to strict mode.</p>
+
+<p>One JavaScript does not mean that you have to completely give up on cleaning up the language. Instead of cleaning up existing features, you introduce new, clean, features. One example for that is <code>let</code>, which declares block-scoped variables and is an improved version of <code>var</code>. It does not, however, replace <code>var</code>. It exists alongside it, as the superior option.</p>
+
+<p>One day, it may even be possible to eliminate features that nobody uses, anymore. Some of the ES6 features were designed by surveying JavaScript code on the web. Two examples are:</p>
+
+<ul>
+  <li>
+<code>let</code>-declarations are difficult to add to non-strict mode, because <code>let</code> is not a reserved word in that mode. The only variant of <code>let</code> that looks like valid ES5 code is:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kd">let</code><code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="nx">arr</code><code class="p">;</code>
+</pre></div>
+
+    </figure>
+
+    <p>Research yielded that no code on the web uses a variable <code>let</code> in non-strict mode in this manner. That enabled TC39 to add <code>let</code> to non-strict mode. Details of how this was done are described <a href="ch_one-javascript.html#sec_sloppy-let-declarations">later in this chapter</a>.</p>
+  </li>
+  <li>Function declarations do occasionally appear in non-strict blocks, which is why the ES6 specification describes measures that web browsers can take to ensure that such code doesn&#x2019;t break. <a href="ch_one-javascript.html#sec_sloppy-function-declarations">Details are explained later</a>.</li>
+</ul>
+
+
+<h3 id="sec_strict-mode-and-es6">
+<span class="section-number">3.2 </span>Strict mode and ECMAScript 6 <a class="header-anchor" href="ch_one-javascript.html#sec_strict-mode-and-es6" aria-hidden="true">#</a></h3>
+
+<p><a href="http://speakingjs.com/es5/ch07.html#strict_mode">Strict mode</a> was introduced in ECMAScript 5 to clean up the language. It is switched on by putting the following line first in a file or in a function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="s1">&apos;use strict&apos;</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>Strict mode introduces three kinds of breaking changes:</p>
+
+<ul>
+  <li>Syntactic changes: some previously legal syntax is forbidden in strict mode. For example:
+    <ul>
+      <li>The <code>with</code> statement is forbidden. It lets users add arbitrary objects to the chain of variable scopes, which slows down execution and makes it tricky to figure out what a variable refers to.</li>
+      <li>Deleting an unqualified identifier (a variable, not a property) is forbidden.</li>
+      <li>Functions can only be declared at the top level of a scope.</li>
+      <li>More identifiers are <a href="http://ecma-international.org/ecma-262/5.1/#sec-7.6.1.2">reserved</a>: <code>implements interface let package private protected public static yield</code>
+</li>
+    </ul>
+  </li>
+  <li>More errors. For example:
+    <ul>
+      <li>Assigning to an undeclared variable causes a <code>ReferenceError</code>. In non-strict mode, a global variable is created in this case.</li>
+      <li>Changing read-only properties (such as the length of a string) causes a <code>TypeError</code>. In non-strict mode, it simply has no effect.</li>
+    </ul>
+  </li>
+  <li>Different semantics: Some constructs behave differently in strict mode. For example:
+    <ul>
+      <li>
+<code>arguments</code> doesn&#x2019;t track the current values of parameters, anymore.</li>
+      <li>
+<code>this</code> is <code>undefined</code> in non-method functions. In non-strict mode, it refers to the global object (<code>window</code>), which meant that global variables were created if you called a constructor without <code>new</code>.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Strict mode is a good example of why versioning is tricky: Even though it enables a cleaner version of JavaScript, its adoption is still relatively low. The main reasons are that it breaks some existing code, can slow down execution and is a hassle to add to files (let alone interactive command lines). I love <em>the idea</em> of strict mode and don&#x2019;t nearly use it often enough.</p>
+
+<h4 id="_supporting-sloppy-non-strict-mode">
+<span class="section-number">3.2.1 </span>Supporting sloppy (non-strict) mode <a class="header-anchor" href="ch_one-javascript.html#_supporting-sloppy-non-strict-mode" aria-hidden="true">#</a></h4>
+
+<p>One JavaScript means that we can&#x2019;t give up on sloppy mode: it will continue to be around (e.g. in HTML attributes). Therefore, we can&#x2019;t build ECMAScript 6 on top of strict mode, we must add its features to both strict mode and non-strict mode (a.k.a. sloppy mode). Otherwise, strict mode would be a different version of the language and we&#x2019;d be back to versioning. Unfortunately, two ECMAScript 6 features are difficult to add to sloppy mode: <code>let</code> declarations and block-level function declarations. Let&#x2019;s examine why that is and how to add them, anyway.</p>
+
+<h4 id="sec_sloppy-let-declarations">
+<span class="section-number">3.2.2 </span><code>let</code> declarations in sloppy mode <a class="header-anchor" href="ch_one-javascript.html#sec_sloppy-let-declarations" aria-hidden="true">#</a></h4>
+
+<p><code>let</code> enables you to declare block-scoped variables. It is difficult to add to sloppy mode, because <code>let</code> is only a reserved word in strict mode. That is, the following two statements are legal ES5 sloppy code:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="kd">let</code> <code class="o">=</code> <code class="p">[];</code>
+<code class="kd">let</code><code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="s1">&apos;abc&apos;</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>In strict ECMAScript 6, you get an exception in line 1, because you are using the reserved word <code>let</code> as a variable name. And the statement in line 2 is interpreted as a <code>let</code> variable declaration (that uses destructuring).</p>
+
+<p>In sloppy ECMAScript 6, the first line does not cause an exception, but the second line is still interpreted as a <code>let</code> declaration. This way of using the identifier <code>let</code> is so rare on the web that ES6 can afford to make this interpretation. Other ways of writing <code>let</code> declarations can&#x2019;t be mistaken for sloppy ES5 syntax:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">let</code> <code class="nx">foo</code> <code class="o">=</code> <code class="mi">123</code><code class="p">;</code>
+<code class="kd">let</code> <code class="p">{</code><code class="nx">x</code><code class="p">,</code><code class="nx">y</code><code class="p">}</code> <code class="o">=</code> <code class="nx">computeCoordinates</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<h4 id="sec_sloppy-function-declarations">
+<span class="section-number">3.2.3 </span>Block-level function declarations in sloppy mode <a class="header-anchor" href="ch_one-javascript.html#sec_sloppy-function-declarations" aria-hidden="true">#</a></h4>
+
+<p>ECMAScript 5 strict mode forbids function declarations in blocks. The specification allowed them in sloppy mode, but didn&#x2019;t specify how they should behave. Hence, various implementations of JavaScript support them, but handle them differently.</p>
+
+<p>ECMAScript 6 wants a function declaration in a block to be local to that block. That is OK as an extension of ES5 strict mode, but breaks some sloppy code. Therefore, ES6 provides &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-block-level-function-declarations-web-legacy-compatibility-semantics">web legacy compatibility semantics</a>&#x201D; for browsers that lets function declarations in blocks exist at function scope.</p>
+
+<h4 id="_other-keywords">
+<span class="section-number">3.2.4 </span>Other keywords <a class="header-anchor" href="ch_one-javascript.html#_other-keywords" aria-hidden="true">#</a></h4>
+
+<p>The identifiers <code>yield</code> and <code>static</code> are only reserved in ES5 strict mode. ECMAScript 6 uses context-specific syntax rules to make them work in sloppy mode:</p>
+
+<ul>
+  <li>In sloppy mode, <code>yield</code> is only a reserved word inside a generator function.</li>
+  <li>
+<code>static</code> is currently only used inside class literals, which are implicitly strict (see below).</li>
+</ul>
+
+<h4 id="_implicit-strict-mode">
+<span class="section-number">3.2.5 </span>Implicit strict mode <a class="header-anchor" href="ch_one-javascript.html#_implicit-strict-mode" aria-hidden="true">#</a></h4>
+
+<p>The bodies of modules and classes are implicitly in strict mode in ECMAScript 6 &#x2013; there is no need for the <code>&apos;use strict&apos;</code> marker. Given that virtually all of our code will live in modules in the future, ECMAScript 6 effectively upgrades the whole language to strict mode.</p>
+
+<p>The bodies of other constructs (such as arrow functions and generator functions) could have been made implicitly strict, too. But considering how small these constructs usually are, using them in sloppy mode would have resulted in code that is fragmented between the two modes. Classes and especially modules are large enough to make fragmentation less of an issue.</p>
+
+<h4 id="_things-that-cant-be-fixed">
+<span class="section-number">3.2.6 </span>Things that can&#x2019;t be fixed <a class="header-anchor" href="ch_one-javascript.html#_things-that-cant-be-fixed" aria-hidden="true">#</a></h4>
+
+<p>The downside of One JavaScript is that you can&#x2019;t fix existing quirks, especially the following two.</p>
+
+<p>First, <code>typeof null</code> should return the string <code>&apos;null&apos;</code> and not <code>&apos;object&apos;</code>. TC39 tried fixing it, but it broke existing code. On the other hand, adding new results for new kinds of operands is OK, because current JavaScript engines already occasionally return custom values for host objects. One example are ECMAScript 6&#x2019;s symbols:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; typeof Symbol.iterator
+&apos;symbol&apos;
+</pre></div>
+
+</figure>
+
+<p>Second, the global object (<code>window</code> in browsers) shouldn&#x2019;t be in the scope chain of variables. But it is also much too late to change that now. At least, one won&#x2019;t be in global scope in modules and <code>let</code> never creates properties of the global object, not even when used in global scope.</p>
+
+
+<h3 id="sec_breaking-changes-es6">
+<span class="section-number">3.3 </span>Breaking changes in ES6 <a class="header-anchor" href="ch_one-javascript.html#sec_breaking-changes-es6" aria-hidden="true">#</a></h3>
+
+<p>ECMAScript 6 does introduce a few minor breaking changes (nothing you&#x2019;re likely to encounter). They are listed in two annexes:</p>
+
+<ul>
+  <li><a href="http://www.ecma-international.org/ecma-262/6.0/#sec-corrections-and-clarifications-in-ecmascript-2015-with-possible-compatibility-impact">Annex D: Corrections and Clarifications in ECMAScript 2015 with Possible Compatibility Impact</a></li>
+  <li><a href="http://www.ecma-international.org/ecma-262/6.0/#sec-additions-and-changes-that-introduce-incompatibilities-with-prior-editions">Annex E: Additions and Changes That Introduce Incompatibilities with Prior Editions</a></li>
+</ul>
+
+
+<h3 id="sec_conclusion-one-javascript">
+<span class="section-number">3.4 </span>Conclusion <a class="header-anchor" href="ch_one-javascript.html#sec_conclusion-one-javascript" aria-hidden="true">#</a></h3>
+
+<p>One JavaScript means making ECMAScript 6 completely backward-compatible. It is great that that succeeded. Especially appreciated is that modules (and thus most of our code) are implicitly in strict mode.</p>
+
+<p>In the short term, adding ES6 constructs to both strict mode and sloppy mode is more work when it comes to writing the language specification and to implementing it in engines. In the long term, both the spec and engines profit from the language not being forked (less bloat etc.). Programmers profit immediately from One JavaScript, because it makes it easier to get started with ECMAScript 6.</p>
+
+
+<h3 id="sec_further-reading-one-javascript">
+<span class="section-number">3.5 </span>Further reading <a class="header-anchor" href="ch_one-javascript.html#sec_further-reading-one-javascript" aria-hidden="true">#</a></h3>
+
+<p id="one-js_1">[1] The original 1JS proposal (warning: out of date): &#x201C;<a href="http://esdiscuss.org/topic/es6-doesn-t-need-opt-in">ES6 doesn&#x2019;t need opt-in</a>&#x201D; by David Herman.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_core-features.html">4. Core ES6 features</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

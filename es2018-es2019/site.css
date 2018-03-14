@@ -1,0 +1,192 @@
+body {
+    font-family: Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+    margin: 0 0 0 0;
+}
+#page-content {
+    margin: 2em auto 2em auto;
+    max-width: 40em;
+    font-size: 1.1em;
+    line-height: 1.5;
+}
+
+h1 {
+}
+h3 {
+    border-bottom: thin solid lightgray;
+}
+pre {
+    font-size: 1.2em;
+    line-height: 1.4;
+    margin-left: 1em;
+}
+
+/****** anchors *****/
+
+a {
+    color: darkblue;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:visited {
+    color: darkblue;
+}
+
+/* Highlight what the current hash points to */
+*:target {
+    background-color: #FFFF66;
+}
+
+/****** Tables *****/
+
+td {
+    vertical-align: text-top;
+}
+table {
+    border-collapse: collapse;
+}
+table td, table th {
+    border: thin solid black;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+    padding-left: 0.6em;
+    padding-right: 0.6em;
+}
+
+/****** TOC *****/
+
+nav#TOC ul {
+    list-style: none;
+}
+
+nav#TOC > ul > li {
+    margin-top: 1em;
+}
+nav#TOC > ul > li > ul {
+    margin-top: 1em;
+}
+nav#TOC > ul > li > a {
+    margin-top: 4em;
+    text-transform: uppercase;
+}
+nav#TOC > ul > li > ul > li {
+    margin-top: 0.5em;
+}
+nav#TOC > ul > li > ul > li > a {
+    font-weight: bold;
+}
+
+/****** Top bar *****/
+
+#top-bar {
+    border-bottom: thin solid gray;
+    text-align: center;
+    line-height: 1.3;
+    padding-top: 0.3em;
+    padding-bottom: 0.2em;
+}
+
+/****** Footer *****/
+
+.footer {
+    border-top: thin solid gray;
+    align-items: flex-start;
+    display: flex;
+    justify-content: space-between;
+}
+
+/****** Carbon ad *****/
+
+/* Whole ad box */
+
+#adbox {
+    width: 280px;
+    font-size: 10pt;
+    line-height: 1.4;
+    border: solid thin gray;
+    padding: 2px 5px 2px 5px;
+}
+
+#adbox-explain {
+    font-size: 9pt;
+    color: gray;
+    margin-bottom: 3px;
+}
+
+/* Image and the text */
+
+.carbon-wrap {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+}
+
+a.carbon-text {
+    display: block;
+    width: 130px;
+    /*margin-top: 3px;
+    margin-bottom: 4px;*/
+}
+
+a.carbon-text:link,
+a.carbon-text:active,
+a.carbon-text:visited {
+    color: black;
+    text-decoration: none;
+}
+
+a.carbon-text:hover {
+    color: black;
+    text-decoration: underline;
+}
+
+/* “ads via Carbon” follows the .carbon-wrap, vertically */
+
+a.carbon-poweredby {
+    display: block;
+    font-size: 9pt;
+    text-align: left;
+}
+
+a.carbon-poweredby:link,
+a.carbon-poweredby:active,
+a.carbon-poweredby:visited {
+    color: gray;
+    text-decoration: none;
+}
+
+a.carbon-poweredby:hover {
+    color: gray;
+    text-decoration: underline;
+}
+
+
+
+/* Syntax highlighting: https://github.com/jeffbr13/benjeffrey.com/blob/master/posts/pandoc-syntax-highlighting-css.md */
+
+/* KeyWordTok */
+.sourceCode .kw { color: #268BD2; }
+/* DataTypeTok */
+.sourceCode .dt { color: #268BD2; }
+
+/* DecValTok (decimal value), BaseNTok, FloatTok */
+.sourceCode .dv, .sourceCode .bn, .sourceCode .fl { color: #D33682; }
+/* CharTok */
+.sourceCode .ch { color: #DC322F; }
+/* StringTok */
+.sourceCode .st { color: #2AA198; }
+/* CommentTok */
+.sourceCode .co { color: #93A1A1; }
+/* OtherTok */
+.sourceCode .ot { color: #A57800; }
+/* AlertTok */
+.sourceCode .al { color: #CB4B16; font-weight: bold; }
+/* FunctionTok */
+.sourceCode .fu { color: #268BD2; }
+/* RegionMarkerTok */
+.sourceCode .re { }
+/* ErrorTok */
+.sourceCode .er { color: #D30102; font-weight: bold; }

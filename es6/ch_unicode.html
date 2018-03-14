@@ -1,0 +1,301 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>26. Unicode in ES6</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>26. Unicode in ES6</b><br>
+        <a href="index.html#toc_ch_unicode">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_unicode">
+<span class="section-number">26. </span>Unicode in ES6 <a class="header-anchor" href="ch_unicode.html#ch_unicode" aria-hidden="true">#</a></h2>
+
+<p>This chapter explains the improved support for Unicode that ECMAScript 6 brings. For a general introduction to Unicode, read Chap. &#x201C;<a href="http://speakingjs.com/es5/ch24.html">Unicode and JavaScript</a>&#x201D; in &#x201C;Speaking JavaScript&#x201D;.</p>
+
+<hr class="scene-break">
+
+<ul>
+  <li>26.1. <a href="ch_unicode.html#sec_better-unicode-es6">Unicode is better supported in ES6</a>
+</li>
+  <li>26.2. <a href="ch_unicode.html#sec_escape-sequences">Escape sequences in ES6</a>
+    <ul>
+      <li>26.2.1. Where can escape sequences be used?</li>
+      <li>26.2.2. Escape sequences in the ES6 spec</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_better-unicode-es6">
+<span class="section-number">26.1 </span>Unicode is better supported in ES6 <a class="header-anchor" href="ch_unicode.html#sec_better-unicode-es6" aria-hidden="true">#</a></h3>
+
+<p>There are three areas in which ECMAScript 6 has improved support for Unicode:</p>
+
+<ul>
+  <li>Unicode escapes for code points beyond 16 bits: <code>\u{&#xB7;&#xB7;&#xB7;}</code><br>
+Can be used in identifiers, string literals, template literals and regular expression literals. They are explained in the next section.</li>
+  <li>
+<a href="ch_strings.html#ch_strings">Strings</a>:
+    <ul>
+      <li>Iteration honors Unicode code points.</li>
+      <li>Read code point values via <code>String.prototype.codePointAt()</code>.</li>
+      <li>Create a string from code point values via <code>String.fromCodePoint()</code>.</li>
+    </ul>
+  </li>
+  <li>
+<a href="ch_regexp.html#ch_regexp">Regular expressions</a>:
+    <ul>
+      <li>New flag <code>/u</code> (plus boolean property <code>unicode</code>) improves handling of surrogate pairs.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Additionally, ES6 is based on Unicode version 5.1.0, whereas ES5 is based on Unicode version 3.0.</p>
+
+
+<h3 id="sec_escape-sequences">
+<span class="section-number">26.2 </span>Escape sequences in ES6 <a class="header-anchor" href="ch_unicode.html#sec_escape-sequences" aria-hidden="true">#</a></h3>
+
+<p>There are three parameterized escape sequences for representing characters in JavaScript:</p>
+
+<ul>
+  <li>Hex escape (exactly two hexadecimal digits): <code>\xHH</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; &apos;\x7A&apos; === &apos;z&apos;
+  true
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Unicode escape (exactly four hexadecimal digits): <code>\uHHHH</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; &apos;\u007A&apos; === &apos;z&apos;
+  true
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Unicode code point escape (1 or more hexadecimal digits): <code>\u{&#xB7;&#xB7;&#xB7;}</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; &apos;\u{7A}&apos; === &apos;z&apos;
+  true
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>Unicode code point escapes are new in ES6. They let you specify code points beyond 16 bits. If you wanted to do that in ECMAScript 5, you had to encode each code point as two UTF-16 code units (a <em>surrogate pair</em>). These code units could be expressed via Unicode escapes. For example, the following statement logs a rocket (code point 0x1F680) to most consoles:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;\uD83D\uDE80&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>With a Unicode code point escape you can specify code points greater than 16 bits directly:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;\u{1F680}&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_where-can-escape-sequences-be-used">
+<span class="section-number">26.2.1 </span>Where can escape sequences be used? <a class="header-anchor" href="ch_unicode.html#_where-can-escape-sequences-be-used" aria-hidden="true">#</a></h4>
+
+<p>The escape sequences can be used in the following locations:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>&#xA0;</th>
+      <th><code>\uHHHH</code></th>
+      <th><code>\u{&#xB7;&#xB7;&#xB7;}</code></th>
+      <th><code>\xHH</code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Identifiers</td>
+      <td>&#x2714;</td>
+      <td>&#x2714;</td>
+      <td>&#xA0;</td>
+    </tr>
+    <tr>
+      <td>String literals</td>
+      <td>&#x2714;</td>
+      <td>&#x2714;</td>
+      <td>&#x2714;</td>
+    </tr>
+    <tr>
+      <td>Template literals</td>
+      <td>&#x2714;</td>
+      <td>&#x2714;</td>
+      <td>&#x2714;</td>
+    </tr>
+    <tr>
+      <td>Regular expression literals</td>
+      <td>&#x2714;</td>
+      <td>Only with flag <code>/u</code>
+</td>
+      <td>&#x2714;</td>
+    </tr>
+  </tbody>
+
+</table>
+
+<p>Identifiers:</p>
+
+<ul>
+  <li>A 4-digit Unicode escape <code>\uHHHH</code> becomes a single code point.</li>
+  <li>A Unicode code point escape <code>\u{&#xB7;&#xB7;&#xB7;}</code> becomes a single code point.</li>
+</ul>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const hello = 123;
+&gt; hell\u{6F}
+123
+</pre></div>
+
+</figure>
+
+<p>String literals:</p>
+
+<ul>
+  <li>Strings are internally stored as UTF-16 code units.</li>
+  <li>A hex escape <code>\xHH</code> contributes a UTF-16 code unit.</li>
+  <li>A 4-digit Unicode escape <code>\uHHHH</code> contributes a UTF-16 code unit.</li>
+  <li>A Unicode code point escape <code>\u{&#xB7;&#xB7;&#xB7;}</code> contributes the UTF-16 encoding of its code point (one or two UTF-16 code units).</li>
+</ul>
+
+<p>Template literals:</p>
+
+<ul>
+  <li>In template literals, escape sequences are handled like in string literals.</li>
+  <li>In tagged templates, how escape sequences are interpreted depends on the tag function. It can choose between two interpretations:
+    <ul>
+      <li>Cooked: escape sequences are handled like in string literals.</li>
+      <li>Raw: escape sequences are handled as a sequence of characters.</li>
+    </ul>
+  </li>
+</ul>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; `hell\u{6F}` // cooked
+&apos;hello&apos;
+&gt; String.raw`hell\u{6F}` // raw
+&apos;hell\\u{6F}&apos;
+</pre></div>
+
+</figure>
+
+<p>Regular expressions:</p>
+
+<ul>
+  <li>Unicode code point escapes are only allowed if the flag <code>/u</code> is set, because <code>\u{3}</code> is interpreted as three times the character <code>u</code>, otherwise:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; /^\u{3}$/.test(&apos;uuu&apos;)
+  true
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<h4 id="_escape-sequences-in-the-es6-spec">
+<span class="section-number">26.2.2 </span>Escape sequences in the ES6 spec <a class="header-anchor" href="ch_unicode.html#_escape-sequences-in-the-es6-spec" aria-hidden="true">#</a></h4>
+
+<p>Various information:</p>
+
+<ul>
+  <li>The spec treats source code as a sequence of Unicode code points: &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-source-text">Source Text</a>&#x201D;</li>
+  <li>Unicode escape sequences sequences in identifiers: &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-names-and-keywords">Names and Keywords</a>&#x201D;</li>
+  <li>Strings are internally stored as sequences of UTF-16 code units: &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-literals-string-literals">String Literals</a>&#x201D;</li>
+  <li>Strings &#x2013; how various escape sequences are translated to UTF-16 code units: &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-static-semantics-sv">Static Semantics: SV</a>&#x201D;</li>
+  <li>Template literals &#x2013; how various escape sequences are translated to UTF-16 code units: &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-static-semantics-tv-and-trv">Static Semantics: TV and TRV</a>&#x201D;</li>
+</ul>
+
+<h5 id="_regular-expressions">
+<span class="section-number">26.2.2.1 </span>Regular expressions <a class="header-anchor" href="ch_unicode.html#_regular-expressions" aria-hidden="true">#</a></h5>
+
+<p>The spec distinguishes between BMP patterns (flag <code>/u</code> not set) and Unicode patterns (flag <code>/u</code> set). Sect. &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-pattern-semantics">Pattern Semantics</a>&#x201D; explains that they are handled differently and how.</p>
+
+<p>As a reminder, here is how grammar rules are be parameterized in the spec:</p>
+
+<ul>
+  <li>If a grammar rule <code>R</code> has the subscript <code>[U]</code> then that means there are two versions of it: <code>R</code> and <code>R_U</code>.</li>
+  <li>Parts of the rule can pass on the subscript via <code>[?U]</code>.</li>
+  <li>If a part of a rule has the prefix <code>[+U]</code> it only exists if the subscript <code>[U]</code> is present.</li>
+  <li>If a part of a rule has the prefix <code>[~U]</code> it only exists if the subscript <code>[U]</code> is not present.</li>
+</ul>
+
+<p>You can see this parameterization in action in Sect. &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-patterns">Patterns</a>&#x201D;, where the subscript <code>[U]</code> creates separate grammars for BMP patterns and Unicode patterns:</p>
+
+<ul>
+  <li>IdentityEscape: In BMP patterns, many characters can be prefixed with a backslash and are interpreted as themselves (for example: if <code>\u</code> is not followed by four hexadecimal digits, it is interpreted as <code>u</code>). In Unicode patterns that only works for the following characters (which frees up <code>\u</code> for Unicode code point escapes): <code>^ $ \ . * + ? ( ) [ ] { } |</code>
+</li>
+  <li>RegExpUnicodeEscapeSequence: <code>&quot;\u{&quot; HexDigits &quot;}&quot;</code> is only allowed in Unicode patterns. In those patterns, lead and trail surrogates are also grouped to help with UTF-16 decoding.</li>
+</ul>
+
+<p>Sect. &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-characterescape">CharacterEscape</a>&#x201D; explains how various escape sequences are translated to <em>characters</em> (roughly: either code units or code points).</p>
+
+
+<aside class="generic_inbar blurb external-link icon-external-link">
+    <h3 id="_further-reading-5">Further reading <a class="header-anchor" href="ch_unicode.html#_further-reading-5" aria-hidden="true">#</a></h3>
+
+  <p>&#x201C;<a href="https://mathiasbynens.be/notes/javascript-unicode">JavaScript has a Unicode problem</a>&#x201D; (by Mathias Bynens) explains new Unicode features in ES6.</p>
+
+</aside>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_tail-calls.html">27. Tail call optimization</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

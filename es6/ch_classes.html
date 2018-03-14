@@ -1,0 +1,2015 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>15. Classes</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>15. Classes</b><br>
+        <a href="index.html#toc_ch_classes">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_classes">
+<span class="section-number">15. </span>Classes <a class="header-anchor" href="ch_classes.html#ch_classes" aria-hidden="true">#</a></h2>
+
+<hr class="scene-break">
+
+<ul>
+  <li>15.1. <a href="ch_classes.html#sec_overview-classes">Overview</a>
+</li>
+  <li>15.2. <a href="ch_classes.html#sec_essentials-classes">The essentials</a>
+    <ul>
+      <li>15.2.1. Base classes</li>
+      <li>15.2.2. Inside the body of a class definition</li>
+      <li>15.2.3. Subclassing</li>
+    </ul>
+  </li>
+  <li>15.3. <a href="ch_classes.html#sec_private-data-for-classes">Private data for classes</a>
+    <ul>
+      <li>15.3.1. Private data via constructor environments</li>
+      <li>15.3.2. Private data via a naming convention</li>
+      <li>15.3.3. Private data via WeakMaps</li>
+      <li>15.3.4. Private data via symbols</li>
+      <li>15.3.5. Further reading</li>
+    </ul>
+  </li>
+  <li>15.4. <a href="ch_classes.html#sec_simple-mixins">Simple mixins</a>
+</li>
+  <li>15.5. <a href="ch_classes.html#sec_details-classes">The details of classes</a>
+    <ul>
+      <li>15.5.1. Various checks</li>
+      <li>15.5.2. Attributes of properties</li>
+      <li>15.5.3. Classes have inner names</li>
+    </ul>
+  </li>
+  <li>15.6. <a href="ch_classes.html#details-of-subclassing">The details of subclassing</a>
+    <ul>
+      <li>15.6.1. Prototype chains</li>
+      <li>15.6.2. Allocating and initializing instances</li>
+      <li>15.6.3. Why can&#x2019;t you subclass built-in constructors in ES5?</li>
+      <li>15.6.4. Referring to superproperties in methods</li>
+    </ul>
+  </li>
+  <li>15.7. <a href="ch_classes.html#sec_species-pattern">The species pattern</a>
+    <ul>
+      <li>15.7.1. Helper methods for examples</li>
+      <li>15.7.2. The standard species pattern</li>
+      <li>15.7.3. The species pattern for Arrays</li>
+      <li>15.7.4. The species pattern in static methods</li>
+      <li>15.7.5. Overriding the default species in subclasses</li>
+    </ul>
+  </li>
+  <li>15.8. <a href="ch_classes.html#sec_class-benefits">The pros and cons of classes</a>
+    <ul>
+      <li>15.8.1. Complaint: ES6 classes obscure the true nature of JavaScript inheritance</li>
+      <li>15.8.2. Complaint: Classes provide only single inheritance</li>
+      <li>15.8.3. Complaint: Classes lock you in, due to mandatory <code>new</code>
+</li>
+    </ul>
+  </li>
+  <li>15.9. <a href="ch_classes.html#sec_faq-classes">FAQ: classes</a>
+    <ul>
+      <li>15.9.1. Why can&#x2019;t classes be function-called?</li>
+      <li>15.9.2. How do I instantiate a class, given an Array of arguments?</li>
+    </ul>
+  </li>
+  <li>15.10. <a href="ch_classes.html#sec_classes-what-next">What is next for classes?</a>
+</li>
+  <li>15.11. <a href="ch_classes.html#sec_further-reading-classes">Further reading</a>
+</li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-classes">
+<span class="section-number">15.1 </span>Overview <a class="header-anchor" href="ch_classes.html#sec_overview-classes" aria-hidden="true">#</a></h3>
+
+<p>A class and a subclass:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">x</code> <code class="o">=</code> <code class="nx">x</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">y</code> <code class="o">=</code> <code class="nx">y</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="sb">`(</code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">x</code><code class="si">}</code><code class="sb">, </code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">y</code><code class="si">}</code><code class="sb">)`</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kr">class</code> <code class="nx">ColorPoint</code> <code class="kr">extends</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">,</code> <code class="nx">color</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kr">super</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">);</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">color</code> <code class="o">=</code> <code class="nx">color</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="kr">super</code><code class="p">.</code><code class="nx">toString</code><code class="p">()</code> <code class="o">+</code> <code class="s1">&apos; in &apos;</code> <code class="o">+</code> <code class="k">this</code><code class="p">.</code><code class="nx">color</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Using the classes:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const cp = new ColorPoint(25, 8, &apos;green&apos;);
+
+&gt; cp.toString();
+&apos;(25, 8) in green&apos;
+
+&gt; cp instanceof ColorPoint
+true
+&gt; cp instanceof Point
+true
+</pre></div>
+
+</figure>
+
+<p>Under the hood, ES6 classes are not something that is radically new: They mainly provide more convenient syntax to create old-school constructor functions. You can see that if you use <code>typeof</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; typeof Point
+&apos;function&apos;
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_essentials-classes">
+<span class="section-number">15.2 </span>The essentials <a class="header-anchor" href="ch_classes.html#sec_essentials-classes" aria-hidden="true">#</a></h3>
+
+<h4 id="_base-classes-1">
+<span class="section-number">15.2.1 </span>Base classes <a class="header-anchor" href="ch_classes.html#_base-classes-1" aria-hidden="true">#</a></h4>
+
+<p>A class is defined like this in ECMAScript 6:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">x</code> <code class="o">=</code> <code class="nx">x</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">y</code> <code class="o">=</code> <code class="nx">y</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="sb">`(</code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">x</code><code class="si">}</code><code class="sb">, </code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">y</code><code class="si">}</code><code class="sb">)`</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>You use this class just like an ES5 constructor function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; var p = new Point(25, 8);
+&gt; p.toString()
+&apos;(25, 8)&apos;
+</pre></div>
+
+</figure>
+
+<p>In fact, the result of a class definition is a function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; typeof Point
+&apos;function&apos;
+</pre></div>
+
+</figure>
+
+<p>However, you can only invoke a class via <code>new</code>, not via a function call (the rationale behind this <a href="ch_classes.html#cannot-function-call-classes">is explained later</a>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Point()
+TypeError: Classes can&#x2019;t be function-called
+</pre></div>
+
+</figure>
+
+<aside class="generic_inbar blurb gears icon-gears">
+    <p>In the spec, function-calling classes is prevented in <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-ecmascript-function-objects-call-thisargument-argumentslist">the internal method <code>[[Call]]</code></a> of function objects.</p>
+
+</aside>
+
+<h5 id="_no-separators-between-members-of-class-definitions">
+<span class="section-number">15.2.1.1 </span>No separators between members of class definitions <a class="header-anchor" href="ch_classes.html#_no-separators-between-members-of-class-definitions" aria-hidden="true">#</a></h5>
+
+<p>There is no separating punctuation between the members of a class definition. For example, the members of an object literal are separated by commas, which are illegal at the top levels of class definitions. Semicolons are allowed, but ignored:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">MyClass</code> <code class="p">{</code>
+    <code class="nx">foo</code><code class="p">()</code> <code class="p">{}</code>
+    <code class="p">;</code> <code class="c1">// OK, ignored</code>
+    <code class="p">,</code> <code class="c1">// SyntaxError</code>
+    <code class="nx">bar</code><code class="p">()</code> <code class="p">{}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Semicolons are allowed in preparation for future syntax which may include semicolon-terminated members. Commas are forbidden to emphasize that class definitions are different from object literals.</p>
+
+<h5 id="_class-declarations-are-not-hoisted">
+<span class="section-number">15.2.1.2 </span>Class declarations are not hoisted <a class="header-anchor" href="ch_classes.html#_class-declarations-are-not-hoisted" aria-hidden="true">#</a></h5>
+
+<p>Function declarations are <em>hoisted</em>: When entering a scope, the functions that are declared in it are immediately available &#x2013; independently of where the declarations happen. That means that you can call a function that is declared later:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">foo</code><code class="p">();</code> <code class="c1">// works, because `foo` is hoisted</code>
+
+<code class="kd">function</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{}</code>
+</pre></div>
+
+</figure>
+
+<p>In contrast, class declarations are not hoisted. Therefore, a class only exists after execution reached its definition and it was evaluated. Accessing it beforehand leads to a <code>ReferenceError</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">new</code> <code class="nx">Foo</code><code class="p">();</code> <code class="c1">// ReferenceError</code>
+
+<code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{}</code>
+</pre></div>
+
+</figure>
+
+<p>The reason for this limitation is that classes can have an <code>extends</code> clause whose value is an arbitrary expression. That expression must be evaluated in the proper &#x201C;location&#x201D;, its evaluation can&#x2019;t be hoisted.</p>
+
+<p>Not having hoisting is less limiting than you may think. For example, a function that comes before a class declaration can still refer to that class, but you have to wait until the class declaration has been evaluated before you can call the function.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">functionThatUsesBar</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">new</code> <code class="nx">Bar</code><code class="p">();</code>
+<code class="p">}</code>
+
+<code class="nx">functionThatUsesBar</code><code class="p">();</code> <code class="c1">// ReferenceError</code>
+<code class="kr">class</code> <code class="nx">Bar</code> <code class="p">{}</code>
+<code class="nx">functionThatUsesBar</code><code class="p">();</code> <code class="c1">// OK</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_class-expressions">
+<span class="section-number">15.2.1.3 </span>Class expressions <a class="header-anchor" href="ch_classes.html#_class-expressions" aria-hidden="true">#</a></h5>
+
+<p>Similarly to functions, there are two kinds of <em>class definitions</em>, two ways to define a class: <em>class declarations</em> and <em>class expressions</em>.</p>
+
+<p>Similarly to function expressions, class expressions can be anonymous:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">MyClass</code> <code class="o">=</code> <code class="kr">class</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">};</code>
+<code class="kr">const</code> <code class="nx">inst</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">MyClass</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p>Also similarly to function expressions, class expressions can have names that are only visible inside them:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">MyClass</code> <code class="o">=</code> <code class="kr">class</code> <code class="nx">Me</code> <code class="p">{</code>
+    <code class="nx">getClassName</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">Me</code><code class="p">.</code><code class="nx">name</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="kr">const</code> <code class="nx">inst</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">MyClass</code><code class="p">();</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">inst</code><code class="p">.</code><code class="nx">getClassName</code><code class="p">());</code> <code class="c1">// Me</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">Me</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// ReferenceError: Me is not defined</code>
+</pre></div>
+
+</figure>
+
+<p>The last two lines demonstrate that <code>Me</code> does not become a variable outside of the class, but can be used inside it.</p>
+
+<h4 id="_inside-the-body-of-a-class-definition">
+<span class="section-number">15.2.2 </span>Inside the body of a class definition <a class="header-anchor" href="ch_classes.html#_inside-the-body-of-a-class-definition" aria-hidden="true">#</a></h4>
+
+<p>A class body can only contain methods, but not data properties. Prototypes having data properties is generally considered an anti-pattern, so this just enforces a best practice.</p>
+
+<h5 id="_constructor-static-methods-prototype-methods">
+<span class="section-number">15.2.2.1 </span><code>constructor</code>, static methods, prototype methods <a class="header-anchor" href="ch_classes.html#_constructor-static-methods-prototype-methods" aria-hidden="true">#</a></h5>
+
+<p>Let&#x2019;s examine three kinds of methods that you often find in class definitions.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">prop</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">prop</code> <code class="o">=</code> <code class="nx">prop</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="kr">static</code> <code class="nx">staticMethod</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="s1">&apos;classy&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">prototypeMethod</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="s1">&apos;prototypical&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="kr">const</code> <code class="nx">foo</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Foo</code><code class="p">(</code><code class="mi">123</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>The object diagram for this class declaration looks as follows. Tip for understanding it: <code>[[Prototype]]</code> is an inheritance relationship between objects, while <code>prototype</code> is a normal property whose value is an object. The property <code>prototype</code> is only special w.r.t. the <code>new</code> operator using its value as the prototype for instances it creates.</p>
+
+
+<figure class="image center">
+  <img src="images/classes----methods_150dpi.png" alt="" width="423.5" height="253">
+  <figcaption></figcaption>
+</figure>
+
+
+<p><strong>First, the pseudo-method <code>constructor</code>.</strong> This method is special, as it defines the function that represents the class:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Foo === Foo.prototype.constructor
+true
+&gt; typeof Foo
+&apos;function&apos;
+</pre></div>
+
+</figure>
+
+<p>It is sometimes called a <code>class constructor</code>. It has features that normal constructor functions don&#x2019;t have (mainly the ability to constructor-call its superconstructor via <code>super()</code>, which is explained later).</p>
+
+<p><strong>Second, static methods.</strong> <em>Static properties</em> (or <em>class properties</em>) are properties of <code>Foo</code> itself. If you prefix a method definition with <code>static</code>, you create a class method:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; typeof Foo.staticMethod
+&apos;function&apos;
+&gt; Foo.staticMethod()
+&apos;classy&apos;
+</pre></div>
+
+</figure>
+
+<p><strong>Third, prototype methods.</strong> The <em>prototype properties</em> of <code>Foo</code> are the properties of <code>Foo.prototype</code>. They are usually methods and inherited by instances of <code>Foo</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; typeof Foo.prototype.prototypeMethod
+&apos;function&apos;
+&gt; foo.prototypeMethod()
+&apos;prototypical&apos;
+</pre></div>
+
+</figure>
+
+<h5 id="_static-data-properties">
+<span class="section-number">15.2.2.2 </span>Static data properties <a class="header-anchor" href="ch_classes.html#_static-data-properties" aria-hidden="true">#</a></h5>
+
+<p>For the sake of finishing ES6 classes in time, they were deliberately designed to be &#x201C;maximally minimal&#x201D;. That&#x2019;s why you can currently only create static methods, getters, and setters, but not static data properties. There is a proposal for adding them to the language. Until that proposal is accepted, there are two work-arounds that you can use.</p>
+
+<p>First, you can manually add a static property:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">x</code> <code class="o">=</code> <code class="nx">x</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">y</code> <code class="o">=</code> <code class="nx">y</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="nx">Point</code><code class="p">.</code><code class="nx">ZERO</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Point</code><code class="p">(</code><code class="mi">0</code><code class="p">,</code> <code class="mi">0</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>You could use <code>Object.defineProperty()</code> to create a read-only property, but I like the simplicity of an assignment.</p>
+
+<p>Second, you can create a static getter:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">x</code> <code class="o">=</code> <code class="nx">x</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">y</code> <code class="o">=</code> <code class="nx">y</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="kr">static</code> <code class="nx">get</code> <code class="nx">ZERO</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="k">new</code> <code class="nx">Point</code><code class="p">(</code><code class="mi">0</code><code class="p">,</code> <code class="mi">0</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In both cases, you get a property <code>Point.ZERO</code> that you can read. In the first case, the same instance is returned every time. In the second case, a new instance is returned every time.</p>
+
+<h5 id="_getters-and-setters">
+<span class="section-number">15.2.2.3 </span>Getters and setters <a class="header-anchor" href="ch_classes.html#_getters-and-setters" aria-hidden="true">#</a></h5>
+
+<p>The syntax for getters and setters is just like <a href="http://speakingjs.com/es5/ch17.html#getters_setters">in ECMAScript 5 object literals</a>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">MyClass</code> <code class="p">{</code>
+    <code class="nx">get</code> <code class="nx">prop</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="s1">&apos;getter&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">set</code> <code class="nx">prop</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;setter: &apos;</code><code class="o">+</code><code class="nx">value</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>You use <code>MyClass</code> as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const inst = new MyClass();
+&gt; inst.prop = 123;
+setter: 123
+&gt; inst.prop
+&apos;getter&apos;
+</pre></div>
+
+</figure>
+
+<h5 id="_computed-method-names">
+<span class="section-number">15.2.2.4 </span>Computed method names <a class="header-anchor" href="ch_classes.html#_computed-method-names" aria-hidden="true">#</a></h5>
+
+<p>You can define the name of a method via an expression, if you put it in square brackets. For example, the following ways of defining <code>Foo</code> are all equivalent.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{</code>
+    <code class="nx">myMethod</code><code class="p">()</code> <code class="p">{}</code>
+<code class="p">}</code>
+
+<code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{</code>
+    <code class="p">[</code><code class="s1">&apos;my&apos;</code><code class="o">+</code><code class="s1">&apos;Method&apos;</code><code class="p">]()</code> <code class="p">{}</code>
+<code class="p">}</code>
+
+<code class="kr">const</code> <code class="nx">m</code> <code class="o">=</code> <code class="s1">&apos;myMethod&apos;</code><code class="p">;</code>
+<code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">m</code><code class="p">]()</code> <code class="p">{}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Several special methods in ECMAScript 6 have keys that are symbols. Computed method names allow you to define such methods. For example, if an object has a method whose key is <code>Symbol.iterator</code>, it is <em>iterable</em>. That means that its contents can be iterated over by the <code>for-of</code> loop and other language mechanisms.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">IterableClass</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_generator-methods">
+<span class="section-number">15.2.2.5 </span>Generator methods <a class="header-anchor" href="ch_classes.html#_generator-methods" aria-hidden="true">#</a></h5>
+
+<p>If you prefix a method definition with an asterisk (<code>*</code>), it becomes a <em>generator method</em>. Among other things, a generator is useful for defining the method whose key is <code>Symbol.iterator</code>. The following code demonstrates how that works.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">IterableArguments</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(...</code><code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">args</code> <code class="o">=</code> <code class="nx">args</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="o">*</code> <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">arg</code> <code class="k">of</code> <code class="k">this</code><code class="p">.</code><code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+            <code class="k">yield</code> <code class="nx">arg</code><code class="p">;</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="k">new</code> <code class="nx">IterableArguments</code><code class="p">(</code><code class="s1">&apos;hello&apos;</code><code class="p">,</code> <code class="s1">&apos;world&apos;</code><code class="p">))</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// hello</code>
+<code class="c1">// world</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_subclassing">
+<span class="section-number">15.2.3 </span>Subclassing <a class="header-anchor" href="ch_classes.html#_subclassing" aria-hidden="true">#</a></h4>
+
+<p>The <code>extends</code> clause lets you create a subclass of an existing constructor (which may or may not have been defined via a class):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">x</code> <code class="o">=</code> <code class="nx">x</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">y</code> <code class="o">=</code> <code class="nx">y</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="sb">`(</code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">x</code><code class="si">}</code><code class="sb">, </code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">y</code><code class="si">}</code><code class="sb">)`</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kr">class</code> <code class="nx">ColorPoint</code> <code class="kr">extends</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">,</code> <code class="nx">color</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kr">super</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">);</code> <code class="c1">// (A)</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">color</code> <code class="o">=</code> <code class="nx">color</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="kr">super</code><code class="p">.</code><code class="nx">toString</code><code class="p">()</code> <code class="o">+</code> <code class="s1">&apos; in &apos;</code> <code class="o">+</code> <code class="k">this</code><code class="p">.</code><code class="nx">color</code><code class="p">;</code> <code class="c1">// (B)</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Again, this class is used like you&#x2019;d expect:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const cp = new ColorPoint(25, 8, &apos;green&apos;);
+&gt; cp.toString()
+&apos;(25, 8) in green&apos;
+
+&gt; cp instanceof ColorPoint
+true
+&gt; cp instanceof Point
+true
+</pre></div>
+
+</figure>
+
+<p>There are two kinds of classes:</p>
+
+<ul>
+  <li>
+<code>Point</code> is a <em>base class</em>, because it doesn&#x2019;t have an <code>extends</code> clause.</li>
+  <li>
+<code>ColorPoint</code> is a <em>derived class</em>.</li>
+</ul>
+
+<p>There are two ways of using <code>super</code>:</p>
+
+<ul>
+  <li>A <em>class constructor</em> (the pseudo-method <code>constructor</code> in a class definition) uses it like a function call (<code>super(&#xB7;&#xB7;&#xB7;)</code>), in order to make a superconstructor call (line A).</li>
+  <li>Method definitions (in object literals or classes, with or without <code>static</code>) use it like property references (<code>super.prop</code>) or method calls (<code>super.method(&#xB7;&#xB7;&#xB7;)</code>), in order to refer to superproperties (line B).</li>
+</ul>
+
+<h5 id="_the-prototype-of-a-subclass-is-the-superclass">
+<span class="section-number">15.2.3.1 </span>The prototype of a subclass is the superclass <a class="header-anchor" href="ch_classes.html#_the-prototype-of-a-subclass-is-the-superclass" aria-hidden="true">#</a></h5>
+
+<p>The prototype of a subclass is the superclass in ECMAScript 6:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Object.getPrototypeOf(ColorPoint) === Point
+true
+</pre></div>
+
+</figure>
+
+<p>That means that static properties are inherited:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{</code>
+    <code class="kr">static</code> <code class="nx">classMethod</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="s1">&apos;hello&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kr">class</code> <code class="nx">Bar</code> <code class="kr">extends</code> <code class="nx">Foo</code> <code class="p">{</code>
+<code class="p">}</code>
+<code class="nx">Bar</code><code class="p">.</code><code class="nx">classMethod</code><code class="p">();</code> <code class="c1">// &apos;hello&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>You can even super-call static methods:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{</code>
+    <code class="kr">static</code> <code class="nx">classMethod</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="s1">&apos;hello&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kr">class</code> <code class="nx">Bar</code> <code class="kr">extends</code> <code class="nx">Foo</code> <code class="p">{</code>
+    <code class="kr">static</code> <code class="nx">classMethod</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="kr">super</code><code class="p">.</code><code class="nx">classMethod</code><code class="p">()</code> <code class="o">+</code> <code class="s1">&apos;, too&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="nx">Bar</code><code class="p">.</code><code class="nx">classMethod</code><code class="p">();</code> <code class="c1">// &apos;hello, too&apos;</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_superconstructor-calls">
+<span class="section-number">15.2.3.2 </span>Superconstructor calls <a class="header-anchor" href="ch_classes.html#_superconstructor-calls" aria-hidden="true">#</a></h5>
+
+<p>In a derived class, you must call <code>super()</code> before you can use <code>this</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{}</code>
+
+<code class="kr">class</code> <code class="nx">Bar</code> <code class="kr">extends</code> <code class="nx">Foo</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">num</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kr">const</code> <code class="nx">tmp</code> <code class="o">=</code> <code class="nx">num</code> <code class="o">*</code> <code class="mi">2</code><code class="p">;</code> <code class="c1">// OK</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">num</code> <code class="o">=</code> <code class="nx">num</code><code class="p">;</code> <code class="c1">// ReferenceError</code>
+        <code class="kr">super</code><code class="p">();</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">num</code> <code class="o">=</code> <code class="nx">num</code><code class="p">;</code> <code class="c1">// OK</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Implicitly leaving a derived constructor without calling <code>super()</code> also causes an error:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{}</code>
+
+<code class="kr">class</code> <code class="nx">Bar</code> <code class="kr">extends</code> <code class="nx">Foo</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">()</code> <code class="p">{</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kr">const</code> <code class="nx">bar</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Bar</code><code class="p">();</code> <code class="c1">// ReferenceError</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_overriding-the-result-of-a-constructor">
+<span class="section-number">15.2.3.3 </span>Overriding the result of a constructor <a class="header-anchor" href="ch_classes.html#_overriding-the-result-of-a-constructor" aria-hidden="true">#</a></h5>
+
+<p>Just like in ES5, you can override the result of a constructor by explicitly returning an object:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="kc">null</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="k">new</code> <code class="nx">Foo</code><code class="p">()</code> <code class="k">instanceof</code> <code class="nx">Foo</code><code class="p">);</code> <code class="c1">// false</code>
+</pre></div>
+
+</figure>
+
+<p>If you do so, it doesn&#x2019;t matter whether <code>this</code> has been initialized or not. In other words: you don&#x2019;t have to call <code>super()</code> in a derived constructor if you override the result in this manner.</p>
+
+<h5 id="_default-constructors-for-classes">
+<span class="section-number">15.2.3.4 </span>Default constructors for classes <a class="header-anchor" href="ch_classes.html#_default-constructors-for-classes" aria-hidden="true">#</a></h5>
+
+<p>If you don&#x2019;t specify a <code>constructor</code> for a base class, the following definition is used:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">constructor</code><code class="p">()</code> <code class="p">{}</code>
+</pre></div>
+
+</figure>
+
+<p>For derived classes, the following default constructor is used:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">constructor</code><code class="p">(...</code><code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">super</code><code class="p">(...</code><code class="nx">args</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h5 id="subclassing-builtin-constructors">
+<span class="section-number">15.2.3.5 </span>Subclassing built-in constructors <a class="header-anchor" href="ch_classes.html#subclassing-builtin-constructors" aria-hidden="true">#</a></h5>
+
+<p>In ECMAScript 6, you can finally subclass all built-in constructors (there are <a href="http://speakingjs.com/es5/ch28.html">work-arounds for ES5</a>, but these have significant limitations).</p>
+
+<p>For example, you can now create your own exception classes (that will inherit the feature of having a stack trace in most engines):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">MyError</code> <code class="kr">extends</code> <code class="nb">Error</code> <code class="p">{</code>
+<code class="p">}</code>
+<code class="k">throw</code> <code class="k">new</code> <code class="nx">MyError</code><code class="p">(</code><code class="s1">&apos;Something happened!&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>You can also create subclasses of <code>Array</code> whose instances properly handle <code>length</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Stack</code> <code class="kr">extends</code> <code class="nb">Array</code> <code class="p">{</code>
+    <code class="nx">get</code> <code class="nx">top</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="k">this</code><code class="p">[</code><code class="k">this</code><code class="p">.</code><code class="nx">length</code> <code class="o">-</code> <code class="mi">1</code><code class="p">];</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kd">var</code> <code class="nx">stack</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Stack</code><code class="p">();</code>
+<code class="nx">stack</code><code class="p">.</code><code class="nx">push</code><code class="p">(</code><code class="s1">&apos;world&apos;</code><code class="p">);</code>
+<code class="nx">stack</code><code class="p">.</code><code class="nx">push</code><code class="p">(</code><code class="s1">&apos;hello&apos;</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">stack</code><code class="p">.</code><code class="nx">top</code><code class="p">);</code> <code class="c1">// hello</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">stack</code><code class="p">.</code><code class="nx">length</code><code class="p">);</code> <code class="c1">// 2</code>
+</pre></div>
+
+</figure>
+
+<p>Note that subclassing <code>Array</code> is usually not the best solution. It&#x2019;s often better to create your own class (whose interface you control) and to delegate to an Array in a private property.</p>
+
+<aside class="warning blurb">
+    <p>Subclassing built-in constructors is something that engines have to support natively, you won&#x2019;t get this feature via transpilers.</p>
+
+</aside>
+
+
+<h3 id="sec_private-data-for-classes">
+<span class="section-number">15.3 </span>Private data for classes <a class="header-anchor" href="ch_classes.html#sec_private-data-for-classes" aria-hidden="true">#</a></h3>
+
+<p>This section explains four approaches for managing private data for ES6 classes:</p>
+
+<ol class="numeric">
+  <li>Keeping private data in the environment of a class <code>constructor</code>
+</li>
+  <li>Marking private properties via a naming convention (e.g. a prefixed underscore)</li>
+  <li>Keeping private data in WeakMaps</li>
+  <li>Using symbols as keys for private properties</li>
+</ol>
+
+<p>Approaches #1 and #2 were already common in ES5, for constructors. Approaches #3 and #4 are new in ES6. Let&#x2019;s implement the same example four times, via each of the approaches.</p>
+
+
+<h4 id="_private-data-via-constructor-environments">
+<span class="section-number">15.3.1 </span>Private data via constructor environments <a class="header-anchor" href="ch_classes.html#_private-data-via-constructor-environments" aria-hidden="true">#</a></h4>
+
+<p>Our running example is a class <code>Countdown</code> that invokes a callback <code>action</code> once a counter (whose initial value is <code>counter</code>) reaches zero. The two parameters <code>action</code> and <code>counter</code> should be stored as private data.</p>
+
+<p>In the first implementation, we store <code>action</code> and <code>counter</code> in the <em>environment</em> of the class constructor. An environment is the internal data structure, in which a JavaScript engine stores the parameters and local variables that come into existence whenever a new scope is entered (e.g. via a function call or a constructor call). This is the code:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Countdown</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">counter</code><code class="p">,</code> <code class="nx">action</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="p">{</code>
+            <code class="nx">dec</code><code class="p">()</code> <code class="p">{</code>
+                <code class="k">if</code> <code class="p">(</code><code class="nx">counter</code> <code class="o">&lt;</code> <code class="mi">1</code><code class="p">)</code> <code class="k">return</code><code class="p">;</code>
+                <code class="nx">counter</code><code class="o">--</code><code class="p">;</code>
+                <code class="k">if</code> <code class="p">(</code><code class="nx">counter</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+                    <code class="nx">action</code><code class="p">();</code>
+                <code class="p">}</code>
+            <code class="p">}</code>
+        <code class="p">});</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Using <code>Countdown</code> looks like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const c = new Countdown(2, () =&gt; console.log(&apos;DONE&apos;));
+&gt; c.dec();
+&gt; c.dec();
+DONE
+</pre></div>
+
+</figure>
+
+<p>Pros:</p>
+
+<ul>
+  <li>The private data is completely safe</li>
+  <li>The names of private properties won&#x2019;t clash with the names of other private properties (of superclasses or subclasses).</li>
+</ul>
+
+<p>Cons:</p>
+
+<ul>
+  <li>The code becomes less elegant, because you need to add all methods to the instance, inside the constructor (at least those methods that need access to the private data).</li>
+  <li>Due to the instance methods, the code wastes memory. If the methods were prototype methods, they would be shared.</li>
+</ul>
+
+<p>More information on this technique: Sect. &#x201C;<a href="http://speakingjs.com/es5/ch17.html#private_data_constructor_environment">Private Data in the Environment of a Constructor (Crockford Privacy Pattern)</a>&#x201D; in &#x201C;Speaking JavaScript&#x201D;.</p>
+
+
+<h4 id="_private-data-via-a-naming-convention">
+<span class="section-number">15.3.2 </span>Private data via a naming convention <a class="header-anchor" href="ch_classes.html#_private-data-via-a-naming-convention" aria-hidden="true">#</a></h4>
+
+<p>The following code keeps private data in properties whose names a marked via a prefixed underscore:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Countdown</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">counter</code><code class="p">,</code> <code class="nx">action</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">_counter</code> <code class="o">=</code> <code class="nx">counter</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">_action</code> <code class="o">=</code> <code class="nx">action</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">dec</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">if</code> <code class="p">(</code><code class="k">this</code><code class="p">.</code><code class="nx">_counter</code> <code class="o">&lt;</code> <code class="mi">1</code><code class="p">)</code> <code class="k">return</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">_counter</code><code class="o">--</code><code class="p">;</code>
+        <code class="k">if</code> <code class="p">(</code><code class="k">this</code><code class="p">.</code><code class="nx">_counter</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+            <code class="k">this</code><code class="p">.</code><code class="nx">_action</code><code class="p">();</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Pros:</p>
+
+<ul>
+  <li>Code looks nice.</li>
+  <li>We can use prototype methods.</li>
+</ul>
+
+<p>Cons:</p>
+
+<ul>
+  <li>Not safe, only a guideline for client code.</li>
+  <li>The names of private properties can clash.</li>
+</ul>
+
+
+<h4 id="sec_private-data-via-weakmaps">
+<span class="section-number">15.3.3 </span>Private data via WeakMaps <a class="header-anchor" href="ch_classes.html#sec_private-data-via-weakmaps" aria-hidden="true">#</a></h4>
+
+<p>There is a neat technique involving WeakMaps that combines the advantage of the first approach (safety) with the advantage of the second approach (being able to use prototype methods). This technique is demonstrated in the following code: we use the WeakMaps <code>_counter</code> and <code>_action</code> to store private data.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">_counter</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">WeakMap</code><code class="p">();</code>
+<code class="kr">const</code> <code class="nx">_action</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">WeakMap</code><code class="p">();</code>
+<code class="kr">class</code> <code class="nx">Countdown</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">counter</code><code class="p">,</code> <code class="nx">action</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">_counter</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="nx">counter</code><code class="p">);</code>
+        <code class="nx">_action</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="nx">action</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="nx">dec</code><code class="p">()</code> <code class="p">{</code>
+        <code class="kd">let</code> <code class="nx">counter</code> <code class="o">=</code> <code class="nx">_counter</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="k">this</code><code class="p">);</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">counter</code> <code class="o">&lt;</code> <code class="mi">1</code><code class="p">)</code> <code class="k">return</code><code class="p">;</code>
+        <code class="nx">counter</code><code class="o">--</code><code class="p">;</code>
+        <code class="nx">_counter</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="nx">counter</code><code class="p">);</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">counter</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+            <code class="nx">_action</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="k">this</code><code class="p">)();</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Each of the two WeakMaps <code>_counter</code> and <code>_action</code> maps objects to their private data. Due to how WeakMaps work that won&#x2019;t prevent objects from being garbage-collected. As long as you keep the WeakMaps hidden from the outside world, the private data is safe.</p>
+
+<p>If you want to be even safer, you can store <code>WeakMap.prototype.get</code> and <code>WeakMap.prototype.set</code> in variables and invoke those (instead of the methods, dynamically):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="nx">WeakMap</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">set</code><code class="p">;</code>
+<code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="nx">set</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nx">_counter</code><code class="p">,</code> <code class="k">this</code><code class="p">,</code> <code class="nx">counter</code><code class="p">);</code>
+    <code class="c1">// _counter.set(this, counter);</code>
+</pre></div>
+
+</figure>
+
+<p>Then your code won&#x2019;t be affected if malicious code replaces those methods with ones that snoop on our private data. However, you are only protected against code that runs after your code. There is nothing you can do if it runs before yours.</p>
+
+<p>Pros:</p>
+
+<ul>
+  <li>We can use prototype methods.</li>
+  <li>Safer than a naming convention for property keys.</li>
+  <li>The names of private properties can&#x2019;t clash.</li>
+  <li>Relatively elegant.</li>
+</ul>
+
+<p>Con:</p>
+
+<ul>
+  <li>Code is not as elegant as a naming convention.</li>
+</ul>
+
+
+<h4 id="_private-data-via-symbols">
+<span class="section-number">15.3.4 </span>Private data via symbols <a class="header-anchor" href="ch_classes.html#_private-data-via-symbols" aria-hidden="true">#</a></h4>
+
+<p>Another storage location for private data are properties whose keys are symbols:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">_counter</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;counter&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">_action</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;action&apos;</code><code class="p">);</code>
+
+<code class="kr">class</code> <code class="nx">Countdown</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">counter</code><code class="p">,</code> <code class="nx">action</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">[</code><code class="nx">_counter</code><code class="p">]</code> <code class="o">=</code> <code class="nx">counter</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">[</code><code class="nx">_action</code><code class="p">]</code> <code class="o">=</code> <code class="nx">action</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">dec</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">if</code> <code class="p">(</code><code class="k">this</code><code class="p">[</code><code class="nx">_counter</code><code class="p">]</code> <code class="o">&lt;</code> <code class="mi">1</code><code class="p">)</code> <code class="k">return</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">[</code><code class="nx">_counter</code><code class="p">]</code><code class="o">--</code><code class="p">;</code>
+        <code class="k">if</code> <code class="p">(</code><code class="k">this</code><code class="p">[</code><code class="nx">_counter</code><code class="p">]</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+            <code class="k">this</code><code class="p">[</code><code class="nx">_action</code><code class="p">]();</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Each symbol is unique, which is why a symbol-valued property key will never clash with any other property key. Additionally, symbols are somewhat hidden from the outside world, but not completely:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">c</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Countdown</code><code class="p">(</code><code class="mi">2</code><code class="p">,</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;DONE&apos;</code><code class="p">));</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nb">Object</code><code class="p">.</code><code class="nx">keys</code><code class="p">(</code><code class="nx">c</code><code class="p">));</code>
+    <code class="c1">// []</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">Reflect</code><code class="p">.</code><code class="nx">ownKeys</code><code class="p">(</code><code class="nx">c</code><code class="p">));</code>
+    <code class="c1">// [ Symbol(counter), Symbol(action) ]</code>
+</pre></div>
+
+</figure>
+
+<p>Pros:</p>
+
+<ul>
+  <li>We can use prototype methods.</li>
+  <li>The names of private properties can&#x2019;t clash.</li>
+</ul>
+
+<p>Cons:</p>
+
+<ul>
+  <li>Code is not as elegant as a naming convention.</li>
+  <li>Not safe: you can list all property keys (including symbols!) of an object via <code>Reflect.ownKeys()</code>.</li>
+</ul>
+
+
+<h4 id="_further-reading-1">
+<span class="section-number">15.3.5 </span>Further reading <a class="header-anchor" href="ch_classes.html#_further-reading-1" aria-hidden="true">#</a></h4>
+
+<ul>
+  <li>Sect. &#x201C;<a href="http://speakingjs.com/es5/ch17.html#private_data_for_objects">Keeping Data Private</a>&#x201D; in &#x201C;Speaking JavaScript&#x201D; (covers ES5 techniques)</li>
+</ul>
+
+
+<h3 id="sec_simple-mixins">
+<span class="section-number">15.4 </span>Simple mixins <a class="header-anchor" href="ch_classes.html#sec_simple-mixins" aria-hidden="true">#</a></h3>
+
+<p>Subclassing in JavaScript is used for two reasons:</p>
+
+<ul>
+  <li>Interface inheritance: Every object that is an instance of a subclass (as tested by <code>instanceof</code>) is also an instance of the superclass. The expectation is that subclass instances behave like superclass instances, but may do more.</li>
+  <li>Implementation inheritance: Superclasses pass on functionality to their subclasses.</li>
+</ul>
+
+<p>The usefulness of classes for implementation inheritance is limited, because they only support single inheritance (a class can have at most one superclass). Therefore, it is impossible to inherit tool methods from multiple sources &#x2013; they must all come from the superclass.</p>
+
+<p>So how can we solve this problem? Let&#x2019;s explore a solution via an example. Consider a management system for an enterprise where <code>Employee</code> is a subclass of <code>Person</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Person</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+<code class="kr">class</code> <code class="nx">Employee</code> <code class="kr">extends</code> <code class="nx">Person</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Additionally, there are tool classes for storage and for data validation:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Storage</code> <code class="p">{</code>
+    <code class="nx">save</code><code class="p">(</code><code class="nx">database</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+<code class="p">}</code>
+<code class="kr">class</code> <code class="nx">Validation</code> <code class="p">{</code>
+    <code class="nx">validate</code><code class="p">(</code><code class="nx">schema</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>It would be nice if we could include the tool classes like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Invented ES6 syntax:</code>
+<code class="kr">class</code> <code class="nx">Employee</code> <code class="kr">extends</code> <code class="nx">Storage</code><code class="p">,</code> <code class="nx">Validation</code><code class="p">,</code> <code class="nx">Person</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>That is, we want <code>Employee</code> to be a subclass of <code>Storage</code> which should be a subclass of <code>Validation</code> which should be a subclass of <code>Person</code>. <code>Employee</code> and <code>Person</code> will only be used in one such chain of classes. But <code>Storage</code> and <code>Validation</code> will be used multiple times. We want them to be templates for classes whose superclasses we fill in. Such templates are called <em>abstract subclasses</em> or <em>mixins</em>.</p>
+
+<p>One way of implementing a mixin in ES6 is to view it as a function whose input is a superclass and whose output is a subclass extending that superclass:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">Storage</code> <code class="o">=</code> <code class="nx">Sup</code> <code class="o">=&gt;</code> <code class="kr">class</code> <code class="kr">extends</code> <code class="nx">Sup</code> <code class="p">{</code>
+    <code class="nx">save</code><code class="p">(</code><code class="nx">database</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+<code class="p">};</code>
+<code class="kr">const</code> <code class="nx">Validation</code> <code class="o">=</code> <code class="nx">Sup</code> <code class="o">=&gt;</code> <code class="kr">class</code> <code class="kr">extends</code> <code class="nx">Sup</code> <code class="p">{</code>
+    <code class="nx">validate</code><code class="p">(</code><code class="nx">schema</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Here, we profit from the operand of the <code>extends</code> clause not being a fixed identifier, but an arbitrary expression. With these mixins, <code>Employee</code> is created like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Employee</code> <code class="kr">extends</code> <code class="nx">Storage</code><code class="p">(</code><code class="nx">Validation</code><code class="p">(</code><code class="nx">Person</code><code class="p">))</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><strong>Acknowledgement.</strong> The first occurrence of this technique that I&#x2019;m aware of is <a href="https://gist.github.com/sebmarkbage/fac0830dbb13ccbff596">a Gist by Sebastian Markb&#xE5;ge</a>.</p>
+
+
+<h3 id="sec_details-classes">
+<span class="section-number">15.5 </span>The details of classes <a class="header-anchor" href="ch_classes.html#sec_details-classes" aria-hidden="true">#</a></h3>
+
+<p>What we have seen so far are the essentials of classes. You only need to read on if you are interested how things happen under the hood. Let&#x2019;s start with the syntax of classes. The following is a slightly modified version of the syntax shown in <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-functions-and-classes">Sect. A.4 of the ECMAScript 6 specification</a>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>ClassDeclaration:
+    &quot;class&quot; BindingIdentifier ClassTail
+ClassExpression:
+    &quot;class&quot; BindingIdentifier? ClassTail
+
+ClassTail:
+    ClassHeritage? &quot;{&quot; ClassBody? &quot;}&quot;
+ClassHeritage:
+    &quot;extends&quot; AssignmentExpression
+ClassBody:
+    ClassElement+
+ClassElement:
+    MethodDefinition
+    &quot;static&quot; MethodDefinition
+    &quot;;&quot;
+
+MethodDefinition:
+    PropName &quot;(&quot; FormalParams &quot;)&quot; &quot;{&quot; FuncBody &quot;}&quot;
+    &quot;*&quot; PropName &quot;(&quot; FormalParams &quot;)&quot; &quot;{&quot; GeneratorBody &quot;}&quot;
+    &quot;get&quot; PropName &quot;(&quot; &quot;)&quot; &quot;{&quot; FuncBody &quot;}&quot;
+    &quot;set&quot; PropName &quot;(&quot; PropSetParams &quot;)&quot; &quot;{&quot; FuncBody &quot;}&quot;
+
+PropertyName:
+    LiteralPropertyName
+    ComputedPropertyName
+LiteralPropertyName:
+    IdentifierName  /* foo */
+    StringLiteral   /* &quot;foo&quot; */
+    NumericLiteral  /* 123.45, 0xFF */
+ComputedPropertyName:
+    &quot;[&quot; Expression &quot;]&quot;
+</pre></div>
+
+</figure>
+
+<p>Two observations:</p>
+
+<ul>
+  <li>The value to be extended can be produced by an arbitrary expression. Which means that you&#x2019;ll be able to write code such as the following:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">class</code> <code class="nx">Foo</code> <code class="kr">extends</code> <code class="nx">combine</code><code class="p">(</code><code class="nx">MyMixin</code><code class="p">,</code> <code class="nx">MySuperClass</code><code class="p">)</code> <code class="p">{}</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Semicolons are allowed between methods.</li>
+</ul>
+
+
+<h4 id="_various-checks">
+<span class="section-number">15.5.1 </span>Various checks <a class="header-anchor" href="ch_classes.html#_various-checks" aria-hidden="true">#</a></h4>
+
+<ul>
+  <li>Error checks: the class name cannot be <code>eval</code> or <code>arguments</code>; duplicate class element names are not allowed; the name <code>constructor</code> can only be used for a normal method, not for a getter, a setter or a generator method.</li>
+  <li>Classes can&#x2019;t be function-called. They throw a <code>TypeException</code> if they are.</li>
+  <li>Prototype methods cannot be used as constructors:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">class</code> <code class="nx">C</code> <code class="p">{</code>
+      <code class="nx">m</code><code class="p">()</code> <code class="p">{}</code>
+  <code class="p">}</code>
+  <code class="k">new</code> <code class="nx">C</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">m</code><code class="p">();</code> <code class="c1">// TypeError</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+
+<h4 id="_attributes-of-properties">
+<span class="section-number">15.5.2 </span>Attributes of properties <a class="header-anchor" href="ch_classes.html#_attributes-of-properties" aria-hidden="true">#</a></h4>
+
+<p>Class declarations create (mutable) let bindings. The following table describes the attributes of properties related to a given class <code>Foo</code>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>&#xA0;</th>
+      <th>writable</th>
+      <th>enumerable</th>
+      <th>configurable</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Static properties <code>Foo.*</code>
+</td>
+      <td><code>true</code></td>
+      <td><code>false</code></td>
+      <td><code>true</code></td>
+    </tr>
+    <tr>
+      <td><code>Foo.prototype</code></td>
+      <td><code>false</code></td>
+      <td><code>false</code></td>
+      <td><code>false</code></td>
+    </tr>
+    <tr>
+      <td><code>Foo.prototype.constructor</code></td>
+      <td><code>false</code></td>
+      <td><code>false</code></td>
+      <td><code>true</code></td>
+    </tr>
+    <tr>
+      <td>Prototype properties <code>Foo.prototype.*</code>
+</td>
+      <td><code>true</code></td>
+      <td><code>false</code></td>
+      <td><code>true</code></td>
+    </tr>
+  </tbody>
+
+</table>
+
+<p>Notes:</p>
+
+<ul>
+  <li>Many properties are writable, to allow for dynamic patching.</li>
+  <li>A constructor and the object in its property prototype have an immutable bidirectional link.</li>
+  <li>Method definitions in object literals produce enumerable properties.</li>
+</ul>
+
+<aside class="generic_inbar blurb gears icon-gears">
+    <p>The properties shown in the table are created in Sect. &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-runtime-semantics-classdefinitionevaluation">Runtime Semantics: ClassDefinitionEvaluation</a>&#x201D; in the spec.</p>
+
+</aside>
+
+
+<h4 id="sec_classes-inner-names">
+<span class="section-number">15.5.3 </span>Classes have inner names <a class="header-anchor" href="ch_classes.html#sec_classes-inner-names" aria-hidden="true">#</a></h4>
+
+<p>Classes have lexical inner names, just like named function expressions.</p>
+
+<h5 id="_the-inner-names-of-named-function-expressions">
+<span class="section-number">15.5.3.1 </span>The inner names of named function expressions <a class="header-anchor" href="ch_classes.html#_the-inner-names-of-named-function-expressions" aria-hidden="true">#</a></h5>
+
+<p>You may know that named function expressions have lexical inner names:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">fac</code> <code class="o">=</code> <code class="kd">function</code> <code class="nx">me</code><code class="p">(</code><code class="nx">n</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">n</code> <code class="o">&gt;</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+        <code class="c1">// Use inner name `me` to</code>
+        <code class="c1">// refer to function</code>
+        <code class="k">return</code> <code class="nx">n</code> <code class="o">*</code> <code class="nx">me</code><code class="p">(</code><code class="nx">n</code><code class="o">-</code><code class="mi">1</code><code class="p">);</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="mi">1</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">fac</code><code class="p">(</code><code class="mi">3</code><code class="p">));</code> <code class="c1">// 6</code>
+</pre></div>
+
+</figure>
+
+<p>The name <code>me</code> of the named function expression becomes a lexically bound variable that is unaffected by which variable currently holds the function.</p>
+
+<h5 id="_the-inner-names-of-classes">
+<span class="section-number">15.5.3.2 </span>The inner names of classes <a class="header-anchor" href="ch_classes.html#_the-inner-names-of-classes" aria-hidden="true">#</a></h5>
+
+<p>Interestingly, ES6 classes also have lexical inner names that you can use in methods (constructor methods and regular methods):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">C</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">()</code> <code class="p">{</code>
+        <code class="c1">// Use inner name C to refer to class</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`constructor: </code><code class="si">${</code><code class="nx">C</code><code class="p">.</code><code class="nx">prop</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="nx">logProp</code><code class="p">()</code> <code class="p">{</code>
+        <code class="c1">// Use inner name C to refer to class</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`logProp: </code><code class="si">${</code><code class="nx">C</code><code class="p">.</code><code class="nx">prop</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="nx">C</code><code class="p">.</code><code class="nx">prop</code> <code class="o">=</code> <code class="s1">&apos;Hi!&apos;</code><code class="p">;</code>
+
+<code class="kr">const</code> <code class="nx">D</code> <code class="o">=</code> <code class="nx">C</code><code class="p">;</code>
+<code class="nx">C</code> <code class="o">=</code> <code class="kc">null</code><code class="p">;</code>
+
+<code class="c1">// C is not a class, anymore:</code>
+<code class="k">new</code> <code class="nx">C</code><code class="p">().</code><code class="nx">logProp</code><code class="p">();</code>
+    <code class="c1">// TypeError: C is not a function</code>
+
+<code class="c1">// But inside the class, the identifier C</code>
+<code class="c1">// still works</code>
+<code class="k">new</code> <code class="nx">D</code><code class="p">().</code><code class="nx">logProp</code><code class="p">();</code>
+    <code class="c1">// constructor: Hi!</code>
+    <code class="c1">// logProp: Hi!</code>
+</pre></div>
+
+</figure>
+
+<p>(In the ES6 spec the inner name is set up by <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-runtime-semantics-classdefinitionevaluation">the dynamic semantics of ClassDefinitionEvaluation</a>.)</p>
+
+<p><strong>Acknowledgement:</strong> Thanks to Michael Ficarra for pointing out that classes have inner names.</p>
+
+
+<h3 id="details-of-subclassing">
+<span class="section-number">15.6 </span>The details of subclassing <a class="header-anchor" href="ch_classes.html#details-of-subclassing" aria-hidden="true">#</a></h3>
+
+<p>In ECMAScript 6, subclassing looks as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Person</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">name</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">name</code> <code class="o">=</code> <code class="nx">name</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="sb">`Person named </code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">name</code><code class="si">}</code><code class="sb">`</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="kr">static</code> <code class="nx">logNames</code><code class="p">(</code><code class="nx">persons</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">person</code> <code class="k">of</code> <code class="nx">persons</code><code class="p">)</code> <code class="p">{</code>
+            <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">person</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kr">class</code> <code class="nx">Employee</code> <code class="kr">extends</code> <code class="nx">Person</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">name</code><code class="p">,</code> <code class="nx">title</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kr">super</code><code class="p">(</code><code class="nx">name</code><code class="p">);</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">title</code> <code class="o">=</code> <code class="nx">title</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="sb">`</code><code class="si">${</code><code class="kr">super</code><code class="p">.</code><code class="nx">toString</code><code class="p">()</code><code class="si">}</code><code class="sb"> (</code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">title</code><code class="si">}</code><code class="sb">)`</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kr">const</code> <code class="nx">jane</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Employee</code><code class="p">(</code><code class="s1">&apos;Jane&apos;</code><code class="p">,</code> <code class="s1">&apos;CTO&apos;</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">jane</code><code class="p">.</code><code class="nx">toString</code><code class="p">());</code> <code class="c1">// Person named Jane (CTO)</code>
+</pre></div>
+
+</figure>
+
+<p>The next section examines the structure of the objects that were created by the previous example. The section after that examines how <code>jane</code> is allocated and initialized.</p>
+
+<h4 id="_prototype-chains">
+<span class="section-number">15.6.1 </span>Prototype chains <a class="header-anchor" href="ch_classes.html#_prototype-chains" aria-hidden="true">#</a></h4>
+
+<p>The previous example creates the following objects.</p>
+
+
+<figure class="image center">
+  <img src="images/classes----subclassing_es6_150dpi.png" alt="" width="379" height="230">
+  <figcaption></figcaption>
+</figure>
+
+
+<p><em>Prototype chains</em> are objects linked via the <code>[[Prototype]]</code> relationship (which is an inheritance relationship). In the diagram, you can see two prototype chains:</p>
+
+<h5 id="_left-column-classes-functions">
+<span class="section-number">15.6.1.1 </span>Left column: classes (functions) <a class="header-anchor" href="ch_classes.html#_left-column-classes-functions" aria-hidden="true">#</a></h5>
+
+<p>The prototype of a derived class is the class it extends. The reason for this setup is that you want a subclass to inherit all properties of its superclass:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Employee.logNames === Person.logNames
+true
+</pre></div>
+
+</figure>
+
+<p>The prototype of a base class is <code>Function.prototype</code>, which is also the prototype of functions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const getProto = Object.getPrototypeOf.bind(Object);
+
+&gt; getProto(Person) === Function.prototype
+true
+&gt; getProto(function () {}) === Function.prototype
+true
+</pre></div>
+
+</figure>
+
+<p>That means that base classes and all their derived classes (their prototypees) are functions. Traditional ES5 functions are essentially base classes.</p>
+
+<h5 id="_right-column-the-prototype-chain-of-the-instance">
+<span class="section-number">15.6.1.2 </span>Right column: the prototype chain of the instance <a class="header-anchor" href="ch_classes.html#_right-column-the-prototype-chain-of-the-instance" aria-hidden="true">#</a></h5>
+
+<p>The main purpose of a class is to set up this prototype chain. The prototype chain ends with <code>Object.prototype</code> (whose prototype is <code>null</code>). That makes <code>Object</code> an implicit superclass of every base class (as far as instances and the <code>instanceof</code> operator are concerned).</p>
+
+<p>The reason for this setup is that you want the instance prototype of a subclass to inherit all properties of the superclass instance prototype.</p>
+
+<p>As an aside, objects created via object literals also have the prototype <code>Object.prototype</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Object.getPrototypeOf({}) === Object.prototype
+true
+</pre></div>
+
+</figure>
+
+<h4 id="sec_allocating-and-initializing-instances">
+<span class="section-number">15.6.2 </span>Allocating and initializing instances <a class="header-anchor" href="ch_classes.html#sec_allocating-and-initializing-instances" aria-hidden="true">#</a></h4>
+
+<p>The data flow between class constructors is different from the canonical way of subclassing in ES5. Under the hood, it roughly looks as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Base class: this is where the instance is allocated</code>
+<code class="kd">function</code> <code class="nx">Person</code><code class="p">(</code><code class="nx">name</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// Performed before entering this constructor:</code>
+    <code class="k">this</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="k">new</code><code class="p">.</code><code class="nx">target</code><code class="p">.</code><code class="nx">prototype</code><code class="p">);</code>
+
+    <code class="k">this</code><code class="p">.</code><code class="nx">name</code> <code class="o">=</code> <code class="nx">name</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="err">&#xB7;&#xB7;&#xB7;</code>
+
+<code class="kd">function</code> <code class="nx">Employee</code><code class="p">(</code><code class="nx">name</code><code class="p">,</code> <code class="nx">title</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// Performed before entering this constructor:</code>
+    <code class="k">this</code> <code class="o">=</code> <code class="nx">uninitialized</code><code class="p">;</code>
+
+    <code class="k">this</code> <code class="o">=</code> <code class="nx">Reflect</code><code class="p">.</code><code class="nx">construct</code><code class="p">(</code><code class="nx">Person</code><code class="p">,</code> <code class="p">[</code><code class="nx">name</code><code class="p">],</code> <code class="k">new</code><code class="p">.</code><code class="nx">target</code><code class="p">);</code> <code class="c1">// (A)</code>
+        <code class="c1">// super(name);</code>
+
+    <code class="k">this</code><code class="p">.</code><code class="nx">title</code> <code class="o">=</code> <code class="nx">title</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nb">Object</code><code class="p">.</code><code class="nx">setPrototypeOf</code><code class="p">(</code><code class="nx">Employee</code><code class="p">,</code> <code class="nx">Person</code><code class="p">);</code>
+<code class="err">&#xB7;&#xB7;&#xB7;</code>
+
+<code class="kr">const</code> <code class="nx">jane</code> <code class="o">=</code> <code class="nx">Reflect</code><code class="p">.</code><code class="nx">construct</code><code class="p">(</code> <code class="c1">// (B)</code>
+             <code class="nx">Employee</code><code class="p">,</code> <code class="p">[</code><code class="s1">&apos;Jane&apos;</code><code class="p">,</code> <code class="s1">&apos;CTO&apos;</code><code class="p">],</code>
+             <code class="nx">Employee</code><code class="p">);</code>
+    <code class="c1">// const jane = new Employee(&apos;Jane&apos;, &apos;CTO&apos;)</code>
+</pre></div>
+
+</figure>
+
+<p>The instance object is created in different locations in ES6 and ES5:</p>
+
+<ul>
+  <li>In ES6, it is created in the base constructor, the last in a chain of constructor calls. The superconstructor is invoked via <code>super()</code>, which triggers a constructor call.</li>
+  <li>In ES5, it is created in the operand of <code>new</code>, the first in a chain of constructor calls. The superconstructor is invoked via a function call.</li>
+</ul>
+
+<p>The previous code uses two new ES6 features:</p>
+
+<ul>
+  <li>
+<code>new.target</code> is an implicit parameter that all functions have. In a chain of constructor calls, its role is similar to <code>this</code> in a chain of supermethod calls.
+    <ul>
+      <li>If a constructor is directly invoked via <code>new</code> (as in line B), the value of <code>new.target</code> is that constructor.</li>
+      <li>If a constructor is called via <code>super()</code> (as in line A), the value of <code>new.target</code> is the <code>new.target</code> of the constructor that makes the call.</li>
+      <li>During a normal function call, it is <code>undefined</code>. That means that you can use <code>new.target</code> to determine whether a function was function-called or constructor-called (via <code>new</code>).</li>
+      <li>Inside an arrow function, <code>new.target</code> refers to the <code>new.target</code> of the surrounding non-arrow function.</li>
+    </ul>
+  </li>
+  <li>
+<code>Reflect.construct()</code> lets you make constructor calls while specifying <code>new.target</code> via the last parameter.</li>
+</ul>
+
+<p>The advantage of this way of subclassing is that it enables normal code to subclass built-in constructors (such as <code>Error</code> and <code>Array</code>). A later section explains why a different approach was necessary.</p>
+
+<p>As a reminder, here is how you do subclassing in ES5:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">Person</code><code class="p">(</code><code class="nx">name</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">this</code><code class="p">.</code><code class="nx">name</code> <code class="o">=</code> <code class="nx">name</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="err">&#xB7;&#xB7;&#xB7;</code>
+
+<code class="kd">function</code> <code class="nx">Employee</code><code class="p">(</code><code class="nx">name</code><code class="p">,</code> <code class="nx">title</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">Person</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="nx">name</code><code class="p">);</code>
+    <code class="k">this</code><code class="p">.</code><code class="nx">title</code> <code class="o">=</code> <code class="nx">title</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">Employee</code><code class="p">.</code><code class="nx">prototype</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nx">Person</code><code class="p">.</code><code class="nx">prototype</code><code class="p">);</code>
+<code class="nx">Employee</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">constructor</code> <code class="o">=</code> <code class="nx">Employee</code><code class="p">;</code>
+<code class="err">&#xB7;&#xB7;&#xB7;</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_safety-checks">
+<span class="section-number">15.6.2.1 </span>Safety checks <a class="header-anchor" href="ch_classes.html#_safety-checks" aria-hidden="true">#</a></h5>
+
+<ul>
+  <li>
+<code>this</code> originally being uninitialized in derived constructors means that an error is thrown if they access <code>this</code> in any way before they have called <code>super()</code>.</li>
+  <li>Once <code>this</code> is initialized, calling <code>super()</code> produces a <code>ReferenceError</code>. This protects you against calling <code>super()</code> twice.</li>
+  <li>If a constructor returns implicitly (without a <code>return</code> statement), the result is <code>this</code>. If <code>this</code> is uninitialized, a <code>ReferenceError</code> is thrown. This protects you against forgetting to call <code>super()</code>.</li>
+  <li>If a constructor explicitly returns a non-object (including <code>undefined</code> and <code>null</code>), the result is <code>this</code> (this behavior is required to remain compatible with ES5 and earlier). If <code>this</code> is uninitialized, a <code>TypeError</code> is thrown.</li>
+  <li>If a constructor explicitly returns an object, it is used as its result. Then it doesn&#x2019;t matter whether <code>this</code> is initialized or not.</li>
+</ul>
+
+<h5 id="_the-extends-clause">
+<span class="section-number">15.6.2.2 </span>The <code>extends</code> clause <a class="header-anchor" href="ch_classes.html#_the-extends-clause" aria-hidden="true">#</a></h5>
+
+<p>Let&#x2019;s examine how the <code>extends</code> clause influences how a class is set up (<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-runtime-semantics-classdefinitionevaluation">Sect. 14.5.14 of the spec</a>).</p>
+
+<p>The value of an <code>extends</code> clause must be &#x201C;constructible&#x201D; (invocable via <code>new</code>). <code>null</code> is allowed, though.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">C</code> <code class="p">{</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<ul>
+  <li>Constructor kind: base</li>
+  <li>Prototype of <code>C</code>: <code>Function.prototype</code> (like a normal function)</li>
+  <li>Prototype of <code>C.prototype</code>: <code>Object.prototype</code> (which is also the prototype of objects created via object literals)</li>
+</ul>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">C</code> <code class="kr">extends</code> <code class="nx">B</code> <code class="p">{</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<ul>
+  <li>Constructor kind: derived</li>
+  <li>Prototype of <code>C</code>: <code>B</code>
+</li>
+  <li>Prototype of <code>C.prototype</code>: <code>B.prototype</code>
+</li>
+</ul>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">C</code> <code class="kr">extends</code> <code class="nb">Object</code> <code class="p">{</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<ul>
+  <li>Constructor kind: derived</li>
+  <li>Prototype of <code>C</code>: <code>Object</code>
+</li>
+  <li>Prototype of <code>C.prototype</code>: <code>Object.prototype</code>
+</li>
+</ul>
+
+<p>Note the following subtle difference with the first case: If there is no <code>extends</code> clause, the class is a base class and allocates instances. If a class extends <code>Object</code>, it is a derived class and <code>Object</code> allocates the instances. The resulting instances (including their prototype chains) are the same, but you get there differently.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">C</code> <code class="kr">extends</code> <code class="kc">null</code> <code class="p">{</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<ul>
+  <li>Constructor kind: base (as of ES2016)</li>
+  <li>Prototype of <code>C</code>: <code>Function.prototype</code>
+</li>
+  <li>Prototype of <code>C.prototype</code>: <code>null</code>
+</li>
+</ul>
+
+<p>Such a class lets you avoid <code>Object.prototype</code> in the prototype chain.</p>
+
+<h4 id="_why-cant-you-subclass-built-in-constructors-in-es5">
+<span class="section-number">15.6.3 </span>Why can&#x2019;t you subclass built-in constructors in ES5? <a class="header-anchor" href="ch_classes.html#_why-cant-you-subclass-built-in-constructors-in-es5" aria-hidden="true">#</a></h4>
+
+<p>In ECMAScript 5, most built-in constructors can&#x2019;t be subclassed (<a href="http://speakingjs.com/es5/ch28.html">several work-arounds exist</a>).</p>
+
+<p>To understand why, let&#x2019;s use the canonical ES5 pattern to subclass <code>Array</code>. As we shall soon find out, this doesn&#x2019;t work.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">MyArray</code><code class="p">(</code><code class="nx">len</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nb">Array</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="nx">len</code><code class="p">);</code> <code class="c1">// (A)</code>
+<code class="p">}</code>
+<code class="nx">MyArray</code><code class="p">.</code><code class="nx">prototype</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>Unfortunately, if we instantiate <code>MyArray</code>, we find out that it doesn&#x2019;t work properly: The instance property <code>length</code> does not change in reaction to us adding Array elements:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; var myArr = new MyArray(0);
+&gt; myArr.length
+0
+&gt; myArr[0] = &apos;foo&apos;;
+&gt; myArr.length
+0
+</pre></div>
+
+</figure>
+
+<p>There are two obstracles that prevent <code>myArr</code> from being a proper Array.</p>
+
+<p><strong>First obstacle: initialization.</strong> The <code>this</code> you hand to the constructor <code>Array</code> (in line A) is completely ignored. That means you can&#x2019;t use <code>Array</code> to set up the instance that was created for <code>MyArray</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; var a = [];
+&gt; var b = Array.call(a, 3);
+&gt; a !== b  // a is ignored, b is a new object
+true
+&gt; b.length // set up correctly
+3
+&gt; a.length // unchanged
+0
+</pre></div>
+
+</figure>
+
+<p><strong>Second obstacle: allocation.</strong> The instance objects created by <code>Array</code> are <em>exotic</em> (a term used by the ECMAScript specification for objects that have features that normal objects don&#x2019;t have): Their property <code>length</code> tracks and influences the management of Array elements. In general, exotic objects can be created from scratch, but you can&#x2019;t convert an existing normal object into an exotic one. Unfortunately, that is what <code>Array</code> would have to do, when called in line A: It would have to turn the normal object created for <code>MyArray</code> into an exotic Array object.</p>
+
+<h5 id="_the-solution-es6-subclassing">
+<span class="section-number">15.6.3.1 </span>The solution: ES6 subclassing <a class="header-anchor" href="ch_classes.html#_the-solution-es6-subclassing" aria-hidden="true">#</a></h5>
+
+<p>In ECMAScript 6, subclassing <code>Array</code> looks as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">MyArray</code> <code class="kr">extends</code> <code class="nb">Array</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">len</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kr">super</code><code class="p">(</code><code class="nx">len</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>This works:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const myArr = new MyArray(0);
+&gt; myArr.length
+0
+&gt; myArr[0] = &apos;foo&apos;;
+&gt; myArr.length
+1
+</pre></div>
+
+</figure>
+
+<p>Let&#x2019;s examine how the ES6 approach to subclassing removes the previously mentioned obstacles:</p>
+
+<ul>
+  <li>The first obstacle, <code>Array</code> not being able to set up an instance, is removed by <code>Array</code> returning a fully configured instance. In contrast to ES5, this instance has the prototype of the subclass.</li>
+  <li>The second obstacle, subconstructors not creating exotic instances, is removed by derived classes relying on base classes for allocating instances.</li>
+</ul>
+
+<h4 id="superproperties">
+<span class="section-number">15.6.4 </span>Referring to superproperties in methods <a class="header-anchor" href="ch_classes.html#superproperties" aria-hidden="true">#</a></h4>
+
+<p>The following ES6 code makes a supermethod call in line B.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Person</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">name</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">name</code> <code class="o">=</code> <code class="nx">name</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code> <code class="c1">// (A)</code>
+        <code class="k">return</code> <code class="sb">`Person named </code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">name</code><code class="si">}</code><code class="sb">`</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kr">class</code> <code class="nx">Employee</code> <code class="kr">extends</code> <code class="nx">Person</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">name</code><code class="p">,</code> <code class="nx">title</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kr">super</code><code class="p">(</code><code class="nx">name</code><code class="p">);</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">title</code> <code class="o">=</code> <code class="nx">title</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="sb">`</code><code class="si">${</code><code class="kr">super</code><code class="p">.</code><code class="nx">toString</code><code class="p">()</code><code class="si">}</code><code class="sb"> (</code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">title</code><code class="si">}</code><code class="sb">)`</code><code class="p">;</code> <code class="c1">// (B)</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kr">const</code> <code class="nx">jane</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Employee</code><code class="p">(</code><code class="s1">&apos;Jane&apos;</code><code class="p">,</code> <code class="s1">&apos;CTO&apos;</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">jane</code><code class="p">.</code><code class="nx">toString</code><code class="p">());</code> <code class="c1">// Person named Jane (CTO)</code>
+</pre></div>
+
+</figure>
+
+<p>To understand how super-calls work, let&#x2019;s look at the object diagram of <code>jane</code>:</p>
+
+
+<figure class="image center">
+  <img src="images/classes----supercalls_150dpi.png" alt="" width="169.5" height="308">
+  <figcaption></figcaption>
+</figure>
+
+
+<p>In line B, <code>Employee.prototype.toString</code> makes a super-call (line B) to the method (starting in line A) that it has overridden. Let&#x2019;s call the object, in which a method is stored, the <em>home object</em> of that method. For example, <code>Employee.prototype</code> is the home object of <code>Employee.prototype.toString()</code>.</p>
+
+<p>The super-call in line B involves three steps:</p>
+
+<ol class="numeric">
+  <li>Start your search in the prototype of the home object of the current method.</li>
+  <li>Look for a method whose name is <code>toString</code>. That method may be found in the object where the search started or later in the prototype chain.</li>
+  <li>Call that method with the current <code>this</code>. The reason for doing so is: the super-called method must be able to access the same instance properties (in our example, the own properties of <code>jane</code>).</li>
+</ol>
+
+<p>Note that even if you are only getting (<code>super.prop</code>) or setting (<code>super.prop = 123</code>) a superproperty (versus making a method call), <code>this</code> may still (internally) play a role in step #3, because a getter or a setter may be invoked.</p>
+
+<p>Let&#x2019;s express these steps in three different &#x2013; but equivalent &#x2013; ways:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Variation 1: supermethod calls in ES5</code>
+<code class="kd">var</code> <code class="nx">result</code> <code class="o">=</code> <code class="nx">Person</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">toString</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="k">this</code><code class="p">)</code> <code class="c1">// steps 1,2,3</code>
+
+<code class="c1">// Variation 2: ES5, refactored</code>
+<code class="kd">var</code> <code class="nx">superObject</code> <code class="o">=</code> <code class="nx">Person</code><code class="p">.</code><code class="nx">prototype</code><code class="p">;</code> <code class="c1">// step 1</code>
+<code class="kd">var</code> <code class="nx">superMethod</code> <code class="o">=</code> <code class="nx">superObject</code><code class="p">.</code><code class="nx">toString</code><code class="p">;</code> <code class="c1">// step 2</code>
+<code class="kd">var</code> <code class="nx">result</code> <code class="o">=</code> <code class="nx">superMethod</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="k">this</code><code class="p">)</code> <code class="c1">// step 3</code>
+
+<code class="c1">// Variation 3: ES6</code>
+<code class="kd">var</code> <code class="nx">homeObject</code> <code class="o">=</code> <code class="nx">Employee</code><code class="p">.</code><code class="nx">prototype</code><code class="p">;</code>
+<code class="kd">var</code> <code class="nx">superObject</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getPrototypeOf</code><code class="p">(</code><code class="nx">homeObject</code><code class="p">);</code> <code class="c1">// step 1</code>
+<code class="kd">var</code> <code class="nx">superMethod</code> <code class="o">=</code> <code class="nx">superObject</code><code class="p">.</code><code class="nx">toString</code><code class="p">;</code> <code class="c1">// step 2</code>
+<code class="kd">var</code> <code class="nx">result</code> <code class="o">=</code> <code class="nx">superMethod</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="k">this</code><code class="p">)</code> <code class="c1">// step 3</code>
+</pre></div>
+
+</figure>
+
+<p>Variation 3 is how ECMAScript 6 handles super-calls. This approach is supported by <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-function-environment-records">two internal <em>bindings</em></a> that the <em>environments</em> of functions have (<em>environments</em> provide storage space, so-called <em>bindings</em>, for the variables in a scope):</p>
+
+<ul>
+  <li>
+<code>[[thisValue]]</code>: This internal binding also exists in ECMAScript 5 and stores the value of <code>this</code>.</li>
+  <li>
+<code>[[HomeObject]]</code>: Refers to the home object of the environment&#x2019;s function. Filled in via the internal slot <code>[[HomeObject]]</code> that all methods have that use <code>super</code>. Both the binding and the slot are new in ECMAScript 6.</li>
+</ul>
+
+<aside class="information blurb">
+    <h3 id="_methods-are-a-special-kind-of-function-now">Methods are a special kind of function now <a class="header-anchor" href="ch_classes.html#_methods-are-a-special-kind-of-function-now" aria-hidden="true">#</a></h3>
+
+  <p>In a class, a method definition that uses <code>super</code> creates a special kind of function: It is still a function, but it has the internal slot <code>[[HomeObject]]</code>. That slot is set up by the method definition and can&#x2019;t be changed in JavaScript. Therefore, you can&#x2019;t meaningfully move such a method to a different object. (But maybe it&#x2019;ll be possible in a future version of ECMAScript.)</p>
+
+</aside>
+
+<h5 id="_where-can-you-use-super">
+<span class="section-number">15.6.4.1 </span>Where can you use <code>super</code>? <a class="header-anchor" href="ch_classes.html#_where-can-you-use-super" aria-hidden="true">#</a></h5>
+
+<p>Referring to superproperties is handy whenever prototype chains are involved, which is why you can use it in method definitions (incl. generator method definitions, getters and setters) inside object literals and class definitions. The class can be derived or not, the method can be static or not.</p>
+
+<p>Using <code>super</code> to refer to a property is not allowed in function declarations, function expressions and generator functions.</p>
+
+<h5 id="sec_cant-move-methods-with-super">
+<span class="section-number">15.6.4.2 </span>Pitfall: A method that uses <code>super</code> can&#x2019;t be moved <a class="header-anchor" href="ch_classes.html#sec_cant-move-methods-with-super" aria-hidden="true">#</a></h5>
+
+<p>You can&#x2019;t move a method that uses <code>super</code>: Such a method has the internal slot <code>[[HomeObject]]</code> that ties it to the object it was created in. If you move it via an assignment, it will continue to refer to the superproperties of the original object. In future ECMAScript versions, there may be a way to transfer such a method, too.</p>
+
+
+<h3 id="sec_species-pattern">
+<span class="section-number">15.7 </span>The species pattern <a class="header-anchor" href="ch_classes.html#sec_species-pattern" aria-hidden="true">#</a></h3>
+
+<p>One more mechanism of built-in constructors has been made extensible in ECMAScript 6: Sometimes a method creates new instances of its class. If you create a subclass &#x2013; should the method return an instance of its class or an instance of the subclass? A few built-in ES6 methods let you configure how they create instances via the so-called <em>species pattern</em>.</p>
+
+<p>As an example, consider a subclass <code>SortedArray</code> of <code>Array</code>. If we invoke <code>map()</code> on instances of that class, we want it to return instances of <code>Array</code>, to avoid unnecessary sorting. By default, <code>map()</code> returns instances of the receiver (<code>this</code>), but the species patterns lets you change that.</p>
+
+<h4 id="_helper-methods-for-examples">
+<span class="section-number">15.7.1 </span>Helper methods for examples <a class="header-anchor" href="ch_classes.html#_helper-methods-for-examples" aria-hidden="true">#</a></h4>
+
+<p>In the following three sections, I&#x2019;ll use two helper functions in the examples:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">isObject</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="p">(</code><code class="nx">value</code> <code class="o">!==</code> <code class="kc">null</code>
+       <code class="o">&amp;&amp;</code> <code class="p">(</code><code class="k">typeof</code> <code class="nx">value</code> <code class="o">===</code> <code class="s1">&apos;object&apos;</code>
+           <code class="o">||</code> <code class="k">typeof</code> <code class="nx">value</code> <code class="o">===</code> <code class="s1">&apos;function&apos;</code><code class="p">));</code>
+<code class="p">}</code>
+
+<code class="cm">/**</code>
+<code class="cm"> * Spec-internal operation that determines whether `x`</code>
+<code class="cm"> * can be used as a constructor.</code>
+<code class="cm"> */</code>
+<code class="kd">function</code> <code class="nx">isConstructor</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_the-standard-species-pattern">
+<span class="section-number">15.7.2 </span>The standard species pattern <a class="header-anchor" href="ch_classes.html#_the-standard-species-pattern" aria-hidden="true">#</a></h4>
+
+<p>The standard species pattern is used by <code>Promise.prototype.then()</code>, the <code>filter()</code> method of Typed Arrays and other operations. It works as follows:</p>
+
+<ul>
+  <li>If <code>this.constructor[Symbol.species]</code> exists, use it as a constructor for the new instance.</li>
+  <li>Otherwise, use a default constructor (e.g. <code>Array</code> for Arrays).</li>
+</ul>
+
+<p>Implemented in JavaScript, the pattern would look like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">SpeciesConstructor</code><code class="p">(</code><code class="nx">O</code><code class="p">,</code> <code class="nx">defaultConstructor</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">C</code> <code class="o">=</code> <code class="nx">O</code><code class="p">.</code><code class="nx">constructor</code><code class="p">;</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">C</code> <code class="o">===</code> <code class="kc">undefined</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">defaultConstructor</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="k">if</code> <code class="p">(</code><code class="o">!</code> <code class="nx">isObject</code><code class="p">(</code><code class="nx">C</code><code class="p">))</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nx">TypeError</code><code class="p">();</code>
+    <code class="p">}</code>
+    <code class="kr">const</code> <code class="nx">S</code> <code class="o">=</code> <code class="nx">C</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">species</code><code class="p">];</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">S</code> <code class="o">===</code> <code class="kc">undefined</code> <code class="o">||</code> <code class="nx">S</code> <code class="o">===</code> <code class="kc">null</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">defaultConstructor</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="k">if</code> <code class="p">(</code><code class="o">!</code> <code class="nx">isConstructor</code><code class="p">(</code><code class="nx">S</code><code class="p">))</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nx">TypeError</code><code class="p">();</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">S</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<aside class="generic_inbar blurb gears icon-gears">
+    <p>The standard species pattern is implemented in the spec via the operation <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-speciesconstructor"><code>SpeciesConstructor()</code></a>.</p>
+
+</aside>
+
+<h4 id="_the-species-pattern-for-arrays">
+<span class="section-number">15.7.3 </span>The species pattern for Arrays <a class="header-anchor" href="ch_classes.html#_the-species-pattern-for-arrays" aria-hidden="true">#</a></h4>
+
+<p>Normal Arrays implement the species pattern slightly differently:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">ArraySpeciesCreate</code><code class="p">(</code><code class="nx">self</code><code class="p">,</code> <code class="nx">length</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="nx">C</code> <code class="o">=</code> <code class="kc">undefined</code><code class="p">;</code>
+    <code class="c1">// If the receiver `self` is an Array,</code>
+    <code class="c1">// we use the species pattern</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nb">Array</code><code class="p">.</code><code class="nx">isArray</code><code class="p">(</code><code class="nx">self</code><code class="p">))</code> <code class="p">{</code>
+        <code class="nx">C</code> <code class="o">=</code> <code class="nx">self</code><code class="p">.</code><code class="nx">constructor</code><code class="p">;</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">isObject</code><code class="p">(</code><code class="nx">C</code><code class="p">))</code> <code class="p">{</code>
+            <code class="nx">C</code> <code class="o">=</code> <code class="nx">C</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">species</code><code class="p">];</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+    <code class="c1">// Either `self` is not an Array or the species</code>
+    <code class="c1">// pattern didn&#x2019;t work out:</code>
+    <code class="c1">// create and return an Array</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">C</code> <code class="o">===</code> <code class="kc">undefined</code> <code class="o">||</code> <code class="nx">C</code> <code class="o">===</code> <code class="kc">null</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="k">new</code> <code class="nb">Array</code><code class="p">(</code><code class="nx">length</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="k">if</code> <code class="p">(</code><code class="o">!</code> <code class="nx">IsConstructor</code><code class="p">(</code><code class="nx">C</code><code class="p">))</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nx">TypeError</code><code class="p">();</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="k">new</code> <code class="nx">C</code><code class="p">(</code><code class="nx">length</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><code>Array.prototype.map()</code> creates the Array it returns via <code>ArraySpeciesCreate(this, this.length)</code>.</p>
+
+<aside class="generic_inbar blurb gears icon-gears">
+    <p>The species pattern for Arrays is implemented in the spec via the operation <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-arrayspeciescreate"><code>ArraySpeciesCreate()</code></a>.</p>
+
+</aside>
+
+<h4 id="_the-species-pattern-in-static-methods">
+<span class="section-number">15.7.4 </span>The species pattern in static methods <a class="header-anchor" href="ch_classes.html#_the-species-pattern-in-static-methods" aria-hidden="true">#</a></h4>
+
+<p>Promises use a variant of the species pattern for static methods such as <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise.all"><code>Promise.all()</code></a>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">let</code> <code class="nx">C</code> <code class="o">=</code> <code class="k">this</code><code class="p">;</code> <code class="c1">// default</code>
+<code class="k">if</code> <code class="p">(</code><code class="o">!</code> <code class="nx">isObject</code><code class="p">(</code><code class="nx">C</code><code class="p">))</code> <code class="p">{</code>
+    <code class="k">throw</code> <code class="k">new</code> <code class="nx">TypeError</code><code class="p">();</code>
+<code class="p">}</code>
+<code class="c1">// The default can be overridden via the property `C[Symbol.species]`</code>
+<code class="kr">const</code> <code class="nx">S</code> <code class="o">=</code> <code class="nx">C</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">species</code><code class="p">];</code>
+<code class="k">if</code> <code class="p">(</code><code class="nx">S</code> <code class="o">!==</code> <code class="kc">undefined</code> <code class="o">&amp;&amp;</code> <code class="nx">S</code> <code class="o">!==</code> <code class="kc">null</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">C</code> <code class="o">=</code> <code class="nx">S</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="k">if</code> <code class="p">(</code><code class="o">!</code><code class="nx">IsConstructor</code><code class="p">(</code><code class="nx">C</code><code class="p">))</code> <code class="p">{</code>
+    <code class="k">throw</code> <code class="k">new</code> <code class="nx">TypeError</code><code class="p">();</code>
+<code class="p">}</code>
+<code class="kr">const</code> <code class="nx">instance</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">C</code><code class="p">(</code><code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_overriding-the-default-species-in-subclasses">
+<span class="section-number">15.7.5 </span>Overriding the default species in subclasses <a class="header-anchor" href="ch_classes.html#_overriding-the-default-species-in-subclasses" aria-hidden="true">#</a></h4>
+
+<p>This is the default getter for the property <code>[Symbol.species]</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">static</code> <code class="nx">get</code> <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">species</code><code class="p">]()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="k">this</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>This default getter is implemented by the built-in classes <code>Array</code>, <code>ArrayBuffer</code>, <code>Map</code>, <code>Promise</code>, <code>RegExp</code>, <code>Set</code> and <code>%TypedArray%</code>. It is automatically inherited by subclasses of these built-in classes.</p>
+
+<p>There are two ways in which you can override the default species: with a constructor of your choosing or with <code>null</code>.</p>
+
+<h5 id="_setting-the-species-to-a-constructor-of-your-choosing">
+<span class="section-number">15.7.5.1 </span>Setting the species to a constructor of your choosing <a class="header-anchor" href="ch_classes.html#_setting-the-species-to-a-constructor-of-your-choosing" aria-hidden="true">#</a></h5>
+
+<p>You can override the default species via a static getter (line A):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">MyArray1</code> <code class="kr">extends</code> <code class="nb">Array</code> <code class="p">{</code>
+    <code class="kr">static</code> <code class="nx">get</code> <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">species</code><code class="p">]()</code> <code class="p">{</code> <code class="c1">// (A)</code>
+        <code class="k">return</code> <code class="nb">Array</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>As a result, <code>map()</code> returns an instance of <code>Array</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">result1</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">MyArray1</code><code class="p">().</code><code class="nx">map</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result1</code> <code class="k">instanceof</code> <code class="nb">Array</code><code class="p">);</code> <code class="c1">// true</code>
+</pre></div>
+
+</figure>
+
+<p>If you don&#x2019;t override the default species, <code>map()</code> returns an instance of the subclass:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">MyArray2</code> <code class="kr">extends</code> <code class="nb">Array</code> <code class="p">{</code> <code class="p">}</code>
+
+<code class="kr">const</code> <code class="nx">result2</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">MyArray2</code><code class="p">().</code><code class="nx">map</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result2</code> <code class="k">instanceof</code> <code class="nx">MyArray2</code><code class="p">);</code> <code class="c1">// true</code>
+</pre></div>
+
+</figure>
+
+<h6 id="_specifying-the-species-via-a-data-property">
+<span class="section-number">15.7.5.1.1 </span>Specifying the species via a data property <a class="header-anchor" href="ch_classes.html#_specifying-the-species-via-a-data-property" aria-hidden="true">#</a></h6>
+
+<p>If you don&#x2019;t want to use a static getter, you need to use <code>Object.defineProperty()</code>. You can&#x2019;t use assignment, as there is already a property with that key that only has a getter. That means that it is read-only and can&#x2019;t be assigned to.</p>
+
+<p>For example, here we set the species of <code>MyArray1</code> to <code>Array</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperty</code><code class="p">(</code>
+    <code class="nx">MyArray1</code><code class="p">,</code> <code class="nx">Symbol</code><code class="p">.</code><code class="nx">species</code><code class="p">,</code> <code class="p">{</code>
+        <code class="nx">value</code><code class="o">:</code> <code class="nb">Array</code>
+    <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_setting-the-species-to-null">
+<span class="section-number">15.7.5.2 </span>Setting the species to <code>null</code>
+ <a class="header-anchor" href="ch_classes.html#_setting-the-species-to-null" aria-hidden="true">#</a></h5>
+
+<p>If you set the species to <code>null</code> then the default constructor is used (which one that is depends on which variant of the species pattern is used, consult the previous sections for more information).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">MyArray3</code> <code class="kr">extends</code> <code class="nb">Array</code> <code class="p">{</code>
+    <code class="kr">static</code> <code class="nx">get</code> <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">species</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="kc">null</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kr">const</code> <code class="nx">result3</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">MyArray3</code><code class="p">().</code><code class="nx">map</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result3</code> <code class="k">instanceof</code> <code class="nb">Array</code><code class="p">);</code> <code class="c1">// true</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_class-benefits">
+<span class="section-number">15.8 </span>The pros and cons of classes <a class="header-anchor" href="ch_classes.html#sec_class-benefits" aria-hidden="true">#</a></h3>
+
+<p>Classes are controversial within the JavaScript community: On one hand, people coming from class-based languages are happy that they don&#x2019;t have to deal with JavaScript&#x2019;s unconventional inheritance mechanisms, anymore. On the other hand, there are many JavaScript programmers who argue that what&#x2019;s complicated about JavaScript is not prototypal inheritance, but constructors.</p>
+
+<p>ES6 classes provide a few clear benefits:</p>
+
+<ul>
+  <li>They are backward-compatible with much of the current code.</li>
+  <li>Compared to constructors and constructor inheritance, classes make it easier for beginners to get started.</li>
+  <li>Subclassing is supported within the language.</li>
+  <li>Built-in constructors are subclassable.</li>
+  <li>No library for inheritance is needed, anymore; code will become more portable between frameworks.</li>
+  <li>They provide a foundation for advanced features in the future: traits (or mixins), immutable instances, etc.</li>
+  <li>They help tools that statically analyze code (IDEs, type checkers, style checkers, etc.).</li>
+</ul>
+
+<p>Let&#x2019;s look at a few common complaints about ES6 classes. You will see me agree with most of them, but I also think that they benefits of classes much outweigh their disadvantages. I&#x2019;m glad that they are in ES6 and I recommend to use them.</p>
+
+<h4 id="_complaint-es6-classes-obscure-the-true-nature-of-javascript-inheritance">
+<span class="section-number">15.8.1 </span>Complaint: ES6 classes obscure the true nature of JavaScript inheritance <a class="header-anchor" href="ch_classes.html#_complaint-es6-classes-obscure-the-true-nature-of-javascript-inheritance" aria-hidden="true">#</a></h4>
+
+<p>Yes, ES6 classes do obscure the true nature of JavaScript inheritance. There is an unfortunate disconnect between what a class looks like (its syntax) and how it behaves (its semantics): It looks like an object, but it is a function. My preference would have been for classes to be <em>constructor objects</em>, not constructor functions. I explore that approach in <a href="https://github.com/rauschma/proto-js">the <code>Proto.js</code> project</a>, via a tiny library (which proves how good a fit this approach is).</p>
+
+<p>However, backwards-compatibility matters, which is why classes being constructor functions also makes sense. That way, ES6 code and ES5 are more interoperable.</p>
+
+<p>The disconnect between syntax and semantics will cause some friction in ES6 and later. But you can lead a comfortable life by simply taking ES6 classes at face value. I don&#x2019;t think the illusion will ever bite you. Newcomers can get started more quickly and later read up on what goes on behind the scenes (after they are more comfortable with the language).</p>
+
+<h4 id="_complaint-classes-provide-only-single-inheritance">
+<span class="section-number">15.8.2 </span>Complaint: Classes provide only single inheritance <a class="header-anchor" href="ch_classes.html#_complaint-classes-provide-only-single-inheritance" aria-hidden="true">#</a></h4>
+
+<p>Classes only give you single inheritance, which severely limits your freedom of expression w.r.t. object-oriented design. However, the plan has always been for them to be the foundation of a multiple-inheritance mechanism such as traits.</p>
+
+<aside class="information blurb">
+    <h3 id="_traitsjs-traits-library-for-javascript">traits.js: traits library for JavaScript <a class="header-anchor" href="ch_classes.html#_traitsjs-traits-library-for-javascript" aria-hidden="true">#</a></h3>
+
+  <p>Check out <a href="http://soft.vub.ac.be/~tvcutsem/traitsjs/">traits.js</a> if you are interested in how traits work (they are similar to mixins, which you may be familiar with).</p>
+
+</aside>
+
+<p>Then a class becomes an instantiable entity and a location where you assemble traits. Until that happens, you will need to resort to libraries if you want multiple inheritance.</p>
+
+<h4 id="_complaint-classes-lock-you-in-due-to-mandatory-new">
+<span class="section-number">15.8.3 </span>Complaint: Classes lock you in, due to mandatory <code>new</code>
+ <a class="header-anchor" href="ch_classes.html#_complaint-classes-lock-you-in-due-to-mandatory-new" aria-hidden="true">#</a></h4>
+
+<p>If you want to instantiate a class, you are forced to use <code>new</code> in ES6. That means that you can&#x2019;t switch from a class to a factory function without changing the call sites. That is indeed a limitation, but there are two mitigating factors:</p>
+
+<ul>
+  <li>You can override the default result returned by the <code>new</code> operator, by returning an object from the <code>constructor</code> method of a class.</li>
+  <li>Due to its built-in modules and classes, ES6 makes it easier for IDEs to refactor code. Therefore, going from <code>new</code> to a function call will be simple. Obviously that doesn&#x2019;t help you if you don&#x2019;t control the code that calls your code, as is the case for libraries.</li>
+</ul>
+
+<p>Therefore, classes do <em>somewhat</em> limit you syntactically, but, once JavaScript has traits, they won&#x2019;t limit you <em>conceptually</em> (w.r.t. object-oriented design).</p>
+
+
+<h3 id="sec_faq-classes">
+<span class="section-number">15.9 </span>FAQ: classes <a class="header-anchor" href="ch_classes.html#sec_faq-classes" aria-hidden="true">#</a></h3>
+
+<h4 id="cannot-function-call-classes">
+<span class="section-number">15.9.1 </span>Why can&#x2019;t classes be function-called? <a class="header-anchor" href="ch_classes.html#cannot-function-call-classes" aria-hidden="true">#</a></h4>
+
+<p>Function-calling classes is currently forbidden. That was done to keep options open for the future, to eventually add a way to handle function calls via classes.</p>
+
+<h4 id="_how-do-i-instantiate-a-class-given-an-array-of-arguments">
+<span class="section-number">15.9.2 </span>How do I instantiate a class, given an Array of arguments? <a class="header-anchor" href="ch_classes.html#_how-do-i-instantiate-a-class-given-an-array-of-arguments" aria-hidden="true">#</a></h4>
+
+<p>What is the analog of <code>Function.prototype.apply()</code> for classes? That is, if I have a class <code>TheClass</code> and an Array <code>args</code> of arguments, how do I instantiate <code>TheClass</code>?</p>
+
+<p>One way of doing so is via the spread operator (<code>...</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">instantiate</code><code class="p">(</code><code class="nx">TheClass</code><code class="p">,</code> <code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="k">new</code> <code class="nx">TheClass</code><code class="p">(...</code><code class="nx">args</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Another option is to use <code>Reflect.construct()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">instantiate</code><code class="p">(</code><code class="nx">TheClass</code><code class="p">,</code> <code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">Reflect</code><code class="p">.</code><code class="nx">construct</code><code class="p">(</code><code class="nx">TheClass</code><code class="p">,</code> <code class="nx">args</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_classes-what-next">
+<span class="section-number">15.10 </span>What is next for classes? <a class="header-anchor" href="ch_classes.html#sec_classes-what-next" aria-hidden="true">#</a></h3>
+
+<p>The design motto for classes was &#x201C;maximally minimal&#x201D;. Several advanced features were discussed, but ultimately discarded in order to get a design that would be unanimously accepted by TC39.</p>
+
+<p>Upcoming versions of ECMAScript can now extend this minimal design &#x2013; classes will provide a foundation for features such as traits (or mixins), value objects (where different objects are equal if they have the same content) and const classes (that produce immutable instances).</p>
+
+
+<h3 id="sec_further-reading-classes">
+<span class="section-number">15.11 </span>Further reading <a class="header-anchor" href="ch_classes.html#sec_further-reading-classes" aria-hidden="true">#</a></h3>
+
+<p>The following document is an important source of this chapter:</p>
+
+<ul>
+  <li>&#x201C;<a href="https://github.com/rwaldron/tc39-notes/blob/master/es6/2015-01/jan2015-allen-slides.pdf">Instantiation Reform: One last time</a>&#x201D;, slides by Allen Wirfs-Brock.</li>
+</ul>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_modules.html">16. Modules</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

@@ -1,0 +1,1781 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>21. Iterables and iterators</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>21. Iterables and iterators</b><br>
+        <a href="index.html#toc_ch_iteration">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_iteration">
+<span class="section-number">21. </span>Iterables and iterators <a class="header-anchor" href="ch_iteration.html#ch_iteration" aria-hidden="true">#</a></h2>
+
+<hr class="scene-break">
+
+<ul>
+  <li>21.1. <a href="ch_iteration.html#sec_overview-iteration">Overview</a>
+    <ul>
+      <li>21.1.1. Iterable values</li>
+      <li>21.1.2. Constructs supporting iteration</li>
+    </ul>
+  </li>
+  <li>21.2. <a href="ch_iteration.html#sec_iterability">Iterability</a>
+</li>
+  <li>21.3. <a href="ch_iteration.html#sec_iterable-data-sources">Iterable data sources</a>
+    <ul>
+      <li>21.3.1. Arrays</li>
+      <li>21.3.2. Strings</li>
+      <li>21.3.3. Maps</li>
+      <li>21.3.4. Sets</li>
+      <li>21.3.5. <code>arguments</code>
+</li>
+      <li>21.3.6. DOM data structures</li>
+      <li>21.3.7. Iterable computed data</li>
+      <li>21.3.8. Plain objects are not iterable</li>
+    </ul>
+  </li>
+  <li>21.4. <a href="ch_iteration.html#sec_iterating-language-constructs">Iterating language constructs</a>
+    <ul>
+      <li>21.4.1. Destructuring via an Array pattern</li>
+      <li>21.4.2. The <code>for-of</code> loop</li>
+      <li>21.4.3. <code>Array.from()</code>
+</li>
+      <li>21.4.4. The spread operator (<code>...</code>)</li>
+      <li>21.4.5. Maps and Sets</li>
+      <li>21.4.6. Promises</li>
+      <li>21.4.7. <code>yield*</code>
+</li>
+    </ul>
+  </li>
+  <li>21.5. <a href="ch_iteration.html#sec_implementing-iterables">Implementing iterables</a>
+    <ul>
+      <li>21.5.1. Iterators that are iterable</li>
+      <li>21.5.2. Optional iterator methods: <code>return()</code> and <code>throw()</code>
+</li>
+    </ul>
+  </li>
+  <li>21.6. <a href="ch_iteration.html#sec_more-examples-of-iterables">More examples of iterables</a>
+    <ul>
+      <li>21.6.1. Tool functions that return iterables</li>
+      <li>21.6.2. Combinators for iterables</li>
+      <li>21.6.3. Infinite iterables</li>
+    </ul>
+  </li>
+  <li>21.7. <a href="ch_iteration.html#sec_faq-iteration">FAQ: iterables and iterators</a>
+    <ul>
+      <li>21.7.1. Isn&#x2019;t the iteration protocol slow?</li>
+      <li>21.7.2. Can I reuse the same object several times?</li>
+      <li>21.7.3. Why doesn&#x2019;t ECMAScript 6 have iterable combinators?</li>
+      <li>21.7.4. Aren&#x2019;t iterables difficult to implement?</li>
+    </ul>
+  </li>
+  <li>21.8. <a href="ch_iteration.html#sec_iteration-protocol-in-depth">The ECMAScript 6 iteration protocol in depth</a>
+    <ul>
+      <li>21.8.1. Iteration</li>
+      <li>21.8.2. Closing iterators</li>
+      <li>21.8.3. Checklist</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-iteration">
+<span class="section-number">21.1 </span>Overview <a class="header-anchor" href="ch_iteration.html#sec_overview-iteration" aria-hidden="true">#</a></h3>
+
+<p>ES6 introduces a new mechanism for traversing data: <em>iteration</em>. Two concepts are central to iteration:</p>
+
+<ul>
+  <li>An <em>iterable</em> is a data structure that wants to make its elements accessible to the public. It does so by implementing a method whose key is <code>Symbol.iterator</code>. That method is a factory for <em>iterators</em>.</li>
+  <li>An <em>iterator</em> is a pointer for traversing the elements of a data structure (think cursors in databases).</li>
+</ul>
+
+<p>Expressed as interfaces in TypeScript notation, these roles look like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">interface</code> <code class="nx">Iterable</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="o">:</code> <code class="nx">Iterator</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kr">interface</code> <code class="nx">Iterator</code> <code class="p">{</code>
+    <code class="nx">next</code><code class="p">()</code> <code class="o">:</code> <code class="nx">IteratorResult</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kr">interface</code> <code class="nx">IteratorResult</code> <code class="p">{</code>
+    <code class="nx">value</code><code class="o">:</code> <code class="nx">any</code><code class="p">;</code>
+    <code class="nx">done</code><code class="o">:</code> <code class="kr">boolean</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_iterable-values">
+<span class="section-number">21.1.1 </span>Iterable values <a class="header-anchor" href="ch_iteration.html#_iterable-values" aria-hidden="true">#</a></h4>
+
+<p>The following values are iterable:</p>
+
+<ul>
+  <li>Arrays</li>
+  <li>Strings</li>
+  <li>Maps</li>
+  <li>Sets</li>
+  <li>DOM data structures (work in progress)</li>
+</ul>
+
+<p>Plain objects are not iterable (why is explained in <a href="ch_iteration.html#sec_plain-objects-not-iterable">a dedicated section</a>).</p>
+
+<h4 id="_constructs-supporting-iteration">
+<span class="section-number">21.1.2 </span>Constructs supporting iteration <a class="header-anchor" href="ch_iteration.html#_constructs-supporting-iteration" aria-hidden="true">#</a></h4>
+
+<p>Language constructs that access data via iteration:</p>
+
+<ul>
+  <li>Destructuring via an Array pattern:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="p">[</code><code class="nx">a</code><code class="p">,</code><code class="nx">b</code><code class="p">]</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">]);</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>
+<code>for-of</code> loop:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">])</code> <code class="p">{</code>
+      <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+  <code class="p">}</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>
+<code>Array.from()</code>:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">from</code><code class="p">(</code><code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">]));</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Spread operator (<code>...</code>):
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[...</code><code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">])];</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Constructors of Maps and Sets:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">([[</code><code class="kc">false</code><code class="p">,</code> <code class="s1">&apos;no&apos;</code><code class="p">],</code> <code class="p">[</code><code class="kc">true</code><code class="p">,</code> <code class="s1">&apos;yes&apos;</code><code class="p">]]);</code>
+  <code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">]);</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>
+<code>Promise.all()</code>, <code>Promise.race()</code>:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">(</code><code class="nx">iterableOverPromises</code><code class="p">).</code><code class="nx">then</code><code class="p">(</code><code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">);</code>
+  <code class="nb">Promise</code><code class="p">.</code><code class="nx">race</code><code class="p">(</code><code class="nx">iterableOverPromises</code><code class="p">).</code><code class="nx">then</code><code class="p">(</code><code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">);</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>
+<code>yield*</code>:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="k">yield</code><code class="o">*</code> <code class="nx">anIterable</code><code class="p">;</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+
+<h3 id="sec_iterability">
+<span class="section-number">21.2 </span>Iterability <a class="header-anchor" href="ch_iteration.html#sec_iterability" aria-hidden="true">#</a></h3>
+
+<p>The idea of iterability is as follows.</p>
+
+<ul>
+  <li>
+<strong>Data consumers:</strong> JavaScript has language constructs that consume data. For example, <code>for-of</code> loops over values and the spread operator (<code>...</code>) inserts values into Arrays or function calls.</li>
+  <li>
+<strong>Data sources:</strong> The data consumers could get their values from a variety of sources. For example, you may want to iterate over the elements of an Array, the key-value entries in a Map or the characters of a string.</li>
+</ul>
+
+<p>It&#x2019;s not practical for every consumer to support all sources, especially because it should be possible to create new sources (e.g. via libraries). Therefore, ES6 introduces the interface <code>Iterable</code>. Data consumers use it, data sources implement it:</p>
+
+
+<figure class="image center">
+  <img src="images/iteration----consumers_sources.jpg" alt="" width="321.75" height="108.25">
+  <figcaption></figcaption>
+</figure>
+
+
+<p>Given that JavaScript does not have interfaces, <code>Iterable</code> is more of a convention:</p>
+
+<ul>
+  <li>
+<strong>Source:</strong> A value is considered <em>iterable</em> if it has a method whose key is the symbol <code>Symbol.iterator</code> that returns a so-called <em>iterator</em>. The iterator is an object that returns values via its method <code>next()</code>. We say: it <em>iterates over</em> the <em>items</em> (the content) of the iterable, one per method call.</li>
+  <li>
+<strong>Consumption:</strong> Data consumers use the iterator to retrieve the values they are consuming.</li>
+</ul>
+
+<p>Let&#x2019;s see what consumption looks like for an Array <code>arr</code>. First, you create an iterator via the method whose key is <code>Symbol.iterator</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const arr = [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;];
+&gt; const iter = arr[Symbol.iterator]();
+</pre></div>
+
+</figure>
+
+<p>Then you call the iterator&#x2019;s method <code>next()</code> repeatedly to retrieve the items &#x201C;inside&#x201D; the Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; iter.next()
+{ value: &apos;a&apos;, done: false }
+&gt; iter.next()
+{ value: &apos;b&apos;, done: false }
+&gt; iter.next()
+{ value: &apos;c&apos;, done: false }
+&gt; iter.next()
+{ value: undefined, done: true }
+</pre></div>
+
+</figure>
+
+<p>As you can see, <code>next()</code> returns each item wrapped in an object, as the value of the property <code>value</code>. The boolean property <code>done</code> indicates when the end of the sequence of items has been reached.</p>
+
+<p><code>Iterable</code> and iterators are part of a so-called <em>protocol</em> (<a href="ch_about-book.html#sec_protocol">interfaces plus rules for using them</a>) for iteration. A key characteristic of this protocol is that it is sequential: the iterator returns values one at a time. That means that if an iterable data structure is non-linear (such as a tree), iteration will linearize it.</p>
+
+
+<h3 id="sec_iterable-data-sources">
+<span class="section-number">21.3 </span>Iterable data sources <a class="header-anchor" href="ch_iteration.html#sec_iterable-data-sources" aria-hidden="true">#</a></h3>
+
+<p>I&#x2019;ll use the <code>for-of</code> loop (see Chap. &#x201C;<a href="ch_for-of.html#ch_for-of">The <code>for-of</code> loop</a>&#x201D;) to iterate over various kinds of iterable data.</p>
+
+<h4 id="_arrays">
+<span class="section-number">21.3.1 </span>Arrays <a class="header-anchor" href="ch_iteration.html#_arrays" aria-hidden="true">#</a></h4>
+
+<p>Arrays (and Typed Arrays) are iterables over their elements:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">])</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// &apos;a&apos;</code>
+<code class="c1">// &apos;b&apos;</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_strings">
+<span class="section-number">21.3.2 </span>Strings <a class="header-anchor" href="ch_iteration.html#_strings" aria-hidden="true">#</a></h4>
+
+<p>Strings are iterable, but they iterate over Unicode code points, each of which may comprise one or two JavaScript characters:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="s1">&apos;a\uD83D\uDC0A&apos;</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// &apos;a&apos;</code>
+<code class="c1">// &apos;\uD83D\uDC0A&apos; (crocodile emoji)</code>
+</pre></div>
+
+</figure>
+
+<aside class="information blurb">
+    <p>You have just seen that primitive values can be iterable. A value doesn&#x2019;t have to be an object in order to be iterable. That&#x2019;s because all values are coerced to objects before the iterator method (property key <code>Symbol.iterator</code>) is accessed.</p>
+
+</aside>
+
+<h4 id="_maps-1">
+<span class="section-number">21.3.3 </span>Maps <a class="header-anchor" href="ch_iteration.html#_maps-1" aria-hidden="true">#</a></h4>
+
+<p>Maps are iterables over their entries. Each entry is encoded as a [key, value] pair, an Array with two elements. The entries are always iterated over deterministically, in the same order in which they were added to the map.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">().</code><code class="nx">set</code><code class="p">(</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="mi">1</code><code class="p">).</code><code class="nx">set</code><code class="p">(</code><code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="mi">2</code><code class="p">);</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">pair</code> <code class="k">of</code> <code class="nx">map</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">pair</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// [&apos;a&apos;, 1]</code>
+<code class="c1">// [&apos;b&apos;, 2]</code>
+</pre></div>
+
+</figure>
+
+<p>Note that WeakMaps are not iterable.</p>
+
+<h4 id="_sets-1">
+<span class="section-number">21.3.4 </span>Sets <a class="header-anchor" href="ch_iteration.html#_sets-1" aria-hidden="true">#</a></h4>
+
+<p>Sets are iterables over their elements (which are iterated over in the same order in which they were added to the Set).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">().</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;a&apos;</code><code class="p">).</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;b&apos;</code><code class="p">);</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">set</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// &apos;a&apos;</code>
+<code class="c1">// &apos;b&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>Note that WeakSets are not iterable.</p>
+
+<h4 id="_arguments">
+<span class="section-number">21.3.5 </span><code>arguments</code>
+ <a class="header-anchor" href="ch_iteration.html#_arguments" aria-hidden="true">#</a></h4>
+
+<p>Even though the special variable <code>arguments</code> is more or less obsolete in ECMAScript 6 (due to rest parameters), it is iterable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">printArgs</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">arguments</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="nx">printArgs</code><code class="p">(</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">);</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// &apos;a&apos;</code>
+<code class="c1">// &apos;b&apos;</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_dom-data-structures">
+<span class="section-number">21.3.6 </span>DOM data structures <a class="header-anchor" href="ch_iteration.html#_dom-data-structures" aria-hidden="true">#</a></h4>
+
+<p>Most DOM data structures will eventually be iterable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">node</code> <code class="k">of</code> <code class="nb">document</code><code class="p">.</code><code class="nx">querySelectorAll</code><code class="p">(</code><code class="s1">&apos;div&apos;</code><code class="p">))</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Note that implementing this functionality is work in progress. But it is relatively easy to do so, because the symbol <code>Symbol.iterator</code> can&#x2019;t clash with existing property keys.</p>
+
+<h4 id="_iterable-computed-data">
+<span class="section-number">21.3.7 </span>Iterable computed data <a class="header-anchor" href="ch_iteration.html#_iterable-computed-data" aria-hidden="true">#</a></h4>
+
+<p>Not all iterable content does have to come from data structures, it could also be computed on the fly. For example, all major ES6 data structures (Arrays, Typed Arrays, Maps, Sets) have three methods that return iterable objects:</p>
+
+<ul>
+  <li>
+<code>entries()</code> returns an iterable over entries encoded as [key, value] Arrays. For Arrays, the values are the Array elements and the keys are their indices. For Sets, each key and value are the same &#x2013; the Set element.</li>
+  <li>
+<code>keys()</code> returns an iterable over the keys of the entries.</li>
+  <li>
+<code>values()</code> returns an iterable over the values of the entries.</li>
+</ul>
+
+<p>Let&#x2019;s see what that looks like. <code>entries()</code> gives you a nice way to get both Array elements and their indices:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">pair</code> <code class="k">of</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">pair</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// [0, &apos;a&apos;]</code>
+<code class="c1">// [1, &apos;b&apos;]</code>
+<code class="c1">// [2, &apos;c&apos;]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="sec_plain-objects-not-iterable">
+<span class="section-number">21.3.8 </span>Plain objects are not iterable <a class="header-anchor" href="ch_iteration.html#sec_plain-objects-not-iterable" aria-hidden="true">#</a></h4>
+
+<p>Plain objects (as created by object literals) are not iterable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="p">{})</code> <code class="p">{</code> <code class="c1">// TypeError</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Why aren&#x2019;t objects iterable over properties, by default? The reasoning is as follows. There are two levels at which you can iterate in JavaScript:</p>
+
+<ol class="numeric">
+  <li>The program level: iterating over properties means examining the structure of the program.</li>
+  <li>The data level: iterating over a data structure means examining the data managed by the program.</li>
+</ol>
+
+<p>Making iteration over properties the default would mean mixing those levels, which would have two disadvantages:</p>
+
+<ul>
+  <li>You can&#x2019;t iterate over the properties of data structures.</li>
+  <li>Once you iterate over the properties of an object, turning that object into a data structure would break your code.</li>
+</ul>
+
+<p>If engines were to implement iterability via a method <code>Object.prototype[Symbol.iterator]()</code> then there would be an additional caveat: Objects created via <code>Object.create(null)</code> wouldn&#x2019;t be iterable, because <code>Object.prototype</code> is not in their prototype chain.</p>
+
+<p>It is important to remember that iterating over the properties of an object is mainly interesting if you use objects as Maps<sup id="fnref-iteration_1"><a href="leanpub-endnotes.html#fn-iteration_1" rel="footnote">1</a></sup>. But we only do that in ES5 because we have no better alternative. In ECMAScript 6, we have the built-in data structure <code>Map</code>.</p>
+
+<h5 id="_how-to-iterate-over-properties">
+<span class="section-number">21.3.8.1 </span>How to iterate over properties <a class="header-anchor" href="ch_iteration.html#_how-to-iterate-over-properties" aria-hidden="true">#</a></h5>
+
+<p>The proper (and safe) way to iterate over properties is via a tool function. For example, via <code>objectEntries()</code>, <a href="ch_iteration.html#objectEntries">whose implementation is shown later</a> (future ECMAScript versions may have something similar built in):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;Jane&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;Doe&apos;</code> <code class="p">};</code>
+
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">key</code><code class="p">,</code><code class="nx">value</code><code class="p">]</code> <code class="k">of</code> <code class="nx">objectEntries</code><code class="p">(</code><code class="nx">obj</code><code class="p">))</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`</code><code class="si">${</code><code class="nx">key</code><code class="si">}</code><code class="sb">: </code><code class="si">${</code><code class="nx">value</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// first: Jane</code>
+<code class="c1">// last: Doe</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_iterating-language-constructs">
+<span class="section-number">21.4 </span>Iterating language constructs <a class="header-anchor" href="ch_iteration.html#sec_iterating-language-constructs" aria-hidden="true">#</a></h3>
+
+<p>The following ES6 language constructs make use of the iteration protocol:</p>
+
+<ul>
+  <li>Destructuring via an Array pattern</li>
+  <li>
+<code>for-of</code> loop</li>
+  <li><code>Array.from()</code></li>
+  <li>Spread operator (<code>...</code>)</li>
+  <li>Constructors of Maps and Sets</li>
+  <li>
+<code>Promise.all()</code>, <code>Promise.race()</code>
+</li>
+  <li><code>yield*</code></li>
+</ul>
+
+<p>The next sections describe each one of them in detail.</p>
+
+<h4 id="_destructuring-via-an-array-pattern">
+<span class="section-number">21.4.1 </span>Destructuring via an Array pattern <a class="header-anchor" href="ch_iteration.html#_destructuring-via-an-array-pattern" aria-hidden="true">#</a></h4>
+
+<p>Destructuring via Array patterns works for any iterable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">().</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;a&apos;</code><code class="p">).</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;b&apos;</code><code class="p">).</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;c&apos;</code><code class="p">);</code>
+
+<code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code><code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="nx">set</code><code class="p">;</code>
+    <code class="c1">// x=&apos;a&apos;; y=&apos;b&apos;</code>
+
+<code class="kr">const</code> <code class="p">[</code><code class="nx">first</code><code class="p">,</code> <code class="p">...</code><code class="nx">rest</code><code class="p">]</code> <code class="o">=</code> <code class="nx">set</code><code class="p">;</code>
+    <code class="c1">// first=&apos;a&apos;; rest=[&apos;b&apos;,&apos;c&apos;];</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_the-for-of-loop">
+<span class="section-number">21.4.2 </span>The <code>for-of</code> loop <a class="header-anchor" href="ch_iteration.html#_the-for-of-loop" aria-hidden="true">#</a></h4>
+
+<p><code>for-of</code> is a new loop in ECMAScript 6. It&#x2019;s basic form looks like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>For more information, consult Chap. &#x201C;<a href="ch_for-of.html#ch_for-of">The <code>for-of</code> loop</a>&#x201D;.</p>
+
+<p>Note that the iterability of <code>iterable</code> is required, otherwise <code>for-of</code> can&#x2019;t loop over a value. That means that non-iterable values must be converted to something iterable. For example, via <code>Array.from()</code>.</p>
+
+<h4 id="_arrayfrom-1">
+<span class="section-number">21.4.3 </span><code>Array.from()</code>
+ <a class="header-anchor" href="ch_iteration.html#_arrayfrom-1" aria-hidden="true">#</a></h4>
+
+<p><code>Array.from()</code> converts iterable and Array-like values to Arrays. It is also available for typed Arrays.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Array.from(new Map().set(false, &apos;no&apos;).set(true, &apos;yes&apos;))
+[[false,&apos;no&apos;], [true,&apos;yes&apos;]]
+&gt; Array.from({ length: 2, 0: &apos;hello&apos;, 1: &apos;world&apos; })
+[&apos;hello&apos;, &apos;world&apos;]
+</pre></div>
+
+</figure>
+
+<p>For more information on <code>Array.from()</code>, consult <a href="ch_arrays.html#Array_from">the chapter on Arrays</a>.</p>
+
+<h4 id="_the-spread-operator-">
+<span class="section-number">21.4.4 </span>The spread operator (<code>...</code>) <a class="header-anchor" href="ch_iteration.html#_the-spread-operator-" aria-hidden="true">#</a></h4>
+
+<p>The spread operator inserts the values of an iterable into an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">];</code>
+<code class="o">&gt;</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="p">...</code><code class="nx">arr</code><code class="p">,</code> <code class="s1">&apos;d&apos;</code><code class="p">]</code>
+<code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">,</code> <code class="s1">&apos;d&apos;</code><code class="p">]</code>
+</pre></div>
+
+</figure>
+
+<p>That means that it provides you with a compact way to convert any iterable to an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[...</code><code class="nx">iterable</code><code class="p">];</code>
+</pre></div>
+
+</figure>
+
+<p>The spread operator also turns an iterable into the arguments of a function, method or constructor call:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">max</code><code class="p">(...[</code><code class="o">-</code><code class="mi">1</code><code class="p">,</code> <code class="mi">8</code><code class="p">,</code> <code class="mi">3</code><code class="p">])</code>
+<code class="mi">8</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_maps-and-sets">
+<span class="section-number">21.4.5 </span>Maps and Sets <a class="header-anchor" href="ch_iteration.html#_maps-and-sets" aria-hidden="true">#</a></h4>
+
+<p>The constructor of a Map turns an iterable over [key, value] pairs into a Map:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const map = new Map([[&apos;uno&apos;, &apos;one&apos;], [&apos;dos&apos;, &apos;two&apos;]]);
+&gt; map.get(&apos;uno&apos;)
+&apos;one&apos;
+&gt; map.get(&apos;dos&apos;)
+&apos;two&apos;
+</pre></div>
+
+</figure>
+
+<p>The constructor of a Set turns an iterable over elements into a Set:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;red&apos;</code><code class="p">,</code> <code class="s1">&apos;green&apos;</code><code class="p">,</code> <code class="s1">&apos;blue&apos;</code><code class="p">]);</code>
+<code class="o">&gt;</code> <code class="nx">set</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="s1">&apos;red&apos;</code><code class="p">)</code>
+<code class="kc">true</code>
+<code class="o">&gt;</code> <code class="nx">set</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="s1">&apos;yellow&apos;</code><code class="p">)</code>
+<code class="kc">false</code>
+</pre></div>
+
+</figure>
+
+<p>The constructors of <code>WeakMap</code> and <code>WeakSet</code> work similarly. Furthermore, Maps and Sets are iterable themselves (WeakMaps and WeakSets aren&#x2019;t), which means that you can use their constructors to clone them.</p>
+
+<h4 id="_promises">
+<span class="section-number">21.4.6 </span>Promises <a class="header-anchor" href="ch_iteration.html#_promises" aria-hidden="true">#</a></h4>
+
+<p><code>Promise.all()</code> and <code>Promise.race()</code> accept iterables over Promises:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">(</code><code class="nx">iterableOverPromises</code><code class="p">).</code><code class="nx">then</code><code class="p">(</code><code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">);</code>
+<code class="nb">Promise</code><code class="p">.</code><code class="nx">race</code><code class="p">(</code><code class="nx">iterableOverPromises</code><code class="p">).</code><code class="nx">then</code><code class="p">(</code><code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_yield">
+<span class="section-number">21.4.7 </span><code>yield*</code>
+ <a class="header-anchor" href="ch_iteration.html#_yield" aria-hidden="true">#</a></h4>
+
+<p><code>yield*</code> is an operator that is only available inside generators. It yields all items iterated over by an iterable.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code><code class="o">*</code> <code class="nx">yieldAllValuesOf</code><code class="p">(</code><code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">yield</code><code class="o">*</code> <code class="nx">iterable</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The most important use case for <code>yield*</code> is to recursively call a generator (which produces something iterable).</p>
+
+
+<h3 id="sec_implementing-iterables">
+<span class="section-number">21.5 </span>Implementing iterables <a class="header-anchor" href="ch_iteration.html#sec_implementing-iterables" aria-hidden="true">#</a></h3>
+
+<p>In this section, I explain in detail how to implement iterables. Note that <a href="ch_generators.html#ch_generators">ES6 generators</a> are usually much more convenient for this task than doing so &#x201C;manually&#x201D;.</p>
+
+<p>The iteration protocol looks as follows.</p>
+
+
+<figure class="image center">
+  <img src="images/iteration----iteration_protocol.jpg" alt="" width="420.75" height="92.5">
+  <figcaption></figcaption>
+</figure>
+
+
+<p>An object becomes <em>iterable</em> (&#x201C;implements&#x201D; the interface <code>Iterable</code>) if it has a method (own or inherited) whose key is <code>Symbol.iterator</code>. That method must return an <em>iterator</em>, an object that <em>iterates over</em> the <em>items</em> &#x201C;inside&#x201D; the iterable via its method <code>next()</code>.</p>
+
+<p>In TypeScript notation, the interfaces for iterables and iterators look as follows<sup id="fnref-iteration_2"><a href="leanpub-endnotes.html#fn-iteration_2" rel="footnote">2</a></sup>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">interface</code> <code class="nx">Iterable</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="o">:</code> <code class="nx">Iterator</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kr">interface</code> <code class="nx">Iterator</code> <code class="p">{</code>
+    <code class="nx">next</code><code class="p">()</code> <code class="o">:</code> <code class="nx">IteratorResult</code><code class="p">;</code>
+    <code class="k">return</code><code class="o">?</code><code class="p">(</code><code class="nx">value</code><code class="o">?</code> <code class="o">:</code> <code class="nx">any</code><code class="p">)</code> <code class="o">:</code> <code class="nx">IteratorResult</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kr">interface</code> <code class="nx">IteratorResult</code> <code class="p">{</code>
+    <code class="nx">value</code><code class="o">:</code> <code class="nx">any</code><code class="p">;</code>
+    <code class="nx">done</code><code class="o">:</code> <code class="kr">boolean</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<p><code>return()</code> is an optional method that we&#x2019;ll get to later<sup id="fnref-iteration_3"><a href="leanpub-endnotes.html#fn-iteration_3" rel="footnote">3</a></sup>. Let&#x2019;s first implement a dummy iterable to get a feeling for how iteration works.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="kd">let</code> <code class="nx">step</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+        <code class="kr">const</code> <code class="nx">iterator</code> <code class="o">=</code> <code class="p">{</code>
+            <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+                <code class="k">if</code> <code class="p">(</code><code class="nx">step</code> <code class="o">&lt;=</code> <code class="mi">2</code><code class="p">)</code> <code class="p">{</code>
+                    <code class="nx">step</code><code class="o">++</code><code class="p">;</code>
+                <code class="p">}</code>
+                <code class="k">switch</code> <code class="p">(</code><code class="nx">step</code><code class="p">)</code> <code class="p">{</code>
+                    <code class="k">case</code> <code class="mi">1</code><code class="o">:</code>
+                        <code class="k">return</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="s1">&apos;hello&apos;</code><code class="p">,</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">false</code> <code class="p">};</code>
+                    <code class="k">case</code> <code class="mi">2</code><code class="o">:</code>
+                        <code class="k">return</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="s1">&apos;world&apos;</code><code class="p">,</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">false</code> <code class="p">};</code>
+                    <code class="k">default</code><code class="o">:</code>
+                        <code class="k">return</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="kc">undefined</code><code class="p">,</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+                <code class="p">}</code>
+            <code class="p">}</code>
+        <code class="p">};</code>
+        <code class="k">return</code> <code class="nx">iterator</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Let&#x2019;s check that <code>iterable</code> is, in fact, iterable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// hello</code>
+<code class="c1">// world</code>
+</pre></div>
+
+</figure>
+
+<p>The code executes three steps, with the counter <code>step</code> ensuring that everything happens in the right order. First, we return the value <code>&apos;hello&apos;</code>, then the value <code>&apos;world&apos;</code> and then we indicate that the end of the iteration has been reached. Each item is wrapped in an object with the properties:</p>
+
+<ul>
+  <li>
+<code>value</code> which holds the actual item and</li>
+  <li>
+<code>done</code> which is a boolean flag that indicates whether the end has been reached, yet.</li>
+</ul>
+
+<p>You can omit <code>done</code> if it is <code>false</code> and <code>value</code> if it is <code>undefined</code>. That is, the <code>switch</code> statement could be written as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">switch</code> <code class="p">(</code><code class="nx">step</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">case</code> <code class="mi">1</code><code class="o">:</code>
+        <code class="k">return</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="s1">&apos;hello&apos;</code> <code class="p">};</code>
+    <code class="k">case</code> <code class="mi">2</code><code class="o">:</code>
+        <code class="k">return</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="s1">&apos;world&apos;</code> <code class="p">};</code>
+    <code class="k">default</code><code class="o">:</code>
+        <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>As is explained in the <a href="ch_generators.html#ch_generators">the chapter on generators</a>, there are cases where you want even the last item with <code>done: true</code> to have a <code>value</code>. Otherwise, <code>next()</code> could be simpler and return items directly (without wrapping them in objects). The end of iteration would then be indicated via a special value (e.g., a symbol).</p>
+
+<p>Let&#x2019;s look at one more implementation of an iterable. The function <code>iterateOver()</code> returns an iterable over the arguments that are passed to it:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">iterateOver</code><code class="p">(...</code><code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="nx">index</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+    <code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="p">{</code>
+        <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+            <code class="kr">const</code> <code class="nx">iterator</code> <code class="o">=</code> <code class="p">{</code>
+                <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+                    <code class="k">if</code> <code class="p">(</code><code class="nx">index</code> <code class="o">&lt;</code> <code class="nx">args</code><code class="p">.</code><code class="nx">length</code><code class="p">)</code> <code class="p">{</code>
+                        <code class="k">return</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="nx">args</code><code class="p">[</code><code class="nx">index</code><code class="o">++</code><code class="p">]</code> <code class="p">};</code>
+                    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+                        <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+                    <code class="p">}</code>
+                <code class="p">}</code>
+            <code class="p">};</code>
+            <code class="k">return</code> <code class="nx">iterator</code><code class="p">;</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">iterable</code><code class="p">;</code>
+<code class="p">}</code>
+
+<code class="c1">// Using `iterateOver()`:</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterateOver</code><code class="p">(</code><code class="s1">&apos;fee&apos;</code><code class="p">,</code> <code class="s1">&apos;fi&apos;</code><code class="p">,</code> <code class="s1">&apos;fo&apos;</code><code class="p">,</code> <code class="s1">&apos;fum&apos;</code><code class="p">))</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// fee</code>
+<code class="c1">// fi</code>
+<code class="c1">// fo</code>
+<code class="c1">// fum</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_iterators-that-are-iterable">
+<span class="section-number">21.5.1 </span>Iterators that are iterable <a class="header-anchor" href="ch_iteration.html#_iterators-that-are-iterable" aria-hidden="true">#</a></h4>
+
+<p>The previous function can be simplified if the iterable and the iterator are the same object:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">iterateOver</code><code class="p">(...</code><code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="nx">index</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+    <code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="p">{</code>
+        <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="k">this</code><code class="p">;</code>
+        <code class="p">},</code>
+        <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+            <code class="k">if</code> <code class="p">(</code><code class="nx">index</code> <code class="o">&lt;</code> <code class="nx">args</code><code class="p">.</code><code class="nx">length</code><code class="p">)</code> <code class="p">{</code>
+                <code class="k">return</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="nx">args</code><code class="p">[</code><code class="nx">index</code><code class="o">++</code><code class="p">]</code> <code class="p">};</code>
+            <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+                <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+            <code class="p">}</code>
+        <code class="p">},</code>
+    <code class="p">};</code>
+    <code class="k">return</code> <code class="nx">iterable</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Even if the original iterable and the iterator are not the same object, it is still occasionally useful if an iterator has the following method (which also makes it an iterable):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="k">this</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>All built-in ES6 iterators follow this pattern (via a common prototype, see <a href="ch_generators.html#ch_generators">the chapter on generators</a>). For example, the default iterator for Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const arr = [];
+&gt; const iterator = arr[Symbol.iterator]();
+&gt; iterator[Symbol.iterator]() === iterator
+true
+</pre></div>
+
+</figure>
+
+<p>Why is it useful if an iterator is also an iterable? <code>for-of</code> only works for iterables, not for iterators. Because Array iterators are iterable, you can continue an iteration in another loop:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="kr">const</code> <code class="nx">iterator</code> <code class="o">=</code> <code class="nx">arr</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]();</code>
+
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code> <code class="c1">// a</code>
+    <code class="k">break</code><code class="p">;</code>
+<code class="p">}</code>
+
+<code class="c1">// Continue with same iterator:</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code> <code class="c1">// b</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>One use case for continuing an iteration is that you can remove initial items (e.g. a header) before processing the actual content via <code>for-of</code>.</p>
+
+<h4 id="_optional-iterator-methods-return-and-throw">
+<span class="section-number">21.5.2 </span>Optional iterator methods: <code>return()</code> and <code>throw()</code>
+ <a class="header-anchor" href="ch_iteration.html#_optional-iterator-methods-return-and-throw" aria-hidden="true">#</a></h4>
+
+<p>Two iterator methods are optional:</p>
+
+<ul>
+  <li>
+<code>return()</code> gives an iterator the opportunity to clean up if an iteration ends prematurely.</li>
+  <li>
+<code>throw()</code> is about forwarding a method call to a generator that is iterated over via <code>yield*</code>. It is explained in <a href="ch_generators.html#ch_generators">the chapter on generators</a>.</li>
+</ul>
+
+<h5 id="_closing-iterators-via-return">
+<span class="section-number">21.5.2.1 </span>Closing iterators via <code>return()</code>
+ <a class="header-anchor" href="ch_iteration.html#_closing-iterators-via-return" aria-hidden="true">#</a></h5>
+
+
+<p>As mentioned before, the optional iterator method <code>return()</code> is about letting an iterator clean up if it wasn&#x2019;t iterated over until the end. It <em>closes</em> an iterator. In <code>for-of</code> loops, premature (or <em>abrupt</em>, in spec language) termination can be caused by:</p>
+
+<ul>
+  <li><code>break</code></li>
+  <li>
+<code>continue</code> (if you continue an outer loop, <code>continue</code> acts like a <code>break</code>)</li>
+  <li><code>throw</code></li>
+  <li><code>return</code></li>
+</ul>
+
+<p>In each of these cases, <code>for-of</code> lets the iterator know that the loop won&#x2019;t finish. Let&#x2019;s look at an example, a function <code>readLinesSync</code> that returns an iterable of text lines in a file and would like to close that file no matter what happens:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">readLinesSync</code><code class="p">(</code><code class="nx">fileName</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">file</code> <code class="o">=</code> <code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">;</code>
+    <code class="k">return</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+        <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+            <code class="k">if</code> <code class="p">(</code><code class="nx">file</code><code class="p">.</code><code class="nx">isAtEndOfFile</code><code class="p">())</code> <code class="p">{</code>
+                <code class="nx">file</code><code class="p">.</code><code class="nx">close</code><code class="p">();</code>
+                <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+            <code class="p">}</code>
+            <code class="err">&#xB7;&#xB7;&#xB7;</code>
+        <code class="p">},</code>
+        <code class="k">return</code><code class="p">()</code> <code class="p">{</code>
+            <code class="nx">file</code><code class="p">.</code><code class="nx">close</code><code class="p">();</code>
+            <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+        <code class="p">},</code>
+    <code class="p">};</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Due to <code>return()</code>, the file will be properly closed in the following loop:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Only print first line</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">line</code> <code class="k">of</code> <code class="nx">readLinesSync</code><code class="p">(</code><code class="nx">fileName</code><code class="p">))</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The <code>return()</code> method must return an object. That is due to how generators handle the <code>return</code> statement and will be explained in <a href="ch_generators.html#ch_generators">the chapter on generators</a>.</p>
+
+<p>The following constructs close iterators that aren&#x2019;t completely &#x201C;drained&#x201D;:</p>
+
+<ul>
+  <li><code>for-of</code></li>
+  <li><code>yield*</code></li>
+  <li>Destructuring</li>
+  <li><code>Array.from()</code></li>
+  <li>
+<code>Map()</code>, <code>Set()</code>, <code>WeakMap()</code>, <code>WeakSet()</code>
+</li>
+  <li>
+<code>Promise.all()</code>, <code>Promise.race()</code>
+</li>
+</ul>
+
+<p>A <a href="ch_iteration.html#sec_closing-iterators">later section</a> has more information on closing iterators.</p>
+
+
+<h3 id="sec_more-examples-of-iterables">
+<span class="section-number">21.6 </span>More examples of iterables <a class="header-anchor" href="ch_iteration.html#sec_more-examples-of-iterables" aria-hidden="true">#</a></h3>
+
+<p>In this section, we look at a few more examples of iterables. Most of these iterables are easier to implement via generators. <a href="ch_generators.html#ch_generators">The chapter on generators</a> shows how.</p>
+
+<h4 id="objectEntries">
+<span class="section-number">21.6.1 </span>Tool functions that return iterables <a class="header-anchor" href="ch_iteration.html#objectEntries" aria-hidden="true">#</a></h4>
+
+<p>Tool functions and methods that return iterables are just as important as iterable data structures. The following is a tool function for iterating over the own properties of an object.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">objectEntries</code><code class="p">(</code><code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="nx">index</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+
+    <code class="c1">// In ES6, you can use strings or symbols as property keys,</code>
+    <code class="c1">// Reflect.ownKeys() retrieves both</code>
+    <code class="kr">const</code> <code class="nx">propKeys</code> <code class="o">=</code> <code class="nx">Reflect</code><code class="p">.</code><code class="nx">ownKeys</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+
+    <code class="k">return</code> <code class="p">{</code>
+        <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="k">this</code><code class="p">;</code>
+        <code class="p">},</code>
+        <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+            <code class="k">if</code> <code class="p">(</code><code class="nx">index</code> <code class="o">&lt;</code> <code class="nx">propKeys</code><code class="p">.</code><code class="nx">length</code><code class="p">)</code> <code class="p">{</code>
+                <code class="kr">const</code> <code class="nx">key</code> <code class="o">=</code> <code class="nx">propKeys</code><code class="p">[</code><code class="nx">index</code><code class="p">];</code>
+                <code class="nx">index</code><code class="o">++</code><code class="p">;</code>
+                <code class="k">return</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="p">[</code><code class="nx">key</code><code class="p">,</code> <code class="nx">obj</code><code class="p">[</code><code class="nx">key</code><code class="p">]]</code> <code class="p">};</code>
+            <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+                <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+            <code class="p">}</code>
+        <code class="p">}</code>
+    <code class="p">};</code>
+<code class="p">}</code>
+
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;Jane&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;Doe&apos;</code> <code class="p">};</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">key</code><code class="p">,</code><code class="nx">value</code><code class="p">]</code> <code class="k">of</code> <code class="nx">objectEntries</code><code class="p">(</code><code class="nx">obj</code><code class="p">))</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`</code><code class="si">${</code><code class="nx">key</code><code class="si">}</code><code class="sb">: </code><code class="si">${</code><code class="nx">value</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// first: Jane</code>
+<code class="c1">// last: Doe</code>
+</pre></div>
+
+</figure>
+
+<p>Another option is to use an iterator instead of an index to traverse the Array with the property keys:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">objectEntries</code><code class="p">(</code><code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="nx">iter</code> <code class="o">=</code> <code class="nx">Reflect</code><code class="p">.</code><code class="nx">ownKeys</code><code class="p">(</code><code class="nx">obj</code><code class="p">)[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]();</code>
+
+    <code class="k">return</code> <code class="p">{</code>
+        <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="k">this</code><code class="p">;</code>
+        <code class="p">},</code>
+        <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+            <code class="kd">let</code> <code class="p">{</code> <code class="nx">done</code><code class="p">,</code> <code class="nx">value</code><code class="o">:</code> <code class="nx">key</code> <code class="p">}</code> <code class="o">=</code> <code class="nx">iter</code><code class="p">.</code><code class="nx">next</code><code class="p">();</code>
+            <code class="k">if</code> <code class="p">(</code><code class="nx">done</code><code class="p">)</code> <code class="p">{</code>
+                <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+            <code class="p">}</code>
+            <code class="k">return</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="p">[</code><code class="nx">key</code><code class="p">,</code> <code class="nx">obj</code><code class="p">[</code><code class="nx">key</code><code class="p">]]</code> <code class="p">};</code>
+        <code class="p">}</code>
+    <code class="p">};</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_combinators-for-iterables">
+<span class="section-number">21.6.2 </span>Combinators for iterables <a class="header-anchor" href="ch_iteration.html#_combinators-for-iterables" aria-hidden="true">#</a></h4>
+
+<p><em>Combinators</em><sup id="fnref-iteration_4"><a href="leanpub-endnotes.html#fn-iteration_4" rel="footnote">4</a></sup> are functions that combine existing iterables to create new ones.</p>
+
+<h5 id="sec_take">
+<span class="section-number">21.6.2.1 </span><code>take(n, iterable)</code>
+ <a class="header-anchor" href="ch_iteration.html#sec_take" aria-hidden="true">#</a></h5>
+
+<p>Let&#x2019;s start with the combinator function <code>take(n, iterable)</code>, which returns an iterable over the first <code>n</code> items of <code>iterable</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">take</code><code class="p">(</code><code class="nx">n</code><code class="p">,</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">iter</code> <code class="o">=</code> <code class="nx">iterable</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]();</code>
+    <code class="k">return</code> <code class="p">{</code>
+        <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="k">this</code><code class="p">;</code>
+        <code class="p">},</code>
+        <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+            <code class="k">if</code> <code class="p">(</code><code class="nx">n</code> <code class="o">&gt;</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+                <code class="nx">n</code><code class="o">--</code><code class="p">;</code>
+                <code class="k">return</code> <code class="nx">iter</code><code class="p">.</code><code class="nx">next</code><code class="p">();</code>
+            <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+                <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+            <code class="p">}</code>
+        <code class="p">}</code>
+    <code class="p">};</code>
+<code class="p">}</code>
+<code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">,</code> <code class="s1">&apos;d&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">take</code><code class="p">(</code><code class="mi">2</code><code class="p">,</code> <code class="nx">arr</code><code class="p">))</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+</pre></div>
+
+</figure>
+
+<aside class="warning blurb">
+    <p>This version of <code>take()</code> doesn&#x2019;t close the iterator <code>iter</code>. How to do that is <a href="ch_iteration.html#sec_take_closing">shown later</a>, after <a href="ch_iteration.html#sec_closing-iterators">I explain what closing an iterator actually means</a>.</p>
+
+</aside>
+
+<h5 id="sec_zip">
+<span class="section-number">21.6.2.2 </span><code>zip(...iterables)</code>
+ <a class="header-anchor" href="ch_iteration.html#sec_zip" aria-hidden="true">#</a></h5>
+
+<p><code>zip</code> turns <em>n</em> iterables into an iterable of <em>n</em>-tuples (encoded as Arrays of length <em>n</em>).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">zip</code><code class="p">(...</code><code class="nx">iterables</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">iterators</code> <code class="o">=</code> <code class="nx">iterables</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">i</code> <code class="o">=&gt;</code> <code class="nx">i</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]());</code>
+    <code class="kd">let</code> <code class="nx">done</code> <code class="o">=</code> <code class="kc">false</code><code class="p">;</code>
+    <code class="k">return</code> <code class="p">{</code>
+        <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="k">this</code><code class="p">;</code>
+        <code class="p">},</code>
+        <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+            <code class="k">if</code> <code class="p">(</code><code class="o">!</code><code class="nx">done</code><code class="p">)</code> <code class="p">{</code>
+                <code class="kr">const</code> <code class="nx">items</code> <code class="o">=</code> <code class="nx">iterators</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">i</code> <code class="o">=&gt;</code> <code class="nx">i</code><code class="p">.</code><code class="nx">next</code><code class="p">());</code>
+                <code class="nx">done</code> <code class="o">=</code> <code class="nx">items</code><code class="p">.</code><code class="nx">some</code><code class="p">(</code><code class="nx">item</code> <code class="o">=&gt;</code> <code class="nx">item</code><code class="p">.</code><code class="nx">done</code><code class="p">);</code>
+                <code class="k">if</code> <code class="p">(</code><code class="o">!</code><code class="nx">done</code><code class="p">)</code> <code class="p">{</code>
+                    <code class="k">return</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="nx">items</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">i</code> <code class="o">=&gt;</code> <code class="nx">i</code><code class="p">.</code><code class="nx">value</code><code class="p">)</code> <code class="p">};</code>
+                <code class="p">}</code>
+                <code class="c1">// Done for the first time: close all iterators</code>
+                <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">iterator</code> <code class="k">of</code> <code class="nx">iterators</code><code class="p">)</code> <code class="p">{</code>
+                    <code class="k">if</code> <code class="p">(</code><code class="k">typeof</code> <code class="nx">iterator</code><code class="p">.</code><code class="k">return</code> <code class="o">===</code> <code class="s1">&apos;function&apos;</code><code class="p">)</code> <code class="p">{</code>
+                        <code class="nx">iterator</code><code class="p">.</code><code class="k">return</code><code class="p">();</code>
+                    <code class="p">}</code>
+                <code class="p">}</code>
+            <code class="p">}</code>
+            <code class="c1">// We are done</code>
+            <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>As you can see, the shortest iterable determines the length of the result:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">zipped</code> <code class="o">=</code> <code class="nx">zip</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">],</code> <code class="p">[</code><code class="s1">&apos;d&apos;</code><code class="p">,</code> <code class="s1">&apos;e&apos;</code><code class="p">,</code> <code class="s1">&apos;f&apos;</code><code class="p">,</code> <code class="s1">&apos;g&apos;</code><code class="p">]);</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">zipped</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// [&apos;a&apos;, &apos;d&apos;]</code>
+<code class="c1">// [&apos;b&apos;, &apos;e&apos;]</code>
+<code class="c1">// [&apos;c&apos;, &apos;f&apos;]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_infinite-iterables">
+<span class="section-number">21.6.3 </span>Infinite iterables <a class="header-anchor" href="ch_iteration.html#_infinite-iterables" aria-hidden="true">#</a></h4>
+
+<p>Some iterable may never be <code>done</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">naturalNumbers</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="nx">n</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+    <code class="k">return</code> <code class="p">{</code>
+        <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="k">this</code><code class="p">;</code>
+        <code class="p">},</code>
+        <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="nx">n</code><code class="o">++</code> <code class="p">};</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>With an infinite iterable, you must not iterate over &#x201C;all&#x201D; of it. For example, by breaking from a <code>for-of</code> loop:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">naturalNumbers</code><code class="p">())</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">x</code> <code class="o">&gt;</code> <code class="mi">2</code><code class="p">)</code> <code class="k">break</code><code class="p">;</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Or by only accessing the beginning of an infinite iterable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">a</code><code class="p">,</code> <code class="nx">b</code><code class="p">,</code> <code class="nx">c</code><code class="p">]</code> <code class="o">=</code> <code class="nx">naturalNumbers</code><code class="p">();</code>
+    <code class="c1">// a=0; b=1; c=2;</code>
+</pre></div>
+
+</figure>
+
+<p>Or by using a combinator. <code>take()</code> is one possibility:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">take</code><code class="p">(</code><code class="mi">3</code><code class="p">,</code> <code class="nx">naturalNumbers</code><code class="p">()))</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// 0</code>
+<code class="c1">// 1</code>
+<code class="c1">// 2</code>
+</pre></div>
+
+</figure>
+
+<p>The &#x201C;length&#x201D; of the iterable returned by <code>zip()</code> is determined by its shortest input iterable. That means that <code>zip()</code> and <code>naturalNumbers()</code> provide you with the means to number iterables of arbitrary (finite) length:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">zipped</code> <code class="o">=</code> <code class="nx">zip</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">],</code> <code class="nx">naturalNumbers</code><code class="p">());</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">zipped</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// [&apos;a&apos;, 0]</code>
+<code class="c1">// [&apos;b&apos;, 1]</code>
+<code class="c1">// [&apos;c&apos;, 2]</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_faq-iteration">
+<span class="section-number">21.7 </span>FAQ: iterables and iterators <a class="header-anchor" href="ch_iteration.html#sec_faq-iteration" aria-hidden="true">#</a></h3>
+
+<h4 id="sec_isnt_iteration_slow">
+<span class="section-number">21.7.1 </span>Isn&#x2019;t the iteration protocol slow? <a class="header-anchor" href="ch_iteration.html#sec_isnt_iteration_slow" aria-hidden="true">#</a></h4>
+
+<p>You may be worried about the iteration protocol being slow, because a new object is created for each invocation of <code>next()</code>. However, memory management for small objects is fast in modern engines and in the long run, engines can optimize iteration so that no intermediate objects need to be allocated. A <a href="https://esdiscuss.org/topic/performance-of-iterator-next-as-specified">thread on es-discuss</a> has more information.</p>
+
+<h4 id="_can-i-reuse-the-same-object-several-times">
+<span class="section-number">21.7.2 </span>Can I reuse the same object several times? <a class="header-anchor" href="ch_iteration.html#_can-i-reuse-the-same-object-several-times" aria-hidden="true">#</a></h4>
+
+<p>In principle, nothing prevents an iterator from reusing the same iteration result object several times &#x2013; I&#x2019;d expect most things to work well. However, there will be problems if a client caches iteration results:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">iterationResults</code> <code class="o">=</code> <code class="p">[];</code>
+<code class="kr">const</code> <code class="nx">iterator</code> <code class="o">=</code> <code class="nx">iterable</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]();</code>
+<code class="kd">let</code> <code class="nx">iterationResult</code><code class="p">;</code>
+<code class="k">while</code> <code class="p">(</code><code class="o">!</code><code class="p">(</code><code class="nx">iterationResult</code> <code class="o">=</code> <code class="nx">iterator</code><code class="p">.</code><code class="nx">next</code><code class="p">()).</code><code class="nx">done</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">iterationResults</code><code class="p">.</code><code class="nx">push</code><code class="p">(</code><code class="nx">iterationResult</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>If an iterator reuses its iteration result object, <code>iterationResults</code> will, in general, contain the same object multiple times.</p>
+
+<h4 id="_why-doesnt-ecmascript-6-have-iterable-combinators">
+<span class="section-number">21.7.3 </span>Why doesn&#x2019;t ECMAScript 6 have iterable combinators? <a class="header-anchor" href="ch_iteration.html#_why-doesnt-ecmascript-6-have-iterable-combinators" aria-hidden="true">#</a></h4>
+
+<p>You may be wondering why ECMAScript 6 does not have <em>iterable combinators</em>, tools for working with iterables or for creating iterables. That is because the plans are to proceed in two steps:</p>
+
+<ul>
+  <li>Step 1: standardize an iteration protocol.</li>
+  <li>Step 2: wait for libraries based on that protocol.</li>
+</ul>
+
+<p>Eventually, one such library or pieces from several libraries will be added to the JavaScript standard library.</p>
+
+<p>If you want to get an impression of what such a library could look like, take a look at the standard Python module <a href="https://docs.python.org/3/library/itertools.html"><code>itertools</code></a>.</p>
+
+<h4 id="_arent-iterables-difficult-to-implement">
+<span class="section-number">21.7.4 </span>Aren&#x2019;t iterables difficult to implement? <a class="header-anchor" href="ch_iteration.html#_arent-iterables-difficult-to-implement" aria-hidden="true">#</a></h4>
+
+<p>Yes, iterables are difficult to implement &#x2013; if you implement them manually. <a href="ch_generators.html#ch_generators">The next chapter</a> will introduce <em>generators</em> that help with this task (among other things).</p>
+
+
+<h3 id="sec_iteration-protocol-in-depth">
+<span class="section-number">21.8 </span>The ECMAScript 6 iteration protocol in depth <a class="header-anchor" href="ch_iteration.html#sec_iteration-protocol-in-depth" aria-hidden="true">#</a></h3>
+
+<p>The iteration protocol comprises the following interfaces (I have omitted <code>throw()</code> from <code>Iterator</code>, which is only supported by <code>yield*</code> and optional there):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">interface</code> <code class="nx">Iterable</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="o">:</code> <code class="nx">Iterator</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kr">interface</code> <code class="nx">Iterator</code> <code class="p">{</code>
+    <code class="nx">next</code><code class="p">()</code> <code class="o">:</code> <code class="nx">IteratorResult</code><code class="p">;</code>
+    <code class="k">return</code><code class="o">?</code><code class="p">(</code><code class="nx">value</code><code class="o">?</code> <code class="o">:</code> <code class="nx">any</code><code class="p">)</code> <code class="o">:</code> <code class="nx">IteratorResult</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kr">interface</code> <code class="nx">IteratorResult</code> <code class="p">{</code>
+    <code class="nx">value</code> <code class="o">:</code> <code class="nx">any</code><code class="p">;</code>
+    <code class="nx">done</code> <code class="o">:</code> <code class="kr">boolean</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<aside class="generic_inbar blurb gears icon-gears">
+    <p>The spec has <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-iteration">a section on the iteration protocol</a>.</p>
+
+</aside>
+
+<h4 id="_iteration-1">
+<span class="section-number">21.8.1 </span>Iteration <a class="header-anchor" href="ch_iteration.html#_iteration-1" aria-hidden="true">#</a></h4>
+
+<p>Rules for <code>next()</code>:</p>
+
+<ul>
+  <li>As long as the iterator still has values <code>x</code> to produce, <code>next()</code> returns objects <code>{ value: x, done: false }</code>.</li>
+  <li>After the last value was iterated over, <code>next()</code> should always return an object whose property <code>done</code> is <code>true</code>.</li>
+</ul>
+
+<h5 id="_the-iteratorresult">
+<span class="section-number">21.8.1.1 </span>The <code>IteratorResult</code>
+ <a class="header-anchor" href="ch_iteration.html#_the-iteratorresult" aria-hidden="true">#</a></h5>
+
+<p>The property <code>done</code> of an iterator result doesn&#x2019;t have to be <code>true</code> or <code>false</code>, truthy or falsy is enough. All built-in language mechanisms let you omit <code>done: false</code>.</p>
+
+<h5 id="_iterables-that-return-fresh-iterators-versus-those-that-always-return-the-same-iterator">
+<span class="section-number">21.8.1.2 </span>Iterables that return fresh iterators versus those that always return the same iterator <a class="header-anchor" href="ch_iteration.html#_iterables-that-return-fresh-iterators-versus-those-that-always-return-the-same-iterator" aria-hidden="true">#</a></h5>
+
+<p>Some iterables produce a new iterator each time they are asked for one. For example, Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">getIterator</code><code class="p">(</code><code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">iterable</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]();</code>
+<code class="p">}</code>
+
+<code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">getIterator</code><code class="p">(</code><code class="nx">iterable</code><code class="p">)</code> <code class="o">===</code> <code class="nx">getIterator</code><code class="p">(</code><code class="nx">iterable</code><code class="p">));</code> <code class="c1">// false</code>
+</pre></div>
+
+</figure>
+
+<p>Other iterables return the same iterator each time. For example, generator objects:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code><code class="o">*</code> <code class="nx">elements</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">yield</code> <code class="s1">&apos;a&apos;</code><code class="p">;</code>
+    <code class="k">yield</code> <code class="s1">&apos;b&apos;</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="nx">elements</code><code class="p">();</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">getIterator</code><code class="p">(</code><code class="nx">iterable</code><code class="p">)</code> <code class="o">===</code> <code class="nx">getIterator</code><code class="p">(</code><code class="nx">iterable</code><code class="p">));</code> <code class="c1">// true</code>
+</pre></div>
+
+</figure>
+
+<p>Whether an iterable produces a fresh iterators or not matter when you iterate over the same iterable multiple times. For example, via the following function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">iterateTwice</code><code class="p">(</code><code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>With fresh iterators, you can iterate over the same iterable multiple times:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">iterateTwice</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">]);</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+</pre></div>
+
+</figure>
+
+<p>If the same iterator is returned each time, you can&#x2019;t:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">iterateTwice</code><code class="p">(</code><code class="nx">elements</code><code class="p">());</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+</pre></div>
+
+</figure>
+
+<p>Note that each iterator in the standard library is also an iterable. Its method <code>[Symbol.iterator]()</code> return <code>this</code>, meaning that it always returns the same iterator (itself).</p>
+
+<h4 id="sec_closing-iterators">
+<span class="section-number">21.8.2 </span>Closing iterators <a class="header-anchor" href="ch_iteration.html#sec_closing-iterators" aria-hidden="true">#</a></h4>
+
+<p>The iteration protocol distinguishes two ways of finishing an iterator:</p>
+
+<ul>
+  <li>Exhaustion: the regular way of finishing an iterator is by retrieving all of its values. That is, one calls <code>next()</code> until it returns an object whose property <code>done</code> is <code>true</code>.</li>
+  <li>Closing: by calling <code>return()</code>, you tell the iterator that you don&#x2019;t intend to call <code>next()</code>, anymore.</li>
+</ul>
+
+<p>Rules for calling <code>return()</code>:</p>
+
+<ul>
+  <li>
+<code>return()</code> is an optional method, not all iterators have it. Iterators that do have it are called <em>closable</em>.</li>
+  <li>
+<code>return()</code> should only be called if an iterator hasn&#x2019;t be exhausted. For example, <code>for-of</code> calls <code>return()</code> whenever it is left &#x201C;abruptly&#x201D; (before it is finished). The following operations cause abrupt exits: <code>break</code>, <code>continue</code> (with a label of an outer block), <code>return</code>, <code>throw</code>.</li>
+</ul>
+
+<p>Rules for implementing <code>return()</code>:</p>
+
+<ul>
+  <li>The method call <code>return(x)</code> should normally produce the object <code>{ done: true, value: x }</code>, but language mechanisms only throw an error (<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-iteratorclose">source in spec</a>) if the result isn&#x2019;t an object.</li>
+  <li>After <code>return()</code> was called, the objects returned by <code>next()</code> should be <code>done</code>, too.</li>
+</ul>
+
+<p>The following code illustrates that the <code>for-of</code> loop calls <code>return()</code> if it is aborted before it receives a <code>done</code> iterator result. That is, <code>return()</code> is even called if you abort after receiving the last value. This is subtle and you have to be careful to get it right when you iterate manually or implement iterators.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">createIterable</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="nx">done</code> <code class="o">=</code> <code class="kc">false</code><code class="p">;</code>
+    <code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="p">{</code>
+        <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="k">this</code><code class="p">;</code>
+        <code class="p">},</code>
+        <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+            <code class="k">if</code> <code class="p">(</code><code class="o">!</code><code class="nx">done</code><code class="p">)</code> <code class="p">{</code>
+                <code class="nx">done</code> <code class="o">=</code> <code class="kc">true</code><code class="p">;</code>
+                <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">false</code><code class="p">,</code> <code class="nx">value</code><code class="o">:</code> <code class="s1">&apos;a&apos;</code> <code class="p">};</code>
+            <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+                <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code> <code class="nx">value</code><code class="o">:</code> <code class="kc">undefined</code> <code class="p">};</code>
+            <code class="p">}</code>
+        <code class="p">},</code>
+        <code class="k">return</code><code class="p">()</code> <code class="p">{</code>
+            <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;return() was called!&apos;</code><code class="p">);</code>
+        <code class="p">},</code>
+    <code class="p">};</code>
+    <code class="k">return</code> <code class="nx">iterable</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">createIterable</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+    <code class="c1">// There is only one value in the iterable and</code>
+    <code class="c1">// we abort the loop after receiving it</code>
+    <code class="k">break</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// return() was called!</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_closable-iterators">
+<span class="section-number">21.8.2.1 </span>Closable iterators <a class="header-anchor" href="ch_iteration.html#_closable-iterators" aria-hidden="true">#</a></h5>
+
+<p>An iterator is <em>closable</em> if it has a method <code>return()</code>. Not all iterators are closable. For example, Array iterators are not:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; let iterable = [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;];
+&gt; const iterator = iterable[Symbol.iterator]();
+&gt; &apos;return&apos; in iterator
+false
+</pre></div>
+
+</figure>
+
+<p>Generator objects are closable by default. For example, the ones returned by the following generator function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code><code class="o">*</code> <code class="nx">elements</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">yield</code> <code class="s1">&apos;a&apos;</code><code class="p">;</code>
+    <code class="k">yield</code> <code class="s1">&apos;b&apos;</code><code class="p">;</code>
+    <code class="k">yield</code> <code class="s1">&apos;c&apos;</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>If you invoke <code>return()</code> on the result of <code>elements()</code>, iteration is finished:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const iterator = elements();
+&gt; iterator.next()
+{ value: &apos;a&apos;, done: false }
+&gt; iterator.return()
+{ value: undefined, done: true }
+&gt; iterator.next()
+{ value: undefined, done: true }
+</pre></div>
+
+</figure>
+
+<p>If an iterator is not closable, you can continue iterating over it after an abrupt exit (such as the one in line A) from a <code>for-of</code> loop:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">twoLoops</code><code class="p">(</code><code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+        <code class="k">break</code><code class="p">;</code> <code class="c1">// (A)</code>
+    <code class="p">}</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">getIterator</code><code class="p">(</code><code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">iterable</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]();</code>
+<code class="p">}</code>
+
+<code class="nx">twoLoops</code><code class="p">(</code><code class="nx">getIterator</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">]));</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+<code class="c1">// c</code>
+</pre></div>
+
+</figure>
+
+<p>Conversely, <code>elements()</code> returns a closable iterator and the second loop inside <code>twoLoops()</code> doesn&#x2019;t have anything to iterate over:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">twoLoops</code><code class="p">(</code><code class="nx">elements</code><code class="p">());</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_preventing-iterators-from-being-closed">
+<span class="section-number">21.8.2.2 </span>Preventing iterators from being closed <a class="header-anchor" href="ch_iteration.html#_preventing-iterators-from-being-closed" aria-hidden="true">#</a></h5>
+
+<p>The following class is a generic solution for preventing iterators from being closed. It does so by wrapping the iterator and forwarding all method calls except <code>return()</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">PreventReturn</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">iterator</code> <code class="o">=</code> <code class="nx">iterator</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="cm">/** Must also be iterable, so that for-of works */</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="k">this</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="k">this</code><code class="p">.</code><code class="nx">iterator</code><code class="p">.</code><code class="nx">next</code><code class="p">();</code>
+    <code class="p">}</code>
+    <code class="k">return</code><code class="p">(</code><code class="nx">value</code> <code class="o">=</code> <code class="kc">undefined</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">false</code><code class="p">,</code> <code class="nx">value</code> <code class="p">};</code>
+    <code class="p">}</code>
+    <code class="c1">// Not relevant for iterators: `throw()`</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>If we use <code>PreventReturn</code>, the result of the generator <code>elements()</code> won&#x2019;t be closed after the abrupt exit in the first loop of <code>twoLoops()</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code><code class="o">*</code> <code class="nx">elements</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">yield</code> <code class="s1">&apos;a&apos;</code><code class="p">;</code>
+    <code class="k">yield</code> <code class="s1">&apos;b&apos;</code><code class="p">;</code>
+    <code class="k">yield</code> <code class="s1">&apos;c&apos;</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">twoLoops</code><code class="p">(</code><code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+        <code class="k">break</code><code class="p">;</code> <code class="c1">// abrupt exit</code>
+    <code class="p">}</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="nx">twoLoops</code><code class="p">(</code><code class="nx">elements</code><code class="p">());</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+
+<code class="nx">twoLoops</code><code class="p">(</code><code class="k">new</code> <code class="nx">PreventReturn</code><code class="p">(</code><code class="nx">elements</code><code class="p">()));</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+<code class="c1">// c</code>
+</pre></div>
+
+</figure>
+
+<p>There is another way of making generators unclosable: All generator objects produced by the generator function <code>elements()</code> have the prototype object <code>elements.prototype</code>. Via <code>elements.prototype</code>, you can hide the default implementation of <code>return()</code> (which resides in a prototype of <code>elements.prototype</code>) as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Make generator object unclosable</code>
+<code class="c1">// Warning: may not work in transpilers</code>
+<code class="nx">elements</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="k">return</code> <code class="o">=</code> <code class="kc">undefined</code><code class="p">;</code>
+
+<code class="nx">twoLoops</code><code class="p">(</code><code class="nx">elements</code><code class="p">());</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+<code class="c1">// c</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_handling-clean-up-in-generators-via-try-finally">
+<span class="section-number">21.8.2.3 </span>Handling clean-up in generators via <code>try-finally</code>
+ <a class="header-anchor" href="ch_iteration.html#_handling-clean-up-in-generators-via-try-finally" aria-hidden="true">#</a></h5>
+
+<p>Some generators need to clean up (release allocated resources, close open files, etc.) after iteration over them is finished. Naively, this is how we&#x2019;d implement it:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code><code class="o">*</code> <code class="nx">genFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">yield</code> <code class="s1">&apos;a&apos;</code><code class="p">;</code>
+    <code class="k">yield</code> <code class="s1">&apos;b&apos;</code><code class="p">;</code>
+
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;Performing cleanup&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In a normal <code>for-of</code> loop, everything is fine:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">genFunc</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+<code class="c1">// Performing cleanup</code>
+</pre></div>
+
+</figure>
+
+<p>However, if you exit the loop after the first <code>yield</code>, execution seemingly pauses there forever and never reaches the cleanup step:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">genFunc</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+</pre></div>
+
+</figure>
+
+<p>What actually happens is that, whenever one leaves a <code>for-of</code> loop early, <code>for-of</code> sends a <code>return()</code> to the current iterator. That means that the cleanup step isn&#x2019;t reached because the generator function returns beforehand.</p>
+
+<p>Thankfully, this is easily fixed, by performing the cleanup in a <code>finally</code> clause:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code><code class="o">*</code> <code class="nx">genFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">try</code> <code class="p">{</code>
+        <code class="k">yield</code> <code class="s1">&apos;a&apos;</code><code class="p">;</code>
+        <code class="k">yield</code> <code class="s1">&apos;b&apos;</code><code class="p">;</code>
+    <code class="p">}</code> <code class="k">finally</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;Performing cleanup&apos;</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Now everything works as desired:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">genFunc</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+    <code class="k">break</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// Performing cleanup</code>
+</pre></div>
+
+</figure>
+
+<p>The general pattern for using resources that need to be closed or cleaned up in some manner is therefore:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code><code class="o">*</code> <code class="nx">funcThatUsesResource</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">resource</code> <code class="o">=</code> <code class="nx">allocateResource</code><code class="p">();</code>
+    <code class="k">try</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code> <code class="k">finally</code> <code class="p">{</code>
+        <code class="nx">resource</code><code class="p">.</code><code class="nx">deallocate</code><code class="p">();</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_handling-clean-up-in-manually-implemented-iterators">
+<span class="section-number">21.8.2.4 </span>Handling clean-up in manually implemented iterators <a class="header-anchor" href="ch_iteration.html#_handling-clean-up-in-manually-implemented-iterators" aria-hidden="true">#</a></h5>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="kd">function</code> <code class="nx">hasNextValue</code><code class="p">()</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+        <code class="kd">function</code> <code class="nx">getNextValue</code><code class="p">()</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+        <code class="kd">function</code> <code class="nx">cleanUp</code><code class="p">()</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+        <code class="kd">let</code> <code class="nx">returnedDoneResult</code> <code class="o">=</code> <code class="kc">false</code><code class="p">;</code>
+        <code class="k">return</code> <code class="p">{</code>
+            <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+                <code class="k">if</code> <code class="p">(</code><code class="nx">hasNextValue</code><code class="p">())</code> <code class="p">{</code>
+                    <code class="kr">const</code> <code class="nx">value</code> <code class="o">=</code> <code class="nx">getNextValue</code><code class="p">();</code>
+                    <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">false</code><code class="p">,</code> <code class="nx">value</code><code class="o">:</code> <code class="nx">value</code> <code class="p">};</code>
+                <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+                    <code class="k">if</code> <code class="p">(</code><code class="o">!</code><code class="nx">returnedDoneResult</code><code class="p">)</code> <code class="p">{</code>
+                        <code class="c1">// Client receives first `done` iterator result</code>
+                        <code class="c1">// =&gt; won&#x2019;t call `return()`</code>
+                        <code class="nx">cleanUp</code><code class="p">();</code>
+                        <code class="nx">returnedDoneResult</code> <code class="o">=</code> <code class="kc">true</code><code class="p">;</code>
+                    <code class="p">}</code>
+                    <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code> <code class="nx">value</code><code class="o">:</code> <code class="kc">undefined</code> <code class="p">};</code>
+                <code class="p">}</code>
+            <code class="p">},</code>
+            <code class="k">return</code><code class="p">()</code> <code class="p">{</code>
+                <code class="nx">cleanUp</code><code class="p">();</code>
+            <code class="p">}</code>
+        <code class="p">};</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Note that you must call <code>cleanUp()</code> when you are going to return a <code>done</code> iterator result for the first time. You must not do it earlier, because then <code>return()</code> may still be called. This can be tricky to get right.</p>
+
+<h5 id="sec_take_closing">
+<span class="section-number">21.8.2.5 </span>Closing iterators you use <a class="header-anchor" href="ch_iteration.html#sec_take_closing" aria-hidden="true">#</a></h5>
+
+<p>If you use iterators, you should close them properly. In generators, you can let <code>for-of</code> do all the work for you:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="cm">/**</code>
+<code class="cm"> * Converts a (potentially infinite) sequence of</code>
+<code class="cm"> * iterated values into a sequence of length `n`</code>
+<code class="cm"> */</code>
+<code class="kd">function</code><code class="o">*</code> <code class="nx">take</code><code class="p">(</code><code class="nx">n</code><code class="p">,</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">n</code> <code class="o">&lt;=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+            <code class="k">break</code><code class="p">;</code> <code class="c1">// closes iterable</code>
+        <code class="p">}</code>
+        <code class="nx">n</code><code class="o">--</code><code class="p">;</code>
+        <code class="k">yield</code> <code class="nx">x</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>If you manage things manually, more work is required:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code><code class="o">*</code> <code class="nx">take</code><code class="p">(</code><code class="nx">n</code><code class="p">,</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">iterator</code> <code class="o">=</code> <code class="nx">iterable</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]();</code>
+    <code class="k">while</code> <code class="p">(</code><code class="kc">true</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kr">const</code> <code class="p">{</code><code class="nx">value</code><code class="p">,</code> <code class="nx">done</code><code class="p">}</code> <code class="o">=</code> <code class="nx">iterator</code><code class="p">.</code><code class="nx">next</code><code class="p">();</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">done</code><code class="p">)</code> <code class="k">break</code><code class="p">;</code> <code class="c1">// exhausted</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">n</code> <code class="o">&lt;=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+            <code class="c1">// Abrupt exit</code>
+            <code class="nx">maybeCloseIterator</code><code class="p">(</code><code class="nx">iterator</code><code class="p">);</code>
+            <code class="k">break</code><code class="p">;</code>
+        <code class="p">}</code>
+        <code class="k">yield</code> <code class="nx">value</code><code class="p">;</code>
+        <code class="nx">n</code><code class="o">--</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">maybeCloseIterator</code><code class="p">(</code><code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="k">typeof</code> <code class="nx">iterator</code><code class="p">.</code><code class="k">return</code> <code class="o">===</code> <code class="s1">&apos;function&apos;</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">iterator</code><code class="p">.</code><code class="k">return</code><code class="p">();</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Even more work is necessary if you don&#x2019;t use generators:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">take</code><code class="p">(</code><code class="nx">n</code><code class="p">,</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">iter</code> <code class="o">=</code> <code class="nx">iterable</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]();</code>
+    <code class="k">return</code> <code class="p">{</code>
+        <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="k">this</code><code class="p">;</code>
+        <code class="p">},</code>
+        <code class="nx">next</code><code class="p">()</code> <code class="p">{</code>
+            <code class="k">if</code> <code class="p">(</code><code class="nx">n</code> <code class="o">&gt;</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+                <code class="nx">n</code><code class="o">--</code><code class="p">;</code>
+                <code class="k">return</code> <code class="nx">iter</code><code class="p">.</code><code class="nx">next</code><code class="p">();</code>
+            <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+                <code class="nx">maybeCloseIterator</code><code class="p">(</code><code class="nx">iter</code><code class="p">);</code>
+                <code class="k">return</code> <code class="p">{</code> <code class="nx">done</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+            <code class="p">}</code>
+        <code class="p">},</code>
+        <code class="k">return</code><code class="p">()</code> <code class="p">{</code>
+            <code class="nx">n</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+            <code class="nx">maybeCloseIterator</code><code class="p">(</code><code class="nx">iter</code><code class="p">);</code>
+        <code class="p">}</code>
+    <code class="p">};</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_checklist">
+<span class="section-number">21.8.3 </span>Checklist <a class="header-anchor" href="ch_iteration.html#_checklist" aria-hidden="true">#</a></h4>
+
+<ul>
+  <li>Documenting an iterable: provide the following information.
+    <ul>
+      <li>Does it return fresh iterators or the same iterator each time?</li>
+      <li>Are its iterators closable?</li>
+    </ul>
+  </li>
+  <li>Implementing an iterator:
+    <ul>
+      <li>Clean-up activity must happen if either an iterator is exhausted or if <code>return()</code> is called.
+        <ul>
+          <li>In generators, <code>try-finally</code> lets you handle both in a single location.</li>
+        </ul>
+      </li>
+      <li>After an iterator was closed via <code>return()</code>, it should not produce any more iterator results via <code>next()</code>.</li>
+    </ul>
+  </li>
+  <li>Using an iterator manually (versus via <code>for-of</code> etc.):
+    <ul>
+      <li>Don&#x2019;t forget to close the iterator via <code>return</code>, if &#x2013; and only if &#x2013; you don&#x2019;t exhaust it. Getting this right can be tricky.</li>
+    </ul>
+  </li>
+  <li>Continuing to iterate over an iterator after an abrupt exit: The iterator must either be unclosable or made unclosable (e.g. via a tool class).</li>
+</ul>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_generators.html">22. Generators</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

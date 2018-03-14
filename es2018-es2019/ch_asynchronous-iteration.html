@@ -1,0 +1,621 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Asynchronous iteration • Exploring ES2018 and ES2019</title>
+    <link rel="stylesheet" href="site.css" type="text/css">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="top-bar-content">
+            <a href="toc.html">Table of contents</a><br>
+            Please support this book:
+            <a href="https://payhip.com/b/JrTz">buy it (PDF, EPUB, MOBI)</a>
+            or
+            <a href="http://www.2ality.com/p/donate.html">donate</a>
+        </div>
+    </div>
+
+    <div id="page-content">
+
+        <div id="adbox">
+        <div id="adbox-explain">(Ad, please don’t block.)</div>
+                    <script async type="text/javascript" src="https://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+                </div>
+
+        <h2 id="ch_asynchronous-iteration">Asynchronous iteration</h2>
+<p>This chapter explains the ECMAScript proposal “<a href="https://github.com/tc39/proposal-async-iteration">Asynchronous Iteration</a>” by Domenic Denicola and Kevin Smith.</p>
+<h3 id="asynchronous-iteration">Asynchronous iteration</h3>
+<p>With ECMAScript 6, JavaScript got built-in support for synchronously iterating over data. But what about data that is delivered asynchronously? For example, lines of text, read asynchronously from a file or an HTTP connection.</p>
+<p>This proposal brings support for that kind of data. Before we go into it, let’s first recap synchronous iteration.</p>
+<h4 id="synchronous-iteration">Synchronous iteration</h4>
+<p>Synchronous iteration was introduced with ES6 and works as follows:</p>
+<ul>
+<li>Iterable: an object that signals that it can be iterated over, via a method whose key is <code>Symbol.iterator</code>.</li>
+<li>Iterator: an object returned by invoking <code>[Symbol.iterator]()</code> on an iterable. It wraps each iterated element in an object and returns it via its method <code>next()</code> – one at a time.</li>
+<li>IteratorResult: an object returned by <code>next()</code>. Property <code>value</code> contains an iterated element, property <code>done</code> is <code>true</code> <em>after</em> the last element (<code>value</code> can usually be ignored then; it’s almost always <code>undefined</code>).</li>
+</ul>
+<p>I’ll demonstrate via an Array:</p>
+<pre class="repl"><code>&gt; const iterable = [&#39;a&#39;, &#39;b&#39;];
+&gt; const iterator = iterable[Symbol.iterator]();
+&gt; iterator.next()
+{ value: &#39;a&#39;, done: false }
+&gt; iterator.next()
+{ value: &#39;b&#39;, done: false }
+&gt; iterator.next()
+{ value: undefined, done: true }</code></pre>
+<h4 id="asynchronous-iteration-1">Asynchronous iteration</h4>
+<p>The problem is that the previously explained way of iterating is <em>synchronous</em>, it doesn’t work for asynchronous sources of data. For example, in the following code, <code>readLinesFromFile()</code> cannot deliver its asynchronous data via synchronous iteration:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="cf">for</span> (<span class="kw">const</span> line of <span class="at">readLinesFromFile</span>(fileName)) <span class="op">{</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">    <span class="va">console</span>.<span class="at">log</span>(line)<span class="op">;</span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="op">}</span></a></code></pre></div>
+<p>The proposal specifies a new protocol for iteration that works asynchronously:</p>
+<ul>
+<li>Async iterables are marked via <code>Symbol.asyncIterator</code>.</li>
+<li>Method <code>next()</code> of an async iterator returns Promises for IteratorResults (vs. IteratorResults directly).</li>
+</ul>
+<p>You may wonder whether it would be possible to instead use a synchronous iterator that returns one Promise for each iterated element. But that is not enough – whether or not iteration is <code>done</code> is generally determined asynchronously.</p>
+<p>Using an asynchronous iterable looks as follows. Function <code>createAsyncIterable()</code> is explained later. It converts its synchronously iterable parameter into an async iterable.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">const</span> asyncIterable <span class="op">=</span> <span class="at">createAsyncIterable</span>([<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="st">&#39;b&#39;</span>])<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw">const</span> asyncIterator <span class="op">=</span> asyncIterable[<span class="va">Symbol</span>.<span class="at">asyncIterator</span>]()<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="va">asyncIterator</span>.<span class="at">next</span>()</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">.<span class="at">then</span>(iterResult1 <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">    <span class="va">console</span>.<span class="at">log</span>(iterResult1)<span class="op">;</span> <span class="co">// { value: &#39;a&#39;, done: false }</span></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">    <span class="cf">return</span> <span class="va">asyncIterator</span>.<span class="at">next</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-8" data-line-number="8">.<span class="at">then</span>(iterResult2 <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9">    <span class="va">console</span>.<span class="at">log</span>(iterResult2)<span class="op">;</span> <span class="co">// { value: &#39;b&#39;, done: false }</span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">    <span class="cf">return</span> <span class="va">asyncIterator</span>.<span class="at">next</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb3-12" data-line-number="12">.<span class="at">then</span>(iterResult3 <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb3-13" data-line-number="13">    <span class="va">console</span>.<span class="at">log</span>(iterResult3)<span class="op">;</span> <span class="co">// { value: undefined, done: true }</span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Within an asynchronous function, you can process the results of the Promises via <code>await</code> and the code becomes simpler:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb4-1" data-line-number="1">async <span class="kw">function</span> <span class="at">f</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">    <span class="kw">const</span> asyncIterable <span class="op">=</span> <span class="at">createAsyncIterable</span>([<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="st">&#39;b&#39;</span>])<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">    <span class="kw">const</span> asyncIterator <span class="op">=</span> asyncIterable[<span class="va">Symbol</span>.<span class="at">asyncIterator</span>]()<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">    <span class="va">console</span>.<span class="at">log</span>(await <span class="va">asyncIterator</span>.<span class="at">next</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">        <span class="co">// { value: &#39;a&#39;, done: false }</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">    <span class="va">console</span>.<span class="at">log</span>(await <span class="va">asyncIterator</span>.<span class="at">next</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">        <span class="co">// { value: &#39;b&#39;, done: false }</span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">    <span class="va">console</span>.<span class="at">log</span>(await <span class="va">asyncIterator</span>.<span class="at">next</span>())<span class="op">;</span></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">        <span class="co">// { value: undefined, done: true }</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="op">}</span></a></code></pre></div>
+<h4 id="the-interfaces-for-async-iteration">The interfaces for async iteration</h4>
+<p>In TypeScript notation, the interfaces look as follows.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">interface</span> AsyncIterable <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">    [<span class="va">Symbol</span>.<span class="at">asyncIterator</span>]() <span class="op">:</span> AsyncIterator<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="kw">interface</span> AsyncIterator <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">    <span class="at">next</span>() <span class="op">:</span> Promise<span class="op">&lt;</span>IteratorResult<span class="op">&gt;;</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="op">}</span></a>
+<a class="sourceLine" id="cb5-7" data-line-number="7"><span class="kw">interface</span> IteratorResult <span class="op">{</span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8">    <span class="dt">value</span><span class="op">:</span> any<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-9" data-line-number="9">    <span class="dt">done</span><span class="op">:</span> boolean<span class="op">;</span></a>
+<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="op">}</span></a></code></pre></div>
+<h3 id="for-await-of"><code>for-await-of</code></h3>
+<p>The proposal also specifies an asynchronous version of <a href="../es6/ch_for-of.html">the <code>for-of</code> loop</a>: <code>for-await-of</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb6-1" data-line-number="1">async <span class="kw">function</span> <span class="at">f</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">    <span class="cf">for</span> <span class="at">await</span> (<span class="kw">const</span> x of <span class="at">createAsyncIterable</span>([<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="st">&#39;b&#39;</span>])) <span class="op">{</span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">        <span class="va">console</span>.<span class="at">log</span>(x)<span class="op">;</span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="op">}</span></a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="co">// Output:</span></a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"><span class="co">// a</span></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co">// b</span></a></code></pre></div>
+<h4 id="for-await-of-and-rejections"><code>for-await-of</code> and rejections</h4>
+<p>Similarly to how <code>await</code> works in async functions, the loop throws an exception if <code>next()</code> returns a rejection:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">function</span> <span class="at">createRejectingIterable</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">    <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">        [<span class="va">Symbol</span>.<span class="at">asyncIterator</span>]() <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">            <span class="cf">return</span> <span class="kw">this</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">        <span class="op">},</span></a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">        <span class="at">next</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">            <span class="cf">return</span> <span class="va">Promise</span>.<span class="at">reject</span>(<span class="kw">new</span> <span class="at">Error</span>(<span class="st">&#39;Problem!&#39;</span>))<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-8" data-line-number="8">        <span class="op">},</span></a>
+<a class="sourceLine" id="cb7-9" data-line-number="9">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb7-10" data-line-number="10"><span class="op">}</span></a>
+<a class="sourceLine" id="cb7-11" data-line-number="11">(async <span class="kw">function</span> () <span class="op">{</span> <span class="co">// (A)</span></a>
+<a class="sourceLine" id="cb7-12" data-line-number="12">    <span class="cf">try</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-13" data-line-number="13">        <span class="cf">for</span> <span class="at">await</span> (<span class="kw">const</span> x of <span class="at">createRejectingIterable</span>()) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-14" data-line-number="14">            <span class="va">console</span>.<span class="at">log</span>(x)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-15" data-line-number="15">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-16" data-line-number="16">    <span class="op">}</span> <span class="cf">catch</span> (e) <span class="op">{</span></a>
+<a class="sourceLine" id="cb7-17" data-line-number="17">        <span class="va">console</span>.<span class="at">error</span>(e)<span class="op">;</span></a>
+<a class="sourceLine" id="cb7-18" data-line-number="18">            <span class="co">// Error: Problem!</span></a>
+<a class="sourceLine" id="cb7-19" data-line-number="19">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb7-20" data-line-number="20"><span class="op">}</span>)()<span class="op">;</span> <span class="co">// (B)</span></a></code></pre></div>
+<p>Note that we have just used an Immediately Invoked Async Function Expression (IIAFE, pronounced “yaffee”). It starts in line (A) and ends in line (B). We need to do that because <code>for-of-await</code> doesn’t work at the top level of modules and scripts. It does work everywhere where <code>await</code> can be used. Namely, in async functions and async generators (which are explained later).</p>
+<h4 id="for-await-of-and-synchronous-iterables"><code>for-await-of</code> and synchronous iterables</h4>
+<p>Synchronous iterables return synchronous iterators, whose method <code>next()</code> returns <code>{value, done}</code> objects. <code>for-await-of</code> handles synchronous iterables by converting them to asynchronous iterables. Each iterated value is converted to a Promise (or left unchanged if it already is a Promise) via <code>Promise.resolve()</code>. That is, <code>for-await-of</code> works for iterables over Promises and over normal values. The conversion looks like this:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">const</span> nextResult <span class="op">=</span> <span class="va">Promise</span>.<span class="at">resolve</span>(valueOrPromise)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">    .<span class="at">then</span>(x <span class="op">=&gt;</span> (<span class="op">{</span> <span class="dt">value</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">done</span><span class="op">:</span> <span class="kw">false</span> <span class="op">}</span>))<span class="op">;</span></a></code></pre></div>
+<p>Two more ways of looking at the conversion are:</p>
+<ul>
+<li><code>Iterable&lt;Promise&lt;T&gt;&gt;</code> becomes <code>AsyncIterable&lt;T&gt;</code></li>
+<li><p>The following object</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="op">{</span> <span class="dt">value</span><span class="op">:</span> <span class="va">Promise</span>.<span class="at">resolve</span>(<span class="dv">123</span>)<span class="op">,</span> <span class="dt">done</span><span class="op">:</span> <span class="kw">false</span> <span class="op">}</span></a></code></pre></div>
+<p>is converted to</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="va">Promise</span>.<span class="at">resolve</span>(<span class="op">{</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">123</span><span class="op">,</span> <span class="dt">done</span><span class="op">:</span> <span class="kw">false</span> <span class="op">}</span>)</a></code></pre></div></li>
+</ul>
+<p>Therefore, the following two statements are roughly similar.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="cf">for</span> (<span class="kw">const</span> x of await <span class="va">Promise</span>.<span class="at">all</span>(syncIterableOverPromises))<span class="op">;</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="cf">for</span> <span class="at">await</span> (<span class="kw">const</span> x of syncIterableOverPromises)<span class="op">;</span></a></code></pre></div>
+<p>The second statement is faster, because <code>Promise.all()</code> only creates the Promise for the Array after all Promises in <code>syncIterableOverPromises</code> are fulfilled. And <code>for-of</code> has to await that Promise. In contrast, <code>for-await-of</code> starts processing as soon as the first Promise is fulfilled.</p>
+<h4 id="example-for-await-of-with-a-sync-iterable">Example: <code>for-await-of</code> with a sync iterable</h4>
+<p>Iterating over a sync iterable over Promises:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb12-1" data-line-number="1">async <span class="kw">function</span> <span class="at">main</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-2" data-line-number="2">    <span class="kw">const</span> syncIterable <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb12-3" data-line-number="3">        <span class="va">Promise</span>.<span class="at">resolve</span>(<span class="st">&#39;a&#39;</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb12-4" data-line-number="4">        <span class="va">Promise</span>.<span class="at">resolve</span>(<span class="st">&#39;b&#39;</span>)<span class="op">,</span></a>
+<a class="sourceLine" id="cb12-5" data-line-number="5">    ]<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-6" data-line-number="6">    <span class="cf">for</span> <span class="at">await</span> (<span class="kw">const</span> x of syncIterable) <span class="op">{</span></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7">        <span class="va">console</span>.<span class="at">log</span>(x)<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-8" data-line-number="8">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="op">}</span></a>
+<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="at">main</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb12-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb12-12" data-line-number="12"><span class="co">// Output:</span></a>
+<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="co">// a</span></a>
+<a class="sourceLine" id="cb12-14" data-line-number="14"><span class="co">// b</span></a></code></pre></div>
+<p>Iterating over a sync iterable over normal values:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb13-1" data-line-number="1">async <span class="kw">function</span> <span class="at">main</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">    <span class="cf">for</span> <span class="at">await</span> (<span class="kw">const</span> x of [<span class="st">&#39;c&#39;</span><span class="op">,</span> <span class="st">&#39;d&#39;</span>]) <span class="op">{</span></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3">        <span class="va">console</span>.<span class="at">log</span>(x)<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-4" data-line-number="4">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"><span class="op">}</span></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="at">main</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="co">// Output:</span></a>
+<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="co">// c</span></a>
+<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="co">// d</span></a></code></pre></div>
+<h3 id="asynchronous-generators">Asynchronous generators</h3>
+<p>Normal (synchronous) generators help with implementing synchronous iterables. Asynchronous generators do the same for asynchronous iterables.</p>
+<p>For example, we have previously used the function <code>createAsyncIterable(syncIterable)</code> which converts a <code>syncIterable</code> into an asynchronous iterable. This is how you would implement this function via an async generator:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb14-1" data-line-number="1">async <span class="kw">function</span><span class="op">*</span> <span class="at">createAsyncIterable</span>(syncIterable) <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">    <span class="cf">for</span> (<span class="kw">const</span> elem of syncIterable) <span class="op">{</span></a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">        <span class="kw">yield</span> elem<span class="op">;</span></a>
+<a class="sourceLine" id="cb14-4" data-line-number="4">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb14-5" data-line-number="5"><span class="op">}</span></a></code></pre></div>
+<p>Note the asterisk after <code>function</code>:</p>
+<ul>
+<li>A <strong>normal function</strong> is turned into a <strong>normal generator</strong> by putting an asterisk after <code>function</code>.</li>
+<li>An <strong>async function</strong> is turned into an <strong>async generator</strong> by doing the same.</li>
+</ul>
+<p>How do async generators work?</p>
+<ul>
+<li>A normal generator returns a generator object <code>genObj</code>. Each invocation <code>genObj.next()</code> returns an object <code>{value,done}</code> that wraps a yielded value.</li>
+<li>An async generator returns a generator object <code>genObj</code>. Each invocation <code>genObj.next()</code> returns <strong>a Promise for</strong> an object <code>{value,done}</code> that wraps a yielded value.</li>
+</ul>
+<h4 id="queuing-next-invocations">Queuing <code>next()</code> invocations</h4>
+<p>The JavaScript engine internally queues invocations of <code>next()</code> and feeds them to an async generator once it is ready. That is, after calling <code>next()</code>, you can call again, right away; you don’t have to wait for the Promise it returns to be settled. In most cases, though, you do want to wait for the settlement, because you need the value of <code>done</code> in order to decide whether to call <code>next()</code> again or not. That’s how the <code>for-await-of</code> loop works.</p>
+<p>Use cases for calling <code>next()</code> several times without waiting for settlements include:</p>
+<p><strong>Use case:</strong> Retrieving Promises to be processed via <code>Promise.all()</code>. If you know how many elements there are in an async iterable, you don’t need to check <code>done</code>.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">const</span> asyncGenObj <span class="op">=</span> <span class="at">createAsyncIterable</span>([<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="st">&#39;b&#39;</span>])<span class="op">;</span></a>
+<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="kw">const</span> [<span class="op">{</span><span class="dt">value</span><span class="op">:</span>v1<span class="op">},{</span><span class="dt">value</span><span class="op">:</span>v2<span class="op">}</span>] <span class="op">=</span> await <span class="va">Promise</span>.<span class="at">all</span>([</a>
+<a class="sourceLine" id="cb15-3" data-line-number="3">    <span class="va">asyncGenObj</span>.<span class="at">next</span>()<span class="op">,</span> <span class="va">asyncGenObj</span>.<span class="at">next</span>()</a>
+<a class="sourceLine" id="cb15-4" data-line-number="4">])<span class="op">;</span></a>
+<a class="sourceLine" id="cb15-5" data-line-number="5"><span class="va">console</span>.<span class="at">log</span>(v1<span class="op">,</span> v2)<span class="op">;</span> <span class="co">// a b</span></a></code></pre></div>
+<p><strong>Use case:</strong> Async generators as sinks for data, where you don’t always need to know when they are done.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw">const</span> writer <span class="op">=</span> <span class="at">openFile</span>(<span class="st">&#39;someFile.txt&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="va">writer</span>.<span class="at">next</span>(<span class="st">&#39;hello&#39;</span>)<span class="op">;</span> <span class="co">// don’t wait</span></a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="va">writer</span>.<span class="at">next</span>(<span class="st">&#39;world&#39;</span>)<span class="op">;</span> <span class="co">// don’t wait</span></a>
+<a class="sourceLine" id="cb16-4" data-line-number="4">await <span class="va">writer</span>.<span class="at">return</span>()<span class="op">;</span> <span class="co">// wait for file to close</span></a></code></pre></div>
+<p><strong>Acknowledgement:</strong> Thanks to <span class="citation" data-cites="domenic">@domenic</span> and <span class="citation" data-cites="zenparsing">@zenparsing</span> for these use cases.</p>
+<h4 id="await-in-async-generators"><code>await</code> in async generators</h4>
+<p>You can use <code>await</code> and <code>for-await-of</code> inside async generators. For example:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb17-1" data-line-number="1">async <span class="kw">function</span><span class="op">*</span> <span class="at">prefixLines</span>(asyncIterable) <span class="op">{</span></a>
+<a class="sourceLine" id="cb17-2" data-line-number="2">    <span class="cf">for</span> <span class="at">await</span> (<span class="kw">const</span> line of asyncIterable) <span class="op">{</span></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3">        <span class="kw">yield</span> <span class="st">&#39;&gt; &#39;</span> <span class="op">+</span> line<span class="op">;</span></a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb17-5" data-line-number="5"><span class="op">}</span></a></code></pre></div>
+<p>One interesting aspect of combining <code>await</code> and <code>yield</code> is that <code>await</code> can’t stop <code>yield</code> from returning a Promise, but it can stop that Promise from being settled:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb18-1" data-line-number="1">async <span class="kw">function</span><span class="op">*</span> <span class="at">asyncGenerator</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb18-2" data-line-number="2">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Start&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb18-3" data-line-number="3">    <span class="kw">const</span> result <span class="op">=</span> await <span class="at">doSomethingAsync</span>()<span class="op">;</span> <span class="co">// (A)</span></a>
+<a class="sourceLine" id="cb18-4" data-line-number="4">    <span class="kw">yield</span> <span class="st">&#39;Result: &#39;</span><span class="op">+</span>result<span class="op">;</span> <span class="co">// (B)</span></a>
+<a class="sourceLine" id="cb18-5" data-line-number="5">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Done&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb18-6" data-line-number="6"><span class="op">}</span></a></code></pre></div>
+<p>This is the context in which this code is executed:</p>
+<ul>
+<li>Every asynchronous generator has a queue with Promises to be settled <code>yield</code> or <code>throw</code>.</li>
+<li>When <code>.next()</code> is called, the following steps are taken:
+<ul>
+<li>It queues a Promise.</li>
+<li>Unless the async generator is already running, it resumes it and waits for it to be finished. (It may finish via <code>yield</code>, <code>throw</code>, <code>return</code>, <code>await</code>.)</li>
+<li>Then it returns the Promise. Recall that the result of a settled Promise is delivered asynchronously. Therefore, the earliest delivery is during the next tick.</li>
+</ul></li>
+</ul>
+<p>What does this mean for <code>asyncGenerator()</code>?</p>
+<ul>
+<li>Execution starts and progresses until line A, when the generator pauses (due to <code>await</code>) and execution reverts back to <code>.next()</code>, which returns a Promise <code>P</code>.</li>
+<li>When the Promise returned by <code>doSomethingAsync()</code> is fulfilled, the generator is resumed and fulfills <code>P</code> with <code>result</code> (via <code>yield</code> in line B). Then the generator is suspended.</li>
+<li>When it is resumed via <code>.next()</code>, it fulfills the Promise at the front of the queue via an implicit <code>return undefined</code> at the end.</li>
+</ul>
+<p>That means that line A and B correspond (roughly) to this code:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="at">doSomethingAsync</span>()</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2">.<span class="at">then</span>(result <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb19-3" data-line-number="3">    <span class="kw">const</span> <span class="op">{</span>resolve<span class="op">}</span> <span class="op">=</span> <span class="va">promiseQueue</span>.<span class="at">dequeue</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb19-4" data-line-number="4">    <span class="at">resolve</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb19-5" data-line-number="5">        <span class="dt">value</span><span class="op">:</span> <span class="st">&#39;Result: &#39;</span><span class="op">+</span>result<span class="op">,</span></a>
+<a class="sourceLine" id="cb19-6" data-line-number="6">        <span class="dt">done</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb19-7" data-line-number="7">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb19-8" data-line-number="8"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>If you want to dig deeper – this is a <em>rough approximation</em> of how async generators work:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="kw">const</span> BUSY <span class="op">=</span> <span class="at">Symbol</span>(<span class="st">&#39;BUSY&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="kw">const</span> COMPLETED <span class="op">=</span> <span class="at">Symbol</span>(<span class="st">&#39;COMPLETED&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="kw">function</span> <span class="at">asyncGenerator</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-4" data-line-number="4">  <span class="kw">const</span> settlers <span class="op">=</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-5" data-line-number="5">  <span class="kw">let</span> step <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb20-6" data-line-number="6">  <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-7" data-line-number="7">    [<span class="va">Symbol</span>.<span class="at">asyncIterator</span>]() <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-8" data-line-number="8">      <span class="cf">return</span> <span class="kw">this</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb20-9" data-line-number="9">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb20-10" data-line-number="10">    <span class="at">next</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-11" data-line-number="11">      <span class="cf">return</span> <span class="kw">new</span> <span class="at">Promise</span>((resolve<span class="op">,</span> reject) <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-12" data-line-number="12">        <span class="va">settlers</span>.<span class="at">push</span>(<span class="op">{</span>resolve<span class="op">,</span> reject<span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-13" data-line-number="13">        <span class="kw">this</span>.<span class="at">_run</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-14" data-line-number="14">      <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-15" data-line-number="15">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb20-16" data-line-number="16">    <span class="at">_run</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-17" data-line-number="17">      <span class="at">setTimeout</span>(() <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-18" data-line-number="18">        <span class="cf">if</span> (step <span class="op">===</span> BUSY <span class="op">||</span> <span class="va">settlers</span>.<span class="at">length</span> <span class="op">===</span> <span class="dv">0</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-19" data-line-number="19">          <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb20-20" data-line-number="20">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb20-21" data-line-number="21">        <span class="kw">const</span> currentSettler <span class="op">=</span> <span class="va">settlers</span>.<span class="at">shift</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-22" data-line-number="22">        <span class="cf">try</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-23" data-line-number="23">          <span class="cf">switch</span> (step) <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-24" data-line-number="24">            <span class="cf">case</span> <span class="dv">0</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb20-25" data-line-number="25">              step <span class="op">=</span> BUSY<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-26" data-line-number="26">              <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Start&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-27" data-line-number="27">              <span class="at">doSomethingAsync</span>()</a>
+<a class="sourceLine" id="cb20-28" data-line-number="28">              .<span class="at">then</span>(result <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-29" data-line-number="29">                <span class="va">currentSettler</span>.<span class="at">resolve</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb20-30" data-line-number="30">                  <span class="dt">value</span><span class="op">:</span> <span class="st">&#39;Result: &#39;</span><span class="op">+</span>result<span class="op">,</span></a>
+<a class="sourceLine" id="cb20-31" data-line-number="31">                  <span class="dt">done</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb20-32" data-line-number="32">                <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-33" data-line-number="33">                <span class="co">// We are not busy, anymore</span></a>
+<a class="sourceLine" id="cb20-34" data-line-number="34">                step <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb20-35" data-line-number="35">                <span class="kw">this</span>.<span class="at">_run</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-36" data-line-number="36">              <span class="op">}</span>)</a>
+<a class="sourceLine" id="cb20-37" data-line-number="37">              .<span class="at">catch</span>(e <span class="op">=&gt;</span> <span class="va">currentSettler</span>.<span class="at">reject</span>(e))<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-38" data-line-number="38">              <span class="cf">break</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb20-39" data-line-number="39">            <span class="cf">case</span> <span class="dv">1</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb20-40" data-line-number="40">              <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;Done&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-41" data-line-number="41">              <span class="va">currentSettler</span>.<span class="at">resolve</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb20-42" data-line-number="42">                <span class="dt">value</span><span class="op">:</span> <span class="kw">undefined</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb20-43" data-line-number="43">                <span class="dt">done</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb20-44" data-line-number="44">              <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-45" data-line-number="45">              step <span class="op">=</span> COMPLETED<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-46" data-line-number="46">              <span class="kw">this</span>.<span class="at">_run</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-47" data-line-number="47">              <span class="cf">break</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb20-48" data-line-number="48">            <span class="cf">case</span> <span class="dt">COMPLETED</span><span class="op">:</span></a>
+<a class="sourceLine" id="cb20-49" data-line-number="49">              <span class="va">currentSettler</span>.<span class="at">resolve</span>(<span class="op">{</span></a>
+<a class="sourceLine" id="cb20-50" data-line-number="50">                <span class="dt">value</span><span class="op">:</span> <span class="kw">undefined</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb20-51" data-line-number="51">                <span class="dt">done</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb20-52" data-line-number="52">              <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-53" data-line-number="53">              <span class="kw">this</span>.<span class="at">_run</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-54" data-line-number="54">              <span class="cf">break</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb20-55" data-line-number="55">          <span class="op">}</span></a>
+<a class="sourceLine" id="cb20-56" data-line-number="56">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb20-57" data-line-number="57">        <span class="cf">catch</span> (e) <span class="op">{</span></a>
+<a class="sourceLine" id="cb20-58" data-line-number="58">          <span class="va">currentSettler</span>.<span class="at">reject</span>(e)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-59" data-line-number="59">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb20-60" data-line-number="60">      <span class="op">},</span> <span class="dv">0</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb20-61" data-line-number="61">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb20-62" data-line-number="62">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb20-63" data-line-number="63"><span class="op">}</span></a></code></pre></div>
+<p>This code assumes that <code>next()</code> is always called without arguments. A complete implementation would have to queue arguments, too.</p>
+<h4 id="yield-in-async-generators"><code>yield*</code> in async generators</h4>
+<p><code>yield*</code> in async generators works analogously to how it works in normal generators – like a recursive invocation:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb21-1" data-line-number="1">async <span class="kw">function</span><span class="op">*</span> <span class="at">gen1</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">    <span class="kw">yield</span> <span class="st">&#39;a&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb21-3" data-line-number="3">    <span class="kw">yield</span> <span class="st">&#39;b&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb21-4" data-line-number="4">    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb21-5" data-line-number="5"><span class="op">}</span></a>
+<a class="sourceLine" id="cb21-6" data-line-number="6">async <span class="kw">function</span><span class="op">*</span> <span class="at">gen2</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb21-7" data-line-number="7">    <span class="kw">const</span> result <span class="op">=</span> <span class="kw">yield</span><span class="op">*</span> <span class="at">gen1</span>()<span class="op">;</span> <span class="co">// (A)</span></a>
+<a class="sourceLine" id="cb21-8" data-line-number="8">        <span class="co">// result === 2</span></a>
+<a class="sourceLine" id="cb21-9" data-line-number="9"><span class="op">}</span></a></code></pre></div>
+<p>In line (A), <code>gen2()</code> calls <code>gen1()</code>, which means that all elements yielded by <code>gen1()</code> are yielded by <code>gen2()</code>:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb22-1" data-line-number="1">(async <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb22-2" data-line-number="2">    <span class="cf">for</span> <span class="at">await</span> (<span class="kw">const</span> x of <span class="at">gen2</span>()) <span class="op">{</span></a>
+<a class="sourceLine" id="cb22-3" data-line-number="3">        <span class="va">console</span>.<span class="at">log</span>(x)<span class="op">;</span></a>
+<a class="sourceLine" id="cb22-4" data-line-number="4">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb22-5" data-line-number="5"><span class="op">}</span>)()<span class="op">;</span></a>
+<a class="sourceLine" id="cb22-6" data-line-number="6"><span class="co">// Output:</span></a>
+<a class="sourceLine" id="cb22-7" data-line-number="7"><span class="co">// a</span></a>
+<a class="sourceLine" id="cb22-8" data-line-number="8"><span class="co">// b</span></a></code></pre></div>
+<p>The operand of <code>yield*</code> can be any async iterable. Sync iterables are automatically converted to async iterables, just like with <code>for-await-of</code>.</p>
+<h4 id="errors">Errors</h4>
+<p>In normal generators, <code>next()</code> can throw exceptions. In async generators, <code>next()</code> can reject the Promise it returns:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb23-1" data-line-number="1">async <span class="kw">function</span><span class="op">*</span> <span class="at">asyncGenerator</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">    <span class="co">// The following exception is converted to a rejection</span></a>
+<a class="sourceLine" id="cb23-3" data-line-number="3">    <span class="cf">throw</span> <span class="kw">new</span> <span class="at">Error</span>(<span class="st">&#39;Problem!&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb23-4" data-line-number="4"><span class="op">}</span></a>
+<a class="sourceLine" id="cb23-5" data-line-number="5"><span class="at">asyncGenerator</span>().<span class="at">next</span>()</a>
+<a class="sourceLine" id="cb23-6" data-line-number="6">.<span class="at">catch</span>(err <span class="op">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(err))<span class="op">;</span> <span class="co">// Error: Problem!</span></a></code></pre></div>
+<p>Converting exceptions to rejections is similar to how async functions work.</p>
+<h4 id="async-function-vs.async-generator-function">Async function vs. async generator function</h4>
+<p>Async function:</p>
+<ul>
+<li>Returns immediately with a Promise.</li>
+<li>That Promise is fulfilled via <code>return</code> and rejected via <code>throw</code>.</li>
+</ul>
+<div class="sourceCode" id="cb24"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb24-1" data-line-number="1">(async <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-2" data-line-number="2">    <span class="cf">return</span> <span class="st">&#39;hello&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="op">}</span>)()</a>
+<a class="sourceLine" id="cb24-4" data-line-number="4">.<span class="at">then</span>(x <span class="op">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(x))<span class="op">;</span> <span class="co">// hello</span></a>
+<a class="sourceLine" id="cb24-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb24-6" data-line-number="6">(async <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb24-7" data-line-number="7">    <span class="cf">throw</span> <span class="kw">new</span> <span class="at">Error</span>(<span class="st">&#39;Problem!&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb24-8" data-line-number="8"><span class="op">}</span>)()</a>
+<a class="sourceLine" id="cb24-9" data-line-number="9">.<span class="at">catch</span>(x <span class="op">=&gt;</span> <span class="va">console</span>.<span class="at">error</span>(x))<span class="op">;</span> <span class="co">// Error: Problem!</span></a></code></pre></div>
+<p>Async generator function:</p>
+<ul>
+<li>Returns immediately with an async iterable.</li>
+<li>Every invocation of <code>next()</code> returns a Promise. <code>yield x</code> fulfills the “current” Promise with <code>{value: x, done: false}</code>. <code>throw err</code> rejects the “current” Promise with <code>err</code>.</li>
+</ul>
+<div class="sourceCode" id="cb25"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb25-1" data-line-number="1">async <span class="kw">function</span><span class="op">*</span> <span class="at">gen</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb25-2" data-line-number="2">    <span class="kw">yield</span> <span class="st">&#39;hello&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="op">}</span></a>
+<a class="sourceLine" id="cb25-4" data-line-number="4"><span class="kw">const</span> genObj <span class="op">=</span> <span class="at">gen</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb25-5" data-line-number="5"><span class="va">genObj</span>.<span class="at">next</span>().<span class="at">then</span>(x <span class="op">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(x))<span class="op">;</span></a>
+<a class="sourceLine" id="cb25-6" data-line-number="6">    <span class="co">// { value: &#39;hello&#39;, done: false }</span></a></code></pre></div>
+<h3 id="examples">Examples</h3>
+<p>The source code for the examples is available via the repository <a href="https://github.com/rauschma/async-iter-demo"><code>async-iter-demo</code></a> on GitHub.</p>
+<h4 id="using-asynchronous-iteration-via-babel">Using asynchronous iteration via Babel</h4>
+<p>The example repo uses <code>babel-node</code> to run its code. This is how it configures Babel in its <code>package.json</code>:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="op">{</span></a>
+<a class="sourceLine" id="cb26-2" data-line-number="2">  <span class="st">&quot;dependencies&quot;</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-3" data-line-number="3">    <span class="st">&quot;babel-preset-env&quot;</span><span class="op">:</span> <span class="st">&quot;···&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb26-4" data-line-number="4">    <span class="st">&quot;babel-plugin-transform-async-generator-functions&quot;</span><span class="op">:</span> <span class="st">&quot;···&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb26-5" data-line-number="5">    ···</a>
+<a class="sourceLine" id="cb26-6" data-line-number="6">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb26-7" data-line-number="7">  <span class="st">&quot;babel&quot;</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-8" data-line-number="8">    <span class="st">&quot;presets&quot;</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb26-9" data-line-number="9">      [</a>
+<a class="sourceLine" id="cb26-10" data-line-number="10">        <span class="st">&quot;env&quot;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb26-11" data-line-number="11">        <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-12" data-line-number="12">          <span class="st">&quot;targets&quot;</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb26-13" data-line-number="13">            <span class="st">&quot;node&quot;</span><span class="op">:</span> <span class="st">&quot;current&quot;</span></a>
+<a class="sourceLine" id="cb26-14" data-line-number="14">          <span class="op">}</span></a>
+<a class="sourceLine" id="cb26-15" data-line-number="15">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb26-16" data-line-number="16">      ]</a>
+<a class="sourceLine" id="cb26-17" data-line-number="17">    ]<span class="op">,</span></a>
+<a class="sourceLine" id="cb26-18" data-line-number="18">    <span class="st">&quot;plugins&quot;</span><span class="op">:</span> [</a>
+<a class="sourceLine" id="cb26-19" data-line-number="19">      <span class="st">&quot;transform-async-generator-functions&quot;</span></a>
+<a class="sourceLine" id="cb26-20" data-line-number="20">    ]</a>
+<a class="sourceLine" id="cb26-21" data-line-number="21">  <span class="op">},</span></a>
+<a class="sourceLine" id="cb26-22" data-line-number="22">  ···</a>
+<a class="sourceLine" id="cb26-23" data-line-number="23"><span class="op">}</span></a></code></pre></div>
+<h4 id="example-turning-an-async-iterable-into-an-array">Example: turning an async iterable into an Array</h4>
+<p>Function <code>takeAsync()</code> collects all elements of <code>asyncIterable</code> in an Array. I don’t use <code>for-await-of</code> in this case, I invoke the async iteration protocol manually. I also don’t close <code>asyncIterable</code> if I’m finished before the iterable is <code>done</code>.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="co">/**</span></a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="co"> * </span><span class="an">@returns</span><span class="co"> a Promise for an Array with the elements</span></a>
+<a class="sourceLine" id="cb27-3" data-line-number="3"><span class="co"> * in `asyncIterable`</span></a>
+<a class="sourceLine" id="cb27-4" data-line-number="4"><span class="co"> */</span></a>
+<a class="sourceLine" id="cb27-5" data-line-number="5">async <span class="kw">function</span> <span class="at">takeAsync</span>(asyncIterable<span class="op">,</span> count<span class="op">=</span><span class="kw">Infinity</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb27-6" data-line-number="6">    <span class="kw">const</span> result <span class="op">=</span> []<span class="op">;</span></a>
+<a class="sourceLine" id="cb27-7" data-line-number="7">    <span class="kw">const</span> iterator <span class="op">=</span> asyncIterable[<span class="va">Symbol</span>.<span class="at">asyncIterator</span>]()<span class="op">;</span></a>
+<a class="sourceLine" id="cb27-8" data-line-number="8">    <span class="cf">while</span> (<span class="va">result</span>.<span class="at">length</span> <span class="op">&lt;</span> count) <span class="op">{</span></a>
+<a class="sourceLine" id="cb27-9" data-line-number="9">        <span class="kw">const</span> <span class="op">{</span>value<span class="op">,</span>done<span class="op">}</span> <span class="op">=</span> await <span class="va">iterator</span>.<span class="at">next</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb27-10" data-line-number="10">        <span class="cf">if</span> (done) <span class="cf">break</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb27-11" data-line-number="11">        <span class="va">result</span>.<span class="at">push</span>(value)<span class="op">;</span></a>
+<a class="sourceLine" id="cb27-12" data-line-number="12">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb27-13" data-line-number="13">    <span class="cf">return</span> result<span class="op">;</span></a>
+<a class="sourceLine" id="cb27-14" data-line-number="14"><span class="op">}</span></a></code></pre></div>
+<p>This is the test for <code>takeAsync()</code>:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="at">test</span>(<span class="st">&#39;Collect values yielded by an async generator&#39;</span><span class="op">,</span> async <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb28-2" data-line-number="2">    async <span class="kw">function</span><span class="op">*</span> <span class="at">gen</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb28-3" data-line-number="3">        <span class="kw">yield</span> <span class="st">&#39;a&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb28-4" data-line-number="4">        <span class="kw">yield</span> <span class="st">&#39;b&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb28-5" data-line-number="5">        <span class="kw">yield</span> <span class="st">&#39;c&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb28-6" data-line-number="6">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb28-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb28-8" data-line-number="8">    <span class="va">assert</span>.<span class="at">deepStrictEqual</span>(await <span class="at">takeAsync</span>(<span class="at">gen</span>())<span class="op">,</span> [<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="st">&#39;b&#39;</span><span class="op">,</span> <span class="st">&#39;c&#39;</span>])<span class="op">;</span></a>
+<a class="sourceLine" id="cb28-9" data-line-number="9">    <span class="va">assert</span>.<span class="at">deepStrictEqual</span>(await <span class="at">takeAsync</span>(<span class="at">gen</span>()<span class="op">,</span> <span class="dv">3</span>)<span class="op">,</span> [<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="st">&#39;b&#39;</span><span class="op">,</span> <span class="st">&#39;c&#39;</span>])<span class="op">;</span></a>
+<a class="sourceLine" id="cb28-10" data-line-number="10">    <span class="va">assert</span>.<span class="at">deepStrictEqual</span>(await <span class="at">takeAsync</span>(<span class="at">gen</span>()<span class="op">,</span> <span class="dv">2</span>)<span class="op">,</span> [<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="st">&#39;b&#39;</span>])<span class="op">;</span></a>
+<a class="sourceLine" id="cb28-11" data-line-number="11">    <span class="va">assert</span>.<span class="at">deepStrictEqual</span>(await <span class="at">takeAsync</span>(<span class="at">gen</span>()<span class="op">,</span> <span class="dv">1</span>)<span class="op">,</span> [<span class="st">&#39;a&#39;</span>])<span class="op">;</span></a>
+<a class="sourceLine" id="cb28-12" data-line-number="12">    <span class="va">assert</span>.<span class="at">deepStrictEqual</span>(await <span class="at">takeAsync</span>(<span class="at">gen</span>()<span class="op">,</span> <span class="dv">0</span>)<span class="op">,</span> [])<span class="op">;</span></a>
+<a class="sourceLine" id="cb28-13" data-line-number="13"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>Note how nicely async functions work together with the mocha test framework: for asynchronous tests, the second parameter of <code>test()</code> can return a Promise.</p>
+<h4 id="example-a-queue-as-an-async-iterable">Example: a queue as an async iterable</h4>
+<p>The example repo also has an implementation for an asynchronous queue, called <code>AsyncQueue</code>. It’s implementation is relatively complex, which is why I don’t show it here. This is the test for <code>AsyncQueue</code>:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="at">test</span>(<span class="st">&#39;Enqueue before dequeue&#39;</span><span class="op">,</span> async <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb29-2" data-line-number="2">    <span class="kw">const</span> queue <span class="op">=</span> <span class="kw">new</span> <span class="at">AsyncQueue</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-3" data-line-number="3">    <span class="va">queue</span>.<span class="at">enqueue</span>(<span class="st">&#39;a&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-4" data-line-number="4">    <span class="va">queue</span>.<span class="at">enqueue</span>(<span class="st">&#39;b&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-5" data-line-number="5">    <span class="va">queue</span>.<span class="at">close</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-6" data-line-number="6">    <span class="va">assert</span>.<span class="at">deepStrictEqual</span>(await <span class="at">takeAsync</span>(queue)<span class="op">,</span> [<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="st">&#39;b&#39;</span>])<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-7" data-line-number="7"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-8" data-line-number="8"><span class="at">test</span>(<span class="st">&#39;Dequeue before enqueue&#39;</span><span class="op">,</span> async <span class="kw">function</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb29-9" data-line-number="9">    <span class="kw">const</span> queue <span class="op">=</span> <span class="kw">new</span> <span class="at">AsyncQueue</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-10" data-line-number="10">    <span class="kw">const</span> promise <span class="op">=</span> <span class="va">Promise</span>.<span class="at">all</span>([<span class="va">queue</span>.<span class="at">next</span>()<span class="op">,</span> <span class="va">queue</span>.<span class="at">next</span>()])<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-11" data-line-number="11">    <span class="va">queue</span>.<span class="at">enqueue</span>(<span class="st">&#39;a&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-12" data-line-number="12">    <span class="va">queue</span>.<span class="at">enqueue</span>(<span class="st">&#39;b&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-13" data-line-number="13">    <span class="cf">return</span> <span class="va">promise</span>.<span class="at">then</span>(arr <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb29-14" data-line-number="14">        <span class="kw">const</span> values <span class="op">=</span> <span class="va">arr</span>.<span class="at">map</span>(x <span class="op">=&gt;</span> <span class="va">x</span>.<span class="at">value</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-15" data-line-number="15">        <span class="va">assert</span>.<span class="at">deepStrictEqual</span>(values<span class="op">,</span> [<span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="st">&#39;b&#39;</span>])<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-16" data-line-number="16">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb29-17" data-line-number="17"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h4 id="example-reading-text-lines-asynchronously">Example: reading text lines asynchronously</h4>
+<p>Let’s implement code that reads text lines asynchronously. We’ll do it in three steps.</p>
+<p>Step 1: read text data in chunks via the Node.js <code>ReadStream</code> API (which is based on callbacks) and push it into an <code>AsyncQueue</code> (which was introduced in the previous section).</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="co">/**</span></a>
+<a class="sourceLine" id="cb30-2" data-line-number="2"><span class="co"> * Creates an asynchronous ReadStream for the file whose name</span></a>
+<a class="sourceLine" id="cb30-3" data-line-number="3"><span class="co"> * is `fileName` and feeds it into an AsyncQueue that it returns.</span></a>
+<a class="sourceLine" id="cb30-4" data-line-number="4"><span class="co"> *</span></a>
+<a class="sourceLine" id="cb30-5" data-line-number="5"><span class="co"> * </span><span class="an">@returns</span><span class="co"> an async iterable</span></a>
+<a class="sourceLine" id="cb30-6" data-line-number="6"><span class="co"> */</span></a>
+<a class="sourceLine" id="cb30-7" data-line-number="7"><span class="kw">function</span> <span class="at">readFile</span>(fileName) <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-8" data-line-number="8">    <span class="kw">const</span> queue <span class="op">=</span> <span class="kw">new</span> <span class="at">AsyncQueue</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-9" data-line-number="9">    <span class="kw">const</span> readStream <span class="op">=</span> <span class="at">createReadStream</span>(fileName<span class="op">,</span></a>
+<a class="sourceLine" id="cb30-10" data-line-number="10">        <span class="op">{</span> <span class="dt">encoding</span><span class="op">:</span> <span class="st">&#39;utf8&#39;</span><span class="op">,</span> <span class="dt">bufferSize</span><span class="op">:</span> <span class="dv">1024</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-11" data-line-number="11">    <span class="va">readStream</span>.<span class="at">on</span>(<span class="st">&#39;data&#39;</span><span class="op">,</span> buffer <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-12" data-line-number="12">        <span class="kw">const</span> str <span class="op">=</span> <span class="va">buffer</span>.<span class="at">toString</span>(<span class="st">&#39;utf8&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-13" data-line-number="13">        <span class="va">queue</span>.<span class="at">enqueue</span>(str)<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-14" data-line-number="14">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-15" data-line-number="15">    <span class="va">readStream</span>.<span class="at">on</span>(<span class="st">&#39;end&#39;</span><span class="op">,</span> () <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb30-16" data-line-number="16">        <span class="co">// Signal end of output sequence</span></a>
+<a class="sourceLine" id="cb30-17" data-line-number="17">        <span class="va">queue</span>.<span class="at">close</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-18" data-line-number="18">    <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-19" data-line-number="19">    <span class="cf">return</span> queue<span class="op">;</span></a>
+<a class="sourceLine" id="cb30-20" data-line-number="20"><span class="op">}</span></a></code></pre></div>
+<p>Step 2: Use <code>for-await-of</code> to iterate over the chunks of text and <code>yield</code> lines of text.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="co">/**</span></a>
+<a class="sourceLine" id="cb31-2" data-line-number="2"><span class="co"> * Turns a sequence of text chunks into a sequence of lines</span></a>
+<a class="sourceLine" id="cb31-3" data-line-number="3"><span class="co"> * (where lines are separated by newlines)</span></a>
+<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="co"> *</span></a>
+<a class="sourceLine" id="cb31-5" data-line-number="5"><span class="co"> * </span><span class="an">@returns</span><span class="co"> an async iterable</span></a>
+<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="co"> */</span></a>
+<a class="sourceLine" id="cb31-7" data-line-number="7">async <span class="kw">function</span><span class="op">*</span> <span class="at">splitLines</span>(chunksAsync) <span class="op">{</span></a>
+<a class="sourceLine" id="cb31-8" data-line-number="8">    <span class="kw">let</span> previous <span class="op">=</span> <span class="st">&#39;&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb31-9" data-line-number="9">    <span class="cf">for</span> <span class="at">await</span> (<span class="kw">const</span> chunk of chunksAsync) <span class="op">{</span></a>
+<a class="sourceLine" id="cb31-10" data-line-number="10">        previous <span class="op">+=</span> chunk<span class="op">;</span></a>
+<a class="sourceLine" id="cb31-11" data-line-number="11">        <span class="kw">let</span> eolIndex<span class="op">;</span></a>
+<a class="sourceLine" id="cb31-12" data-line-number="12">        <span class="cf">while</span> ((eolIndex <span class="op">=</span> <span class="va">previous</span>.<span class="at">indexOf</span>(<span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span>)) <span class="op">&gt;=</span> <span class="dv">0</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb31-13" data-line-number="13">            <span class="kw">const</span> line <span class="op">=</span> <span class="va">previous</span>.<span class="at">slice</span>(<span class="dv">0</span><span class="op">,</span> eolIndex)<span class="op">;</span></a>
+<a class="sourceLine" id="cb31-14" data-line-number="14">            <span class="kw">yield</span> line<span class="op">;</span></a>
+<a class="sourceLine" id="cb31-15" data-line-number="15">            previous <span class="op">=</span> <span class="va">previous</span>.<span class="at">slice</span>(eolIndex<span class="op">+</span><span class="dv">1</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb31-16" data-line-number="16">        <span class="op">}</span></a>
+<a class="sourceLine" id="cb31-17" data-line-number="17">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb31-18" data-line-number="18">    <span class="cf">if</span> (<span class="va">previous</span>.<span class="at">length</span> <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb31-19" data-line-number="19">        <span class="kw">yield</span> previous<span class="op">;</span></a>
+<a class="sourceLine" id="cb31-20" data-line-number="20">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb31-21" data-line-number="21"><span class="op">}</span></a></code></pre></div>
+<p>Step 3: combine the two previous functions. We first feed chunks of text into a <code>queue</code> via <code>readFile()</code> and then convert that <code>queue</code> into an async iterable over lines of text via <code>splitLines()</code>.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="co">/**</span></a>
+<a class="sourceLine" id="cb32-2" data-line-number="2"><span class="co"> * </span><span class="an">@returns</span><span class="co"> an async iterable</span></a>
+<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="co"> */</span></a>
+<a class="sourceLine" id="cb32-4" data-line-number="4"><span class="kw">function</span> <span class="at">readLines</span>(fileName) <span class="op">{</span></a>
+<a class="sourceLine" id="cb32-5" data-line-number="5">    <span class="co">// `queue` is an async iterable</span></a>
+<a class="sourceLine" id="cb32-6" data-line-number="6">    <span class="kw">const</span> queue <span class="op">=</span> <span class="at">readFile</span>(fileName)<span class="op">;</span></a>
+<a class="sourceLine" id="cb32-7" data-line-number="7">    <span class="cf">return</span> <span class="at">splitLines</span>(queue)<span class="op">;</span></a>
+<a class="sourceLine" id="cb32-8" data-line-number="8"><span class="op">}</span></a></code></pre></div>
+<p>Lastly, this is how you’d use <code>readLines()</code> from within a Node.js script:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb33-1" data-line-number="1">(async <span class="kw">function</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-2" data-line-number="2">    <span class="kw">const</span> fileName <span class="op">=</span> <span class="va">process</span>.<span class="at">argv</span>[<span class="dv">2</span>]<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-3" data-line-number="3">    <span class="cf">for</span> <span class="at">await</span> (<span class="kw">const</span> line of <span class="at">readLines</span>(fileName)) <span class="op">{</span></a>
+<a class="sourceLine" id="cb33-4" data-line-number="4">        <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;&gt;&#39;</span><span class="op">,</span> line)<span class="op">;</span></a>
+<a class="sourceLine" id="cb33-5" data-line-number="5">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb33-6" data-line-number="6"><span class="op">}</span>)()<span class="op">;</span></a></code></pre></div>
+<h3 id="whatwg-streams-are-async-iterables">WHATWG Streams are async iterables</h3>
+<p><a href="https://github.com/whatwg/streams">WHATWG streams</a> are async iterables, meaning that you can use <code>for-await-of</code> to process them:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="kw">const</span> rs <span class="op">=</span> <span class="at">openReadableStream</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb34-2" data-line-number="2"><span class="cf">for</span> <span class="at">await</span> (<span class="kw">const</span> chunk of rs) <span class="op">{</span></a>
+<a class="sourceLine" id="cb34-3" data-line-number="3">    ···</a>
+<a class="sourceLine" id="cb34-4" data-line-number="4"><span class="op">}</span></a></code></pre></div>
+<h3 id="the-specification-of-asynchronous-iteration">The specification of asynchronous iteration</h3>
+<p>The spec introduces several new concepts and entities:</p>
+<ul>
+<li><a href="https://tc39.github.io/proposal-async-iteration/#sec-common-iteration-interfaces">Two new interfaces</a>, <code>AsyncIterable</code> and <code>AsyncIterator</code></li>
+<li><a href="https://tc39.github.io/proposal-async-iteration/#sec-well-known-intrinsic-objects">New well-known intrinsic objects</a>: <code>%AsyncGenerator%</code>, <code>%AsyncFromSyncIteratorPrototype%</code>, <code>%AsyncGeneratorFunction%</code>, <code>%AsyncGeneratorPrototype%</code>, <code>%AsyncIteratorPrototype%</code>.</li>
+<li><a href="https://tc39.github.io/proposal-async-iteration/#sec-properties-of-the-symbol-constructor">One new well-known symbol</a>: <code>Symbol.asyncIterator</code></li>
+</ul>
+<p>No new global variables are introduced by this feature.</p>
+<h4 id="async-generators">Async generators</h4>
+<p>If you want to understand how async generators work, it’s best to start with Sect. “<a href="https://tc39.github.io/proposal-async-iteration/#sec-asyncgenerator-abstract-operations">AsyncGenerator Abstract Operations</a>”. The key to understanding async generators is understanding how queuing works.</p>
+<p>Two internal properties of async generator objects play important roles w.r.t. queuing:</p>
+<ul>
+<li><code>[[AsyncGeneratorState]]</code> contains the state the generator is currently in: <code>&quot;suspendedStart&quot;</code>, <code>&quot;suspendedYield&quot;</code>, <code>&quot;executing&quot;</code>, <code>&quot;completed&quot;</code> (it is <code>undefined</code> before it is fully initialized)</li>
+<li><code>[[AsyncGeneratorQueue]]</code> holds pending invocations of <code>next/throw/return</code>. Each queue entry contains two fields:
+<ul>
+<li><code>[[Completion]]</code>: the parameter of <code>next()</code>, <code>throw()</code> or <code>return()</code> that lead to the entry being enqueued. The type of the completion (<code>normal</code>, <code>throw</code>, <code>return</code>) indicates which method call created the entry and determines what happens after dequeuing.</li>
+<li><code>[[Capability]]</code>: the <code>PromiseCapability</code> of the pending Promise.</li>
+</ul></li>
+</ul>
+<p>The queue is managed mainly via two operations:</p>
+<ul>
+<li>Enqueuing happens via <code>AsyncGeneratorEnqueue()</code>. This is the operation that is called by <code>next()</code>, <code>return()</code> and <code>throw()</code>. It adds an entry to the AsyncGeneratorQueue. Then <code>AsyncGeneratorResumeNext()</code> is called, but only if the generator’s state isn’t <code>&quot;executing&quot;</code>:
+<ul>
+<li>Therefore, if a generator calls <code>next()</code>, <code>return()</code> or <code>throw()</code> from inside itself then the effects of that call will be delayed.</li>
+<li><code>await</code> leads to a suspension of the generator, but its state remains <code>&quot;executing&quot;</code>. Hence, it will not be resumed by <code>AsyncGeneratorEnqueue()</code>.</li>
+</ul></li>
+<li>Dequeuing happens via <code>AsyncGeneratorResumeNext()</code>. <code>AsyncGeneratorResumeNext()</code> is invoked after enqueuing, but also after settling a queued Promise (e.g. via <code>yield</code>), because there may now be new queued pending Promises, allowing execution to continue. If the queue is empty, return immediately. Otherwise, the current Promise is the first element of the queue:
+<ul>
+<li>If the async generator was suspended by <code>yield</code>, it is resumed and continues to run. The current Promise is later settled via <code>AsyncGeneratorResolve()</code> or <code>AsyncGeneratorReject()</code>.</li>
+<li>If the generator is already completed, this operation calls <code>AsyncGeneratorResolve()</code> and <code>AsyncGeneratorReject()</code> itself, meaning that all queued pending Promises will eventually be settled.</li>
+</ul></li>
+</ul>
+<h4 id="async-from-sync-iterator-objects">Async-from-Sync Iterator Objects</h4>
+<p>To get an async iterator from an object <code>iterable</code>, you call <code>GetIterator(iterable, async)</code> (<code>async</code> is a symbol). If <code>iterable</code> doesn’t have a method <code>[Symbol.asyncIterator]()</code>, <code>GetIterator()</code> retrieves a sync iterator via method <code>iterable[Symbol.iterator]()</code> and converts it to an async iterator via <code>CreateAsyncFromSyncIterator()</code>.</p>
+<h4 id="the-for-await-of-loop">The <code>for-await-of</code> loop</h4>
+<p><code>for-await-of</code> works almost exactly like <code>for-of</code>, but there is an <code>await</code> whenever the contents of an IteratorResult are accessed. You can see that by looking at Sect. “<a href="https://tc39.github.io/proposal-async-iteration/#sec-runtime-semantics-forin-div-ofbodyevaluation-lhs-stmt-iterator-lhskind-labelset">Runtime Semantics: ForIn/OfBodyEvaluation</a>”. Notably, iterators are closed similarly, via <code>IteratorClose()</code>, towards the end of this section.</p>
+<h3 id="alternatives-to-async-iteration">Alternatives to async iteration</h3>
+<p>Let’s look at two alternatives to async iteration for processing async data.</p>
+<h4 id="alternative-1-communicating-sequential-processes-csp">Alternative 1: Communicating Sequential Processes (CSP)</h4>
+<p>The following code demonstrates the CSP library <a href="https://github.com/ubolonton/js-csp"><code>js-csp</code></a>:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw">var</span> csp <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;js-csp&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb35-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb35-3" data-line-number="3"><span class="kw">function</span><span class="op">*</span> <span class="at">player</span>(name<span class="op">,</span> table) <span class="op">{</span></a>
+<a class="sourceLine" id="cb35-4" data-line-number="4">  <span class="cf">while</span> (<span class="kw">true</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb35-5" data-line-number="5">    <span class="kw">var</span> ball <span class="op">=</span> <span class="kw">yield</span> <span class="va">csp</span>.<span class="at">take</span>(table)<span class="op">;</span> <span class="co">// dequeue</span></a>
+<a class="sourceLine" id="cb35-6" data-line-number="6">    <span class="cf">if</span> (ball <span class="op">===</span> <span class="va">csp</span>.<span class="at">CLOSED</span>) <span class="op">{</span></a>
+<a class="sourceLine" id="cb35-7" data-line-number="7">      <span class="va">console</span>.<span class="at">log</span>(name <span class="op">+</span> <span class="st">&quot;: table&#39;s gone&quot;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb35-8" data-line-number="8">      <span class="cf">return</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb35-9" data-line-number="9">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb35-10" data-line-number="10">    <span class="va">ball</span>.<span class="at">hits</span> <span class="op">+=</span> <span class="dv">1</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb35-11" data-line-number="11">    <span class="va">console</span>.<span class="at">log</span>(name <span class="op">+</span> <span class="st">&quot; &quot;</span> <span class="op">+</span> <span class="va">ball</span>.<span class="at">hits</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb35-12" data-line-number="12">    <span class="kw">yield</span> <span class="va">csp</span>.<span class="at">timeout</span>(<span class="dv">100</span>)<span class="op">;</span> <span class="co">// wait</span></a>
+<a class="sourceLine" id="cb35-13" data-line-number="13">    <span class="kw">yield</span> <span class="va">csp</span>.<span class="at">put</span>(table<span class="op">,</span> ball)<span class="op">;</span> <span class="co">// enqueue</span></a>
+<a class="sourceLine" id="cb35-14" data-line-number="14">  <span class="op">}</span></a>
+<a class="sourceLine" id="cb35-15" data-line-number="15"><span class="op">}</span></a>
+<a class="sourceLine" id="cb35-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb35-17" data-line-number="17"><span class="va">csp</span>.<span class="at">go</span>(<span class="kw">function</span><span class="op">*</span> () <span class="op">{</span></a>
+<a class="sourceLine" id="cb35-18" data-line-number="18">  <span class="kw">var</span> table <span class="op">=</span> <span class="va">csp</span>.<span class="at">chan</span>()<span class="op">;</span> <span class="co">// (A)</span></a>
+<a class="sourceLine" id="cb35-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb35-20" data-line-number="20">  <span class="va">csp</span>.<span class="at">go</span>(player<span class="op">,</span> [<span class="st">&quot;ping&quot;</span><span class="op">,</span> table])<span class="op">;</span> <span class="co">// (B)</span></a>
+<a class="sourceLine" id="cb35-21" data-line-number="21">  <span class="va">csp</span>.<span class="at">go</span>(player<span class="op">,</span> [<span class="st">&quot;pong&quot;</span><span class="op">,</span> table])<span class="op">;</span> <span class="co">// (C)</span></a>
+<a class="sourceLine" id="cb35-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb35-23" data-line-number="23">  <span class="kw">yield</span> <span class="va">csp</span>.<span class="at">put</span>(table<span class="op">,</span> <span class="op">{</span><span class="dt">hits</span><span class="op">:</span> <span class="dv">0</span><span class="op">}</span>)<span class="op">;</span> <span class="co">// enqueue</span></a>
+<a class="sourceLine" id="cb35-24" data-line-number="24">  <span class="kw">yield</span> <span class="va">csp</span>.<span class="at">timeout</span>(<span class="dv">1000</span>)<span class="op">;</span> <span class="co">// wait</span></a>
+<a class="sourceLine" id="cb35-25" data-line-number="25">  <span class="va">table</span>.<span class="at">close</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb35-26" data-line-number="26"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p><code>player</code> defines a “process” that is instantiated twice (in line (B) and in line (C), via <code>csp.go()</code>). The processes are connected via the “channel” <code>table</code>, which is created in line (A) and passed to <code>player</code> via its second parameter. A channel is basically a queue.</p>
+<p>How does CSP compare to async iteration?</p>
+<ul>
+<li>The coding style is also synchronous.</li>
+<li>Channels feels like a good abstraction for producing and consuming async data.</li>
+<li>Making the connections between processes explicit, as channels, means that you can configure how they work (how much is buffered, when to block, etc.).</li>
+<li>The abstraction “channel” works for many use cases: communication with and between web workers, distributed programming, etc.</li>
+</ul>
+<h4 id="alternative-2-reactive-programming">Alternative 2: Reactive Programming</h4>
+<p>The following code demonstrates Reactive Programming via <a href="https://github.com/ReactiveX/RxJS">the JavaScript library RxJS</a>:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb36-1" data-line-number="1"><span class="kw">const</span> button <span class="op">=</span> <span class="va">document</span>.<span class="at">querySelector</span>(<span class="st">&#39;button&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb36-2" data-line-number="2"><span class="va">Rx</span>.<span class="va">Observable</span>.<span class="at">fromEvent</span>(button<span class="op">,</span> <span class="st">&#39;click&#39;</span>) <span class="co">// (A)</span></a>
+<a class="sourceLine" id="cb36-3" data-line-number="3">  .<span class="at">throttle</span>(<span class="dv">1000</span>) <span class="co">// at most one event per second</span></a>
+<a class="sourceLine" id="cb36-4" data-line-number="4">  .<span class="at">scan</span>(count <span class="op">=&gt;</span> count <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb36-5" data-line-number="5">  .<span class="at">subscribe</span>(count <span class="op">=&gt;</span> <span class="va">console</span>.<span class="at">log</span>(<span class="vs">`Clicked </span><span class="sc">${</span>count<span class="sc">}</span><span class="vs"> times`</span>))<span class="op">;</span></a></code></pre></div>
+<p>In line (A), we create a stream of click events via <code>fromEvent()</code>. These events are then filtered so that there is at most one event per second. Every time there is an event, <code>scan()</code> counts how many events there have been, so far. In the last line, we log all counts.</p>
+<p>How does Reactive Programming compare to async iteration?</p>
+<ul>
+<li>The coding style is not as familiar, but there are similarities to Promises.</li>
+<li>On the other hand, chaining operations (such as <code>throttle()</code>) works well for many push-based data sources (DOM events, server-sent events, etc.).</li>
+<li>Async iteration is for pull streams and single consumers. Reactive programming is for push streams and potentially multiple consumers. The former is better suited for I/O and can handle backpressure.</li>
+</ul>
+<p>There is an ECMAScript proposal for Reactive Programming, called “<a href="https://github.com/tc39/proposal-observable">Observable</a>” (by Jafar Husain).</p>
+<h3 id="further-reading-1">Further reading</h3>
+<ul>
+<li>“<a href="https://github.com/whatwg/streams/blob/master/FAQ.md">Streams API FAQ</a>” by Domenic Denicola (explains how streams and asynchronous iteration are related; and more)</li>
+<li>“<a href="https://docs.google.com/presentation/d/1r2V1sLG8JSSk8txiLh4wfTkom-BoOsk52FgPBy8o3RM/">Why Async Iterators Matter</a>” (slides by Benjamin Gruenbaum)</li>
+</ul>
+<p>Background:</p>
+<ul>
+<li><a href="../es6/ch_iteration.html">Iterables and iterators</a> (chapter on sync iteration in “Exploring ES6”)</li>
+<li><a href="../es6/ch_generators.html">Generators</a> (chapter on sync generators in “Exploring ES6”)</li>
+<li>Chapter “<a href="../es2016-es2017/ch_async-functions.html">Async functions</a>” in “Exploring ES2016 and ES2017”</li>
+</ul>
+
+        <div class="footer">
+            <div>
+                                <a id="commentLink" href="https://github.com/rauschma/exploring-es2018-es2019/issues/1">Comments</a>
+                <script defer src="count-comments.js"></script>
+                            </div>
+                        <div>
+                Next: <a href="ch_rest-spread-properties.html">Rest/Spread Properties</a>
+            </div>
+                    </div>
+    </div>
+</body>
+</html>

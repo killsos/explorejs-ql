@@ -1,0 +1,1896 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>14. New OOP features besides classes</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>14. New OOP features besides classes</b><br>
+        <a href="index.html#toc_ch_oop-besides-classes">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_oop-besides-classes">
+<span class="section-number">14. </span>New OOP features besides classes <a class="header-anchor" href="ch_oop-besides-classes.html#ch_oop-besides-classes" aria-hidden="true">#</a></h2>
+
+<p>Classes (which are explained in <a href="ch_classes.html#ch_classes">the next chapter</a>) are <em>the</em> major new OOP feature in ECMAScript 6. However, it also includes new features for object literals and new utility methods in <code>Object</code>. This chapter describes them.</p>
+
+<hr class="scene-break">
+
+<ul>
+  <li>14.1. <a href="ch_oop-besides-classes.html#sec_overview-oop-besides-classes">Overview</a>
+    <ul>
+      <li>14.1.1. New object literal features</li>
+      <li>14.1.2. New methods in <code>Object</code>
+</li>
+    </ul>
+  </li>
+  <li>14.2. <a href="ch_oop-besides-classes.html#sec_new-features-obj-literals">New features of object literals</a>
+    <ul>
+      <li>14.2.1. Method definitions</li>
+      <li>14.2.2. Property value shorthands</li>
+      <li>14.2.3. Computed property keys</li>
+    </ul>
+  </li>
+  <li>14.3. <a href="ch_oop-besides-classes.html#sec_new-methods-object">New methods of <code>Object</code></a>
+    <ul>
+      <li>14.3.1. <code>Object.assign(target, source_1, source_2, &#xB7;&#xB7;&#xB7;)</code>
+</li>
+      <li>14.3.2. <code>Object.getOwnPropertySymbols(obj)</code>
+</li>
+      <li>14.3.3. Object.is(value1, value2)</li>
+      <li>14.3.4. <code>Object.setPrototypeOf(obj, proto)</code>
+</li>
+    </ul>
+  </li>
+  <li>14.4. <a href="ch_oop-besides-classes.html#sec_traversing-properties">Traversing properties in ES6</a>
+    <ul>
+      <li>14.4.1. Five operations that traverse properties</li>
+      <li>14.4.2. Traversal order of properties</li>
+    </ul>
+  </li>
+  <li>14.5. <a href="ch_oop-besides-classes.html#sec_assigning-vs-defining-properties">Assigning versus defining properties</a>
+    <ul>
+      <li>14.5.1. Overriding inherited read-only properties</li>
+    </ul>
+  </li>
+  <li>14.6. <a href="ch_oop-besides-classes.html#sec_proto"><code>__proto__</code> in ECMAScript 6</a>
+    <ul>
+      <li>14.6.1. <code>__proto__</code> prior to ECMAScript 6</li>
+      <li>14.6.2. The two kinds of <code>__proto__</code> in ECMAScript 6</li>
+      <li>14.6.3. Avoiding the magic of <code>__proto__</code>
+</li>
+      <li>14.6.4. Detecting support for ES6-style <code>__proto__</code>
+</li>
+      <li>14.6.5. <code>__proto__</code> is pronounced &#x201C;dunder proto&#x201D;</li>
+      <li>14.6.6. Recommendations for <code>__proto__</code>
+</li>
+    </ul>
+  </li>
+  <li>14.7. <a href="ch_oop-besides-classes.html#sec_enumerability-es6">Enumerability in ECMAScript 6</a>
+    <ul>
+      <li>14.7.1. Property attributes</li>
+      <li>14.7.2. Constructs affected by enumerability</li>
+      <li>14.7.3. Use cases for enumerability</li>
+      <li>14.7.4. Naming inconsistencies</li>
+      <li>14.7.5. Looking ahead</li>
+    </ul>
+  </li>
+  <li>14.8. <a href="ch_oop-besides-classes.html#sec_customizing-oop-via-well-known-symbols">Customizing basic language operations via well-known symbols</a>
+    <ul>
+      <li>14.8.1. Property key <code>Symbol.hasInstance</code> (method)</li>
+      <li>14.8.2. Property key <code>Symbol.toPrimitive</code> (method)</li>
+      <li>14.8.3. Property key <code>Symbol.toStringTag</code> (string)</li>
+      <li>14.8.4. Property key <code>Symbol.unscopables</code> (Object)</li>
+    </ul>
+  </li>
+  <li>14.9. <a href="ch_oop-besides-classes.html#sec_faq-obj-literals">FAQ: object literals</a>
+    <ul>
+      <li>14.9.1. Can I use <code>super</code> in object literals?</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-oop-besides-classes">
+<span class="section-number">14.1 </span>Overview <a class="header-anchor" href="ch_oop-besides-classes.html#sec_overview-oop-besides-classes" aria-hidden="true">#</a></h3>
+
+<h4 id="_new-object-literal-features">
+<span class="section-number">14.1.1 </span>New object literal features <a class="header-anchor" href="ch_oop-besides-classes.html#_new-object-literal-features" aria-hidden="true">#</a></h4>
+
+<p>Method definitions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">myMethod</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Property value shorthands:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">first</code> <code class="o">=</code> <code class="s1">&apos;Jane&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">last</code> <code class="o">=</code> <code class="s1">&apos;Doe&apos;</code><code class="p">;</code>
+
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">first</code><code class="p">,</code> <code class="nx">last</code> <code class="p">};</code>
+<code class="c1">// Same as:</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="nx">first</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="nx">last</code> <code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Computed property keys:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">propKey</code> <code class="o">=</code> <code class="s1">&apos;foo&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">propKey</code><code class="p">]</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+    <code class="p">[</code><code class="s1">&apos;b&apos;</code><code class="o">+</code><code class="s1">&apos;ar&apos;</code><code class="p">]</code><code class="o">:</code> <code class="mi">123</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>This new syntax can also be used for method definitions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="s1">&apos;h&apos;</code><code class="o">+</code><code class="s1">&apos;ello&apos;</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="s1">&apos;hi&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">hello</code><code class="p">());</code> <code class="c1">// hi</code>
+</pre></div>
+
+</figure>
+
+<p>The main use case for computed property keys is to make it easy to use symbols as property keys.</p>
+
+<h4 id="_new-methods-in-object">
+<span class="section-number">14.1.2 </span>New methods in <code>Object</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_new-methods-in-object" aria-hidden="true">#</a></h4>
+
+<p>The most important new method of <code>Object</code> is <code>assign()</code>. Traditionally, this functionality was called <code>extend()</code> in the JavaScript world. In contrast to how this classic operation works, <code>Object.assign()</code> only considers <em>own</em> (non-inherited) properties.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code> <code class="p">};</code>
+<code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="p">{</code> <code class="nx">bar</code><code class="o">:</code> <code class="kc">true</code> <code class="p">});</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">JSON</code><code class="p">.</code><code class="nx">stringify</code><code class="p">(</code><code class="nx">obj</code><code class="p">));</code>
+    <code class="c1">// {&quot;foo&quot;:123,&quot;bar&quot;:true}</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_new-features-obj-literals">
+<span class="section-number">14.2 </span>New features of object literals <a class="header-anchor" href="ch_oop-besides-classes.html#sec_new-features-obj-literals" aria-hidden="true">#</a></h3>
+
+<h4 id="object-literal-method-definitions">
+<span class="section-number">14.2.1 </span>Method definitions <a class="header-anchor" href="ch_oop-besides-classes.html#object-literal-method-definitions" aria-hidden="true">#</a></h4>
+
+<p>In ECMAScript 5, methods are properties whose values are functions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">myMethod</code><code class="o">:</code> <code class="kd">function</code> <code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>In ECMAScript 6, methods are still function-valued properties, but there is now a more compact way of defining them:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">myMethod</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Getters and setters continue to work as they did in ECMAScript 5 (note how syntactically similar they are to method definitions):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">get</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;GET foo&apos;</code><code class="p">);</code>
+        <code class="k">return</code> <code class="mi">123</code><code class="p">;</code>
+    <code class="p">},</code>
+    <code class="nx">set</code> <code class="nx">bar</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;SET bar to &apos;</code><code class="o">+</code><code class="nx">value</code><code class="p">);</code>
+        <code class="c1">// return value is ignored</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Let&#x2019;s use <code>obj</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; obj.foo
+GET foo
+123
+&gt; obj.bar = true
+SET bar to true
+true
+</pre></div>
+
+</figure>
+
+<p>There is also a way to concisely define properties whose values are generator functions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>const obj = {
+    * myGeneratorMethod() {
+        &#xB7;&#xB7;&#xB7;
+    }
+};
+</pre></div>
+
+</figure>
+
+<p>This code is equivalent to:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>const obj = {
+    myGeneratorMethod: function* () {
+        &#xB7;&#xB7;&#xB7;
+    }
+};
+</pre></div>
+
+</figure>
+
+<h4 id="_property-value-shorthands-1">
+<span class="section-number">14.2.2 </span>Property value shorthands <a class="header-anchor" href="ch_oop-besides-classes.html#_property-value-shorthands-1" aria-hidden="true">#</a></h4>
+
+<p>Property value shorthands let you abbreviate the definition of a property in an object literal: If the name of the variable that specifies the property value is also the property key then you can omit the key. This looks as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">x</code> <code class="o">=</code> <code class="mi">4</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">y</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">x</code><code class="p">,</code> <code class="nx">y</code> <code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>The last line is equivalent to:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="nx">y</code> <code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Property value shorthands work well together with destructuring:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="mi">4</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="mi">1</code> <code class="p">};</code>
+<code class="kr">const</code> <code class="p">{</code><code class="nx">x</code><code class="p">,</code><code class="nx">y</code><code class="p">}</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code> <code class="c1">// 4</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">y</code><code class="p">);</code> <code class="c1">// 1</code>
+</pre></div>
+
+</figure>
+
+<p>One use case for property value shorthands are multiple return values (which are explained in <a href="ch_destructuring.html#sec_multiple-return-values">the chapter on destructuring</a>).</p>
+
+<h4 id="_computed-property-keys-1">
+<span class="section-number">14.2.3 </span>Computed property keys <a class="header-anchor" href="ch_oop-besides-classes.html#_computed-property-keys-1" aria-hidden="true">#</a></h4>
+
+<p>Remember that there are two ways of specifying a key when you set a property.</p>
+
+<ol class="numeric">
+  <li>Via a fixed name: <code>obj.foo = true;</code>
+</li>
+  <li>Via an expression: <code>obj[&apos;b&apos;+&apos;ar&apos;] = 123;</code>
+</li>
+</ol>
+
+<p>In object literals, you only have option #1 in ECMAScript 5. ECMAScript 6 additionally provides option #2:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">propKey</code> <code class="o">=</code> <code class="s1">&apos;foo&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">propKey</code><code class="p">]</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+    <code class="p">[</code><code class="s1">&apos;b&apos;</code><code class="o">+</code><code class="s1">&apos;ar&apos;</code><code class="p">]</code><code class="o">:</code> <code class="mi">123</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>This new syntax can also be used for method definitions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="s1">&apos;h&apos;</code><code class="o">+</code><code class="s1">&apos;ello&apos;</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="s1">&apos;hi&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">hello</code><code class="p">());</code> <code class="c1">// hi</code>
+</pre></div>
+
+</figure>
+
+<p>The main use case for computed property keys are symbols: you can define a public symbol and use it as a special property key that is always unique. One prominent example is the symbol stored in <code>Symbol.iterator</code>. If an object has a method with that key, it becomes <em>iterable</em>: The method must return an iterator, which is used by constructs such as the <code>for-of</code> loop to iterate over the object. The following code demonstrates how that works.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="o">*</code> <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code> <code class="c1">// (A)</code>
+        <code class="k">yield</code> <code class="s1">&apos;hello&apos;</code><code class="p">;</code>
+        <code class="k">yield</code> <code class="s1">&apos;world&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// hello</code>
+<code class="c1">// world</code>
+</pre></div>
+
+</figure>
+
+<p>Line A starts a generator method definition with a computed key (the symbol stored in <code>Symbol.iterator</code>).</p>
+
+
+<h3 id="sec_new-methods-object">
+<span class="section-number">14.3 </span>New methods of <code>Object</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#sec_new-methods-object" aria-hidden="true">#</a></h3>
+
+<h4 id="Object_assign">
+<span class="section-number">14.3.1 </span><code>Object.assign(target, source_1, source_2, &#xB7;&#xB7;&#xB7;)</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#Object_assign" aria-hidden="true">#</a></h4>
+
+<p>This method merges the sources into the target: It modifies <code>target</code>, first copies all enumerable <em>own</em> (non-inherited) properties of <code>source_1</code> into it, then all own properties of <code>source_2</code>, etc. At the end, it returns the target.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code> <code class="p">};</code>
+<code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="p">{</code> <code class="nx">bar</code><code class="o">:</code> <code class="kc">true</code> <code class="p">});</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">JSON</code><code class="p">.</code><code class="nx">stringify</code><code class="p">(</code><code class="nx">obj</code><code class="p">));</code>
+    <code class="c1">// {&quot;foo&quot;:123,&quot;bar&quot;:true}</code>
+</pre></div>
+
+</figure>
+
+<p>Let&#x2019;s look more closely at how <code>Object.assign()</code> works:</p>
+
+<ul>
+  <li>Both kinds of property keys: <code>Object.assign()</code> is aware of both strings and symbols as property keys.</li>
+  <li>Only enumerable own properties: <code>Object.assign()</code> ignores inherited properties and properties that are not enumerable.</li>
+  <li>Reading a value from a source: normal &#x201C;get&#x201D; operation (<code>const value = source[propKey]</code>). That means that if the source has a getter whose key is <code>propKey</code> then it will be invoked. All properties created by <code>Object.assign()</code> are data properties, it won&#x2019;t transfer getters to the target.</li>
+  <li>Writing a value to the target: normal &#x201C;set&#x201D; operation (<code>target[propKey] = value</code>). That means that if the target has a setter whose key is <code>propKey</code> then it will be invoked with <code>value</code>.</li>
+</ul>
+
+<p>This is how you&#x2019;d copy all properties (not just enumerable ones), while correctly transferring getters and setters, without invoking setters on the target:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">copyAllProperties</code><code class="p">(</code><code class="nx">target</code><code class="p">,</code> <code class="p">...</code><code class="nx">sources</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">source</code> <code class="k">of</code> <code class="nx">sources</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">key</code> <code class="k">of</code> <code class="nx">Reflect</code><code class="p">.</code><code class="nx">ownKeys</code><code class="p">(</code><code class="nx">source</code><code class="p">))</code> <code class="p">{</code>
+            <code class="kr">const</code> <code class="nx">desc</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">source</code><code class="p">,</code> <code class="nx">key</code><code class="p">);</code>
+            <code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperty</code><code class="p">(</code><code class="nx">target</code><code class="p">,</code> <code class="nx">key</code><code class="p">,</code> <code class="nx">desc</code><code class="p">);</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">target</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_caveat-objectassign-doesnt-work-well-for-moving-methods">
+<span class="section-number">14.3.1.1 </span>Caveat: <code>Object.assign()</code> doesn&#x2019;t work well for moving methods <a class="header-anchor" href="ch_oop-besides-classes.html#_caveat-objectassign-doesnt-work-well-for-moving-methods" aria-hidden="true">#</a></h5>
+
+<p>On one hand, you can&#x2019;t move a method that uses <code>super</code>: Such a method has the internal slot <code>[[HomeObject]]</code> that ties it to the object it was created in. If you move it via <code>Object.assign()</code>, it will continue to refer to the super-properties of the original object. Details are explained in <a href="ch_classes.html#sec_cant-move-methods-with-super">a section in the chapter on classes</a>.</p>
+
+<p>On the other hand, enumerability is wrong if you move methods created by an object literal into the prototype of a class. The former methods are all enumerable (otherwise <code>Object.assign()</code> wouldn&#x2019;t see them, anyway), but the prototype only has non-enumerable methods by default.</p>
+
+<h5 id="_use-cases-for-objectassign">
+<span class="section-number">14.3.1.2 </span>Use cases for <code>Object.assign()</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_use-cases-for-objectassign" aria-hidden="true">#</a></h5>
+
+<p>Let&#x2019;s look at a few use cases.</p>
+
+<h6 id="_adding-properties-to-this">
+<span class="section-number">14.3.1.2.1 </span>Adding properties to <code>this</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_adding-properties-to-this" aria-hidden="true">#</a></h6>
+
+<p>You can use <code>Object.assign()</code> to add properties to <code>this</code> in a constructor:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="p">{</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">});</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h6 id="_providing-default-values-for-object-properties">
+<span class="section-number">14.3.1.2.2 </span>Providing default values for object properties <a class="header-anchor" href="ch_oop-besides-classes.html#_providing-default-values-for-object-properties" aria-hidden="true">#</a></h6>
+
+<p><code>Object.assign()</code> is also useful for filling in defaults for missing properties. In the following example, we have an object <code>DEFAULTS</code> with default values for properties and an object <code>options</code> with data.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">DEFAULTS</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">logLevel</code><code class="o">:</code> <code class="mi">0</code><code class="p">,</code>
+    <code class="nx">outputFormat</code><code class="o">:</code> <code class="s1">&apos;html&apos;</code>
+<code class="p">};</code>
+<code class="kd">function</code> <code class="nx">processContent</code><code class="p">(</code><code class="nx">options</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">options</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">({},</code> <code class="nx">DEFAULTS</code><code class="p">,</code> <code class="nx">options</code><code class="p">);</code> <code class="c1">// (A)</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In line A, we created a fresh object, copied the defaults into it and then copied <code>options</code> into it, overriding the defaults. <code>Object.assign()</code> returns the result of these operations, which we assign to <code>options</code>.</p>
+
+<h6 id="_adding-methods-to-objects">
+<span class="section-number">14.3.1.2.3 </span>Adding methods to objects <a class="header-anchor" href="ch_oop-besides-classes.html#_adding-methods-to-objects" aria-hidden="true">#</a></h6>
+
+<p>Another use case is adding methods to objects:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">(</code><code class="nx">SomeClass</code><code class="p">.</code><code class="nx">prototype</code><code class="p">,</code> <code class="p">{</code>
+    <code class="nx">someMethod</code><code class="p">(</code><code class="nx">arg1</code><code class="p">,</code> <code class="nx">arg2</code><code class="p">)</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">},</code>
+    <code class="nx">anotherMethod</code><code class="p">()</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>You could also manually assign functions, but then you don&#x2019;t have the nice method definition syntax and need to mention <code>SomeClass.prototype</code> each time:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">SomeClass</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">someMethod</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">(</code><code class="nx">arg1</code><code class="p">,</code> <code class="nx">arg2</code><code class="p">)</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">};</code>
+<code class="nx">SomeClass</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">anotherMethod</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<h6 id="_cloning-objects">
+<span class="section-number">14.3.1.2.4 </span>Cloning objects <a class="header-anchor" href="ch_oop-besides-classes.html#_cloning-objects" aria-hidden="true">#</a></h6>
+
+<p>One last use case for <code>Object.assign()</code> is a quick way of cloning objects:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">clone</code><code class="p">(</code><code class="nx">orig</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">({},</code> <code class="nx">orig</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>This way of cloning is also somewhat dirty, because it doesn&#x2019;t preserve the property attributes of <code>orig</code>. If that is what you need, you have to use <a href="http://speakingjs.com/es5/ch17.html#property_attributes">property descriptors</a>.</p>
+
+<p>If you want the clone to have the same prototype as the original, you can use <code>Object.getPrototypeOf()</code> and <code>Object.create()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">clone</code><code class="p">(</code><code class="nx">orig</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">origProto</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getPrototypeOf</code><code class="p">(</code><code class="nx">orig</code><code class="p">);</code>
+    <code class="k">return</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">(</code><code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nx">origProto</code><code class="p">),</code> <code class="nx">orig</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_objectgetownpropertysymbolsobj">
+<span class="section-number">14.3.2 </span><code>Object.getOwnPropertySymbols(obj)</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_objectgetownpropertysymbolsobj" aria-hidden="true">#</a></h4>
+
+<p><code>Object.getOwnPropertySymbols(obj)</code> retrieves all <em>own</em> (non-inherited) symbol-valued property keys of <code>obj</code>. It complements <code>Object.getOwnPropertyNames()</code>, which retrieves all string-valued own property keys. Consult <a href="ch_oop-besides-classes.html#sec_traversing-properties">a later section</a> for more details on traversing properties.</p>
+
+<h4 id="Object_is">
+<span class="section-number">14.3.3 </span>Object.is(value1, value2) <a class="header-anchor" href="ch_oop-besides-classes.html#Object_is" aria-hidden="true">#</a></h4>
+
+<p>The strict equals operator (<code>===</code>) treats two values differently than one might expect.</p>
+
+<p>First, <code>NaN</code> is not equal to itself.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; NaN === NaN
+false
+</pre></div>
+
+</figure>
+
+<p>That is unfortunate, because it often prevents us from detecting <code>NaN</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [0,NaN,2].indexOf(NaN)
+-1
+</pre></div>
+
+</figure>
+
+<p>Second, JavaScript has <a href="http://speakingjs.com/es5/ch11.html#two_zeros">two zeros</a>, but strict equals treats them as if they were the same value:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; -0 === +0
+true
+</pre></div>
+
+</figure>
+
+<p>Doing this is normally a good thing.</p>
+
+<p><code>Object.is()</code> provides a way of comparing values that is a bit more precise than <code>===</code>. It works as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Object.is(NaN, NaN)
+true
+&gt; Object.is(-0, +0)
+false
+</pre></div>
+
+</figure>
+
+<p>Everything else is compared as with <code>===</code>.</p>
+
+<h5 id="_using-objectis-to-find-array-elements">
+<span class="section-number">14.3.3.1 </span>Using <code>Object.is()</code> to find Array elements <a class="header-anchor" href="ch_oop-besides-classes.html#_using-objectis-to-find-array-elements" aria-hidden="true">#</a></h5>
+
+<p>If we combine <code>Object.is()</code> with the new ES6 Array method <a href="ch_arrays.html#Array_prototype_findIndex"><code>findIndex()</code></a>, we can find <code>NaN</code> in Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">myIndexOf</code><code class="p">(</code><code class="nx">arr</code><code class="p">,</code> <code class="nx">elem</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">findIndex</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">is</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">elem</code><code class="p">));</code>
+<code class="p">}</code>
+
+<code class="nx">myIndexOf</code><code class="p">([</code><code class="mi">0</code><code class="p">,</code><code class="kc">NaN</code><code class="p">,</code><code class="mi">2</code><code class="p">],</code> <code class="kc">NaN</code><code class="p">);</code> <code class="c1">// 1</code>
+</pre></div>
+
+</figure>
+
+<p>In contrast, <code>indexOf()</code> does not handle <code>NaN</code> well:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [0,NaN,2].indexOf(NaN)
+-1
+</pre></div>
+
+</figure>
+
+<h4 id="_objectsetprototypeofobj-proto">
+<span class="section-number">14.3.4 </span><code>Object.setPrototypeOf(obj, proto)</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_objectsetprototypeofobj-proto" aria-hidden="true">#</a></h4>
+
+<p>This method sets the prototype of <code>obj</code> to <code>proto</code>. The non-standard way of doing so in ECMAScript 5, that is supported by many engines, is via assigning to <a href="ch_oop-besides-classes.html#sec_proto">the special property <code>__proto__</code></a>. The recommended way of setting the prototype remains the same as in ECMAScript 5: during the creation of an object, via <code>Object.create()</code>. That will always be faster than first creating an object and then setting its prototype. Obviously, it doesn&#x2019;t work if you want to change the prototype of an existing object.</p>
+
+
+<h3 id="sec_traversing-properties">
+<span class="section-number">14.4 </span>Traversing properties in ES6 <a class="header-anchor" href="ch_oop-besides-classes.html#sec_traversing-properties" aria-hidden="true">#</a></h3>
+
+<h4 id="_five-operations-that-traverse-properties">
+<span class="section-number">14.4.1 </span>Five operations that traverse properties <a class="header-anchor" href="ch_oop-besides-classes.html#_five-operations-that-traverse-properties" aria-hidden="true">#</a></h4>
+
+<p>In ECMAScript 6, the key of a property can be either a string or a symbol. The following are five operations that traverse the property keys of an object <code>obj</code>:</p>
+
+<ul>
+  <li>
+<code>Object.keys(obj) : Array&lt;string&gt;</code><br>
+retrieves all string keys of all enumerable <em>own</em> (non-inherited) properties.</li>
+  <li>
+<code>Object.getOwnPropertyNames(obj) : Array&lt;string&gt;</code><br>
+retrieves all string keys of all own properties.</li>
+  <li>
+<code>Object.getOwnPropertySymbols(obj) : Array&lt;symbol&gt;</code><br>
+retrieves all symbol keys of all own properties.</li>
+  <li>
+<code>Reflect.ownKeys(obj) : Array&lt;string|symbol&gt;</code><br>
+retrieves all keys of all own properties.</li>
+  <li>
+<code>for (const key in obj)</code><br>
+retrieves all string keys of all enumerable properties (inherited and own).</li>
+</ul>
+
+<h4 id="_traversal-order-of-properties">
+<span class="section-number">14.4.2 </span>Traversal order of properties <a class="header-anchor" href="ch_oop-besides-classes.html#_traversal-order-of-properties" aria-hidden="true">#</a></h4>
+
+<p>ES6 defines two traversal orders for properties.</p>
+
+<p>
+  <strong>Own Property Keys:</strong>
+</p>
+
+<ul>
+  <li>Retrieves the keys of all own properties of an object, in the following order:
+    <ul>
+      <li>First, the string keys that are integer indices (what these are is explained in the next section), in ascending numeric order.</li>
+      <li>Then all other string keys, in the order in which they were added to the object.</li>
+      <li>Lastly, all symbol keys, in the order in which they were added to the object.</li>
+    </ul>
+  </li>
+  <li>Used by: <code>Object.assign()</code>, <code>Object.defineProperties()</code>, <code>Object.getOwnPropertyNames()</code>, <code>Object.getOwnPropertySymbols()</code>, <code>Reflect.ownKeys()</code>
+</li>
+</ul>
+
+<p>
+  <strong>Enumerable Own Names:</strong>
+</p>
+
+<ul>
+  <li>Retrieves the string keys of all enumerable own properties of an object. The order is not defined by ES6, but it must be the same order in which <code>for-in</code> traverses properties.</li>
+  <li>Used by: <code>JSON.parse()</code>, <code>JSON.stringify()</code>, <code>Object.keys()</code>
+</li>
+</ul>
+
+<p>The order in which <code>for-in</code> traverses properties is not defined. <a href="https://mail.mozilla.org/pipermail/es-discuss/2015-August/043998.html">Quoting Allen Wirfs-Brock</a>:</p>
+
+<blockquote>
+  <p>Historically, the <code>for-in</code> order was not defined and there has been variation among browser implementations in the order they produce (and other specifics).   ES5 added <code>Object.keys</code> and the requirement that it should order the keys identically to <code>for-in</code>. During development of both ES5 and ES6, the possibility of defining a specific <code>for-in</code> order was considered but not adopted because of  web legacy compatibility concerns and uncertainty about the willingness of browsers to make changes in the ordering they currently produce.</p>
+</blockquote>
+
+<h5 id="_integer-indices">
+<span class="section-number">14.4.2.1 </span>Integer indices <a class="header-anchor" href="ch_oop-besides-classes.html#_integer-indices" aria-hidden="true">#</a></h5>
+
+<p>Many engines treat integer indices specially, even though they are still strings (at least as far as the ES6 spec is concerned). Therefore, it makes sense to treat them as a separate category of keys.</p>
+
+<p>Roughly, an integer index is a string that, if converted to a 53-bit non-negative integer and back is the same value. Therefore:</p>
+
+<ul>
+  <li>
+<code>&apos;10&apos;</code> and <code>&apos;2&apos;</code> are integer indices.</li>
+  <li>
+<code>&apos;02&apos;</code> is not an integer index. Converting it to an integer and back results in the different string <code>&apos;2&apos;</code>.</li>
+  <li>
+<code>&apos;3.141&apos;</code> is not an integer index, because 3.141 is not an integer.</li>
+</ul>
+
+<p>In ES6, instances of <code>String</code> and Typed Arrays have integer indices. The indices of normal Arrays are a subset of integer indices: they have a smaller range of 32 bits. For more information on Array indices, consult &#x201C;<a href="http://speakingjs.com/es5/ch18.html#_array_indices_in_detail">Array Indices in Detail</a>&#x201D; in &#x201C;Speaking JavaScript&#x201D;.</p>
+
+<aside class="information blurb">
+    <p>Integer indices have a 53-bit range, because thats the largest range of integers that JavaScript can handle. For details, see Sect. &#x201C;<a href="ch_numbers.html#sec_safe-integers">Safe integers</a>&#x201D;.</p>
+
+</aside>
+
+<h5 id="_example">
+<span class="section-number">14.4.2.2 </span>Example <a class="header-anchor" href="ch_oop-besides-classes.html#_example" aria-hidden="true">#</a></h5>
+
+<p>The following code demonstrates the traversal order &#x201C;Own Property Keys&#x201D;:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;first&apos;</code><code class="p">)]</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+    <code class="s1">&apos;02&apos;</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+    <code class="s1">&apos;10&apos;</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+    <code class="s1">&apos;01&apos;</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+    <code class="s1">&apos;2&apos;</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;second&apos;</code><code class="p">)]</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+<code class="p">};</code>
+<code class="nx">Reflect</code><code class="p">.</code><code class="nx">ownKeys</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+    <code class="c1">// [ &apos;2&apos;, &apos;10&apos;, &apos;02&apos;, &apos;01&apos;,</code>
+    <code class="c1">//   Symbol(&apos;first&apos;), Symbol(&apos;second&apos;) ]</code>
+</pre></div>
+
+</figure>
+
+<p>Explanation:</p>
+
+<ul>
+  <li>
+<code>&apos;2&apos;</code> and <code>&apos;10&apos;</code> are integer indices, come first and are sorted numerically (not in the order in which they were added).</li>
+  <li>
+<code>&apos;02&apos;</code> and <code>&apos;01&apos;</code> are normal string keys, come next and appear in the order in which they were added to <code>obj</code>.</li>
+  <li>
+<code>Symbol(&apos;first&apos;)</code> and <code>Symbol(&apos;second&apos;)</code> are symbols and come last, in the order in which they were added to <code>obj</code>.</li>
+</ul>
+
+<h5 id="_why-does-the-spec-standardize-in-which-order-property-keys-are-returned">
+<span class="section-number">14.4.2.3 </span>Why does the spec standardize in which order property keys are returned? <a class="header-anchor" href="ch_oop-besides-classes.html#_why-does-the-spec-standardize-in-which-order-property-keys-are-returned" aria-hidden="true">#</a></h5>
+
+<p>Answer by <a href="https://esdiscuss.org/topic/nailing-object-property-order">Tab Atkins Jr.</a>:</p>
+
+<blockquote>
+  <p>Because, for objects at least, all implementations used approximately the same order (matching the current spec), and lots of code was inadvertently written that depended on that ordering, and would break if you enumerated it in a different order.  Since browsers have to implement this particular ordering to be web-compatible, it was specced as a requirement.</p>
+
+  <p>There was some discussion about breaking from this in Maps/Sets, but doing so would require us to specify an order that is <em>impossible</em> for code to depend on; in other words, we&#x2019;d have to mandate that the ordering be <em>random</em>, not just unspecified.  This was deemed too much effort, and creation-order is reasonable valuable (see OrderedDict in Python, for example), so it was decided to have Maps and Sets match Objects.</p>
+</blockquote>
+
+<h5 id="_the-order-of-properties-in-the-spec">
+<span class="section-number">14.4.2.4 </span>The order of properties in the spec <a class="header-anchor" href="ch_oop-besides-classes.html#_the-order-of-properties-in-the-spec" aria-hidden="true">#</a></h5>
+
+<p>The following parts of the spec are relevant for this section:</p>
+
+<ul>
+  <li>The section on <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-array-exotic-objects">Array exotic objects</a> has a note on what Array indices are.</li>
+  <li>The internal method <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-ordinary-object-internal-methods-and-internal-slots-ownpropertykeys"><code>[[OwnPropertyKeys]]</code></a> is used by <code>Reflect.ownKeys()</code> and others.</li>
+  <li>The operation <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-enumerableownnames"><code>EnumerableOwnNames</code></a> is used by <code>Object.keys()</code> and others.</li>
+  <li>The internal method <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-ordinary-object-internal-methods-and-internal-slots-enumerate"><code>[[Enumerate]]</code></a> is used by <code>for-in</code>.</li>
+</ul>
+
+
+
+<h3 id="sec_assigning-vs-defining-properties">
+<span class="section-number">14.5 </span>Assigning versus defining properties <a class="header-anchor" href="ch_oop-besides-classes.html#sec_assigning-vs-defining-properties" aria-hidden="true">#</a></h3>
+
+<aside class="generic_inbar blurb eye icon-eye">
+    <p>This section provides background knowledge that is needed in later sections.</p>
+
+</aside>
+
+<p>There are two similar ways of adding a property <code>prop</code> to an object <code>obj</code>:</p>
+
+<ul>
+  <li>Assigning: <code>obj.prop = 123</code>
+</li>
+  <li>Defining: <code>Object.defineProperty(obj, &apos;prop&apos;, 123)</code>
+</li>
+</ul>
+
+<p>There are three cases in which assigning does not create an own property <code>prop</code>, even if it doesn&#x2019;t exist, yet:</p>
+
+<ol class="numeric">
+  <li>A read-only property <code>prop</code> exists in the prototype chain. Then the assignment causes a <code>TypeError</code> in strict mode.</li>
+  <li>A setter for <code>prop</code> exists in the prototype chain. Then that setter is called.</li>
+  <li>A getter for <code>prop</code> without a setter exists in the prototype chain. Then a <code>TypeError</code> is thrown in strict mode. This case is similar to the first one.</li>
+</ol>
+
+<p>None of these cases prevent <code>Object.defineProperty()</code> from creating an own property. The next section looks at case #3 in more detail.</p>
+
+<h4 id="_overriding-inherited-read-only-properties">
+<span class="section-number">14.5.1 </span>Overriding inherited read-only properties <a class="header-anchor" href="ch_oop-besides-classes.html#_overriding-inherited-read-only-properties" aria-hidden="true">#</a></h4>
+
+<p>If an object <code>obj</code> inherits a property <code>prop</code> that is read-only then you can&#x2019;t assign to that property:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">proto</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperty</code><code class="p">({},</code> <code class="s1">&apos;prop&apos;</code><code class="p">,</code> <code class="p">{</code>
+    <code class="nx">writable</code><code class="o">:</code> <code class="kc">false</code><code class="p">,</code>
+    <code class="nx">configurable</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+    <code class="nx">value</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code>
+<code class="p">});</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nx">proto</code><code class="p">);</code>
+<code class="nx">obj</code><code class="p">.</code><code class="nx">prop</code> <code class="o">=</code> <code class="mi">456</code><code class="p">;</code>
+    <code class="c1">// TypeError: Cannot assign to read-only property</code>
+</pre></div>
+
+</figure>
+
+<p>This is similar to how an inherited property works that has a getter, but no setter. It is in line with viewing assignment as changing the value of an inherited property. It does so non-destructively: the original is not modified, but overridden by a newly created own property. Therefore, an inherited read-only property and an inherited setter-less property both prevent changes via assignment. You can, however, force the creation of an own property by defining a property:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">proto</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperty</code><code class="p">({},</code> <code class="s1">&apos;prop&apos;</code><code class="p">,</code> <code class="p">{</code>
+    <code class="nx">writable</code><code class="o">:</code> <code class="kc">false</code><code class="p">,</code>
+    <code class="nx">configurable</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+    <code class="nx">value</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code>
+<code class="p">});</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nx">proto</code><code class="p">);</code>
+<code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperty</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="s1">&apos;prop&apos;</code><code class="p">,</code> <code class="p">{</code><code class="nx">value</code><code class="o">:</code> <code class="mi">456</code><code class="p">});</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">prop</code><code class="p">);</code> <code class="c1">// 456</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_proto">
+<span class="section-number">14.6 </span><code>__proto__</code> in ECMAScript 6 <a class="header-anchor" href="ch_oop-besides-classes.html#sec_proto" aria-hidden="true">#</a></h3>
+
+<p>The property <code>__proto__</code> (pronounced &#x201C;<a href="ch_oop-besides-classes.html#dunder-proto">dunder proto</a>&#x201D;) has existed for a while in most JavaScript engines. This section explains how it worked prior to ECMAScript 6 and what changes with ECMAScript 6.</p>
+
+<p>For this section, it helps if you know what prototype chains are. Consult Sect. &#x201C;<a href="http://speakingjs.com/es5/ch17.html#prototype_relationship">Layer 2: The Prototype Relationship Between Objects</a>&#x201D; in &#x201C;Speaking JavaScript&#x201D;, if necessary.</p>
+
+
+<h4 id="_proto-prior-to-ecmascript-6">
+<span class="section-number">14.6.1 </span><code>__proto__</code> prior to ECMAScript 6 <a class="header-anchor" href="ch_oop-besides-classes.html#_proto-prior-to-ecmascript-6" aria-hidden="true">#</a></h4>
+
+<h5 id="_prototypes">
+<span class="section-number">14.6.1.1 </span>Prototypes <a class="header-anchor" href="ch_oop-besides-classes.html#_prototypes" aria-hidden="true">#</a></h5>
+
+<p>Each object in JavaScript starts a chain of one or more objects, a so-called <em>prototype chain</em>. Each object points to its successor, its <em>prototype</em> via the internal slot <code>[[Prototype]]</code> (which is <code>null</code> if there is no successor). That slot is called <em>internal</em>, because it only exists in the language specification and cannot be directly accessed from JavaScript. In ECMAScript 5, the standard way of getting the prototype <code>p</code> of an object <code>obj</code> is:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">p</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getPrototypeOf</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>There is no standard way to change the prototype of an existing object, but you can create a new object <code>obj</code> that has the given prototype <code>p</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">obj</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nx">p</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_proto">
+<span class="section-number">14.6.1.2 </span><code>__proto__</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_proto" aria-hidden="true">#</a></h5>
+
+<p>A long time ago, Firefox got the non-standard property <code>__proto__</code>. Other browsers eventually copied that feature, due to its popularity.</p>
+
+<p>Prior to ECMAScript 6, <code>__proto__</code> worked in obscure ways:</p>
+
+<ul>
+  <li>You could use it to get or set the prototype of any object:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kd">var</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{};</code>
+  <code class="kd">var</code> <code class="nx">p</code> <code class="o">=</code> <code class="p">{};</code>
+
+  <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">__proto__</code> <code class="o">===</code> <code class="nx">p</code><code class="p">);</code> <code class="c1">// false</code>
+  <code class="nx">obj</code><code class="p">.</code><code class="nx">__proto__</code> <code class="o">=</code> <code class="nx">p</code><code class="p">;</code>
+  <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">__proto__</code> <code class="o">===</code> <code class="nx">p</code><code class="p">);</code> <code class="c1">// true</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>However, it was never an actual property:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; var obj = {};
+  &gt; &apos;__proto__&apos; in obj
+  false
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<h5 id="_subclassing-array-via-proto">
+<span class="section-number">14.6.1.3 </span>Subclassing <code>Array</code> via <code>__proto__</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_subclassing-array-via-proto" aria-hidden="true">#</a></h5>
+
+<p>The main reason why <code>__proto__</code> became popular was because it enabled the only way to create a subclass <code>MyArray</code> of <code>Array</code> in ES5: Array instances were exotic objects that couldn&#x2019;t be created by ordinary constructors. Therefore, the following trick was used:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">MyArray</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kd">var</code> <code class="nx">instance</code> <code class="o">=</code> <code class="k">new</code> <code class="nb">Array</code><code class="p">();</code> <code class="c1">// exotic object</code>
+    <code class="nx">instance</code><code class="p">.</code><code class="nx">__proto__</code> <code class="o">=</code> <code class="nx">MyArray</code><code class="p">.</code><code class="nx">prototype</code><code class="p">;</code>
+    <code class="k">return</code> <code class="nx">instance</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">MyArray</code><code class="p">.</code><code class="nx">prototype</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">);</code>
+<code class="nx">MyArray</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">customMethod</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">(</code><code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p><a href="ch_classes.html#details-of-subclassing">Subclassing in ES6</a> works differently than in ES5 and supports subclassing builtins out of the box.</p>
+
+<h5 id="_why-proto-is-problematic-in-es5">
+<span class="section-number">14.6.1.4 </span>Why <code>__proto__</code> is problematic in ES5 <a class="header-anchor" href="ch_oop-besides-classes.html#_why-proto-is-problematic-in-es5" aria-hidden="true">#</a></h5>
+
+<p>The main problem is that <code>__proto__</code> mixes two levels: the object level (normal properties, holding data) and the meta level.</p>
+
+<p>If you accidentally use <code>__proto__</code> as a normal property (object level!), to store data, you get into trouble, because the two levels clash. The situation is compounded by the fact that you have to abuse objects as maps in ES5, because it has no built-in data structure for that purpose. Maps should be able to hold arbitrary keys, but you can&#x2019;t use the key <code>&apos;__proto__&apos;</code> with objects-as-maps.</p>
+
+<p>In theory, one could fix the problem by using a symbol instead of the special name <code>__proto__</code>, but keeping meta-operations completely separate (as done via <code>Object.getPrototypeOf()</code>) is the best approach.</p>
+
+
+<h4 id="_the-two-kinds-of-proto-in-ecmascript-6">
+<span class="section-number">14.6.2 </span>The two kinds of <code>__proto__</code> in ECMAScript 6 <a class="header-anchor" href="ch_oop-besides-classes.html#_the-two-kinds-of-proto-in-ecmascript-6" aria-hidden="true">#</a></h4>
+
+<p>Because <code>__proto__</code> was so widely supported, it was decided that its behavior should be standardized for ECMAScript 6. However, due to its problematic nature, it was added as a deprecated feature. These features reside in <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-additional-ecmascript-features-for-web-browsers">Annex B in the ECMAScript specification</a>, which is described as follows:</p>
+
+<blockquote>
+  <p>The ECMAScript language syntax and semantics defined in this annex are required when the ECMAScript host is a web browser. The content of this annex is normative but optional if the ECMAScript host is not a web browser.</p>
+</blockquote>
+
+<p>JavaScript has several undesirable features that are required by a significant amount of code on the web. Therefore, web browsers must implement them, but other JavaScript engines don&#x2019;t have to.</p>
+
+<p>In order to explain the magic behind <code>__proto__</code>, two mechanisms were introduced in ES6:</p>
+
+<ul>
+  <li>A getter and a setter implemented via <code>Object.prototype.__proto__</code>.</li>
+  <li>In an object literal, you can consider the property key <code>&apos;__proto__&apos;</code> a special operator for specifying the prototype of the created objects.</li>
+</ul>
+
+<h5 id="_objectprototypeproto">
+<span class="section-number">14.6.2.1 </span><code>Object.prototype.__proto__</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_objectprototypeproto" aria-hidden="true">#</a></h5>
+
+<p>ECMAScript 6 enables getting and setting the property <code>__proto__</code> via a getter and a setter stored in <code>Object.prototype</code>. If you were to implement them manually, this is roughly what it would look like:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperty</code><code class="p">(</code><code class="nb">Object</code><code class="p">.</code><code class="nx">prototype</code><code class="p">,</code> <code class="s1">&apos;__proto__&apos;</code><code class="p">,</code> <code class="p">{</code>
+    <code class="nx">get</code><code class="p">()</code> <code class="p">{</code>
+        <code class="kr">const</code> <code class="nx">_thisObj</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">(</code><code class="k">this</code><code class="p">);</code>
+        <code class="k">return</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getPrototypeOf</code><code class="p">(</code><code class="nx">_thisObj</code><code class="p">);</code>
+    <code class="p">},</code>
+    <code class="nx">set</code><code class="p">(</code><code class="nx">proto</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">if</code> <code class="p">(</code><code class="k">this</code> <code class="o">===</code> <code class="kc">undefined</code> <code class="o">||</code> <code class="k">this</code> <code class="o">===</code> <code class="kc">null</code><code class="p">)</code> <code class="p">{</code>
+            <code class="k">throw</code> <code class="k">new</code> <code class="nx">TypeError</code><code class="p">();</code>
+        <code class="p">}</code>
+        <code class="k">if</code> <code class="p">(</code><code class="o">!</code><code class="nx">isObject</code><code class="p">(</code><code class="k">this</code><code class="p">))</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="kc">undefined</code><code class="p">;</code>
+        <code class="p">}</code>
+        <code class="k">if</code> <code class="p">(</code><code class="o">!</code><code class="nx">isObject</code><code class="p">(</code><code class="nx">proto</code><code class="p">))</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="kc">undefined</code><code class="p">;</code>
+        <code class="p">}</code>
+        <code class="kr">const</code> <code class="nx">status</code> <code class="o">=</code> <code class="nx">Reflect</code><code class="p">.</code><code class="nx">setPrototypeOf</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="nx">proto</code><code class="p">);</code>
+        <code class="k">if</code> <code class="p">(</code><code class="o">!</code> <code class="nx">status</code><code class="p">)</code> <code class="p">{</code>
+            <code class="k">throw</code> <code class="k">new</code> <code class="nx">TypeError</code><code class="p">();</code>
+        <code class="p">}</code>
+    <code class="p">},</code>
+<code class="p">});</code>
+<code class="kd">function</code> <code class="nx">isObject</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nb">Object</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code> <code class="o">===</code> <code class="nx">value</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The getter and the setter for <code>__proto__</code> in the ES6 spec:</p>
+
+<ul>
+  <li><a href="http://www.ecma-international.org/ecma-262/6.0/#sec-get-object.prototype.__proto__"><code>get Object.prototype.__proto__</code></a></li>
+  <li><a href="http://www.ecma-international.org/ecma-262/6.0/#sec-set-object.prototype.__proto__"><code>set Object.prototype.__proto__</code></a></li>
+</ul>
+
+<h5 id="_the-property-key-proto-as-an-operator-in-an-object-literal">
+<span class="section-number">14.6.2.2 </span>The property key <code>__proto__</code> as an operator in an object literal <a class="header-anchor" href="ch_oop-besides-classes.html#_the-property-key-proto-as-an-operator-in-an-object-literal" aria-hidden="true">#</a></h5>
+
+<p>If <code>__proto__</code> appears as an unquoted or quoted property key in an object literal, the prototype of the object created by that literal is set to the property value:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Object.getPrototypeOf({ __proto__: null })
+null
+&gt; Object.getPrototypeOf({ &apos;__proto__&apos;: null })
+null
+</pre></div>
+
+</figure>
+
+<p>Using the string value <code>&apos;__proto__&apos;</code> as a computed property key does not change the prototype, it creates an own property:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const obj = { [&apos;__proto__&apos;]: null };
+&gt; Object.getPrototypeOf(obj) === Object.prototype
+true
+&gt; Object.keys(obj)
+[ &apos;__proto__&apos; ]
+</pre></div>
+
+</figure>
+
+<p>The special property key <code>&apos;__proto__&apos;</code> in the ES6 spec:</p>
+
+<ul>
+  <li><a href="http://www.ecma-international.org/ecma-262/6.0/#sec-__proto__-property-names-in-object-initializers"><code>__proto__</code> Property Names in Object Initializers</a></li>
+</ul>
+
+
+<h4 id="_avoiding-the-magic-of-proto">
+<span class="section-number">14.6.3 </span>Avoiding the magic of <code>__proto__</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_avoiding-the-magic-of-proto" aria-hidden="true">#</a></h4>
+
+<h5 id="_defining-not-assigning-proto">
+<span class="section-number">14.6.3.1 </span>Defining (not assigning) <code>__proto__</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_defining-not-assigning-proto" aria-hidden="true">#</a></h5>
+
+<p>In ECMAScript 6, if you <a href="ch_oop-besides-classes.html#sec_assigning-vs-defining-properties">define</a> the own property <code>__proto__</code>, no special functionality is triggered and the getter/setter <code>Object.prototype.__proto__</code> is overridden:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperty</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="s1">&apos;__proto__&apos;</code><code class="p">,</code> <code class="p">{</code> <code class="nx">value</code><code class="o">:</code> <code class="mi">123</code> <code class="p">})</code>
+
+<code class="nb">Object</code><code class="p">.</code><code class="nx">keys</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code> <code class="c1">// [ &apos;__proto__&apos; ]</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">__proto__</code><code class="p">);</code> <code class="c1">// 123</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_objects-that-dont-have-objectprototype-as-a-prototype">
+<span class="section-number">14.6.3.2 </span>Objects that don&#x2019;t have <code>Object.prototype</code> as a prototype <a class="header-anchor" href="ch_oop-besides-classes.html#_objects-that-dont-have-objectprototype-as-a-prototype" aria-hidden="true">#</a></h5>
+
+<p>The <code>__proto__</code> getter/setter is provided via <code>Object.prototype</code>. Therefore, an object without <code>Object.prototype</code> in its prototype chain doesn&#x2019;t have the getter/setter, either. In the following code, <code>dict</code> is an example of such an object &#x2013; it does not have a prototype. As a result, <code>__proto__</code> now works like any other property:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="kr">const</code> <code class="nx">dict</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="kc">null</code><code class="p">);</code>
+<code class="o">&gt;</code> <code class="s1">&apos;__proto__&apos;</code> <code class="k">in</code> <code class="nx">dict</code>
+<code class="kc">false</code>
+<code class="o">&gt;</code> <code class="nx">dict</code><code class="p">.</code><code class="nx">__proto__</code> <code class="o">=</code> <code class="s1">&apos;abc&apos;</code><code class="p">;</code>
+<code class="o">&gt;</code> <code class="nx">dict</code><code class="p">.</code><code class="nx">__proto__</code>
+<code class="s1">&apos;abc&apos;</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_proto-and-dict-objects">
+<span class="section-number">14.6.3.3 </span><code>__proto__</code> and dict objects <a class="header-anchor" href="ch_oop-besides-classes.html#_proto-and-dict-objects" aria-hidden="true">#</a></h5>
+
+<p>If you want to use an object as a dictionary then it is best if it doesn&#x2019;t have a prototype. That&#x2019;s why prototype-less objects are also called <a href="http://speakingjs.com/es5/ch17.html#dict_pattern"><em>dict objects</em></a>. In ES6, you don&#x2019;t even have to escape the property key <code>&apos;__proto__&apos;</code> for dict objects, because it doesn&#x2019;t trigger any special functionality.</p>
+
+<p><code>__proto__</code> as an operator in an object literal lets you create dict objects more concisely:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">dictObj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">__proto__</code><code class="o">:</code> <code class="kc">null</code><code class="p">,</code>
+    <code class="nx">yes</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+    <code class="nx">no</code><code class="o">:</code> <code class="kc">false</code><code class="p">,</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Note that in ES6, you should normally prefer <a href="ch_maps-sets.html#ch_maps-sets">the built-in data structure <code>Map</code></a> to dict objects, especially if keys are not fixed.</p>
+
+<h5 id="_proto-and-json">
+<span class="section-number">14.6.3.4 </span><code>__proto__</code> and JSON <a class="header-anchor" href="ch_oop-besides-classes.html#_proto-and-json" aria-hidden="true">#</a></h5>
+
+<p>Prior to ES6, the following could happen in a JavaScript engine:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; JSON.parse(&apos;{&quot;__proto__&quot;: []}&apos;) instanceof Array
+true
+</pre></div>
+
+</figure>
+
+<p>With <code>__proto__</code> being a getter/setter in ES6, <code>JSON.parse()</code> works fine, because it defines properties, it doesn&#x2019;t assign them (if implemented properly, <a href="https://code.google.com/p/v8/issues/detail?id=621">an older version of V8 did assign</a>).</p>
+
+<p><code>JSON.stringify()</code> isn&#x2019;t affected by <code>__proto__</code>, either, because it only considers own properties. Objects that have an own property whose name is <code>__proto__</code> work fine:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; JSON.stringify({[&apos;__proto__&apos;]: true})
+&apos;{&quot;__proto__&quot;:true}&apos;
+</pre></div>
+
+</figure>
+
+
+<h4 id="_detecting-support-for-es6-style-proto">
+<span class="section-number">14.6.4 </span>Detecting support for ES6-style <code>__proto__</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_detecting-support-for-es6-style-proto" aria-hidden="true">#</a></h4>
+
+<p>Support for ES6-style <code>__proto__</code> varies from engine to engine. Consult kangax&#x2019; ECMAScript 6 compatibility table for information on the status quo:</p>
+
+<ul>
+  <li><a href="http://kangax.github.io/compat-table/es6/#Object.prototype.__proto__"><code>Object.prototype.__proto__</code></a></li>
+  <li><a href="http://kangax.github.io/compat-table/es6/#__proto___in_object_literals"><code>__proto__</code> in object literals</a></li>
+</ul>
+
+<p>The following two sections describe how you can programmatically detect whether an engine supports either of the two kinds of <code>__proto__</code>.</p>
+
+<h5 id="_feature-proto-as-gettersetter">
+<span class="section-number">14.6.4.1 </span>Feature: <code>__proto__</code> as getter/setter <a class="header-anchor" href="ch_oop-besides-classes.html#_feature-proto-as-gettersetter" aria-hidden="true">#</a></h5>
+
+<p>A simple check for the getter/setter:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">supported</code> <code class="o">=</code> <code class="p">{}.</code><code class="nx">hasOwnProperty</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nb">Object</code><code class="p">.</code><code class="nx">prototype</code><code class="p">,</code> <code class="s1">&apos;__proto__&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>A more sophisticated check:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">desc</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nb">Object</code><code class="p">.</code><code class="nx">prototype</code><code class="p">,</code> <code class="s1">&apos;__proto__&apos;</code><code class="p">);</code>
+<code class="kd">var</code> <code class="nx">supported</code> <code class="o">=</code> <code class="p">(</code>
+    <code class="k">typeof</code> <code class="nx">desc</code><code class="p">.</code><code class="nx">get</code> <code class="o">===</code> <code class="s1">&apos;function&apos;</code> <code class="o">&amp;&amp;</code> <code class="k">typeof</code> <code class="nx">desc</code><code class="p">.</code><code class="nx">set</code> <code class="o">===</code> <code class="s1">&apos;function&apos;</code>
+<code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_feature-proto-as-an-operator-in-an-object-literal">
+<span class="section-number">14.6.4.2 </span>Feature: <code>__proto__</code> as an operator in an object literal <a class="header-anchor" href="ch_oop-besides-classes.html#_feature-proto-as-an-operator-in-an-object-literal" aria-hidden="true">#</a></h5>
+
+<p>You can use the following check:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">supported</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getPrototypeOf</code><code class="p">({</code><code class="nx">__proto__</code><code class="o">:</code> <code class="kc">null</code><code class="p">})</code> <code class="o">===</code> <code class="kc">null</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="dunder-proto">
+<span class="section-number">14.6.5 </span><code>__proto__</code> is pronounced &#x201C;dunder proto&#x201D; <a class="header-anchor" href="ch_oop-besides-classes.html#dunder-proto" aria-hidden="true">#</a></h4>
+
+<p>Bracketing names with double underscores is a common practice in Python to avoid name clashes between meta-data (such as <code>__proto__</code>) and data (user-defined properties). That practice will never become common in JavaScript, because it now has symbols for this purpose. However, we can look to the Python community for ideas on how to pronounce double underscores.</p>
+
+<p>The following pronunciation has been <a href="http://nedbatchelder.com/blog/200605/dunder.html">suggested</a> by Ned Batchelder:</p>
+
+<blockquote>
+  <p>An awkward thing about programming in Python: there are lots of double underscores. For example, the standard method names beneath the syntactic sugar have names like <code>__getattr__</code>, constructors are <code>__init__</code>, built-in operators can be overloaded with <code>__add__</code>, and so on. [&#x2026;]</p>
+
+  <p>My problem with the double underscore is that it&#x2019;s hard to say. How do you pronounce <code>__init__</code>? &#x201C;underscore underscore init underscore underscore&#x201D;? &#x201C;under under init under under&#x201D;? Just plain &#x201C;init&#x201D; seems to leave out something important.</p>
+
+  <p>I have a solution: double underscore should be pronounced &#x201C;dunder&#x201D;. So <code>__init__</code> is &#x201C;dunder init dunder&#x201D;, or just &#x201C;dunder init&#x201D;.</p>
+</blockquote>
+
+<p>Thus, <code>__proto__</code> is pronounced &#x201C;dunder proto&#x201D;. The chances for this pronunciation catching on are good, JavaScript creator Brendan Eich uses it.</p>
+
+
+<h4 id="_recommendations-for-proto">
+<span class="section-number">14.6.6 </span>Recommendations for <code>__proto__</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_recommendations-for-proto" aria-hidden="true">#</a></h4>
+
+<p>It is nice how well ES6 turns <code>__proto__</code> from something obscure into something that is easy to understand.</p>
+
+<p>However, I still recommend not to use it. It is effectively a deprecated feature and not part of the core standard. You can&#x2019;t rely on it being there for code that must run on all engines.</p>
+
+<p>More recommendations:</p>
+
+<ul>
+  <li>Use <code>Object.getPrototypeOf()</code> to get the prototype of an object.</li>
+  <li>Prefer <code>Object.create()</code> to create a new object with a given prototype. Avoid <code>Object.setPrototypeOf()</code>, which hampers performance on many engines.</li>
+  <li>I actually like <code>__proto__</code> as an operator in an object literal. It is useful for demonstrating prototypal inheritance and for creating dict objects. However, the previously mentioned caveats do apply.</li>
+</ul>
+
+
+<h3 id="sec_enumerability-es6">
+<span class="section-number">14.7 </span>Enumerability in ECMAScript 6 <a class="header-anchor" href="ch_oop-besides-classes.html#sec_enumerability-es6" aria-hidden="true">#</a></h3>
+
+<p>Enumerability is an <em>attribute</em> of object properties. This section explains how it works in ECMAScript 6. Let&#x2019;s first explore what attributes are.</p>
+
+<h4 id="_property-attributes">
+<span class="section-number">14.7.1 </span>Property attributes <a class="header-anchor" href="ch_oop-besides-classes.html#_property-attributes" aria-hidden="true">#</a></h4>
+
+<p>Each object has zero or more <em>properties</em>. Each property has a key and three or more <em>attributes</em>, named slots that store the data of the property (in other words, a property is itself much like a JavaScript object or like a record with fields in a database).</p>
+
+<p>ECMAScript 6 supports the following attributes (as does ES5):</p>
+
+<ul>
+  <li>All properties have the attributes:
+    <ul>
+      <li>
+<code>enumerable</code>: Setting this attribute to <code>false</code> hides the property from some operations.</li>
+      <li>
+<code>configurable</code>: Setting this attribute to <code>false</code> prevents several changes to a property (attributes except <code>value</code> can&#x2019;t be change, property can&#x2019;t be deleted, etc.).</li>
+    </ul>
+  </li>
+  <li>Normal properties (data properties, methods) have the attributes:
+    <ul>
+      <li>
+<code>value</code>: holds the value of the property.</li>
+      <li>
+<code>writable</code>: controls whether the property&#x2019;s value can be changed.</li>
+    </ul>
+  </li>
+  <li>Accessors (getters/setters) have the attributes:
+    <ul>
+      <li>
+<code>get</code>: holds the getter (a function).</li>
+      <li>
+<code>set</code>: holds the setter (a function).</li>
+    </ul>
+  </li>
+</ul>
+
+<p>You can retrieve the attributes of a property via <code>Object.getOwnPropertyDescriptor()</code>, which returns the attributes as a JavaScript object:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nt">const</code> <code class="nt">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="n">foo</code><code class="o">:</code> <code class="m">123</code> <code class="p">}</code><code class="o">;</code>
+<code class="o">&gt;</code> <code class="nt">Object</code><code class="nc">.getOwnPropertyDescriptor</code><code class="o">(</code><code class="nt">obj</code><code class="o">,</code> <code class="s1">&apos;foo&apos;</code><code class="o">)</code>
+<code class="p">{</code> <code class="n">value</code><code class="o">:</code> <code class="m">123</code><code class="o">,</code>
+  <code class="n">writable</code><code class="o">:</code> <code class="n">true</code><code class="o">,</code>
+  <code class="n">enumerable</code><code class="o">:</code> <code class="n">true</code><code class="o">,</code>
+  <code class="n">configurable</code><code class="o">:</code> <code class="n">true</code> <code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>This section explains how the attribute <code>enumerable</code> works in ES6. All other attributes and how to change attributes is explained in Sect. &#x201C;<a href="http://speakingjs.com/es5/ch17.html#property_attributes">Property Attributes and Property Descriptors</a>&#x201D; in &#x201C;Speaking JavaScript&#x201D;.</p>
+
+
+<h4 id="_constructs-affected-by-enumerability">
+<span class="section-number">14.7.2 </span>Constructs affected by enumerability <a class="header-anchor" href="ch_oop-besides-classes.html#_constructs-affected-by-enumerability" aria-hidden="true">#</a></h4>
+
+<p>ECMAScript 5:</p>
+
+<ul>
+  <li>
+<code>for-in</code> loop: traverses the string keys of own and inherited enumerable properties.</li>
+  <li>
+<code>Object.keys()</code>: returns the string keys of enumerable own properties.</li>
+  <li>
+<code>JSON.stringify()</code>: only stringifies enumerable own properties with string keys.</li>
+</ul>
+
+<p>ECMAScript 6:</p>
+
+<ul>
+  <li>
+<code>Object.assign()</code>: only copies enumerable own properties (both string keys and symbol keys are considered).</li>
+</ul>
+
+<p><code>for-in</code> is the only built-in operations where enumerability matters for inherited properties. All other operations only work with own properties.</p>
+
+
+<h4 id="_use-cases-for-enumerability">
+<span class="section-number">14.7.3 </span>Use cases for enumerability <a class="header-anchor" href="ch_oop-besides-classes.html#_use-cases-for-enumerability" aria-hidden="true">#</a></h4>
+
+<p>Unfortunately, enumerability is quite an idiosyncratic feature. This section presents several use cases for it and argues that, apart from protecting legacy code from breaking, its usefulness is limited.</p>
+
+
+<h5 id="_use-case-hiding-properties-from-the-for-in-loop">
+<span class="section-number">14.7.3.1 </span>Use case: Hiding properties from the <code>for-in</code> loop <a class="header-anchor" href="ch_oop-besides-classes.html#_use-case-hiding-properties-from-the-for-in-loop" aria-hidden="true">#</a></h5>
+
+<p>The <code>for-in</code> loop traverses <em>all</em> enumerable properties of an object, own and inherited ones. Therefore, the attribute <code>enumerable</code> is used to hide properties that should not be traversed. That was the reason for introducing enumerability in ECMAScript 1.</p>
+
+<h6 id="_non-enumerability-in-the-language">
+<span class="section-number">14.7.3.1.1 </span>Non-enumerability in the language <a class="header-anchor" href="ch_oop-besides-classes.html#_non-enumerability-in-the-language" aria-hidden="true">#</a></h6>
+
+<p>Non-enumerable properties occur in the following locations in the language:</p>
+
+<ul>
+  <li>All <code>prototype</code> properties of built-in classes are non-enumerable:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; const desc = Object.getOwnPropertyDescriptor.bind(Object);
+  &gt; desc(Object.prototype, &apos;toString&apos;).enumerable
+  false
+</pre></div>
+
+    </figure>
+  </li>
+  <li>All <code>prototype</code> properties of classes are non-enumerable:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; desc(class {foo() {}}.prototype, &apos;foo&apos;).enumerable
+  false
+</pre></div>
+
+    </figure>
+  </li>
+  <li>In Arrays, <code>length</code> is not enumerable, which means that <code>for-in</code> only traverses indices. (However, that can easily change if you add a property via assignment, which is makes it enumerable.)
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; desc([], &apos;length&apos;).enumerable
+  false
+  &gt; desc([&apos;a&apos;], &apos;0&apos;).enumerable
+  true
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>The main reason for making all of these properties non-enumerable is to hide them (especially the inherited ones) from legacy code that uses the <code>for-in</code> loop or <code>$.extend()</code> (and similar operations that copy both inherited and own properties; see next section). Both operations should be avoided in ES6. Hiding them ensures that the legacy code doesn&#x2019;t break.</p>
+
+
+<h5 id="_use-case-marking-properties-as-not-to-be-copied">
+<span class="section-number">14.7.3.2 </span>Use case: Marking properties as not to be copied <a class="header-anchor" href="ch_oop-besides-classes.html#_use-case-marking-properties-as-not-to-be-copied" aria-hidden="true">#</a></h5>
+
+<h6 id="_historical-precedents">
+<span class="section-number">14.7.3.2.1 </span>Historical precedents <a class="header-anchor" href="ch_oop-besides-classes.html#_historical-precedents" aria-hidden="true">#</a></h6>
+
+<p>When it comes to copying properties, there are two important historical precedents that take enumerability into consideration:</p>
+
+<ul>
+  <li>
+<a href="http://api.prototypejs.org/language/Object/extend/">Prototype&#x2019;s <code>Object.extend(destination, source)</code></a>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">obj1</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">({</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code> <code class="p">});</code>
+  <code class="nb">Object</code><code class="p">.</code><code class="nx">extend</code><code class="p">({},</code> <code class="nx">obj1</code><code class="p">);</code> <code class="c1">// { foo: 123 }</code>
+
+  <code class="kr">const</code> <code class="nx">obj2</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperty</code><code class="p">({},</code> <code class="s1">&apos;foo&apos;</code><code class="p">,</code> <code class="p">{</code>
+      <code class="nx">value</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code>
+      <code class="nx">enumerable</code><code class="o">:</code> <code class="kc">false</code>
+  <code class="p">});</code>
+  <code class="nb">Object</code><code class="p">.</code><code class="nx">extend</code><code class="p">({},</code> <code class="nx">obj2</code><code class="p">)</code> <code class="c1">// {}</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>
+<a href="https://api.jquery.com/jquery.extend/">jQuery&#x2019;s <code>$.extend(target, source1, source2, &#xB7;&#xB7;&#xB7;)</code></a> copies all enumerable own and inherited properties of <code>source1</code> etc. into own properties of <code>target</code>.
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">obj1</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">({</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code> <code class="p">});</code>
+  <code class="nx">$</code><code class="p">.</code><code class="nx">extend</code><code class="p">({},</code> <code class="nx">obj1</code><code class="p">);</code> <code class="c1">// { foo: 123 }</code>
+
+  <code class="kr">const</code> <code class="nx">obj2</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperty</code><code class="p">({},</code> <code class="s1">&apos;foo&apos;</code><code class="p">,</code> <code class="p">{</code>
+      <code class="nx">value</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code>
+      <code class="nx">enumerable</code><code class="o">:</code> <code class="kc">false</code>
+  <code class="p">});</code>
+  <code class="nx">$</code><code class="p">.</code><code class="nx">extend</code><code class="p">({},</code> <code class="nx">obj2</code><code class="p">)</code> <code class="c1">// {}</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>Problems with this way of copying properties:</p>
+
+<ul>
+  <li>Turning inherited source properties into own target properties is rarely what you want. That&#x2019;s why enumerability is used to hide inherited properties.</li>
+  <li>Which properties to copy and which not often depends on the task at hand, it rarely makes sense to have a single flag for everything. A better choice is to provide the copying operation with a <em>predicate</em> (a callback that returns a boolean) that tells it when to consider a property.</li>
+</ul>
+
+<p>The only instance property that is non-enumerable in the standard library is property <code>length</code> of Arrays. However, that property only needs to be hidden due to it magically updating itself via other properties. You can&#x2019;t create that kind of magic property for your own objects (short of using a Proxy).</p>
+
+<h6 id="_es6-objectassign">
+<span class="section-number">14.7.3.2.2 </span>ES6: <code>Object.assign()</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_es6-objectassign" aria-hidden="true">#</a></h6>
+
+<p>In ES6, <a href="ch_oop-besides-classes.html#Object_assign"><code>Object.assign(target, source_1, source_2, &#xB7;&#xB7;&#xB7;)</code></a> can be used to merge the sources into the target. All own enumerable properties of the sources are considered (that is, keys can be either strings or symbols). <code>Object.assign()</code> uses a &#x201C;get&#x201D; operation to read a value from a source and a &#x201C;set&#x201D; operation to write a value to the target.</p>
+
+<p>With regard to enumerability, <code>Object.assign()</code> continues the tradition of <code>Object.extend()</code> and <code>$.extend()</code>. <a href="https://mail.mozilla.org/pipermail/es-discuss/2012-October/025934.html">Quoting Yehuda Katz</a>:</p>
+
+<blockquote>
+  <p>Object.assign would pave the cowpath of all of the extend() APIs already in
+circulation. We thought the precedent of not copying enumerable methods in
+those cases was enough reason for Object.assign to have this behavior.</p>
+</blockquote>
+
+<p>In other words: <code>Object.assign()</code> was created with an upgrade path from <code>$.extend()</code> (and similar) in mind. Its approach is cleaner than <code>$.extend</code>&#x2019;s, because it ignores inherited properties.</p>
+
+
+<h5 id="_marking-properties-as-private">
+<span class="section-number">14.7.3.3 </span>Marking properties as private <a class="header-anchor" href="ch_oop-besides-classes.html#_marking-properties-as-private" aria-hidden="true">#</a></h5>
+
+<p>If you make a property non-enumerable, it can&#x2019;t by seen by <code>Object.keys()</code> and the <code>for-in</code> loop, anymore. With regard to those mechanisms, the property is private.</p>
+
+<p>However, there are several problems with this approach:</p>
+
+<ul>
+  <li>When copying an object, you normally want to copy private properties. That clashes making properties non-enumerable that shouldn&#x2019;t be copied (see previous section).</li>
+  <li>The property isn&#x2019;t really private. Getting, setting and several other mechanisms make no distinction between enumerable and non-enumerable properties.</li>
+  <li>When working with code either as source or interactively, you can&#x2019;t immediately see whether a property is enumerable or not. A naming convention (such as prefixing property names with an underscore) is easier to discover.</li>
+  <li>You can&#x2019;t use enumerability to distinguish between public and private methods, because methods in prototypes are non-enumerable by default.</li>
+</ul>
+
+
+<h5 id="_hiding-own-properties-from-jsonstringify">
+<span class="section-number">14.7.3.4 </span>Hiding own properties from <code>JSON.stringify()</code>
+ <a class="header-anchor" href="ch_oop-besides-classes.html#_hiding-own-properties-from-jsonstringify" aria-hidden="true">#</a></h5>
+
+<p><code>JSON.stringify()</code> does not include properties in its output that are non-enumerable. You can therefore use enumerability to determine which own properties should be exported to JSON. This use case is similar to marking properties as private, the previous use case. But it is also different, because this is more about exporting and slightly different considerations apply. For example: Can an object be completely reconstructed from JSON?</p>
+
+<p>An alternative for specifying how an object should be converted to JSON is to use <code>toJSON()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code>
+    <code class="nx">toJSON</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="p">{</code> <code class="nx">bar</code><code class="o">:</code> <code class="mi">456</code> <code class="p">};</code>
+    <code class="p">},</code>
+<code class="p">};</code>
+<code class="nx">JSON</code><code class="p">.</code><code class="nx">stringify</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code> <code class="c1">// &apos;{&quot;bar&quot;:456}&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>I find <code>toJSON()</code> cleaner than enumerability for the current use case. It also gives you more control, because you can export properties that don&#x2019;t exist on the object.</p>
+
+
+<h4 id="_naming-inconsistencies">
+<span class="section-number">14.7.4 </span>Naming inconsistencies <a class="header-anchor" href="ch_oop-besides-classes.html#_naming-inconsistencies" aria-hidden="true">#</a></h4>
+
+<p>In general, a shorter name means that only enumerable properties are considered:</p>
+
+<ul>
+  <li>
+<code>Object.keys()</code> ignores non-enumerable properties</li>
+  <li>
+<code>Object.getOwnPropertyNames()</code> lists all property names</li>
+</ul>
+
+<p>However, <code>Reflect.ownKeys()</code> deviates from that rule, it ignores enumerability and returns the keys of all properties. Additionally, starting with ES6, the following distinction is made:</p>
+
+<ul>
+  <li>
+<em>Property keys</em> are either strings or symbols.</li>
+  <li>
+<em>Property names</em> are only strings.</li>
+</ul>
+
+<p>Therefore, a better name for <code>Object.keys()</code> would now be <code>Object.names()</code>.</p>
+
+
+<h4 id="_looking-ahead">
+<span class="section-number">14.7.5 </span>Looking ahead <a class="header-anchor" href="ch_oop-besides-classes.html#_looking-ahead" aria-hidden="true">#</a></h4>
+
+<p>It seems to me that enumerability is only suited for hiding properties from the <code>for-in</code> loop and <code>$.extend()</code> (and similar operations). Both are legacy features, you should avoid them in new code. As for the other use cases:</p>
+
+<ul>
+  <li>I don&#x2019;t think there is a need for a general flag specifying whether or not to copy a property.</li>
+  <li>Non-enumerability does not work well as a way to keep properties private.</li>
+  <li>The <code>toJSON()</code> method is more powerful and explicit than enumerability when it comes to controlling how to convert an object to JSON.</li>
+</ul>
+
+<p>I&#x2019;m not sure what the best strategy is for enumerability going forward. If, with ES6, we had started to pretend that it didn&#x2019;t exist (except for making prototype properties non-enumerable so that old code doesn&#x2019;t break), we might eventually have been able to deprecate enumerability. However, <code>Object.assign()</code> considering enumerability runs counter that strategy (but it does so for a valid reason, backward compatibility).</p>
+
+<p>In my own ES6 code, I&#x2019;m not using enumerability, except (implicitly) for classes whose <code>prototype</code> methods are non-enumerable.</p>
+
+<p>Lastly, when using an interactive command line, I occasionally miss an operation that returns <em>all</em> property keys of an object, not just the own ones (<code>Reflect.ownKeys</code>). Such an operation would provide a nice overview of the contents of an object.</p>
+
+
+<h3 id="sec_customizing-oop-via-well-known-symbols">
+<span class="section-number">14.8 </span>Customizing basic language operations via well-known symbols <a class="header-anchor" href="ch_oop-besides-classes.html#sec_customizing-oop-via-well-known-symbols" aria-hidden="true">#</a></h3>
+
+<p>This section explains how you can customize basic language operations by using the following well-known symbols as property keys:</p>
+
+
+<ul>
+  <li>
+<code>Symbol.hasInstance</code> (method)<br>
+Lets an object <code>C</code> customize the behavior of <code>x instanceof C</code>.</li>
+  <li>
+<code>Symbol.toPrimitive</code> (method)<br>
+Lets an object customize how it is converted to a primitive value. This is the first step whenever something is coerced to a primitive type (via operators etc.).</li>
+  <li>
+<code>Symbol.toStringTag</code> (string)<br>
+Called by <code>Object.prototype.toString()</code> to compute the default string description of an object <code>obj</code>: &#x2018;[object &#x2018;+obj[Symbol.toStringTag]+&#x2019;]&#x2019;.</li>
+  <li>
+<code>Symbol.unscopables</code> (Object)<br>
+Lets an object hide some properties from the <code>with</code> statement.</li>
+</ul>
+
+
+<h4 id="_property-key-symbolhasinstance-method">
+<span class="section-number">14.8.1 </span>Property key <code>Symbol.hasInstance</code> (method) <a class="header-anchor" href="ch_oop-besides-classes.html#_property-key-symbolhasinstance-method" aria-hidden="true">#</a></h4>
+
+<p>An object <code>C</code> can customize the behavior of the <code>instanceof</code> operator via a method with the key <code>Symbol.hasInstance</code> that has the following signature:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">hasInstance</code><code class="p">](</code><code class="nx">potentialInstance</code> <code class="o">:</code> <code class="nx">any</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<p><code>x instanceof C</code> works as follows in ES6:</p>
+
+<ul>
+  <li>If <code>C</code> is not an object, throw a <code>TypeError</code>.</li>
+  <li>If the method exists, call <code>C[Symbol.hasInstance](x)</code>, coerce the result to boolean and return it.</li>
+  <li>Otherwise, compute and return the result according to the traditional algorithm (<code>C</code> must be callable, <code>C.prototype</code> in the prototype chain of <code>x</code>, etc.).</li>
+</ul>
+
+<h5 id="_uses-in-the-standard-library">
+<span class="section-number">14.8.1.1 </span>Uses in the standard library <a class="header-anchor" href="ch_oop-besides-classes.html#_uses-in-the-standard-library" aria-hidden="true">#</a></h5>
+
+<p>The only method in the standard library that has this key is:</p>
+
+<ul>
+  <li><code>Function.prototype[Symbol.hasInstance]()</code></li>
+</ul>
+
+<p>This is the implementation of <code>instanceof</code> that all functions (including classes) use by default. <a href="http://www.ecma-international.org/ecma-262/6.0/sec-function.prototype-@@hasinstance">Quoting the spec</a>:</p>
+
+<blockquote>
+  <p>This property is non-writable and non-configurable to prevent tampering that could be used to globally expose the target function of a bound function.</p>
+</blockquote>
+
+<p>The tampering is possible because the traditional <code>instanceof</code> algorithm, <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-ordinaryhasinstance"><code>OrdinaryHasInstance()</code></a>, applies <code>instanceof</code> to the target function if it encounters a bound function.</p>
+
+<p>Given that this property is read-only, you can&#x2019;t use assignment to override it, <a href="ch_oop-besides-classes.html#sec_assigning-vs-defining-properties">as mentioned earlier</a>.</p>
+
+<h5 id="_example-checking-whether-a-value-is-an-object">
+<span class="section-number">14.8.1.2 </span>Example: checking whether a value is an object <a class="header-anchor" href="ch_oop-besides-classes.html#_example-checking-whether-a-value-is-an-object" aria-hidden="true">#</a></h5>
+
+<p>As an example, let&#x2019;s implement an object <code>ReferenceType</code> whose &#x201C;instances&#x201D; are all objects, not just objects that are instances of <code>Object</code> (and therefore have <code>Object.prototype</code> in their prototype chains).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">ReferenceType</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">hasInstance</code><code class="p">](</code><code class="nx">value</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="p">(</code><code class="nx">value</code> <code class="o">!==</code> <code class="kc">null</code>
+            <code class="o">&amp;&amp;</code> <code class="p">(</code><code class="k">typeof</code> <code class="nx">value</code> <code class="o">===</code> <code class="s1">&apos;object&apos;</code>
+                <code class="o">||</code> <code class="k">typeof</code> <code class="nx">value</code> <code class="o">===</code> <code class="s1">&apos;function&apos;</code><code class="p">));</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="kr">const</code> <code class="nx">obj1</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj1</code> <code class="k">instanceof</code> <code class="nb">Object</code><code class="p">);</code> <code class="c1">// true</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj1</code> <code class="k">instanceof</code> <code class="nx">ReferenceType</code><code class="p">);</code> <code class="c1">// true</code>
+
+<code class="kr">const</code> <code class="nx">obj2</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="kc">null</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj2</code> <code class="k">instanceof</code> <code class="nb">Object</code><code class="p">);</code> <code class="c1">// false</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj2</code> <code class="k">instanceof</code> <code class="nx">ReferenceType</code><code class="p">);</code> <code class="c1">// true</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_property-key-symboltoprimitive-method">
+<span class="section-number">14.8.2 </span>Property key <code>Symbol.toPrimitive</code> (method) <a class="header-anchor" href="ch_oop-besides-classes.html#_property-key-symboltoprimitive-method" aria-hidden="true">#</a></h4>
+
+<p><code>Symbol.toPrimitive</code> lets an object customize how it is <em>coerced</em> (converted automatically) to a primitive value.</p>
+
+<p>Many JavaScript operations coerce values to the types that they need.</p>
+
+<ul>
+  <li>The multiplication operator (<code>*</code>) coerces its operands to numbers.</li>
+  <li>
+<code>new Date(year, month, date)</code> coerces its parameters to numbers.</li>
+  <li>
+<code>parseInt(string , radix)</code> coerces its first parameter to a string.</li>
+</ul>
+
+<p>The following are the most common types that values are coerced to:</p>
+
+<ul>
+  <li>Boolean: Coercion returns <code>true</code> for truthy values, <code>false</code> for falsy values. Objects are always truthy (even <code>new Boolean(false)</code>).</li>
+  <li>Number: Coercion converts objects to primitives first. Primitives are then converted to numbers (<code>null</code> &#x2192; <code>0</code>, <code>true</code> &#x2192; <code>1</code>, <code>&apos;123&apos;</code> &#x2192; <code>123</code>, etc.).</li>
+  <li>String: Coercion converts objects to primitives first. Primitives are then converted to strings (<code>null</code> &#x2192; <code>&apos;null&apos;</code>, <code>true</code> &#x2192; <code>&apos;true&apos;</code>, <code>123</code> &#x2192; <code>&apos;123&apos;</code>, etc.).</li>
+  <li>Object: The coercion <em>wraps</em> primitive values (booleans <code>b</code> via <code>new Boolean(b)</code>, numbers <code>n</code> via <code>new Number(n)</code>, etc.).</li>
+</ul>
+
+<p>Thus, for numbers and strings, the first step is to ensure that a value is any kind of primitive. That is handled by the spec-internal operation <code>ToPrimitive()</code>, which has three modes:</p>
+
+<ul>
+  <li>Number: the caller needs a number.</li>
+  <li>String: the caller needs a string.</li>
+  <li>Default: the caller needs either a number or a string.</li>
+</ul>
+
+<p>The default mode is only used by:</p>
+
+<ul>
+  <li>Equality operator (<code>==</code>)</li>
+  <li>Addition operator (<code>+</code>)</li>
+  <li>
+<code>new Date(value)</code> (exactly one parameter!)</li>
+</ul>
+
+<p>If the value is a primitive then <code>ToPrimitive()</code> is already done. Otherwise, the value is an object <code>obj</code>, which is converted to a primitive as follows:</p>
+
+<ul>
+  <li>Number mode: Return the result of <code>obj.valueOf()</code> if it is primitive. Otherwise, return the result of <code>obj.toString()</code> if it is primitive. Otherwise, throw a <code>TypeError</code>.</li>
+  <li>String mode: works like Number mode, but <code>toString()</code> is called first, <code>valueOf()</code> second.</li>
+  <li>Default mode: works exactly like Number mode.</li>
+</ul>
+
+<p>This normal algorithm can be overridden by giving an object a method with the following signature:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">toPrimitive</code><code class="p">](</code><code class="nx">hint</code> <code class="o">:</code> <code class="s1">&apos;default&apos;</code> <code class="o">|</code> <code class="s1">&apos;string&apos;</code> <code class="o">|</code> <code class="s1">&apos;number&apos;</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<p>In the standard library, there are two such methods:</p>
+
+<ul>
+  <li>
+<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-symbol.prototype-@@toprimitive"><code>Symbol.prototype[Symbol.toPrimitive](hint)</code></a>
+prevents <code>toString()</code> from being called (which throws an exception).</li>
+  <li>
+<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-date.prototype-@@toprimitive"><code>Date.prototype[Symbol.toPrimitive](hint)</code></a>
+This method implements behavior that deviates from the default algorithm. Quoting the specification: &#x201C;Date objects are unique among built-in ECMAScript object in that they treat <code>&apos;default&apos;</code> as being equivalent to <code>&apos;string&apos;</code>. All other built-in ECMAScript objects treat <code>&apos;default&apos;</code> as being equivalent to <code>&apos;number&apos;</code>.&#x201D;</li>
+</ul>
+
+<h5 id="_example-1">
+<span class="section-number">14.8.2.1 </span>Example <a class="header-anchor" href="ch_oop-besides-classes.html#_example-1" aria-hidden="true">#</a></h5>
+
+<p>The following code demonstrates how coercion affects the object <code>obj</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">toPrimitive</code><code class="p">](</code><code class="nx">hint</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">switch</code> <code class="p">(</code><code class="nx">hint</code><code class="p">)</code> <code class="p">{</code>
+            <code class="k">case</code> <code class="s1">&apos;number&apos;</code><code class="o">:</code>
+                <code class="k">return</code> <code class="mi">123</code><code class="p">;</code>
+            <code class="k">case</code> <code class="s1">&apos;string&apos;</code><code class="o">:</code>
+                <code class="k">return</code> <code class="s1">&apos;str&apos;</code><code class="p">;</code>
+            <code class="k">case</code> <code class="s1">&apos;default&apos;</code><code class="o">:</code>
+                <code class="k">return</code> <code class="s1">&apos;default&apos;</code><code class="p">;</code>
+            <code class="k">default</code><code class="o">:</code>
+                <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">();</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="mi">2</code> <code class="o">*</code> <code class="nx">obj</code><code class="p">);</code> <code class="c1">// 246</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="mi">3</code> <code class="o">+</code> <code class="nx">obj</code><code class="p">);</code> <code class="c1">// &apos;3default&apos;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code> <code class="o">==</code> <code class="s1">&apos;default&apos;</code><code class="p">);</code> <code class="c1">// true</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nb">String</code><code class="p">(</code><code class="nx">obj</code><code class="p">));</code> <code class="c1">// &apos;str&apos;</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_property-key-symboltostringtag-string">
+<span class="section-number">14.8.3 </span>Property key <code>Symbol.toStringTag</code> (string) <a class="header-anchor" href="ch_oop-besides-classes.html#_property-key-symboltostringtag-string" aria-hidden="true">#</a></h4>
+
+<p>In ES5 and earlier, each object had the internal own property <code>[[Class]]</code> whose value hinted at its type. You could not access it directly, but its value was part of the string returned by <code>Object.prototype.toString()</code>, which is why that method was used for type checks, as an alternative to <code>typeof</code>.</p>
+
+<p>In ES6, there is no internal slot <code>[[Class]]</code>, anymore, and using <code>Object.prototype.toString()</code> for type checks is discouraged. In order to ensure the backwards-compatibility of that method, the public property with the key <code>Symbol.toStringTag</code> was introduced. You could say that it replaces <code>[[Class]]</code>.</p>
+
+<p><a href="http://www.ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring"><code>Object.prototype.toString()</code></a> now works as follows:</p>
+
+<ul>
+  <li>Convert <code>this</code> to an object <code>obj</code>.</li>
+  <li>Determine the <em>toString tag</em> <code>tst</code> of <code>obj</code>.</li>
+  <li>Return <code>&apos;[object &apos; + tst + &apos;]&apos;</code>.</li>
+</ul>
+
+<h5 id="_default-tostring-tags">
+<span class="section-number">14.8.3.1 </span>Default toString tags <a class="header-anchor" href="ch_oop-besides-classes.html#_default-tostring-tags" aria-hidden="true">#</a></h5>
+
+<p>The default values for various kinds of objects are shown in the following table.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Value</th>
+      <th>toString tag</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>undefined</code></td>
+      <td><code>&apos;Undefined&apos;</code></td>
+    </tr>
+    <tr>
+      <td><code>null</code></td>
+      <td><code>&apos;Null&apos;</code></td>
+    </tr>
+    <tr>
+      <td>An Array object</td>
+      <td><code>&apos;Array&apos;</code></td>
+    </tr>
+    <tr>
+      <td>A string object</td>
+      <td><code>&apos;String&apos;</code></td>
+    </tr>
+    <tr>
+      <td><code>arguments</code></td>
+      <td><code>&apos;Arguments&apos;</code></td>
+    </tr>
+    <tr>
+      <td>Something callable</td>
+      <td><code>&apos;Function&apos;</code></td>
+    </tr>
+    <tr>
+      <td>An error object</td>
+      <td><code>&apos;Error&apos;</code></td>
+    </tr>
+    <tr>
+      <td>A boolean object</td>
+      <td><code>&apos;Boolean&apos;</code></td>
+    </tr>
+    <tr>
+      <td>A number object</td>
+      <td><code>&apos;Number&apos;</code></td>
+    </tr>
+    <tr>
+      <td>A date object</td>
+      <td><code>&apos;Date&apos;</code></td>
+    </tr>
+    <tr>
+      <td>A regular expression object</td>
+      <td><code>&apos;RegExp&apos;</code></td>
+    </tr>
+    <tr>
+      <td>(Otherwise)</td>
+      <td><code>&apos;Object&apos;</code></td>
+    </tr>
+  </tbody>
+
+</table>
+
+<p>Most of the checks in the left column are performed by looking at internal slots. For example, if an object has the internal slot <code>[[Call]]</code>, it is callable.</p>
+
+<p>The following interaction demonstrates the default toString tags.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="n">Object</code><code class="p">.</code><code class="n">prototype</code><code class="p">.</code><code class="n">toString</code><code class="p">.</code><code class="n">call</code><code class="p">(</code><code class="n">null</code><code class="p">)</code>
+<code class="err">&apos;</code><code class="p">[</code><code class="n">object</code> <code class="n">Null</code><code class="p">]</code><code class="err">&apos;</code>
+<code class="o">&gt;</code> <code class="n">Object</code><code class="p">.</code><code class="n">prototype</code><code class="p">.</code><code class="n">toString</code><code class="p">.</code><code class="n">call</code><code class="p">([])</code>
+<code class="err">&apos;</code><code class="p">[</code><code class="n">object</code> <code class="n">Array</code><code class="p">]</code><code class="err">&apos;</code>
+<code class="o">&gt;</code> <code class="n">Object</code><code class="p">.</code><code class="n">prototype</code><code class="p">.</code><code class="n">toString</code><code class="p">.</code><code class="n">call</code><code class="p">({})</code>
+<code class="err">&apos;</code><code class="p">[</code><code class="n">object</code> <code class="n">Object</code><code class="p">]</code><code class="err">&apos;</code>
+<code class="o">&gt;</code> <code class="n">Object</code><code class="p">.</code><code class="n">prototype</code><code class="p">.</code><code class="n">toString</code><code class="p">.</code><code class="n">call</code><code class="p">(</code><code class="n">Object</code><code class="p">.</code><code class="n">create</code><code class="p">(</code><code class="n">null</code><code class="p">))</code>
+<code class="err">&apos;</code><code class="p">[</code><code class="n">object</code> <code class="n">Object</code><code class="p">]</code><code class="err">&apos;</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_overriding-the-default-tostring-tag">
+<span class="section-number">14.8.3.2 </span>Overriding the default toString tag <a class="header-anchor" href="ch_oop-besides-classes.html#_overriding-the-default-tostring-tag" aria-hidden="true">#</a></h5>
+
+<p>If an object has an (own or inherited) property whose key is <code>Symbol.toStringTag</code> then its value overrides the default toString tag. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="p">({}.</code><code class="n">toString</code><code class="p">())</code>
+<code class="err">&apos;</code><code class="p">[</code><code class="n">object</code> <code class="n">Object</code><code class="p">]</code><code class="err">&apos;</code>
+<code class="o">&gt;</code> <code class="p">({[</code><code class="n">Symbol</code><code class="p">.</code><code class="n">toStringTag</code><code class="p">]</code><code class="o">:</code> <code class="err">&apos;</code><code class="n">Foo</code><code class="err">&apos;</code><code class="p">}.</code><code class="n">toString</code><code class="p">())</code>
+<code class="err">&apos;</code><code class="p">[</code><code class="n">object</code> <code class="n">Foo</code><code class="p">]</code><code class="err">&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>Instances of user-defined classes get the default toString tag (of objects):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{</code> <code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="k">new</code> <code class="nx">Foo</code><code class="p">().</code><code class="nx">toString</code><code class="p">());</code> <code class="c1">// [object Object]</code>
+</pre></div>
+
+</figure>
+
+<p>One option for overriding the default is via a getter:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Bar</code> <code class="p">{</code>
+    <code class="nx">get</code> <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">toStringTag</code><code class="p">]()</code> <code class="p">{</code>
+      <code class="k">return</code> <code class="s1">&apos;Bar&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="k">new</code> <code class="nx">Bar</code><code class="p">().</code><code class="nx">toString</code><code class="p">());</code> <code class="c1">// [object Bar]</code>
+</pre></div>
+
+</figure>
+
+<p>In the JavaScript standard library, there are the following custom toString tags. Objects that have no global names are quoted with percent symbols (for example: <code>%TypedArray%</code>).</p>
+
+<ul>
+  <li>Module-like objects:
+    <ul>
+      <li>
+<code>JSON[Symbol.toStringTag]</code> &#x2192; <code>&apos;JSON&apos;</code>
+</li>
+      <li>
+<code>Math[Symbol.toStringTag]</code> &#x2192; <code>&apos;Math&apos;</code>
+</li>
+    </ul>
+  </li>
+  <li>Actual module objects <code>M</code>: <code>M[Symbol.toStringTag]</code> &#x2192; <code>&apos;Module&apos;</code>
+</li>
+  <li>Built-in classes
+    <ul>
+      <li>
+<code>ArrayBuffer.prototype[Symbol.toStringTag]</code> &#x2192; <code>&apos;ArrayBuffer&apos;</code>
+</li>
+      <li>
+<code>DataView.prototype[Symbol.toStringTag]</code> &#x2192; <code>&apos;DataView&apos;</code>
+</li>
+      <li>
+<code>Map.prototype[Symbol.toStringTag]</code> &#x2192; <code>&apos;Map&apos;</code>
+</li>
+      <li>
+<code>Promise.prototype[Symbol.toStringTag]</code> &#x2192; <code>&apos;Promise&apos;</code>
+</li>
+      <li>
+<code>Set.prototype[Symbol.toStringTag]</code> &#x2192; <code>&apos;Set&apos;</code>
+</li>
+      <li>
+<code>get %TypedArray%.prototype[Symbol.toStringTag]</code> &#x2192; <code>&apos;Uint8Array&apos;</code> etc.</li>
+      <li>
+<code>WeakMap.prototype[Symbol.toStringTag]</code> &#x2192; <code>&apos;WeakMap&apos;</code>
+</li>
+      <li>
+<code>WeakSet.prototype[Symbol.toStringTag]</code> &#x2192; <code>&apos;WeakSet&apos;</code>
+</li>
+    </ul>
+  </li>
+  <li>Iterators
+    <ul>
+      <li>
+<code>%MapIteratorPrototype%[Symbol.toStringTag]</code> &#x2192; <code>&apos;Map Iterator&apos;</code>
+</li>
+      <li>
+<code>%SetIteratorPrototype%[Symbol.toStringTag]</code> &#x2192; <code>&apos;Set Iterator&apos;</code>
+</li>
+      <li>
+<code>%StringIteratorPrototype%[Symbol.toStringTag]</code> &#x2192; <code>&apos;String Iterator&apos;</code>
+</li>
+    </ul>
+  </li>
+  <li>Miscellaneous
+    <ul>
+      <li>
+<code>Symbol.prototype[Symbol.toStringTag]</code> &#x2192; <code>&apos;Symbol&apos;</code>
+</li>
+      <li>
+<code>Generator.prototype[Symbol.toStringTag]</code> &#x2192; <code>&apos;Generator&apos;</code>
+</li>
+      <li>
+<code>GeneratorFunction.prototype[Symbol.toStringTag]</code> &#x2192; <code>&apos;GeneratorFunction&apos;</code>
+</li>
+    </ul>
+  </li>
+</ul>
+
+<p>All of the built-in properties whose keys are <code>Symbol.toStringTag</code> have the following property descriptor:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code>
+    <code class="nx">writable</code><code class="o">:</code> <code class="kc">false</code><code class="p">,</code>
+    <code class="nx">enumerable</code><code class="o">:</code> <code class="kc">false</code><code class="p">,</code>
+    <code class="nx">configurable</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><a href="ch_oop-besides-classes.html#sec_assigning-vs-defining-properties">As mentioned earlier</a>, you can&#x2019;t use assignment to override those properties, because they are read-only.</p>
+
+
+<h4 id="Symbol_unscopables">
+<span class="section-number">14.8.4 </span>Property key <code>Symbol.unscopables</code> (Object) <a class="header-anchor" href="ch_oop-besides-classes.html#Symbol_unscopables" aria-hidden="true">#</a></h4>
+
+<p><code>Symbol.unscopables</code> lets an object hide some properties from the <code>with</code> statement.</p>
+
+<p>The reason for doing so is that it allows TC39 to add new methods to <code>Array.prototype</code> without breaking old code. Note that current code rarely uses <code>with</code>, which is forbidden in strict mode and therefore ES6 modules (which are implicitly in strict mode).</p>
+
+<p>Why would adding methods to <code>Array.prototype</code> break code that uses <code>with</code> (such as the widely deployed <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=883914">Ext JS 4.2.1</a>)? Take a look at the following code. The existence of a property <code>Array.prototype.values</code> breaks <code>foo()</code>, if you call it with an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">values</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">with</code> <code class="p">(</code><code class="nx">values</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">values</code><code class="p">.</code><code class="nx">length</code><code class="p">);</code> <code class="c1">// abc (*)</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">values</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">length</code><code class="o">:</code> <code class="s1">&apos;abc&apos;</code> <code class="p">};</code>
+<code class="nx">foo</code><code class="p">([]);</code>
+</pre></div>
+
+</figure>
+
+<p>Inside the <code>with</code> statement, all properties of <code>values</code> become local variables, shadowing even <code>values</code> itself. Therefore, if <code>values</code> has a property <code>values</code> then the statement in line * logs <code>values.values.length</code> and not <code>values.length</code>.</p>
+
+<p><code>Symbol.unscopables</code> is used only once in the standard library:</p>
+
+<ul>
+  <li>
+<code>Array.prototype[Symbol.unscopables]</code>
+    <ul>
+      <li>Holds an object with the following properties (which are therefore hidden from the <code>with</code> statement): <code>copyWithin</code>, <code>entries</code>, <code>fill</code>, <code>find</code>, <code>findIndex</code>, <code>keys</code>, <code>values</code>
+</li>
+    </ul>
+  </li>
+</ul>
+
+
+<h3 id="sec_faq-obj-literals">
+<span class="section-number">14.9 </span>FAQ: object literals <a class="header-anchor" href="ch_oop-besides-classes.html#sec_faq-obj-literals" aria-hidden="true">#</a></h3>
+
+<h4 id="_can-i-use-super-in-object-literals">
+<span class="section-number">14.9.1 </span>Can I use <code>super</code> in object literals? <a class="header-anchor" href="ch_oop-besides-classes.html#_can-i-use-super-in-object-literals" aria-hidden="true">#</a></h4>
+
+<p>Yes you can! Details are explained in <a href="ch_classes.html#superproperties">the chapter on classes</a>.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_classes.html">15. Classes</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

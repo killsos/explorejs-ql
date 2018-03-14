@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Exploring ES2018 and ES2019</title>
+    <link rel="stylesheet" href="site.css" type="text/css">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="top-bar-content">
+            <a href="index.html">Homepage</a><br>
+            Please support this book:
+            <a href="">buy it (PDF, EPUB, MOBI)</a>
+            or
+            <a href="http://www.2ality.com/p/donate.html">donate</a>
+        </div>
+    </div>
+
+    <div id="page-content">
+
+        <div id="adbox">
+        <div id="adbox-explain">(Ad, please don’t block.)</div>
+                    <script async type="text/javascript" src="https://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+                </div>
+
+        <h1>Exploring ES2018 and ES2019</h1>
+        <h2>Table of contents</h2>
+        <nav id="TOC">
+<ul>
+<li><a href="pt_background.html">Background</a><ul>
+<li><a href="ch_about-book.html">About this book</a><ul>
+<li><a href="ch_about-book.html#this-book-isnt-finished-yet">This book isn’t finished, yet</a></li>
+<li><a href="ch_about-book.html#feedback-and-corrections">Feedback and corrections</a></li>
+</ul></li>
+<li><a href="ch_about-author.html">About the author</a></li>
+<li><a href="ch_tc39-process.html">The TC39 process for ECMAScript features</a><ul>
+<li><a href="ch_tc39-process.html#tc39">Who designs ECMAScript?</a></li>
+<li><a href="ch_tc39-process.html#tc39-process">How is ECMAScript designed?</a></li>
+<li><a href="ch_tc39-process.html#dont-call-them-ecmascript-20xx-features">Don’t call them ECMAScript 20xx features</a></li>
+<li><a href="ch_tc39-process.html#further-reading">Further reading</a></li>
+</ul></li>
+</ul></li>
+<li><a href="pt_es2018.html">ECMAScript 2018</a><ul>
+<li><a href="ch_asynchronous-iteration.html">Asynchronous iteration</a><ul>
+<li><a href="ch_asynchronous-iteration.html#asynchronous-iteration">Asynchronous iteration</a></li>
+<li><a href="ch_asynchronous-iteration.html#for-await-of"><code>for-await-of</code></a></li>
+<li><a href="ch_asynchronous-iteration.html#asynchronous-generators">Asynchronous generators</a></li>
+<li><a href="ch_asynchronous-iteration.html#examples">Examples</a></li>
+<li><a href="ch_asynchronous-iteration.html#whatwg-streams-are-async-iterables">WHATWG Streams are async iterables</a></li>
+<li><a href="ch_asynchronous-iteration.html#the-specification-of-asynchronous-iteration">The specification of asynchronous iteration</a></li>
+<li><a href="ch_asynchronous-iteration.html#alternatives-to-async-iteration">Alternatives to async iteration</a></li>
+<li><a href="ch_asynchronous-iteration.html#further-reading-1">Further reading</a></li>
+</ul></li>
+<li><a href="ch_rest-spread-properties.html">Rest/Spread Properties</a><ul>
+<li><a href="ch_rest-spread-properties.html#the-rest-operator-...-in-object-destructuring">The rest operator (<code>...</code>) in object destructuring</a></li>
+<li><a href="ch_rest-spread-properties.html#the-spread-operator-...-in-object-literals">The spread operator (<code>...</code>) in object literals</a></li>
+<li><a href="ch_rest-spread-properties.html#common-use-cases-for-the-object-spread-operator">Common use cases for the object spread operator</a></li>
+<li><a href="ch_rest-spread-properties.html#spreading-objects-versus-object.assign">Spreading objects versus <code>Object.assign()</code></a></li>
+</ul></li>
+<li><a href="ch_regexp-named-capture-groups.html">RegExp named capture groups</a><ul>
+<li><a href="ch_regexp-named-capture-groups.html#numbered-capture-groups">Numbered capture groups</a></li>
+<li><a href="ch_regexp-named-capture-groups.html#named-capture-groups">Named capture groups</a></li>
+<li><a href="ch_regexp-named-capture-groups.html#backreferences">Backreferences</a></li>
+<li><a href="ch_regexp-named-capture-groups.html#replace-and-named-capture-groups"><code>replace()</code> and named capture groups</a></li>
+<li><a href="ch_regexp-named-capture-groups.html#named-groups-that-dont-match">Named groups that don’t match</a></li>
+<li><a href="ch_regexp-named-capture-groups.html#implementations">Implementations</a></li>
+<li><a href="ch_regexp-named-capture-groups.html#further-reading-2">Further reading</a></li>
+</ul></li>
+<li><a href="ch_regexp-unicode-property-escapes.html">RegExp Unicode property escapes</a><ul>
+<li><a href="ch_regexp-unicode-property-escapes.html#overview">Overview</a></li>
+<li><a href="ch_regexp-unicode-property-escapes.html#unicode-character-properties">Unicode character properties</a></li>
+<li><a href="ch_regexp-unicode-property-escapes.html#unicode-property-escapes-for-regular-expressions">Unicode property escapes for regular expressions</a></li>
+<li><a href="ch_regexp-unicode-property-escapes.html#examples-1">Examples</a></li>
+<li><a href="ch_regexp-unicode-property-escapes.html#trying-it-out">Trying it out</a></li>
+<li><a href="ch_regexp-unicode-property-escapes.html#further-reading-3">Further reading</a></li>
+</ul></li>
+<li><a href="ch_regexp-lookbehind-assertions.html">RegExp lookbehind assertions</a><ul>
+<li><a href="ch_regexp-lookbehind-assertions.html#lookahead-assertions">Lookahead assertions</a></li>
+<li><a href="ch_regexp-lookbehind-assertions.html#lookbehind-assertions">Lookbehind assertions</a></li>
+<li><a href="ch_regexp-lookbehind-assertions.html#conclusions">Conclusions</a></li>
+<li><a href="ch_regexp-lookbehind-assertions.html#further-reading-4">Further reading</a></li>
+</ul></li>
+<li><a href="ch_regexp-dotall-flag.html"><code>s</code> (<code>dotAll</code>) flag for regular expressions</a><ul>
+<li><a href="ch_regexp-dotall-flag.html#overview-1">Overview</a></li>
+<li><a href="ch_regexp-dotall-flag.html#limitations-of-the-dot-.-in-regular-expressions">Limitations of the dot (<code>.</code>) in regular expressions</a></li>
+<li><a href="ch_regexp-dotall-flag.html#the-proposal">The proposal</a></li>
+<li><a href="ch_regexp-dotall-flag.html#faq">FAQ</a></li>
+</ul></li>
+<li><a href="ch_promise-prototype-finally.html"><code>Promise.prototype.finally()</code></a><ul>
+<li><a href="ch_promise-prototype-finally.html#how-does-it-work">How does it work?</a></li>
+<li><a href="ch_promise-prototype-finally.html#use-case">Use case</a></li>
+<li><a href="ch_promise-prototype-finally.html#finally-is-similar-to-finally-in-synchronous-code"><code>.finally()</code> is similar to <code>finally {}</code> in synchronous code</a></li>
+<li><a href="ch_promise-prototype-finally.html#availability">Availability</a></li>
+<li><a href="ch_promise-prototype-finally.html#further-reading-5">Further reading</a></li>
+</ul></li>
+<li><a href="ch_template-literal-revision.html">Template Literal Revision</a><ul>
+<li><a href="ch_template-literal-revision.html#tag-functions-and-escape-sequences">Tag functions and escape sequences</a></li>
+<li><a href="ch_template-literal-revision.html#problem-some-text-is-illegal-after-backslashes">Problem: some text is illegal after backslashes</a></li>
+<li><a href="ch_template-literal-revision.html#solution">Solution</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+</body>
+</html>

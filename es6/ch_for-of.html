@@ -1,0 +1,351 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>17. The for-of loop</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>17. The for-of loop</b><br>
+        <a href="index.html#toc_ch_for-of">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_for-of">
+<span class="section-number">17. </span>The <code>for-of</code> loop <a class="header-anchor" href="ch_for-of.html#ch_for-of" aria-hidden="true">#</a></h2>
+
+<hr class="scene-break">
+
+<ul>
+  <li>17.1. <a href="ch_for-of.html#sec_overview-for-of">Overview</a>
+</li>
+  <li>17.2. <a href="ch_for-of.html#sec_introducing-for-of">Introducing the <code>for-of</code> loop</a>
+</li>
+  <li>17.3. <a href="ch_for-of.html#sec_pitfall-for-of-iterability">Pitfall: <code>for-of</code> only works with iterable values</a>
+</li>
+  <li>17.4. <a href="ch_for-of.html#sec_iteration-variable-for-of">Iteration variables: <code>const</code> declarations versus <code>var</code> declarations</a>
+</li>
+  <li>17.5. <a href="ch_for-of.html#sec_more-iteration-variables">Iterating with existing variables, object properties and Array elements</a>
+</li>
+  <li>17.6. <a href="ch_for-of.html#sec_iteration-variable-destructuring">Iterating with a destructuring pattern</a>
+</li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-for-of">
+<span class="section-number">17.1 </span>Overview <a class="header-anchor" href="ch_for-of.html#sec_overview-for-of" aria-hidden="true">#</a></h3>
+
+<p><code>for-of</code> is a new loop in ES6 that replaces both <code>for-in</code> and <code>forEach()</code> and supports the new iteration protocol.</p>
+
+<p>Use it to loop over <em>iterable</em> objects (Arrays, strings, Maps, Sets, etc.; see Chap. &#x201C;<a href="ch_iteration.html#ch_iteration">Iterables and iterators</a>&#x201D;):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+</pre></div>
+
+</figure>
+
+<p><code>break</code> and <code>continue</code> work inside <code>for-of</code> loops:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">])</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">x</code><code class="p">.</code><code class="nx">length</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="k">break</code><code class="p">;</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+</pre></div>
+
+</figure>
+
+<p>Access both elements and their indices while looping over an Array (the square brackets before <code>of</code> mean that we are using <a href="ch_destructuring.html#ch_destructuring">destructuring</a>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">index</code><code class="p">,</code> <code class="nx">element</code><code class="p">]</code> <code class="k">of</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`</code><code class="si">${</code><code class="nx">index</code><code class="si">}</code><code class="sb">. </code><code class="si">${</code><code class="nx">element</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// 0. a</code>
+<code class="c1">// 1. b</code>
+</pre></div>
+
+</figure>
+
+<p>Looping over the [key, value] entries in a Map (the square brackets before <code>of</code> mean that we are using <a href="ch_destructuring.html#ch_destructuring">destructuring</a>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">([</code>
+    <code class="p">[</code><code class="kc">false</code><code class="p">,</code> <code class="s1">&apos;no&apos;</code><code class="p">],</code>
+    <code class="p">[</code><code class="kc">true</code><code class="p">,</code> <code class="s1">&apos;yes&apos;</code><code class="p">],</code>
+<code class="p">]);</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">key</code><code class="p">,</code> <code class="nx">value</code><code class="p">]</code> <code class="k">of</code> <code class="nx">map</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`</code><code class="si">${</code><code class="nx">key</code><code class="si">}</code><code class="sb"> =&gt; </code><code class="si">${</code><code class="nx">value</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// false =&gt; no</code>
+<code class="c1">// true =&gt; yes</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_introducing-for-of">
+<span class="section-number">17.2 </span>Introducing the <code>for-of</code> loop <a class="header-anchor" href="ch_for-of.html#sec_introducing-for-of" aria-hidden="true">#</a></h3>
+
+<p><code>for-of</code> lets you loop over data structures that are <em>iterable</em>: Arrays, strings, Maps, Sets and others. How exactly iterability works is explained in Chap. &#x201C;<a href="ch_iteration.html#ch_iteration">Iterables and iterators</a>&#x201D;. But you don&#x2019;t have to know the details if you use the <code>for-of</code> loop:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+</pre></div>
+
+</figure>
+
+<p><code>for-of</code> goes through the items of <code>iterable</code> and assigns them, one at a time, to the loop variable <code>x</code>, before it executes the body. The scope of <code>x</code> is the loop, it only exists inside it.</p>
+
+<p>You can use <code>break</code> and <code>continue</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">])</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">x</code><code class="p">.</code><code class="nx">length</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="k">break</code><code class="p">;</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+</pre></div>
+
+</figure>
+
+<p><code>for-of</code> combines the advantages of:</p>
+
+<ul>
+  <li>Normal <code>for</code> loops: <code>break</code>/<code>continue</code>; usable in generators</li>
+  <li>
+<code>forEach()</code> methods: concise syntax</li>
+</ul>
+
+
+<h3 id="sec_pitfall-for-of-iterability">
+<span class="section-number">17.3 </span>Pitfall: <code>for-of</code> only works with iterable values <a class="header-anchor" href="ch_for-of.html#sec_pitfall-for-of-iterability" aria-hidden="true">#</a></h3>
+
+<p>The operand of the <code>of</code> clause must be iterable. That means that you need a helper function if you want to iterate over plain objects (see &#x201C;<a href="ch_iteration.html#sec_plain-objects-not-iterable">Plain objects are not iterable</a>&#x201D;). If a value is Array-like, you can convert it to an Array via <a href="ch_arrays.html#Array_from"><code>Array.from()</code></a>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Array-like, but not iterable!</code>
+<code class="kr">const</code> <code class="nx">arrayLike</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">length</code><code class="o">:</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">0</code><code class="o">:</code> <code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="mi">1</code><code class="o">:</code> <code class="s1">&apos;b&apos;</code> <code class="p">};</code>
+
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">arrayLike</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// TypeError</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">from</code><code class="p">(</code><code class="nx">arrayLike</code><code class="p">))</code> <code class="p">{</code> <code class="c1">// OK</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_iteration-variable-for-of">
+<span class="section-number">17.4 </span>Iteration variables: <code>const</code> declarations versus <code>var</code> declarations <a class="header-anchor" href="ch_for-of.html#sec_iteration-variable-for-of" aria-hidden="true">#</a></h3>
+
+<p>If you <code>const</code>-declare the iteration variable, a fresh <em>binding</em> (storage space) will be created for each iteration. That can be seen in the following code snippet where we save the current binding of <code>elem</code> for later, via an arrow function. Afterwards, you can see that the arrow functions don&#x2019;t share the same binding for <code>elem</code>, they each have a different one.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">elem</code> <code class="k">of</code> <code class="p">[</code><code class="mi">0</code><code class="p">,</code> <code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">])</code> <code class="p">{</code>
+    <code class="nx">arr</code><code class="p">.</code><code class="nx">push</code><code class="p">(()</code> <code class="o">=&gt;</code> <code class="nx">elem</code><code class="p">);</code> <code class="c1">// save `elem` for later</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">arr</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">f</code> <code class="o">=&gt;</code> <code class="nx">f</code><code class="p">()));</code> <code class="c1">// [0, 1, 2]</code>
+
+<code class="c1">// `elem` only exists inside the loop:</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">elem</code><code class="p">);</code> <code class="c1">// ReferenceError: elem is not defined</code>
+</pre></div>
+
+</figure>
+
+<p>A <code>let</code> declaration works the same way as a <code>const</code> declaration (but the bindings are mutable).</p>
+
+<p>It is instructive to see how things are different if you <code>var</code>-declare the iteration variable. Now all arrow functions refer to the same binding of <code>elem</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kd">var</code> <code class="nx">elem</code> <code class="k">of</code> <code class="p">[</code><code class="mi">0</code><code class="p">,</code> <code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">])</code> <code class="p">{</code>
+    <code class="nx">arr</code><code class="p">.</code><code class="nx">push</code><code class="p">(()</code> <code class="o">=&gt;</code> <code class="nx">elem</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">arr</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">f</code> <code class="o">=&gt;</code> <code class="nx">f</code><code class="p">()));</code> <code class="c1">// [2, 2, 2]</code>
+
+<code class="c1">// `elem` exists in the surrounding function:</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">elem</code><code class="p">);</code> <code class="c1">// 2</code>
+</pre></div>
+
+</figure>
+
+<p>Having one binding per iteration is very helpful whenever you create functions via a loop (e.g. to add event listeners).</p>
+
+<p>You also get per-iteration bindings in <code>for</code> loops (via <code>let</code>) and <code>for-in</code> loops (via <code>const</code> or <code>let</code>). Details are explained in <a href="ch_variables.html#sec_let-const-loop-heads">the chapter on variables</a>.</p>
+
+
+<h3 id="sec_more-iteration-variables">
+<span class="section-number">17.5 </span>Iterating with existing variables, object properties and Array elements <a class="header-anchor" href="ch_for-of.html#sec_more-iteration-variables" aria-hidden="true">#</a></h3>
+
+<p>So far, we have only seen <code>for-of</code> with a declared iteration variable. But there are several other forms.</p>
+
+<p>You can iterate with an existing variable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">let</code> <code class="nx">x</code><code class="p">;</code>
+<code class="k">for</code> <code class="p">(</code><code class="nx">x</code> <code class="k">of</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">])</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>You can also iterate with an object property:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="k">for</code> <code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">prop</code> <code class="k">of</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">])</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">prop</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>And you can iterate with an Array element:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[];</code>
+<code class="k">for</code> <code class="p">(</code><code class="nx">arr</code><code class="p">[</code><code class="mi">0</code><code class="p">]</code> <code class="k">of</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">])</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">arr</code><code class="p">[</code><code class="mi">0</code><code class="p">]);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_iteration-variable-destructuring">
+<span class="section-number">17.6 </span>Iterating with a destructuring pattern <a class="header-anchor" href="ch_for-of.html#sec_iteration-variable-destructuring" aria-hidden="true">#</a></h3>
+
+<p>Combining <code>for-of</code> with destructuring is especially useful for iterables over [key, value] pairs (encoded as Arrays). That&#x2019;s what Maps are:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">().</code><code class="nx">set</code><code class="p">(</code><code class="kc">false</code><code class="p">,</code> <code class="s1">&apos;no&apos;</code><code class="p">).</code><code class="nx">set</code><code class="p">(</code><code class="kc">true</code><code class="p">,</code> <code class="s1">&apos;yes&apos;</code><code class="p">);</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">k</code><code class="p">,</code><code class="nx">v</code><code class="p">]</code> <code class="k">of</code> <code class="nx">map</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`key = </code><code class="si">${</code><code class="nx">k</code><code class="si">}</code><code class="sb">, value = </code><code class="si">${</code><code class="nx">v</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// key = false, value = no</code>
+<code class="c1">// key = true, value = yes</code>
+</pre></div>
+
+</figure>
+
+<p><code>Array.prototype.entries()</code> also returns an iterable over [key, value] pairs:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">k</code><code class="p">,</code><code class="nx">v</code><code class="p">]</code> <code class="k">of</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`key = </code><code class="si">${</code><code class="nx">k</code><code class="si">}</code><code class="sb">, value = </code><code class="si">${</code><code class="nx">v</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// key = 0, value = a</code>
+<code class="c1">// key = 1, value = b</code>
+<code class="c1">// key = 2, value = c</code>
+</pre></div>
+
+</figure>
+
+<p>Therefore, <code>entries()</code> gives you a way to treat iterated items differently, depending on their position:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="cm">/** Same as arr.join(&apos;, &apos;) */</code>
+<code class="kd">function</code> <code class="nx">toString</code><code class="p">(</code><code class="nx">arr</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="nx">result</code> <code class="o">=</code> <code class="s1">&apos;&apos;</code><code class="p">;</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">i</code><code class="p">,</code><code class="nx">elem</code><code class="p">]</code> <code class="k">of</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">i</code> <code class="o">&gt;</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+            <code class="nx">result</code> <code class="o">+=</code> <code class="s1">&apos;, &apos;</code><code class="p">;</code>
+        <code class="p">}</code>
+        <code class="nx">result</code> <code class="o">+=</code> <code class="nb">String</code><code class="p">(</code><code class="nx">elem</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">result</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>This function is used as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; toString([&apos;eeny&apos;, &apos;meeny&apos;, &apos;miny&apos;, &apos;moe&apos;])
+&apos;eeny, meeny, miny, moe&apos;
+</pre></div>
+
+</figure>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_arrays.html">18. New Array features</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

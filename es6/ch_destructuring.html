@@ -1,0 +1,1473 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>10. Destructuring</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>10. Destructuring</b><br>
+        <a href="index.html#toc_ch_destructuring">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_destructuring">
+<span class="section-number">10. </span>Destructuring <a class="header-anchor" href="ch_destructuring.html#ch_destructuring" aria-hidden="true">#</a></h2>
+
+<hr class="scene-break">
+
+<ul>
+  <li>10.1. <a href="ch_destructuring.html#sec_overview-destructuring">Overview</a>
+    <ul>
+      <li>10.1.1. Object destructuring</li>
+      <li>10.1.2. Array destructuring</li>
+      <li>10.1.3. Where can destructuring be used?</li>
+    </ul>
+  </li>
+  <li>10.2. <a href="ch_destructuring.html#sec_constructing-vs-extracting">Background: Constructing data versus extracting data</a>
+</li>
+  <li>10.3. <a href="ch_destructuring.html#sec_destructuring-patterns">Patterns for destructuring</a>
+    <ul>
+      <li>10.3.1. Pick what you need</li>
+    </ul>
+  </li>
+  <li>10.4. <a href="ch_destructuring.html#sec_patterns-accessing-innards">How do patterns access the innards of values?</a>
+    <ul>
+      <li>10.4.1. Object patterns coerce values to objects</li>
+      <li>10.4.2. Array patterns work with iterables</li>
+    </ul>
+  </li>
+  <li>10.5. <a href="ch_destructuring.html#sec_default-values-destructuring">Default values</a>
+    <ul>
+      <li>10.5.1. <code>undefined</code> triggers default values</li>
+      <li>10.5.2. Default values are computed on demand</li>
+      <li>10.5.3. Default values can refer to other variables in the pattern</li>
+      <li>10.5.4. Default values for patterns</li>
+      <li>10.5.5. More complex default values</li>
+    </ul>
+  </li>
+  <li>10.6. <a href="ch_destructuring.html#sec_more-obj-destructuring">More object destructuring features</a>
+    <ul>
+      <li>10.6.1. Property value shorthands</li>
+      <li>10.6.2. Computed property keys</li>
+    </ul>
+  </li>
+  <li>10.7. <a href="ch_destructuring.html#sec_more-array-destructuring">More Array destructuring features</a>
+    <ul>
+      <li>10.7.1. Elision</li>
+      <li>10.7.2. Rest operator (<code>...</code>)</li>
+    </ul>
+  </li>
+  <li>10.8. <a href="ch_destructuring.html#sec_assignment-targets">You can assign to more than just variables</a>
+</li>
+  <li>10.9. <a href="ch_destructuring.html#sec_pitfalls-destructuring">Pitfalls of destructuring</a>
+    <ul>
+      <li>10.9.1. Don&#x2019;t start a statement with a curly brace</li>
+    </ul>
+  </li>
+  <li>10.10. <a href="ch_destructuring.html#sec_examples-destructuring">Examples of destructuring</a>
+    <ul>
+      <li>10.10.1. Destructuring returned Arrays</li>
+      <li>10.10.2. Destructuring returned objects</li>
+      <li>10.10.3. Array-destructuring iterable values</li>
+      <li>10.10.4. Multiple return values</li>
+    </ul>
+  </li>
+  <li>10.11. <a href="ch_destructuring.html#sec_destructuring-algorithm">The destructuring algorithm</a>
+    <ul>
+      <li>10.11.1. The algorithm</li>
+      <li>10.11.2. Applying the algorithm</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-destructuring">
+<span class="section-number">10.1 </span>Overview <a class="header-anchor" href="ch_destructuring.html#sec_overview-destructuring" aria-hidden="true">#</a></h3>
+
+<p><em>Destructuring</em> is a convenient way of extracting multiple values from data stored in (possibly nested) objects and Arrays. It can be used in locations that receive data (such as the left-hand side of an assignment). How to extract the values is specified via patterns (read on for examples).</p>
+
+<h4 id="_object-destructuring">
+<span class="section-number">10.1.1 </span>Object destructuring <a class="header-anchor" href="ch_destructuring.html#_object-destructuring" aria-hidden="true">#</a></h4>
+
+<p>Destructuring objects:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;Jane&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;Doe&apos;</code> <code class="p">};</code>
+<code class="kr">const</code> <code class="p">{</code><code class="nx">first</code><code class="o">:</code> <code class="nx">f</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="nx">l</code><code class="p">}</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">;</code>
+    <code class="c1">// f = &apos;Jane&apos;; l = &apos;Doe&apos;</code>
+
+<code class="c1">// {prop} is short for {prop: prop}</code>
+<code class="kr">const</code> <code class="p">{</code><code class="nx">first</code><code class="p">,</code> <code class="nx">last</code><code class="p">}</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">;</code>
+    <code class="c1">// first = &apos;Jane&apos;; last = &apos;Doe&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>Destructuring helps with processing return values:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code> <code class="p">};</code>
+
+<code class="kr">const</code> <code class="p">{</code><code class="nx">writable</code><code class="p">,</code> <code class="nx">configurable</code><code class="p">}</code> <code class="o">=</code>
+    <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="s1">&apos;foo&apos;</code><code class="p">);</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">writable</code><code class="p">,</code> <code class="nx">configurable</code><code class="p">);</code> <code class="c1">// true true</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_array-destructuring">
+<span class="section-number">10.1.2 </span>Array destructuring <a class="header-anchor" href="ch_destructuring.html#_array-destructuring" aria-hidden="true">#</a></h4>
+
+<p>Array destructuring (works for all iterable values):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="nx">iterable</code><code class="p">;</code>
+    <code class="c1">// x = &apos;a&apos;; y = &apos;b&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>Destructuring helps with processing return values:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">all</code><code class="p">,</code> <code class="nx">year</code><code class="p">,</code> <code class="nx">month</code><code class="p">,</code> <code class="nx">day</code><code class="p">]</code> <code class="o">=</code>
+    <code class="sr">/^(\d\d\d\d)-(\d\d)-(\d\d)$/</code>
+    <code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="s1">&apos;2999-12-31&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_where-can-destructuring-be-used">
+<span class="section-number">10.1.3 </span>Where can destructuring be used? <a class="header-anchor" href="ch_destructuring.html#_where-can-destructuring-be-used" aria-hidden="true">#</a></h4>
+
+<p>Destructuring can be used in the following locations (I&#x2019;m showing Array patterns to demonstrate; object patterns work just as well):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Variable declarations:</code>
+<code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">];</code>
+<code class="kd">let</code> <code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">];</code>
+<code class="kd">var</code> <code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">];</code>
+
+<code class="c1">// Assignments:</code>
+<code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">];</code>
+
+<code class="c1">// Parameter definitions:</code>
+<code class="kd">function</code> <code class="nx">f</code><code class="p">([</code><code class="nx">x</code><code class="p">])</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+<code class="nx">f</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">]);</code>
+</pre></div>
+
+</figure>
+
+<p>You can also destructure in a <code>for-of</code> loop:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">index</code><code class="p">,</code> <code class="nx">element</code><code class="p">]</code> <code class="k">of</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">index</code><code class="p">,</code> <code class="nx">element</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// 0 a</code>
+<code class="c1">// 1 b</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_constructing-vs-extracting">
+<span class="section-number">10.2 </span>Background: Constructing data versus extracting data <a class="header-anchor" href="ch_destructuring.html#sec_constructing-vs-extracting" aria-hidden="true">#</a></h3>
+
+<p>To fully understand what destructuring is, let&#x2019;s first examine its broader context.</p>
+
+<p>JavaScript has operations for constructing data, one property at a time:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="nx">obj</code><code class="p">.</code><code class="nx">first</code> <code class="o">=</code> <code class="s1">&apos;Jane&apos;</code><code class="p">;</code>
+<code class="nx">obj</code><code class="p">.</code><code class="nx">last</code> <code class="o">=</code> <code class="s1">&apos;Doe&apos;</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>The same syntax can be used to extract data. Again, one property at a time:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">f</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">.</code><code class="nx">first</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">l</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">.</code><code class="nx">last</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>Additionally, there is syntax to construct multiple properties at the same time, via an <em>object literal</em>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;Jane&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;Doe&apos;</code> <code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Before ES6, there was no corresponding mechanism for extracting data. That&#x2019;s what <em>destructuring</em> is &#x2013; it lets you extract multiple properties from an object via an <em>object pattern</em>. For example, on the left-hand side of an assignment:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="nx">f</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="nx">l</code> <code class="p">}</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>You can also destructure Arrays via patterns:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code> <code class="c1">// x = &apos;a&apos;; y = &apos;b&apos;</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_destructuring-patterns">
+<span class="section-number">10.3 </span>Patterns for destructuring <a class="header-anchor" href="ch_destructuring.html#sec_destructuring-patterns" aria-hidden="true">#</a></h3>
+
+<p>The following two parties are involved in destructuring:</p>
+
+<ul>
+  <li>
+<strong>Destructuring source:</strong> the data to be destructured. For example, the right-hand side of a destructuring assignment.</li>
+  <li>
+<strong>Destructuring target:</strong> the pattern used for destructuring. For example, the left-hand side of a destructuring assignment.</li>
+</ul>
+
+<p>The destructuring target is either one of three patterns:</p>
+
+<ul>
+  <li>
+<strong>Assignment target.</strong> For example: <code>x</code>
+    <ul>
+      <li>An assignment target is usually a variable. But in destructuring assignment, you have more options, as I&#x2019;ll explain later.</li>
+    </ul>
+  </li>
+  <li>
+<strong>Object pattern.</strong> For example: <code>{ first: &#xAB;pattern&#xBB;, last: &#xAB;pattern&#xBB; }</code>
+    <ul>
+      <li>The parts of an object pattern are properties, the property values are again patterns (recursively).</li>
+    </ul>
+  </li>
+  <li>
+<strong>Array pattern.</strong> For example: <code>[ &#xAB;pattern&#xBB;, &#xAB;pattern&#xBB; ]</code>
+    <ul>
+      <li>The parts of an Array pattern are elements, the elements are again patterns (recursively).</li>
+    </ul>
+  </li>
+</ul>
+
+<p>That means that you can nest patterns, arbitrarily deeply:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">a</code><code class="o">:</code> <code class="p">[{</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code> <code class="nx">bar</code><code class="o">:</code> <code class="s1">&apos;abc&apos;</code> <code class="p">},</code> <code class="p">{}],</code> <code class="nx">b</code><code class="o">:</code> <code class="kc">true</code> <code class="p">};</code>
+<code class="kr">const</code> <code class="p">{</code> <code class="nx">a</code><code class="o">:</code> <code class="p">[{</code><code class="nx">foo</code><code class="o">:</code> <code class="nx">f</code><code class="p">}]</code> <code class="p">}</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">;</code> <code class="c1">// f = 123</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_pick-what-you-need">
+<span class="section-number">10.3.1 </span>Pick what you need <a class="header-anchor" href="ch_destructuring.html#_pick-what-you-need" aria-hidden="true">#</a></h4>
+
+<p>If you destructure an object, you mention only those properties that you are interested in:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="nx">x</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="mi">7</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="mi">3</code> <code class="p">};</code> <code class="c1">// x = 7</code>
+</pre></div>
+
+</figure>
+
+<p>If you destructure an Array, you can choose to only extract a prefix:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code><code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">];</code> <code class="c1">// x=&apos;a&apos;; y=&apos;b&apos;;</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_patterns-accessing-innards">
+<span class="section-number">10.4 </span>How do patterns access the innards of values? <a class="header-anchor" href="ch_destructuring.html#sec_patterns-accessing-innards" aria-hidden="true">#</a></h3>
+
+<p>In an assignment <code>pattern = someValue</code>, how does the <code>pattern</code> access what&#x2019;s inside <code>someValue</code>?</p>
+
+<h4 id="_object-patterns-coerce-values-to-objects">
+<span class="section-number">10.4.1 </span>Object patterns coerce values to objects <a class="header-anchor" href="ch_destructuring.html#_object-patterns-coerce-values-to-objects" aria-hidden="true">#</a></h4>
+
+<p>The object pattern coerces destructuring sources to objects before accessing properties. That means that it works with primitive values:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code><code class="nx">length</code> <code class="o">:</code> <code class="nx">len</code><code class="p">}</code> <code class="o">=</code> <code class="s1">&apos;abc&apos;</code><code class="p">;</code> <code class="c1">// len = 3</code>
+<code class="kr">const</code> <code class="p">{</code><code class="nx">toString</code><code class="o">:</code> <code class="nx">s</code><code class="p">}</code> <code class="o">=</code> <code class="mi">123</code><code class="p">;</code> <code class="c1">// s = Number.prototype.toString</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_failing-to-object-destructure-a-value">
+<span class="section-number">10.4.1.1 </span>Failing to object-destructure a value <a class="header-anchor" href="ch_destructuring.html#_failing-to-object-destructure-a-value" aria-hidden="true">#</a></h5>
+
+<p>The coercion to object is not performed via <code>Object()</code>, but via the internal operation <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-toobject"><code>ToObject()</code></a>. The two operations handle <code>undefined</code> and <code>null</code> differently.</p>
+
+<p><code>Object()</code> converts primitive values to wrapper objects and leaves objects untouched:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; typeof Object(&apos;abc&apos;)
+&apos;object&apos;
+
+&gt; var obj = {};
+&gt; Object(obj) === obj
+true
+</pre></div>
+
+</figure>
+
+<p>It also converts <code>undefined</code> and <code>null</code> to empty objects:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Object(undefined)
+{}
+&gt; Object(null)
+{}
+</pre></div>
+
+</figure>
+
+<p>In contrast, <code>ToObject()</code> throws a <code>TypeError</code> if it encounters <code>undefined</code> or <code>null</code>. Therefore, the following destructurings fail, even before destructuring accesses any properties:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code> <code class="nx">prop</code><code class="o">:</code> <code class="nx">x</code> <code class="p">}</code> <code class="o">=</code> <code class="kc">undefined</code><code class="p">;</code> <code class="c1">// TypeError</code>
+<code class="kr">const</code> <code class="p">{</code> <code class="nx">prop</code><code class="o">:</code> <code class="nx">y</code> <code class="p">}</code> <code class="o">=</code> <code class="kc">null</code><code class="p">;</code> <code class="c1">// TypeError</code>
+</pre></div>
+
+</figure>
+
+<p>As a consequence, you can use the empty object pattern <code>{}</code> to check whether a value is coercible to an object. As we have seen, only <code>undefined</code> and <code>null</code> aren&#x2019;t:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">({}</code> <code class="o">=</code> <code class="p">[</code><code class="kc">true</code><code class="p">,</code> <code class="kc">false</code><code class="p">]);</code> <code class="c1">// OK, Arrays are coercible to objects</code>
+<code class="p">({}</code> <code class="o">=</code> <code class="s1">&apos;abc&apos;</code><code class="p">);</code> <code class="c1">// OK, strings are coercible to objects</code>
+
+<code class="p">({}</code> <code class="o">=</code> <code class="kc">undefined</code><code class="p">);</code> <code class="c1">// TypeError</code>
+<code class="p">({}</code> <code class="o">=</code> <code class="kc">null</code><code class="p">);</code> <code class="c1">// TypeError</code>
+</pre></div>
+
+</figure>
+
+<p>The parentheses around the expressions are necessary because statements must not begin with curly braces in JavaScript (<a href="ch_destructuring.html#sec_leading-curly-brace-destructuring">details are explained later</a>).</p>
+
+<h4 id="_array-patterns-work-with-iterables">
+<span class="section-number">10.4.2 </span>Array patterns work with iterables <a class="header-anchor" href="ch_destructuring.html#_array-patterns-work-with-iterables" aria-hidden="true">#</a></h4>
+
+<p>Array destructuring uses an iterator to get to the elements of a source. Therefore, you can Array-destructure any value that is iterable. Let&#x2019;s look at examples of iterable values.</p>
+
+<p>Strings are iterable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,...</code><code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="s1">&apos;abc&apos;</code><code class="p">;</code> <code class="c1">// x=&apos;a&apos;; y=[&apos;b&apos;, &apos;c&apos;]</code>
+</pre></div>
+
+</figure>
+
+<p>Don&#x2019;t forget that the iterator over strings returns code points (&#x201C;Unicode characters&#x201D;, 21 bits), not code units (&#x201C;JavaScript characters&#x201D;, 16 bits). (For more information on Unicode, consult the chapter &#x201C;<a href="http://speakingjs.com/es5/ch24.html">Chapter 24. Unicode and JavaScript</a>&#x201D; in &#x201C;Speaking JavaScript&#x201D;.) For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code><code class="nx">y</code><code class="p">,</code><code class="nx">z</code><code class="p">]</code> <code class="o">=</code> <code class="s1">&apos;a\uD83D\uDCA9c&apos;</code><code class="p">;</code> <code class="c1">// x=&apos;a&apos;; y=&apos;\uD83D\uDCA9&apos;; z=&apos;c&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>You can&#x2019;t access the elements of a Set via indices, but you can do so via an iterator. Therefore, Array destructuring works for Sets:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code><code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">]);</code> <code class="c1">// x=&apos;a&apos;; y=&apos;b&#x2019;;</code>
+</pre></div>
+
+</figure>
+
+<p>The <code>Set</code> iterator always returns elements in the order in which they were inserted, which is why the result of the previous destructuring is always the same.</p>
+
+<h5 id="_failing-to-array-destructure-a-value">
+<span class="section-number">10.4.2.1 </span>Failing to Array-destructure a value <a class="header-anchor" href="ch_destructuring.html#_failing-to-array-destructure-a-value" aria-hidden="true">#</a></h5>
+
+<p>A value is iterable if it has a method whose key is <code>Symbol.iterator</code> that returns an object. Array-destructuring throws a <code>TypeError</code> if the value to be destructured isn&#x2019;t iterable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">let</code> <code class="nx">x</code><code class="p">;</code>
+<code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="kc">true</code><code class="p">,</code> <code class="kc">false</code><code class="p">];</code> <code class="c1">// OK, Arrays are iterable</code>
+<code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="s1">&apos;abc&apos;</code><code class="p">;</code> <code class="c1">// OK, strings are iterable</code>
+<code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">{</code> <code class="o">*</code> <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code> <code class="k">yield</code> <code class="mi">1</code> <code class="p">}</code> <code class="p">};</code> <code class="c1">// OK, iterable</code>
+
+<code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">{};</code> <code class="c1">// TypeError, empty objects are not iterable</code>
+<code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="kc">undefined</code><code class="p">;</code> <code class="c1">// TypeError, not iterable</code>
+<code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="kc">null</code><code class="p">;</code> <code class="c1">// TypeError, not iterable</code>
+</pre></div>
+
+</figure>
+
+<p>The <code>TypeError</code> is thrown even before accessing elements of the iterable, which means that you can use the empty Array pattern <code>[]</code> to check whether a value is iterable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">[]</code> <code class="o">=</code> <code class="p">{};</code> <code class="c1">// TypeError, empty objects are not iterable</code>
+<code class="p">[]</code> <code class="o">=</code> <code class="kc">undefined</code><code class="p">;</code> <code class="c1">// TypeError, not iterable</code>
+<code class="p">[]</code> <code class="o">=</code> <code class="kc">null</code><code class="p">;</code> <code class="c1">// TypeError, not iterable</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_default-values-destructuring">
+<span class="section-number">10.5 </span>Default values <a class="header-anchor" href="ch_destructuring.html#sec_default-values-destructuring" aria-hidden="true">#</a></h3>
+
+<p><em>Default values</em> are an optional feature of patterns. They provide a fallback if nothing is found in the source. If a part (an object property or an Array element) has no match in the source, it is matched against:</p>
+
+<ul>
+  <li>its <em>default value</em> (if specified; it&#x2019;s optional)</li>
+  <li>
+<code>undefined</code> (otherwise)</li>
+</ul>
+
+<p>Let&#x2019;s look at an example. In the following destructuring, the element at index 0 has no match on the right-hand side. Therefore, destructuring continues by matching <code>x</code> against 3, which leads to <code>x</code> being set to 3.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="o">=</code><code class="mi">3</code><code class="p">,</code> <code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="p">[];</code> <code class="c1">// x = 3; y = undefined</code>
+</pre></div>
+
+</figure>
+
+<p>You can also use default values in object patterns:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code><code class="nx">foo</code><code class="o">:</code> <code class="nx">x</code><code class="o">=</code><code class="mi">3</code><code class="p">,</code> <code class="nx">bar</code><code class="o">:</code> <code class="nx">y</code><code class="p">}</code> <code class="o">=</code> <code class="p">{};</code> <code class="c1">// x = 3; y = undefined</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_undefined-triggers-default-values">
+<span class="section-number">10.5.1 </span><code>undefined</code> triggers default values <a class="header-anchor" href="ch_destructuring.html#_undefined-triggers-default-values" aria-hidden="true">#</a></h4>
+
+<p>Default values are also used if a part does have a match and that match is <code>undefined</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="o">=</code><code class="mi">1</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="kc">undefined</code><code class="p">];</code> <code class="c1">// x = 1</code>
+<code class="kr">const</code> <code class="p">{</code><code class="nx">prop</code><code class="o">:</code> <code class="nx">y</code><code class="o">=</code><code class="mi">2</code><code class="p">}</code> <code class="o">=</code> <code class="p">{</code><code class="nx">prop</code><code class="o">:</code> <code class="kc">undefined</code><code class="p">};</code> <code class="c1">// y = 2</code>
+</pre></div>
+
+</figure>
+
+<p>The rationale for this behavior is explained in the next chapter, in <a href="ch_parameter-handling.html#sec_parameter-default-values">the section on parameter default values</a>.</p>
+
+<h4 id="_default-values-are-computed-on-demand">
+<span class="section-number">10.5.2 </span>Default values are computed on demand <a class="header-anchor" href="ch_destructuring.html#_default-values-are-computed-on-demand" aria-hidden="true">#</a></h4>
+
+<p>The default values themselves are only computed when they are needed. In other words, this destructuring:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code><code class="nx">prop</code><code class="o">:</code> <code class="nx">y</code><code class="o">=</code><code class="nx">someFunc</code><code class="p">()}</code> <code class="o">=</code> <code class="nx">someValue</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>is equivalent to:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">let</code> <code class="nx">y</code><code class="p">;</code>
+<code class="k">if</code> <code class="p">(</code><code class="nx">someValue</code><code class="p">.</code><code class="nx">prop</code> <code class="o">===</code> <code class="kc">undefined</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">y</code> <code class="o">=</code> <code class="nx">someFunc</code><code class="p">();</code>
+<code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+    <code class="nx">y</code> <code class="o">=</code> <code class="nx">someValue</code><code class="p">.</code><code class="nx">prop</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>You can observe that if you use <code>console.log()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; function log(x) { console.log(x); return &apos;YES&apos; }
+
+&gt; const [a=log(&apos;hello&apos;)] = [];
+&gt; a
+&apos;YES&apos;
+
+&gt; const [b=log(&apos;hello&apos;)] = [123];
+&gt; b
+123
+</pre></div>
+
+</figure>
+
+<p>In the second destructuring, the default value is not triggered and <code>log()</code> is not called.</p>
+
+<h4 id="_default-values-can-refer-to-other-variables-in-the-pattern">
+<span class="section-number">10.5.3 </span>Default values can refer to other variables in the pattern <a class="header-anchor" href="ch_destructuring.html#_default-values-can-refer-to-other-variables-in-the-pattern" aria-hidden="true">#</a></h4>
+
+<p>A default value can refer to any variable, including other variables in the same pattern:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="o">=</code><code class="mi">3</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[];</code>     <code class="c1">// x=3; y=3</code>
+<code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="o">=</code><code class="mi">3</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="mi">7</code><code class="p">];</code>    <code class="c1">// x=7; y=7</code>
+<code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="o">=</code><code class="mi">3</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="mi">7</code><code class="p">,</code> <code class="mi">2</code><code class="p">];</code> <code class="c1">// x=7; y=2</code>
+</pre></div>
+
+</figure>
+
+<p>However, order matters: the variables <code>x</code> and <code>y</code> are declared from left to right and produce a <code>ReferenceError</code> if they are accessed before their declarations:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="o">=</code><code class="nx">y</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">3</code><code class="p">]</code> <code class="o">=</code> <code class="p">[];</code> <code class="c1">// ReferenceError</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_default-values-for-patterns">
+<span class="section-number">10.5.4 </span>Default values for patterns <a class="header-anchor" href="ch_destructuring.html#_default-values-for-patterns" aria-hidden="true">#</a></h4>
+
+<p>So far we have only seen default values for variables, but you can also associate them with patterns:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[{</code> <code class="nx">prop</code><code class="o">:</code> <code class="nx">x</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{}]</code> <code class="o">=</code> <code class="p">[];</code>
+</pre></div>
+
+</figure>
+
+<p>What does this mean? Recall the rule for default values: If a part has no match in the source, destructuring continues with the default value.</p>
+
+<p>The element at index 0 has no match, which is why destructuring continues with:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code> <code class="nx">prop</code><code class="o">:</code> <code class="nx">x</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{};</code> <code class="c1">// x = undefined</code>
+</pre></div>
+
+</figure>
+
+<p>You can more easily see why things work this way if you replace the pattern <code>{ prop: x }</code> with the variable <code>pattern</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">pattern</code> <code class="o">=</code> <code class="p">{}]</code> <code class="o">=</code> <code class="p">[];</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_more-complex-default-values">
+<span class="section-number">10.5.5 </span>More complex default values <a class="header-anchor" href="ch_destructuring.html#_more-complex-default-values" aria-hidden="true">#</a></h4>
+
+<p>Let&#x2019;s further explore default values for patterns. In the following example, we assign a value to <code>x</code> via the default value <code>{ prop: 123 }</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[{</code> <code class="nx">prop</code><code class="o">:</code> <code class="nx">x</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">prop</code><code class="o">:</code> <code class="mi">123</code> <code class="p">}]</code> <code class="o">=</code> <code class="p">[];</code>
+</pre></div>
+
+</figure>
+
+<p>Because the Array element at index 0 has no match on the right-hand side, destructuring continues as follows and <code>x</code> is set to 123.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code> <code class="nx">prop</code><code class="o">:</code> <code class="nx">x</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">prop</code><code class="o">:</code> <code class="mi">123</code> <code class="p">};</code>  <code class="c1">// x = 123</code>
+</pre></div>
+
+</figure>
+
+<p>However, <code>x</code> is not assigned a value in this manner if the right-hand side has an element at index 0, because then the default value isn&#x2019;t triggered.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[{</code> <code class="nx">prop</code><code class="o">:</code> <code class="nx">x</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">prop</code><code class="o">:</code> <code class="mi">123</code> <code class="p">}]</code> <code class="o">=</code> <code class="p">[{}];</code>
+</pre></div>
+
+</figure>
+
+<p>In this case, destructuring continues with:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code> <code class="nx">prop</code><code class="o">:</code> <code class="nx">x</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{};</code> <code class="c1">// x = undefined</code>
+</pre></div>
+
+</figure>
+
+<p>Thus, if you want <code>x</code> to be 123 if either the object or the property is missing, you need to specify a default value for <code>x</code> itself:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[{</code> <code class="nx">prop</code><code class="o">:</code> <code class="nx">x</code><code class="o">=</code><code class="mi">123</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{}]</code> <code class="o">=</code> <code class="p">[{}];</code>
+</pre></div>
+
+</figure>
+
+<p>Here, destructuring continues as follows, independently of whether the right-hand side is <code>[{}]</code> or <code>[]</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code> <code class="nx">prop</code><code class="o">:</code> <code class="nx">x</code><code class="o">=</code><code class="mi">123</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{};</code> <code class="c1">// x = 123</code>
+</pre></div>
+
+</figure>
+
+<aside class="generic_inbar blurb eye icon-eye">
+    <h3 id="_still-confused">Still confused? <a class="header-anchor" href="ch_destructuring.html#_still-confused" aria-hidden="true">#</a></h3>
+
+  <p>A <a href="ch_destructuring.html#sec_destructuring-algorithm">later section</a> explains destructuring from a different angle, as an algorithm. That may give you additional insight.</p>
+
+</aside>
+
+
+<h3 id="sec_more-obj-destructuring">
+<span class="section-number">10.6 </span>More object destructuring features <a class="header-anchor" href="ch_destructuring.html#sec_more-obj-destructuring" aria-hidden="true">#</a></h3>
+
+
+<h4 id="_property-value-shorthands">
+<span class="section-number">10.6.1 </span>Property value shorthands <a class="header-anchor" href="ch_destructuring.html#_property-value-shorthands" aria-hidden="true">#</a></h4>
+
+<p>Property value shorthands are a feature of object literals: If the property value is a variable that has the same name as the property key then you can omit the key. This works for destructuring, too:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code> <code class="nx">x</code><code class="p">,</code> <code class="nx">y</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="mi">11</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="mi">8</code> <code class="p">};</code> <code class="c1">// x = 11; y = 8</code>
+
+<code class="c1">// Same as:</code>
+<code class="kr">const</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="nx">y</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="mi">11</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="mi">8</code> <code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>You can also combine property value shorthands with default values:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code> <code class="nx">x</code><code class="p">,</code> <code class="nx">y</code> <code class="o">=</code> <code class="mi">1</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{};</code> <code class="c1">// x = undefined; y = 1</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_computed-property-keys">
+<span class="section-number">10.6.2 </span>Computed property keys <a class="header-anchor" href="ch_destructuring.html#_computed-property-keys" aria-hidden="true">#</a></h4>
+
+<p>Computed property keys are another object literal feature that also works for destructuring. You can specify the key of a property via an expression, if you put it in square brackets:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">FOO</code> <code class="o">=</code> <code class="s1">&apos;foo&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="p">{</code> <code class="p">[</code><code class="nx">FOO</code><code class="p">]</code><code class="o">:</code> <code class="nx">f</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code> <code class="p">};</code> <code class="c1">// f = 123</code>
+</pre></div>
+
+</figure>
+
+<p>Computed property keys allow you to destructure properties whose keys are symbols:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Create and destructure a property whose key is a symbol</code>
+<code class="kr">const</code> <code class="nx">KEY</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">();</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="p">[</code><code class="nx">KEY</code><code class="p">]</code><code class="o">:</code> <code class="s1">&apos;abc&apos;</code> <code class="p">};</code>
+<code class="kr">const</code> <code class="p">{</code> <code class="p">[</code><code class="nx">KEY</code><code class="p">]</code><code class="o">:</code> <code class="nx">x</code> <code class="p">}</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">;</code> <code class="c1">// x = &apos;abc&apos;</code>
+
+<code class="c1">// Extract Array.prototype[Symbol.iterator]</code>
+<code class="kr">const</code> <code class="p">{</code> <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]</code><code class="o">:</code> <code class="nx">func</code> <code class="p">}</code> <code class="o">=</code> <code class="p">[];</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="k">typeof</code> <code class="nx">func</code><code class="p">);</code> <code class="c1">// function</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_more-array-destructuring">
+<span class="section-number">10.7 </span>More Array destructuring features <a class="header-anchor" href="ch_destructuring.html#sec_more-array-destructuring" aria-hidden="true">#</a></h3>
+
+<h4 id="_elision">
+<span class="section-number">10.7.1 </span>Elision <a class="header-anchor" href="ch_destructuring.html#_elision" aria-hidden="true">#</a></h4>
+
+<p>Elision lets you use the syntax of Array &#x201C;holes&#x201D; to skip elements during destructuring:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[,,</code> <code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">,</code> <code class="s1">&apos;d&apos;</code><code class="p">];</code> <code class="c1">// x = &apos;c&apos;; y = &apos;d&apos;</code>
+</pre></div>
+
+</figure>
+
+<h4 id="sec_rest-operator">
+<span class="section-number">10.7.2 </span>Rest operator (<code>...</code>) <a class="header-anchor" href="ch_destructuring.html#sec_rest-operator" aria-hidden="true">#</a></h4>
+
+<p>The <em>rest operator</em> lets you extract the remaining elements of an iterable into an Array. If this operator is used inside an Array pattern, it must come last:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="p">...</code><code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">];</code> <code class="c1">// x=&apos;a&apos;; y=[&apos;b&apos;, &apos;c&apos;]</code>
+</pre></div>
+
+</figure>
+
+<aside class="information blurb">
+    <p><a href="ch_parameter-handling.html#sec_spread-operator">The spread operator</a> has exactly the same syntax as the rest operator &#x2013; three dots. But they are different: the former contributes data to Array literals and function calls, whereas the latter is used for destructuring and extracts data.</p>
+
+</aside>
+
+<p>If the operator can&#x2019;t find any elements, it matches its operand against the empty Array. That is, it never produces <code>undefined</code> or <code>null</code>. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">,</code> <code class="p">...</code><code class="nx">z</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">];</code> <code class="c1">// x=&apos;a&apos;; y=undefined; z=[]</code>
+</pre></div>
+
+</figure>
+
+<p>The operand of the rest operator doesn&#x2019;t have to be a variable, you can use patterns, too:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="p">...[</code><code class="nx">y</code><code class="p">,</code> <code class="nx">z</code><code class="p">]]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">];</code>
+    <code class="c1">// x = &apos;a&apos;; y = &apos;b&apos;; z = &apos;c&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>The rest operator triggers the following destructuring:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">[</code><code class="nx">y</code><code class="p">,</code> <code class="nx">z</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">]</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_assignment-targets">
+<span class="section-number">10.8 </span>You can assign to more than just variables <a class="header-anchor" href="ch_destructuring.html#sec_assignment-targets" aria-hidden="true">#</a></h3>
+
+<p>If you assign via destructuring, each assignment target can be everything that is allowed on the left-hand side of a normal assignment.</p>
+
+<p>For example, a reference to a property (<code>obj.prop</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="p">({</code> <code class="nx">foo</code><code class="o">:</code> <code class="nx">obj</code><code class="p">.</code><code class="nx">prop</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code> <code class="p">});</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code> <code class="c1">// {prop:123}</code>
+</pre></div>
+
+</figure>
+
+<p>Or a reference to an Array element (<code>arr[0]</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[];</code>
+<code class="p">({</code> <code class="nx">bar</code><code class="o">:</code> <code class="nx">arr</code><code class="p">[</code><code class="mi">0</code><code class="p">]</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">bar</code><code class="o">:</code> <code class="kc">true</code> <code class="p">});</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">arr</code><code class="p">);</code> <code class="c1">// [true]</code>
+</pre></div>
+
+</figure>
+
+<p>You can also assign to object properties and Array elements via the rest operator (<code>...</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="p">[</code><code class="nx">first</code><code class="p">,</code> <code class="p">...</code><code class="nx">obj</code><code class="p">.</code><code class="nx">prop</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">];</code>
+    <code class="c1">// first = &apos;a&apos;; obj.prop = [&apos;b&apos;, &apos;c&apos;]</code>
+</pre></div>
+
+</figure>
+
+<p>If you <em>declare</em> variables or define parameters via destructuring then you must use simple identifiers, you can&#x2019;t refer to object properties and Array elements.</p>
+
+
+<h3 id="sec_pitfalls-destructuring">
+<span class="section-number">10.9 </span>Pitfalls of destructuring <a class="header-anchor" href="ch_destructuring.html#sec_pitfalls-destructuring" aria-hidden="true">#</a></h3>
+
+<p>There are two things to be mindful of when using destructuring:</p>
+
+<ul>
+  <li>You can&#x2019;t start a statement with a curly brace.</li>
+  <li>During destructuring, you can either declare variables or assign to them, but not both.</li>
+</ul>
+
+<p>The next two sections contain the details.</p>
+
+<h4 id="sec_leading-curly-brace-destructuring">
+<span class="section-number">10.9.1 </span>Don&#x2019;t start a statement with a curly brace <a class="header-anchor" href="ch_destructuring.html#sec_leading-curly-brace-destructuring" aria-hidden="true">#</a></h4>
+
+<p>Because code blocks begin with a curly brace, statements must not begin with one. This is unfortunate when using object destructuring in an assignment:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code> <code class="nx">a</code><code class="p">,</code> <code class="nx">b</code> <code class="p">}</code> <code class="o">=</code> <code class="nx">someObject</code><code class="p">;</code> <code class="c1">// SyntaxError</code>
+</pre></div>
+
+</figure>
+
+<p>The work-around is to put the complete expression in parentheses:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">({</code> <code class="nx">a</code><code class="p">,</code> <code class="nx">b</code> <code class="p">}</code> <code class="o">=</code> <code class="nx">someObject</code><code class="p">);</code> <code class="c1">// OK</code>
+</pre></div>
+
+</figure>
+
+<p>The following syntax does not work:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">({</code> <code class="nx">a</code><code class="p">,</code> <code class="nx">b</code> <code class="p">})</code> <code class="o">=</code> <code class="nx">someObject</code><code class="p">;</code> <code class="c1">// SyntaxError</code>
+</pre></div>
+
+</figure>
+
+<p>With <code>let</code>, <code>var</code> and <code>const</code>, curly braces never cause problems:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code> <code class="nx">a</code><code class="p">,</code> <code class="nx">b</code> <code class="p">}</code> <code class="o">=</code> <code class="nx">someObject</code><code class="p">;</code> <code class="c1">// OK</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_examples-destructuring">
+<span class="section-number">10.10 </span>Examples of destructuring <a class="header-anchor" href="ch_destructuring.html#sec_examples-destructuring" aria-hidden="true">#</a></h3>
+
+<p>Let&#x2019;s start with a few smaller examples.</p>
+
+<p>The <code>for-of</code> loop supports destructuring:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">().</code><code class="nx">set</code><code class="p">(</code><code class="kc">false</code><code class="p">,</code> <code class="s1">&apos;no&apos;</code><code class="p">).</code><code class="nx">set</code><code class="p">(</code><code class="kc">true</code><code class="p">,</code> <code class="s1">&apos;yes&apos;</code><code class="p">);</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">key</code><code class="p">,</code> <code class="nx">value</code><code class="p">]</code> <code class="k">of</code> <code class="nx">map</code><code class="p">)</code> <code class="p">{</code>
+  <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">key</code> <code class="o">+</code> <code class="s1">&apos; is &apos;</code> <code class="o">+</code> <code class="nx">value</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>You can use destructuring to swap values. That is something that engines could optimize, so that no Array would be created.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">[</code><code class="nx">a</code><code class="p">,</code> <code class="nx">b</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="nx">b</code><code class="p">,</code> <code class="nx">a</code><code class="p">];</code>
+</pre></div>
+
+</figure>
+
+<p>You can use destructuring to split an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">first</code><code class="p">,</code> <code class="p">...</code><code class="nx">rest</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">];</code>
+    <code class="c1">// first = &apos;a&apos;; rest = [&apos;b&apos;, &apos;c&apos;]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_destructuring-returned-arrays">
+<span class="section-number">10.10.1 </span>Destructuring returned Arrays <a class="header-anchor" href="ch_destructuring.html#_destructuring-returned-arrays" aria-hidden="true">#</a></h4>
+
+<p>Some built-in JavaScript operations return Arrays. Destructuring helps with processing them:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">all</code><code class="p">,</code> <code class="nx">year</code><code class="p">,</code> <code class="nx">month</code><code class="p">,</code> <code class="nx">day</code><code class="p">]</code> <code class="o">=</code>
+    <code class="sr">/^(\d\d\d\d)-(\d\d)-(\d\d)$/</code>
+    <code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="s1">&apos;2999-12-31&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+
+<p>If you are only interested in the groups (and not in the complete match, <code>all</code>), you can use elision to skip the array element at index 0:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[,</code> <code class="nx">year</code><code class="p">,</code> <code class="nx">month</code><code class="p">,</code> <code class="nx">day</code><code class="p">]</code> <code class="o">=</code>
+    <code class="sr">/^(\d\d\d\d)-(\d\d)-(\d\d)$/</code>
+    <code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="s1">&apos;2999-12-31&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+
+<p><code>exec()</code> returns <code>null</code> if the regular expression doesn&#x2019;t match. Unfortunately, you can&#x2019;t handle <code>null</code> via default values, which is why you must use the Or operator (<code>||</code>) in this case:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[,</code> <code class="nx">year</code><code class="p">,</code> <code class="nx">month</code><code class="p">,</code> <code class="nx">day</code><code class="p">]</code> <code class="o">=</code>
+    <code class="sr">/^(\d\d\d\d)-(\d\d)-(\d\d)$/</code>
+    <code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="nx">someStr</code><code class="p">)</code> <code class="o">||</code> <code class="p">[];</code>
+</pre></div>
+
+</figure>
+
+<p><code>Array.prototype.split()</code> returns an Array. Therefore, destructuring is useful if you are interested in the elements, not the Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">cells</code> <code class="o">=</code> <code class="s1">&apos;Jane\tDoe\tCTO&apos;</code>
+<code class="kr">const</code> <code class="p">[</code><code class="nx">firstName</code><code class="p">,</code> <code class="nx">lastName</code><code class="p">,</code> <code class="nx">title</code><code class="p">]</code> <code class="o">=</code> <code class="nx">cells</code><code class="p">.</code><code class="nx">split</code><code class="p">(</code><code class="s1">&apos;\t&apos;</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">firstName</code><code class="p">,</code> <code class="nx">lastName</code><code class="p">,</code> <code class="nx">title</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_destructuring-returned-objects">
+<span class="section-number">10.10.2 </span>Destructuring returned objects <a class="header-anchor" href="ch_destructuring.html#_destructuring-returned-objects" aria-hidden="true">#</a></h4>
+
+<p>Destructuring is also useful for extracting data from objects that are returned by functions or methods. For example, the iterator method <code>next()</code> returns an object with two properties, <code>done</code> and <code>value</code>. The following code logs all elements of Array <code>arr</code> via the iterator <code>iter</code>. Destructuring is used in line A.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="kr">const</code> <code class="nx">iter</code> <code class="o">=</code> <code class="nx">arr</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]();</code>
+<code class="k">while</code> <code class="p">(</code><code class="kc">true</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="p">{</code><code class="nx">done</code><code class="p">,</code><code class="nx">value</code><code class="p">}</code> <code class="o">=</code> <code class="nx">iter</code><code class="p">.</code><code class="nx">next</code><code class="p">();</code> <code class="c1">// (A)</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">done</code><code class="p">)</code> <code class="k">break</code><code class="p">;</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">value</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_array-destructuring-iterable-values">
+<span class="section-number">10.10.3 </span>Array-destructuring iterable values <a class="header-anchor" href="ch_destructuring.html#_array-destructuring-iterable-values" aria-hidden="true">#</a></h4>
+
+<p>Array-destructuring works with any iterable value. That is occasionally useful:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code><code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">().</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;a&apos;</code><code class="p">).</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;b&apos;</code><code class="p">);</code>
+    <code class="c1">// x = &apos;a&apos;; y = &apos;b&apos;</code>
+
+<code class="kr">const</code> <code class="p">[</code><code class="nx">a</code><code class="p">,</code><code class="nx">b</code><code class="p">]</code> <code class="o">=</code> <code class="s1">&apos;foo&apos;</code><code class="p">;</code>
+    <code class="c1">// a = &apos;f&apos;; b = &apos;o&apos;</code>
+</pre></div>
+
+</figure>
+
+<h4 id="sec_multiple-return-values">
+<span class="section-number">10.10.4 </span>Multiple return values <a class="header-anchor" href="ch_destructuring.html#sec_multiple-return-values" aria-hidden="true">#</a></h4>
+
+<p>To see the usefulness of multiple return values, let&#x2019;s implement a function <code>findElement(a, p)</code> that searches for the first element in the Array <code>a</code> for which the function <code>p</code> returns <code>true</code>. The question is: what should <code>findElement()</code> return? Sometimes one is interested in the element itself, sometimes in its index, sometimes in both. The following implementation returns both.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">findElement</code><code class="p">(</code><code class="nx">array</code><code class="p">,</code> <code class="nx">predicate</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">index</code><code class="p">,</code> <code class="nx">element</code><code class="p">]</code> <code class="k">of</code> <code class="nx">array</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code> <code class="c1">// (A)</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">predicate</code><code class="p">(</code><code class="nx">element</code><code class="p">,</code> <code class="nx">index</code><code class="p">,</code> <code class="nx">array</code><code class="p">))</code> <code class="p">{</code>
+            <code class="c1">// We found an element:</code>
+            <code class="k">return</code> <code class="p">{</code> <code class="nx">element</code><code class="p">,</code> <code class="nx">index</code> <code class="p">};</code>
+                <code class="c1">// Same as (property value shorthands):</code>
+                <code class="c1">// { element: element, index: index }</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+    <code class="c1">// We couldn&#x2019;t find anything; return failure values:</code>
+    <code class="k">return</code> <code class="p">{</code> <code class="nx">element</code><code class="o">:</code> <code class="kc">undefined</code><code class="p">,</code> <code class="nx">index</code><code class="o">:</code> <code class="o">-</code><code class="mi">1</code> <code class="p">};</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The function iterates over all elements of <code>array</code>, via the Array method <code>entries()</code>, which returns an iterable over <code>[index,element]</code> pairs (line A). The parts of the pairs are accessed via destructuring.</p>
+
+<p>Let&#x2019;s use <code>findElement()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="mi">7</code><code class="p">,</code> <code class="mi">8</code><code class="p">,</code> <code class="mi">6</code><code class="p">];</code>
+<code class="kr">const</code> <code class="p">{</code><code class="nx">element</code><code class="p">,</code> <code class="nx">index</code><code class="p">}</code> <code class="o">=</code> <code class="nx">findElement</code><code class="p">(</code><code class="nx">arr</code><code class="p">,</code> <code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code> <code class="o">%</code> <code class="mi">2</code> <code class="o">===</code> <code class="mi">0</code><code class="p">);</code>
+    <code class="c1">// element = 8, index = 1</code>
+</pre></div>
+
+</figure>
+
+<p>Several ECMAScript 6 features allowed us to write more concise code: The callback is an arrow function; the return value is destructured via an object pattern with property value shorthands.</p>
+
+<p>Due to <code>index</code> and <code>element</code> also referring to property keys, the order in which we mention them doesn&#x2019;t matter. We can swap them and nothing changes:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">{</code><code class="nx">index</code><code class="p">,</code> <code class="nx">element</code><code class="p">}</code> <code class="o">=</code> <code class="nx">findElement</code><code class="p">(</code><code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>We have successfully handled the case of needing both index and element. What if we are only interested in one of them? It turns out that, thanks to ECMAScript 6, our implementation can take care of that, too. And the syntactic overhead compared to functions with single return values is minimal.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">a</code> <code class="o">=</code> <code class="p">[</code><code class="mi">7</code><code class="p">,</code> <code class="mi">8</code><code class="p">,</code> <code class="mi">6</code><code class="p">];</code>
+
+<code class="kr">const</code> <code class="p">{</code><code class="nx">element</code><code class="p">}</code> <code class="o">=</code> <code class="nx">findElement</code><code class="p">(</code><code class="nx">a</code><code class="p">,</code> <code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code> <code class="o">%</code> <code class="mi">2</code> <code class="o">===</code> <code class="mi">0</code><code class="p">);</code>
+    <code class="c1">// element = 8</code>
+
+<code class="kr">const</code> <code class="p">{</code><code class="nx">index</code><code class="p">}</code> <code class="o">=</code> <code class="nx">findElement</code><code class="p">(</code><code class="nx">a</code><code class="p">,</code> <code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code> <code class="o">%</code> <code class="mi">2</code> <code class="o">===</code> <code class="mi">0</code><code class="p">);</code>
+    <code class="c1">// index = 1</code>
+</pre></div>
+
+</figure>
+
+<p>Each time, we only extract the value of the one property that we need.</p>
+
+
+<h3 id="sec_destructuring-algorithm">
+<span class="section-number">10.11 </span>The destructuring algorithm <a class="header-anchor" href="ch_destructuring.html#sec_destructuring-algorithm" aria-hidden="true">#</a></h3>
+
+<p>This section looks at destructuring from a different angle: as a recursive pattern matching algorithm.</p>
+
+<aside class="generic_inbar blurb eye icon-eye">
+    <p>This different angle should especially help with understanding default values. If you feel you don&#x2019;t fully understand them yet, read on.</p>
+
+</aside>
+
+<p>At the end, I&#x2019;ll use the algorithm to explain the difference between the following two function declarations.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">move</code><code class="p">({</code><code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">}</code> <code class="o">=</code> <code class="p">{})</code>         <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+<code class="kd">function</code> <code class="nx">move</code><code class="p">({</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="mi">0</code> <code class="p">})</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_the-algorithm">
+<span class="section-number">10.11.1 </span>The algorithm <a class="header-anchor" href="ch_destructuring.html#_the-algorithm" aria-hidden="true">#</a></h4>
+
+<p>A destructuring assignment looks like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="err">&#xAB;</code><code class="nx">pattern</code><code class="err">&#xBB;</code> <code class="o">=</code> <code class="err">&#xAB;</code><code class="nx">value</code><code class="err">&#xBB;</code>
+</pre></div>
+
+</figure>
+
+<p>We want to use <code>pattern</code> to extract data from <code>value</code>. I&#x2019;ll now describe an algorithm for doing so, which is known in functional programming as <em>pattern matching</em> (short: <em>matching</em>). The algorithm specifies the operator <code>&#x2190;</code> (&#x201C;match against&#x201D;) for destructuring assignment that matches a <code>pattern</code> against a <code>value</code> and assigns to variables while doing so:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="err">&#xAB;</code><code class="nx">pattern</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="err">&#xAB;</code><code class="nx">value</code><code class="err">&#xBB;</code>
+</pre></div>
+
+</figure>
+
+<p>The algorithm is specified via recursive rules that take apart both operands of the <code>&#x2190;</code> operator. The declarative notation may take some getting used to, but it makes the specification of the algorithm more concise. Each rule has two parts:</p>
+
+<ul>
+  <li>The head (first line) describes the condition that triggers the rule.</li>
+  <li>The body (remaining lines) describes what happens if the rule is triggered.</li>
+</ul>
+
+<p>Let&#x2019;s look at an example:</p>
+
+<ul>
+  <li>(2c) <code>{key: &#xAB;pattern&#xBB;, &#xAB;properties&#xBB;} &#x2190; obj</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="err">&#xAB;</code><code class="nx">pattern</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">obj</code><code class="p">.</code><code class="nx">key</code>
+  <code class="p">{</code><code class="err">&#xAB;</code><code class="nx">properties</code><code class="err">&#xBB;</code><code class="p">}</code> <code class="err">&#x2190;</code> <code class="nx">obj</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>(2e) <code>{} &#x2190; obj</code> (no properties left)
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="c1">// Nothing to do</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>In rule (2c), the head means that this rule is executed if there is an object pattern with at least one property and zero or more remaining properties. That pattern is matched against a value <code>obj</code>. The effect of this rule is that execution continues with the property value pattern being matched against <code>obj.key</code> and the remaining properties being matched against <code>obj</code>.</p>
+
+<p>In rule (2e), the head means that this rule is executed if the empty object pattern <code>{}</code> is matched against a value <code>obj</code>. Then there is nothing to be done.</p>
+
+<p>Whenever the algorithm is invoked, the rules are checked top to bottom and only the first rule that is applicable is executed.</p>
+
+<p>I only show the algorithm for destructuring assignment. Destructuring variable declarations and destructuring parameter definitions work similarly.</p>
+
+<p>I don&#x2019;t cover advanced features (computed property keys; property value shorthands; object properties and array elements as assignment targets), either. Only the basics.</p>
+
+<h5 id="_patterns">
+<span class="section-number">10.11.1.1 </span>Patterns <a class="header-anchor" href="ch_destructuring.html#_patterns" aria-hidden="true">#</a></h5>
+
+<p>A pattern is either:</p>
+
+<ul>
+  <li>A variable: <code>x</code>
+</li>
+  <li>An object pattern: <code>{&#xAB;properties&#xBB;}</code>
+</li>
+  <li>An Array pattern: <code>[&#xAB;elements&#xBB;]</code>
+</li>
+</ul>
+
+<p>Each of the following sections describes one of these three cases.</p>
+
+<p>The following three sections specify how to handle these three cases. Each section contains one or more numbered rules.</p>
+
+<h5 id="_variable">
+<span class="section-number">10.11.1.2 </span>Variable <a class="header-anchor" href="ch_destructuring.html#_variable" aria-hidden="true">#</a></h5>
+
+<ul>
+  <li>(1) <code>x &#x2190; value</code> (including <code>undefined</code> and <code>null</code>)
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="nx">x</code> <code class="o">=</code> <code class="nx">value</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<h5 id="_object-pattern">
+<span class="section-number">10.11.1.3 </span>Object pattern <a class="header-anchor" href="ch_destructuring.html#_object-pattern" aria-hidden="true">#</a></h5>
+
+<ul>
+  <li>(2a) <code>{&#xAB;properties&#xBB;} &#x2190; undefined</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="k">throw</code> <code class="k">new</code> <code class="nx">TypeError</code><code class="p">();</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>(2b) <code>{&#xAB;properties&#xBB;} &#x2190; null</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="k">throw</code> <code class="k">new</code> <code class="nx">TypeError</code><code class="p">();</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>(2c) <code>{key: &#xAB;pattern&#xBB;, &#xAB;properties&#xBB;} &#x2190; obj</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="err">&#xAB;</code><code class="nx">pattern</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">obj</code><code class="p">.</code><code class="nx">key</code>
+  <code class="p">{</code><code class="err">&#xAB;</code><code class="nx">properties</code><code class="err">&#xBB;</code><code class="p">}</code> <code class="err">&#x2190;</code> <code class="nx">obj</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>(2d) <code>{key: &#xAB;pattern&#xBB; = default_value, &#xAB;properties&#xBB;} &#x2190; obj</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">tmp</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">.</code><code class="nx">key</code><code class="p">;</code>
+  <code class="k">if</code> <code class="p">(</code><code class="nx">tmp</code> <code class="o">!==</code> <code class="kc">undefined</code><code class="p">)</code> <code class="p">{</code>
+      <code class="err">&#xAB;</code><code class="nx">pattern</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">tmp</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+      <code class="err">&#xAB;</code><code class="nx">pattern</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">default_value</code>
+  <code class="p">}</code>
+  <code class="p">{</code><code class="err">&#xAB;</code><code class="nx">properties</code><code class="err">&#xBB;</code><code class="p">}</code> <code class="err">&#x2190;</code> <code class="nx">obj</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>(2e) <code>{} &#x2190; obj</code> (no properties left)
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="c1">// Nothing to do</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<h5 id="_array-pattern">
+<span class="section-number">10.11.1.4 </span>Array pattern <a class="header-anchor" href="ch_destructuring.html#_array-pattern" aria-hidden="true">#</a></h5>
+
+<p><strong>Array pattern and iterable.</strong> The algorithm for Array destructuring starts with an Array pattern and an iterable:</p>
+
+<ul>
+  <li>(3a) <code>[&#xAB;elements&#xBB;] &#x2190; non_iterable</code><br>
+  <code>assert(!isIterable(non_iterable))</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="k">throw</code> <code class="k">new</code> <code class="nx">TypeError</code><code class="p">();</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>(3b) <code>[&#xAB;elements&#xBB;] &#x2190; iterable</code><br>
+  <code>assert(isIterable(iterable))</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">iterator</code> <code class="o">=</code> <code class="nx">iterable</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]();</code>
+  <code class="err">&#xAB;</code><code class="nx">elements</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">iterator</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>Helper function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">isIterable</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="p">(</code><code class="nx">value</code> <code class="o">!==</code> <code class="kc">null</code>
+        <code class="o">&amp;&amp;</code> <code class="k">typeof</code> <code class="nx">value</code> <code class="o">===</code> <code class="s1">&apos;object&apos;</code>
+        <code class="o">&amp;&amp;</code> <code class="k">typeof</code> <code class="nx">value</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]</code> <code class="o">===</code> <code class="s1">&apos;function&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><strong>Array elements and iterator.</strong> The algorithm continues with the elements of the pattern (left-hand side of the arrow) and the iterator that was obtained from the iterable (right-hand side of the arrow).</p>
+
+<ul>
+  <li>(3c) <code>&#xAB;pattern&#xBB;, &#xAB;elements&#xBB; &#x2190; iterator</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="err">&#xAB;</code><code class="nx">pattern</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">getNext</code><code class="p">(</code><code class="nx">iterator</code><code class="p">)</code> <code class="c1">// undefined after last item</code>
+  <code class="err">&#xAB;</code><code class="nx">elements</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">iterator</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>(3d) <code>&#xAB;pattern&#xBB; = default_value, &#xAB;elements&#xBB; &#x2190; iterator</code>
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">tmp</code> <code class="o">=</code> <code class="nx">getNext</code><code class="p">(</code><code class="nx">iterator</code><code class="p">);</code>  <code class="c1">// undefined after last item</code>
+  <code class="k">if</code> <code class="p">(</code><code class="nx">tmp</code> <code class="o">!==</code> <code class="kc">undefined</code><code class="p">)</code> <code class="p">{</code>
+      <code class="err">&#xAB;</code><code class="nx">pattern</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">tmp</code>
+  <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+      <code class="err">&#xAB;</code><code class="nx">pattern</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">default_value</code>
+  <code class="p">}</code>
+  <code class="err">&#xAB;</code><code class="nx">elements</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">iterator</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>(3e) <code>, &#xAB;elements&#xBB; &#x2190; iterator</code> (hole, elision)
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="nx">getNext</code><code class="p">(</code><code class="nx">iterator</code><code class="p">);</code> <code class="c1">// skip</code>
+  <code class="err">&#xAB;</code><code class="nx">elements</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">iterator</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>(3f) <code>...&#xAB;pattern&#xBB; &#x2190; iterator</code> (always last part!)
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">tmp</code> <code class="o">=</code> <code class="p">[];</code>
+  <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">elem</code> <code class="k">of</code> <code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+      <code class="nx">tmp</code><code class="p">.</code><code class="nx">push</code><code class="p">(</code><code class="nx">elem</code><code class="p">);</code>
+  <code class="p">}</code>
+  <code class="err">&#xAB;</code><code class="nx">pattern</code><code class="err">&#xBB;</code> <code class="err">&#x2190;</code> <code class="nx">tmp</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>(3g) <code>&#x2190; iterator</code> (no elements left)
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="c1">// Nothing to do</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>Helper function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">getNext</code><code class="p">(</code><code class="nx">iterator</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="p">{</code><code class="nx">done</code><code class="p">,</code><code class="nx">value</code><code class="p">}</code> <code class="o">=</code> <code class="nx">iterator</code><code class="p">.</code><code class="nx">next</code><code class="p">();</code>
+    <code class="k">return</code> <code class="p">(</code><code class="nx">done</code> <code class="o">?</code> <code class="kc">undefined</code> <code class="o">:</code> <code class="nx">value</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_applying-the-algorithm">
+<span class="section-number">10.11.2 </span>Applying the algorithm <a class="header-anchor" href="ch_destructuring.html#_applying-the-algorithm" aria-hidden="true">#</a></h4>
+
+<p>In ECMAScript 6, you can simulate named parameters if the caller uses an object literal and the callee uses destructuring. This simulation is explained in detail in <a href="ch_parameter-handling.html#sec_named-parameters">the chapter on parameter handling</a>. The following code shows an example: function <code>move1()</code> has two named parameters, <code>x</code> and <code>y</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">move1</code><code class="p">({</code><code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">}</code> <code class="o">=</code> <code class="p">{})</code> <code class="p">{</code> <code class="c1">// (A)</code>
+    <code class="k">return</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">];</code>
+<code class="p">}</code>
+<code class="nx">move1</code><code class="p">({</code><code class="nx">x</code><code class="o">:</code> <code class="mi">3</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="mi">8</code><code class="p">});</code> <code class="c1">// [3, 8]</code>
+<code class="nx">move1</code><code class="p">({</code><code class="nx">x</code><code class="o">:</code> <code class="mi">3</code><code class="p">});</code> <code class="c1">// [3, 0]</code>
+<code class="nx">move1</code><code class="p">({});</code> <code class="c1">// [0, 0]</code>
+<code class="nx">move1</code><code class="p">();</code> <code class="c1">// [0, 0]</code>
+</pre></div>
+
+</figure>
+
+<p>There are three default values in line A:</p>
+
+<ul>
+  <li>The first two default values allow you to omit <code>x</code> and <code>y</code>.</li>
+  <li>The third default value allows you to call <code>move1()</code> without parameters (as in the last line).</li>
+</ul>
+
+<p>But why would you define the parameters as in the previous code snippet? Why not as follows &#x2013; which is also completely legal ES6 code?</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">move2</code><code class="p">({</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="mi">0</code> <code class="p">})</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">];</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>To see why <code>move1()</code> is correct, let&#x2019;s use both functions for two examples. Before we do that, let&#x2019;s see how the passing of parameters can be explained via matching.</p>
+
+<h5 id="_background-passing-parameters-via-matching">
+<span class="section-number">10.11.2.1 </span>Background: passing parameters via matching <a class="header-anchor" href="ch_destructuring.html#_background-passing-parameters-via-matching" aria-hidden="true">#</a></h5>
+
+<p>For function calls, formal parameters (inside function definitions) are matched against actual parameters (inside function calls). As an example, take the following function definition and the following function call.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">func</code><code class="p">(</code><code class="nx">a</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">b</code><code class="o">=</code><code class="mi">0</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+<code class="nx">func</code><code class="p">(</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>The parameters <code>a</code> and <code>b</code> are set up similarly to the following destructuring.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">[</code><code class="nx">a</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">b</code><code class="o">=</code><code class="mi">0</code><code class="p">]</code> <code class="err">&#x2190;</code> <code class="p">[</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">]</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_using-move2">
+<span class="section-number">10.11.2.2 </span>Using <code>move2()</code>
+ <a class="header-anchor" href="ch_destructuring.html#_using-move2" aria-hidden="true">#</a></h5>
+
+<p>Let&#x2019;s examine how destructuring works for <code>move2()</code>.</p>
+
+<p><strong>Example 1.</strong>  <code>move2()</code> leads to this destructuring:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">[{</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="mi">0</code> <code class="p">}]</code> <code class="err">&#x2190;</code> <code class="p">[]</code>
+</pre></div>
+
+</figure>
+
+<p>The single Array element on the left-hand side does not have a match on the right-hand side, which is why <code>{x,y}</code> is matched against the default value and not against data from the right-hand side (rules 3b, 3d):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">}</code> <code class="err">&#x2190;</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="mi">0</code> <code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The left-hand side contains <em>property value shorthands</em>, it is an abbreviation for:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code><code class="nx">x</code><code class="o">:</code> <code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="nx">y</code><code class="p">}</code> <code class="err">&#x2190;</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="mi">0</code> <code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>This destructuring leads to the following two assignments (rules 2c, 1):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">x</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+<code class="nx">y</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p><strong>Example 2.</strong> Let&#x2019;s examine the function call <code>move2({z:3})</code> which leads to the following destructuring:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">[{</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">}</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">x</code><code class="o">:</code> <code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="mi">0</code> <code class="p">}]</code> <code class="err">&#x2190;</code> <code class="p">[{</code><code class="nx">z</code><code class="o">:</code><code class="mi">3</code><code class="p">}]</code>
+</pre></div>
+
+</figure>
+
+<p>There is an Array element at index 0 on the right-hand side. Therefore, the default value is ignored and the next step is (rule 3d):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">}</code> <code class="err">&#x2190;</code> <code class="p">{</code> <code class="nx">z</code><code class="o">:</code> <code class="mi">3</code> <code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>That leads to both <code>x</code> and <code>y</code> being set to <code>undefined</code>, which is not what we want.</p>
+
+<h5 id="_using-move1">
+<span class="section-number">10.11.2.3 </span>Using <code>move1()</code>
+ <a class="header-anchor" href="ch_destructuring.html#_using-move1" aria-hidden="true">#</a></h5>
+
+<p>Let&#x2019;s try <code>move1()</code>.</p>
+
+<p><strong>Example 1:</strong> <code>move1()</code></p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">[{</code><code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">}</code> <code class="o">=</code> <code class="p">{}]</code> <code class="err">&#x2190;</code> <code class="p">[]</code>
+</pre></div>
+
+</figure>
+
+<p>We don&#x2019;t have an Array element at index 0 on the right-hand side and use the default value (rule 3d):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code><code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">}</code> <code class="err">&#x2190;</code> <code class="p">{}</code>
+</pre></div>
+
+</figure>
+
+<p>The left-hand side contains property value shorthands, which means that this destructuring is equivalent to:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code><code class="nx">x</code><code class="o">:</code> <code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">:</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">}</code> <code class="err">&#x2190;</code> <code class="p">{}</code>
+</pre></div>
+
+</figure>
+
+<p>Neither property <code>x</code> nor property <code>y</code> have a match on the right-hand side. Therefore, the default values are used and the following destructurings are performed next (rule 2d):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">x</code> <code class="err">&#x2190;</code> <code class="mi">0</code>
+<code class="nx">y</code> <code class="err">&#x2190;</code> <code class="mi">0</code>
+</pre></div>
+
+</figure>
+
+<p>That leads to the following assignments (rule 1):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">x</code> <code class="o">=</code> <code class="mi">0</code>
+<code class="nx">y</code> <code class="o">=</code> <code class="mi">0</code>
+</pre></div>
+
+</figure>
+
+<p><strong>Example 2:</strong> <code>move1({z:3})</code></p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">[{</code><code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">}</code> <code class="o">=</code> <code class="p">{}]</code> <code class="err">&#x2190;</code> <code class="p">[{</code><code class="nx">z</code><code class="o">:</code><code class="mi">3</code><code class="p">}]</code>
+</pre></div>
+
+</figure>
+
+<p>The first element of the Array pattern has a match on the right-hand side and that match is used to continue destructuring (rule 3d):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code><code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">}</code> <code class="err">&#x2190;</code> <code class="p">{</code><code class="nx">z</code><code class="o">:</code><code class="mi">3</code><code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Like in example 1, there are no properties <code>x</code> and <code>y</code> on the right-hand side and the default values are used:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">x</code> <code class="o">=</code> <code class="mi">0</code>
+<code class="nx">y</code> <code class="o">=</code> <code class="mi">0</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_conclusion">
+<span class="section-number">10.11.2.4 </span>Conclusion <a class="header-anchor" href="ch_destructuring.html#_conclusion" aria-hidden="true">#</a></h5>
+
+<p>The examples demonstrate that default values are a feature of pattern parts (object properties or Array elements). If a part has no match or is matched against <code>undefined</code> then the default value is used. That is, the pattern is matched against the default value, instead.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_parameter-handling.html">11. Parameter handling</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

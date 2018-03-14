@@ -1,0 +1,1081 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>5. New number and Math features</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>5. New number and Math features</b><br>
+        <a href="index.html#toc_ch_numbers">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_numbers">
+<span class="section-number">5. </span>New number and <code>Math</code> features <a class="header-anchor" href="ch_numbers.html#ch_numbers" aria-hidden="true">#</a></h2>
+
+<hr class="scene-break">
+
+<ul>
+  <li>5.1. <a href="ch_numbers.html#sec_overview-numbers">Overview</a>
+    <ul>
+      <li>5.1.1. New integer literals</li>
+      <li>5.1.2. New <code>Number</code> properties</li>
+      <li>5.1.3. New <code>Math</code> methods</li>
+    </ul>
+  </li>
+  <li>5.2. <a href="ch_numbers.html#sec_new-integer-literals">New integer literals</a>
+    <ul>
+      <li>5.2.1. Use case for octal literals: Unix-style file permissions</li>
+      <li>5.2.2. <code>Number.parseInt()</code> and the new integer literals</li>
+    </ul>
+  </li>
+  <li>5.3. <a href="ch_numbers.html#sec_new-static-number-props">New static <code>Number</code> properties</a>
+    <ul>
+      <li>5.3.1. Previously global functions</li>
+      <li>5.3.2. <code>Number.EPSILON</code>
+</li>
+      <li>5.3.3. <code>Number.isInteger(number)</code>
+</li>
+      <li>5.3.4. Safe integers</li>
+    </ul>
+  </li>
+  <li>5.4. <a href="ch_numbers.html#sec_new-math">New <code>Math</code> functionality</a>
+    <ul>
+      <li>5.4.1. Various numerical functionality</li>
+      <li>5.4.2. Using 0 instead of 1 with exponentiation and logarithm</li>
+      <li>5.4.3. Logarithms to base 2 and 10</li>
+      <li>5.4.4. Support for compiling to JavaScript</li>
+      <li>5.4.5. Bitwise operations</li>
+      <li>5.4.6. Trigonometric methods</li>
+    </ul>
+  </li>
+  <li>5.5. <a href="ch_numbers.html#sec_faq-numbers">FAQ: numbers</a>
+    <ul>
+      <li>5.5.1. How can I use integers beyond JavaScript&#x2019;s 53 bit range?</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-numbers">
+<span class="section-number">5.1 </span>Overview <a class="header-anchor" href="ch_numbers.html#sec_overview-numbers" aria-hidden="true">#</a></h3>
+
+<h4 id="_new-integer-literals">
+<span class="section-number">5.1.1 </span>New integer literals <a class="header-anchor" href="ch_numbers.html#_new-integer-literals" aria-hidden="true">#</a></h4>
+
+<p>You can now specify integers in binary and octal notation:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; 0xFF // ES5: hexadecimal
+255
+&gt; 0b11 // ES6: binary
+3
+&gt; 0o10 // ES6: octal
+8
+</pre></div>
+
+</figure>
+
+<h4 id="_new-number-properties">
+<span class="section-number">5.1.2 </span>New <code>Number</code> properties <a class="header-anchor" href="ch_numbers.html#_new-number-properties" aria-hidden="true">#</a></h4>
+
+<p>The global object <code>Number</code> gained a few new properties:</p>
+
+<ul>
+  <li>
+<code>Number.EPSILON</code> for comparing floating point numbers with a tolerance for rounding errors.</li>
+  <li>
+<code>Number.isInteger(num)</code> checks whether <code>num</code> is an integer (a number without a decimal fraction):
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; Number.isInteger(1.05)
+  false
+  &gt; Number.isInteger(1)
+  true
+
+  &gt; Number.isInteger(-3.1)
+  false
+  &gt; Number.isInteger(-3)
+  true
+</pre></div>
+
+    </figure>
+  </li>
+  <li>A method and constants for determining whether a JavaScript integer is <em>safe</em> (within the signed 53 bit range in which there is no loss of precision):
+    <ul>
+      <li><code>Number.isSafeInteger(number)</code></li>
+      <li><code>Number.MIN_SAFE_INTEGER</code></li>
+      <li><code>Number.MAX_SAFE_INTEGER</code></li>
+    </ul>
+  </li>
+  <li>
+<code>Number.isNaN(num)</code> checks whether <code>num</code> is the value <code>NaN</code>. In contrast to the global function <code>isNaN()</code>, it doesn&#x2019;t coerce its argument to a number and is therefore safer for non-numbers:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; isNaN(&apos;???&apos;)
+  true
+  &gt; Number.isNaN(&apos;???&apos;)
+  false
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Three additional methods of <code>Number</code> are mostly equivalent to the global functions with the same names: <code>Number.isFinite</code>, <code>Number.parseFloat</code>, <code>Number.parseInt</code>.</li>
+</ul>
+
+<h4 id="_new-math-methods">
+<span class="section-number">5.1.3 </span>New <code>Math</code> methods <a class="header-anchor" href="ch_numbers.html#_new-math-methods" aria-hidden="true">#</a></h4>
+
+<p>The global object <code>Math</code> has new methods for numerical, trigonometric and bitwise operations. Let&#x2019;s look at four examples.</p>
+
+<p><code>Math.sign()</code> returns the sign of a number:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.sign(-8)
+-1
+&gt; Math.sign(0)
+0
+&gt; Math.sign(3)
+1
+</pre></div>
+
+</figure>
+
+<p><code>Math.trunc()</code> removes the decimal fraction of a number:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.trunc(3.1)
+3
+&gt; Math.trunc(3.9)
+3
+&gt; Math.trunc(-3.1)
+-3
+&gt; Math.trunc(-3.9)
+-3
+</pre></div>
+
+</figure>
+
+
+<p><code>Math.log10()</code> computes the logarithm to base 10:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.log10(100)
+2
+</pre></div>
+
+</figure>
+
+<p><code>Math.hypot()</code> Computes the square root of the sum of the squares of its arguments (Pythagoras&#x2019; theorem):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.hypot(3, 4)
+5    
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_new-integer-literals">
+<span class="section-number">5.2 </span>New integer literals <a class="header-anchor" href="ch_numbers.html#sec_new-integer-literals" aria-hidden="true">#</a></h3>
+
+<p>ECMAScript 5 already has literals for hexadecimal integers:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; 0x9
+9
+&gt; 0xA
+10
+&gt; 0x10
+16
+&gt; 0xFF
+255
+</pre></div>
+
+</figure>
+
+<p>ECMAScript 6 brings two new kinds of integer literals:</p>
+
+<ul>
+  <li>Binary literals have the prefix <code>0b</code> or <code>0B</code>:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; 0b11
+  3
+  &gt; 0b100
+  4
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Octal literals have the prefix <code>0o</code> or <code>0O</code> (that&#x2019;s a zero followed by the capital letter O; the first variant is safer):
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; 0o7
+  7
+  &gt; 0o10
+  8
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>Remember that the <code>Number</code> method <code>toString(radix)</code> can be used to see numbers in a base other than 10:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; 255..toString(16)
+&apos;ff&apos;
+&gt; 4..toString(2)
+&apos;100&apos;
+&gt; 8..toString(8)
+&apos;10&apos;
+</pre></div>
+
+</figure>
+
+<p>(The double dots are necessary so that the dot for property access isn&#x2019;t confused with a decimal dot.)</p>
+
+
+<h4 id="_use-case-for-octal-literals-unix-style-file-permissions">
+<span class="section-number">5.2.1 </span>Use case for octal literals: Unix-style file permissions <a class="header-anchor" href="ch_numbers.html#_use-case-for-octal-literals-unix-style-file-permissions" aria-hidden="true">#</a></h4>
+
+<p>In the Node.js <a href="https://nodejs.org/api/fs.html">file system module</a>, several functions have the parameter <code>mode</code>. Its value is used to specify file permissions, via an encoding that is a holdover from Unix:</p>
+
+<ul>
+  <li>Permissions are specified for three categories of users:
+    <ul>
+      <li>User: the owner of the file</li>
+      <li>Group: the members of the group associated with the file</li>
+      <li>All: everyone</li>
+    </ul>
+  </li>
+  <li>Per category, the following permissions can be granted:
+    <ul>
+      <li>r (read): the users in the category are allowed to read the file</li>
+      <li>w (write): the users in the category are allowed to change the file</li>
+      <li>x (execute): the users in the category are allowed to run the file</li>
+    </ul>
+  </li>
+</ul>
+
+<p>That means that permissions can be represented by 9 bits (3 categories with 3 permissions each):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>&#xA0;</th>
+      <th>User</th>
+      <th>Group</th>
+      <th>All</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Permissions</td>
+      <td>r, w, x</td>
+      <td>r, w, x</td>
+      <td>r, w, x</td>
+    </tr>
+    <tr>
+      <td>Bit</td>
+      <td>8, 7, 6</td>
+      <td>5, 4, 3</td>
+      <td>2, 1, 0</td>
+    </tr>
+  </tbody>
+
+</table>
+
+<p>The permissions of a single category of users are stored in 3 bits:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Bits</th>
+      <th>Permissions</th>
+      <th>Octal digit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>000</td>
+      <td>&#x2013;&#x2013;&#x2013;</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>001</td>
+      <td>&#x2013;&#x2013;x</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>010</td>
+      <td>&#x2013;w&#x2013;</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>011</td>
+      <td>&#x2013;wx</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>100</td>
+      <td>r&#x2013;&#x2013;</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>101</td>
+      <td>r&#x2013;x</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>110</td>
+      <td>rw&#x2013;</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>111</td>
+      <td>rwx</td>
+      <td>7</td>
+    </tr>
+  </tbody>
+
+</table>
+
+<p>That means that octal numbers are a compact representation of all permissions, you only need 3 digits, one digit per category of users. Two examples:</p>
+
+<ul>
+  <li>755 = 111,101,101: I can change, read and execute; everyone else can only read and execute.</li>
+  <li>640 = 110,100,000: I can read and write; group members can read; everyone can&#x2019;t access at all.</li>
+</ul>
+
+
+<h4 id="_numberparseint-and-the-new-integer-literals">
+<span class="section-number">5.2.2 </span><code>Number.parseInt()</code> and the new integer literals <a class="header-anchor" href="ch_numbers.html#_numberparseint-and-the-new-integer-literals" aria-hidden="true">#</a></h4>
+
+<p><code>Number.parseInt()</code> (which does the same as the global function <code>parseInt()</code>) has the following signature:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Number</code><code class="p">.</code><code class="nb">parseInt</code><code class="p">(</code><code class="nx">string</code><code class="p">,</code> <code class="nx">radix</code><code class="o">?</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_numberparseint-hexadecimal-number-literals">
+<span class="section-number">5.2.2.1 </span><code>Number.parseInt()</code>: hexadecimal number literals <a class="header-anchor" href="ch_numbers.html#_numberparseint-hexadecimal-number-literals" aria-hidden="true">#</a></h5>
+
+<p><code>Number.parseInt()</code> provides special support for the hexadecimal literal notation &#x2013; the prefix <code>0x</code> (or <code>0X</code>) of <code>string</code> is removed if:</p>
+
+<ul>
+  <li>
+<code>radix</code> is missing or 0. Then <code>radix</code> is set to 16. As a rule, you should never omit the <code>radix</code>.</li>
+  <li>
+<code>radix</code> is 16.</li>
+</ul>
+
+<p>For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number.parseInt(&apos;0xFF&apos;)
+255
+&gt; Number.parseInt(&apos;0xFF&apos;, 0)
+255
+&gt; Number.parseInt(&apos;0xFF&apos;, 16)
+255
+</pre></div>
+
+</figure>
+
+<p>In all other cases, digits are only parsed until the first non-digit:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number.parseInt(&apos;0xFF&apos;, 10)
+0
+&gt; Number.parseInt(&apos;0xFF&apos;, 17)
+0
+</pre></div>
+
+</figure>
+
+<h5 id="_numberparseint-binary-and-octal-number-literals">
+<span class="section-number">5.2.2.2 </span><code>Number.parseInt()</code>: binary and octal number literals <a class="header-anchor" href="ch_numbers.html#_numberparseint-binary-and-octal-number-literals" aria-hidden="true">#</a></h5>
+
+<p>However, <code>Number.parseInt()</code> does not have special support for binary or octal literals!</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number.parseInt(&apos;0b111&apos;)
+0
+&gt; Number.parseInt(&apos;0b111&apos;, 2)
+0
+&gt; Number.parseInt(&apos;111&apos;, 2)
+7
+
+&gt; Number.parseInt(&apos;0o10&apos;)
+0
+&gt; Number.parseInt(&apos;0o10&apos;, 8)
+0
+&gt; Number.parseInt(&apos;10&apos;, 8)
+8
+</pre></div>
+
+</figure>
+
+<p>If you want to parse these kinds of literals, you need to use <code>Number()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number(&apos;0b111&apos;)
+7
+&gt; Number(&apos;0o10&apos;)
+8
+</pre></div>
+
+</figure>
+
+<p><code>Number.parseInt()</code> works fine with numbers that have a different base, as long as there is no special prefix and the parameter <code>radix</code> is provided:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number.parseInt(&apos;111&apos;, 2)
+7
+&gt; Number.parseInt(&apos;10&apos;, 8)
+8
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_new-static-number-props">
+<span class="section-number">5.3 </span>New static <code>Number</code> properties <a class="header-anchor" href="ch_numbers.html#sec_new-static-number-props" aria-hidden="true">#</a></h3>
+
+<p>This section describes new properties that the constructor <code>Number</code> has picked up in ECMAScript 6.</p>
+
+
+<h4 id="_previously-global-functions">
+<span class="section-number">5.3.1 </span>Previously global functions <a class="header-anchor" href="ch_numbers.html#_previously-global-functions" aria-hidden="true">#</a></h4>
+
+<p>Four number-related functions are already available as global functions and have been added to <code>Number</code>, as methods: <code>isFinite</code> and <code>isNaN</code>, <code>parseFloat</code> and <code>parseInt</code>. All of them work almost the same as their global counterparts, but <code>isFinite</code> and <code>isNaN</code> don&#x2019;t coerce their arguments to numbers, anymore, which is especially important for <code>isNaN</code>. The following subsections explain all the details.</p>
+
+<h5 id="_numberisfinitenumber">
+<span class="section-number">5.3.1.1 </span><code>Number.isFinite(number)</code>
+ <a class="header-anchor" href="ch_numbers.html#_numberisfinitenumber" aria-hidden="true">#</a></h5>
+
+<p><code>Number.isFinite(number)</code> determines whether <code>number</code> is an actual number (neither <code>Infinity</code> nor <code>-Infinity</code> nor <code>NaN</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number.isFinite(Infinity)
+false
+&gt; Number.isFinite(-Infinity)
+false
+&gt; Number.isFinite(NaN)
+false
+&gt; Number.isFinite(123)
+true
+</pre></div>
+
+</figure>
+
+<p>The advantage of this method is that it does not coerce its parameter to number (whereas the global function does):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number.isFinite(&apos;123&apos;)
+false
+&gt; isFinite(&apos;123&apos;)
+true
+</pre></div>
+
+</figure>
+
+<h5 id="_numberisnannumber">
+<span class="section-number">5.3.1.2 </span><code>Number.isNaN(number)</code>
+ <a class="header-anchor" href="ch_numbers.html#_numberisnannumber" aria-hidden="true">#</a></h5>
+
+<p><code>Number.isNaN(number)</code> checks whether <code>number</code> is the value <code>NaN</code>.</p>
+
+<p>One ES5 way of making this check is via <code>!==</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const x = NaN;
+&gt; x !== x
+true
+</pre></div>
+
+</figure>
+
+<p>A more descriptive way is via the global function <code>isNaN()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const x = NaN;
+&gt; isNaN(x)
+true
+</pre></div>
+
+</figure>
+
+<p>However, this function coerces non-numbers to numbers and returns <code>true</code> if the result is <code>NaN</code> (which is usually not what you want):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; isNaN(&apos;???&apos;)
+true
+</pre></div>
+
+</figure>
+
+<p>The new method <code>Number.isNaN()</code> does not exhibit this problem, because it does not coerce its arguments to numbers:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number.isNaN(&apos;???&apos;)
+false
+</pre></div>
+
+</figure>
+
+<h5 id="_numberparsefloat-and-numberparseint">
+<span class="section-number">5.3.1.3 </span><code>Number.parseFloat</code> and <code>Number.parseInt</code>
+ <a class="header-anchor" href="ch_numbers.html#_numberparsefloat-and-numberparseint" aria-hidden="true">#</a></h5>
+
+<p>The following two methods work exactly like the global functions with the same names. They were added to <code>Number</code> for completeness sake; now all number-related functions are available there.</p>
+
+<ul>
+  <li>
+<code>Number.parseFloat(string)</code><sup id="fnref-numbers_1"><a href="leanpub-endnotes.html#fn-numbers_1" rel="footnote">1</a></sup>
+</li>
+  <li>
+<code>Number.parseInt(string, radix)</code><sup id="fnref-numbers_2"><a href="leanpub-endnotes.html#fn-numbers_2" rel="footnote">2</a></sup>
+</li>
+</ul>
+
+
+<h4 id="_numberepsilon">
+<span class="section-number">5.3.2 </span><code>Number.EPSILON</code>
+ <a class="header-anchor" href="ch_numbers.html#_numberepsilon" aria-hidden="true">#</a></h4>
+
+<p>Especially with decimal fractions, rounding errors can become a problem in JavaScript<sup id="fnref-numbers_3"><a href="leanpub-endnotes.html#fn-numbers_3" rel="footnote">3</a></sup>. For example, 0.1 and 0.2 can&#x2019;t be represented precisely, which you notice if you add them and compare them to 0.3 (which can&#x2019;t be represented precisely, either).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; 0.1 + 0.2 === 0.3
+false
+</pre></div>
+
+</figure>
+
+<p><code>Number.EPSILON</code> specifies a reasonable margin of error when comparing floating point numbers. It provides a better way to compare floating point values, as demonstrated by the following function.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">epsEqu</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">abs</code><code class="p">(</code><code class="nx">x</code> <code class="o">-</code> <code class="nx">y</code><code class="p">)</code> <code class="o">&lt;</code> <code class="nb">Number</code><code class="p">.</code><code class="nx">EPSILON</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">epsEqu</code><code class="p">(</code><code class="mf">0.1</code><code class="o">+</code><code class="mf">0.2</code><code class="p">,</code> <code class="mf">0.3</code><code class="p">));</code> <code class="c1">// true</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_numberisintegernumber">
+<span class="section-number">5.3.3 </span><code>Number.isInteger(number)</code>
+ <a class="header-anchor" href="ch_numbers.html#_numberisintegernumber" aria-hidden="true">#</a></h4>
+
+<p>JavaScript has only floating point numbers (doubles). Accordingly, integers are simply floating point numbers without a decimal fraction.</p>
+
+<p><code>Number.isInteger(number)</code> returns <code>true</code> if <code>number</code> is a number and does not have a decimal fraction.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number.isInteger(-17)
+true
+&gt; Number.isInteger(33)
+true
+&gt; Number.isInteger(33.1)
+false
+&gt; Number.isInteger(&apos;33&apos;)
+false
+&gt; Number.isInteger(NaN)
+false
+&gt; Number.isInteger(Infinity)
+false
+</pre></div>
+
+</figure>
+
+
+<h4 id="sec_safe-integers">
+<span class="section-number">5.3.4 </span>Safe integers <a class="header-anchor" href="ch_numbers.html#sec_safe-integers" aria-hidden="true">#</a></h4>
+
+<p>JavaScript numbers have only enough storage space to represent 53 bit signed integers. That is, integers <em>i</em> in the range &#x2212;2<sup>53</sup> &lt; <em>i</em> &lt; 2<sup>53</sup> are <em>safe</em>. What exactly that means is explained momentarily. The following properties help determine whether a JavaScript integer is safe:</p>
+
+<ul>
+  <li><code>Number.isSafeInteger(number)</code></li>
+  <li><code>Number.MIN_SAFE_INTEGER</code></li>
+  <li><code>Number.MAX_SAFE_INTEGER</code></li>
+</ul>
+
+<p>The notion of <em>safe integers</em> centers on how mathematical integers are represented in JavaScript. In the range (&#x2212;2<sup>53</sup>, 2<sup>53</sup>) (excluding the lower and upper bounds), JavaScript integers are <em>safe</em>: there is a one-to-one mapping between them and the mathematical integers they represent.</p>
+
+<p>Beyond this range, JavaScript integers are <em>unsafe</em>: two or more mathematical integers are represented as the same JavaScript integer. For example, starting at 2<sup>53</sup>, JavaScript can represent only every second mathematical integer:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.pow(2, 53)
+9007199254740992
+
+&gt; 9007199254740992
+9007199254740992
+&gt; 9007199254740993
+9007199254740992
+&gt; 9007199254740994
+9007199254740994
+&gt; 9007199254740995
+9007199254740996
+&gt; 9007199254740996
+9007199254740996
+&gt; 9007199254740997
+9007199254740996
+</pre></div>
+
+</figure>
+
+<p>Therefore, a safe JavaScript integer is one that unambiguously represents a single mathematical integer.</p>
+
+<h5 id="_static-number-properties-related-to-safe-integers">
+<span class="section-number">5.3.4.1 </span>Static <code>Number</code> properties related to safe integers <a class="header-anchor" href="ch_numbers.html#_static-number-properties-related-to-safe-integers" aria-hidden="true">#</a></h5>
+
+<p>The two static <code>Number</code> properties specifying the lower and upper bound of safe integers could be defined as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Number</code><code class="p">.</code><code class="nx">MAX_SAFE_INTEGER</code> <code class="o">=</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">pow</code><code class="p">(</code><code class="mi">2</code><code class="p">,</code> <code class="mi">53</code><code class="p">)</code><code class="o">-</code><code class="mi">1</code><code class="p">;</code>
+<code class="nb">Number</code><code class="p">.</code><code class="nx">MIN_SAFE_INTEGER</code> <code class="o">=</code> <code class="o">-</code><code class="nb">Number</code><code class="p">.</code><code class="nx">MAX_SAFE_INTEGER</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p><code>Number.isSafeInteger()</code> determines whether a JavaScript number is a safe integer and could be defined as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Number</code><code class="p">.</code><code class="nb">isSafeInteger</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">(</code><code class="nx">n</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="p">(</code><code class="k">typeof</code> <code class="nx">n</code> <code class="o">===</code> <code class="s1">&apos;number&apos;</code> <code class="o">&amp;&amp;</code>
+        <code class="nb">Math</code><code class="p">.</code><code class="nx">round</code><code class="p">(</code><code class="nx">n</code><code class="p">)</code> <code class="o">===</code> <code class="nx">n</code> <code class="o">&amp;&amp;</code>
+        <code class="nb">Number</code><code class="p">.</code><code class="nx">MIN_SAFE_INTEGER</code> <code class="o">&lt;=</code> <code class="nx">n</code> <code class="o">&amp;&amp;</code>
+        <code class="nx">n</code> <code class="o">&lt;=</code> <code class="nb">Number</code><code class="p">.</code><code class="nx">MAX_SAFE_INTEGER</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>For a given value <code>n</code>, this function first checks whether <code>n</code> is a number and an integer. If both checks succeed, <code>n</code> is safe if it is greater than or equal to <code>MIN_SAFE_INTEGER</code> and less than or equal to <code>MAX_SAFE_INTEGER</code>.</p>
+
+<h5 id="_when-are-computations-with-integers-correct">
+<span class="section-number">5.3.4.2 </span>When are computations with integers correct? <a class="header-anchor" href="ch_numbers.html#_when-are-computations-with-integers-correct" aria-hidden="true">#</a></h5>
+
+<p>How can we make sure that results of computations with integers are correct? For example, the following result is clearly not correct:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; 9007199254740990 + 3
+9007199254740992
+</pre></div>
+
+</figure>
+
+<p>We have two safe operands, but an unsafe result:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number.isSafeInteger(9007199254740990)
+true
+&gt; Number.isSafeInteger(3)
+true
+&gt; Number.isSafeInteger(9007199254740992)
+false
+</pre></div>
+
+</figure>
+
+<p>The following result is also incorrect:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; 9007199254740995 - 10
+9007199254740986
+</pre></div>
+
+</figure>
+
+<p>This time, the result is safe, but one of the operands isn&#x2019;t:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number.isSafeInteger(9007199254740995)
+false
+&gt; Number.isSafeInteger(10)
+true
+&gt; Number.isSafeInteger(9007199254740986)
+true
+</pre></div>
+
+</figure>
+
+<p>Therefore, the result of applying an integer operator <code>op</code> is guaranteed to be correct only if all operands and the result are safe. More formally:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">isSafeInteger</code><code class="p">(</code><code class="nx">a</code><code class="p">)</code> <code class="o">&amp;&amp;</code> <code class="nb">isSafeInteger</code><code class="p">(</code><code class="nx">b</code><code class="p">)</code> <code class="o">&amp;&amp;</code> <code class="nb">isSafeInteger</code><code class="p">(</code><code class="nx">a</code> <code class="nx">op</code> <code class="nx">b</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<p>implies that <code>a op b</code> is a correct result.</p>
+
+<aside class="information blurb">
+    <h3 id="_source-of-this-section">Source of this section <a class="header-anchor" href="ch_numbers.html#_source-of-this-section" aria-hidden="true">#</a></h3>
+
+  <p>&#x201C;<a href="https://mail.mozilla.org/pipermail/es-discuss/2013-August/032991.html">Clarify integer and safe integer resolution</a>&#x201D;, email by Mark S. Miller to the es-discuss mailing list.</p>
+
+</aside>
+
+
+<h3 id="sec_new-math">
+<span class="section-number">5.4 </span>New <code>Math</code> functionality <a class="header-anchor" href="ch_numbers.html#sec_new-math" aria-hidden="true">#</a></h3>
+
+<p>The global object <code>Math</code> has several new methods in ECMAScript 6.</p>
+
+<h4 id="_various-numerical-functionality">
+<span class="section-number">5.4.1 </span>Various numerical functionality <a class="header-anchor" href="ch_numbers.html#_various-numerical-functionality" aria-hidden="true">#</a></h4>
+
+<h5 id="_mathsignx">
+<span class="section-number">5.4.1.1 </span><code>Math.sign(x)</code>
+ <a class="header-anchor" href="ch_numbers.html#_mathsignx" aria-hidden="true">#</a></h5>
+
+<p><code>Math.sign(x)</code> returns:</p>
+
+<ul>
+  <li>
+<code>-1</code> if <code>x</code> is a negative number (including <code>-Infinity</code>).</li>
+  <li>
+<code>0</code> if <code>x</code> is zero<sup id="fnref-numbers_4"><a href="leanpub-endnotes.html#fn-numbers_4" rel="footnote">4</a></sup>.</li>
+  <li>
+<code>+1</code> if <code>x</code> is a positive number (including <code>Infinity</code>).</li>
+  <li>
+<code>NaN</code> if <code>x</code> is <code>NaN</code> or not a number.</li>
+</ul>
+
+<p>Examples:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.sign(-8)
+-1
+&gt; Math.sign(3)
+1
+
+&gt; Math.sign(0)
+0
+&gt; Math.sign(NaN)
+NaN
+
+&gt; Math.sign(-Infinity)
+-1
+&gt; Math.sign(Infinity)
+1
+</pre></div>
+
+</figure>
+
+<h5 id="_mathtruncx">
+<span class="section-number">5.4.1.2 </span><code>Math.trunc(x)</code>
+ <a class="header-anchor" href="ch_numbers.html#_mathtruncx" aria-hidden="true">#</a></h5>
+
+<p><code>Math.trunc(x)</code> removes the decimal fraction of <code>x</code>. Complements the other rounding methods <code>Math.floor()</code>, <code>Math.ceil()</code> and <code>Math.round()</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.trunc(3.1)
+3
+&gt; Math.trunc(3.9)
+3
+&gt; Math.trunc(-3.1)
+-3
+&gt; Math.trunc(-3.9)
+-3
+</pre></div>
+
+</figure>
+
+
+<p>You could implement <code>Math.trunc()</code> like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">trunc</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">sign</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="o">*</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">floor</code><code class="p">(</code><code class="nb">Math</code><code class="p">.</code><code class="nx">abs</code><code class="p">(</code><code class="nx">x</code><code class="p">));</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_mathcbrtx">
+<span class="section-number">5.4.1.3 </span><code>Math.cbrt(x)</code>
+ <a class="header-anchor" href="ch_numbers.html#_mathcbrtx" aria-hidden="true">#</a></h5>
+
+<p><code>Math.cbrt(x)</code> returns the cube root of <code>x</code> (&#x221B;x).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.cbrt(8)
+2
+</pre></div>
+
+</figure>
+
+<h4 id="_using-0-instead-of-1-with-exponentiation-and-logarithm">
+<span class="section-number">5.4.2 </span>Using 0 instead of 1 with exponentiation and logarithm <a class="header-anchor" href="ch_numbers.html#_using-0-instead-of-1-with-exponentiation-and-logarithm" aria-hidden="true">#</a></h4>
+
+<p>A small fraction can be represented more precisely if it comes after zero. I&#x2019;ll demonstrate this with decimal fractions (JavaScript&#x2019;s numbers are internally stored with base 2, but the same reasoning applies).</p>
+
+
+<p>Floating point numbers with base 10 are internally represented as <em>mantissa</em> &#xD7; 10<sup>exponent</sup>. The <em>mantissa</em> has a single digit before the decimal dot and the <em>exponent</em> &#x201C;moves&#x201D; the dot as necessary. That means if you convert a small fraction to the internal representation, a zero before the dot leads to a smaller mantissa than a one before the dot. For example:</p>
+
+<ul>
+  <li>(A) 0.000000234 = 2.34 &#xD7; 10<sup>&#x2212;7</sup>. Significant digits: 234</li>
+  <li>(B) 1.000000234 = 1.000000234 &#xD7; 10<sup>0</sup>. Significant digits: 1000000234</li>
+</ul>
+
+<p>Precision-wise, the important quantity here is the capacity of the mantissa, as measured in significant digits. That&#x2019;s why (A) gives you higher precision than (B).</p>
+
+<p>Additionally, JavaScript represents numbers close to zero (e.g. small fractions) with higher precision.</p>
+
+<h5 id="_mathexpm1x">
+<span class="section-number">5.4.2.1 </span><code>Math.expm1(x)</code>
+ <a class="header-anchor" href="ch_numbers.html#_mathexpm1x" aria-hidden="true">#</a></h5>
+
+<p><code>Math.expm1(x)</code> returns <code>Math.exp(x)-1</code>. The inverse of <code>Math.log1p()</code>.</p>
+
+<p>Therefore, this method provides higher precision whenever <code>Math.exp()</code> has results close to 1. You can see the difference between the two in the following interaction:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.expm1(1e-10)
+1.00000000005e-10
+&gt; Math.exp(1e-10)-1
+1.000000082740371e-10
+</pre></div>
+
+</figure>
+
+<p>The former is the better result, which you can verify by using a library (such as <a href="https://github.com/MikeMcl/decimal.js/">decimal.js</a>) for floating point numbers with arbitrary precision (&#x201C;bigfloats&#x201D;):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nt">var</code> <code class="nt">Decimal</code> <code class="o">=</code> <code class="nt">require</code><code class="o">(</code><code class="s1">&apos;decimal.js&apos;</code><code class="o">)</code><code class="nc">.config</code><code class="o">(</code><code class="p">{</code><code class="n">precision</code><code class="o">:</code><code class="m">50</code><code class="p">}</code><code class="o">);</code>
+<code class="o">&gt;</code> <code class="nt">new</code> <code class="nt">Decimal</code><code class="o">(</code><code class="nt">1e-10</code><code class="o">)</code><code class="nc">.exp</code><code class="o">()</code><code class="nc">.minus</code><code class="o">(</code><code class="nt">1</code><code class="o">)</code><code class="nc">.toString</code><code class="o">()</code>
+<code class="s1">&apos;1.000000000050000000001666666666708333333e-10&apos;</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_mathlog1px">
+<span class="section-number">5.4.2.2 </span><code>Math.log1p(x)</code>
+ <a class="header-anchor" href="ch_numbers.html#_mathlog1px" aria-hidden="true">#</a></h5>
+
+<p><code>Math.log1p(x)</code> returns <code>Math.log(1 + x)</code>. The inverse of <code>Math.expm1()</code>.</p>
+
+<p>Therefore, this method lets you specify parameters that are close to 1 with a higher precision. The following examples demonstrate why that is.</p>
+
+<p>The following two calls of <code>log()</code> produce the same result:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.log(1 + 1e-16)
+0
+&gt; Math.log(1 + 0)
+0
+</pre></div>
+
+</figure>
+
+<p>In contrast, <code>log1p()</code> produces different results:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.log1p(1e-16)
+1e-16
+&gt; Math.log1p(0)
+0
+</pre></div>
+
+</figure>
+
+<p>The reason for the higher precision of <code>Math.log1p()</code> is that the correct result for <code>1 + 1e-16</code> has more significant digits than <code>1e-16</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; 1 + 1e-16 === 1
+true
+&gt; 1e-16 === 0
+false
+</pre></div>
+
+</figure>
+
+<h4 id="_logarithms-to-base-2-and-10">
+<span class="section-number">5.4.3 </span>Logarithms to base 2 and 10 <a class="header-anchor" href="ch_numbers.html#_logarithms-to-base-2-and-10" aria-hidden="true">#</a></h4>
+
+<h5 id="_mathlog2x">
+<span class="section-number">5.4.3.1 </span><code>Math.log2(x)</code>
+ <a class="header-anchor" href="ch_numbers.html#_mathlog2x" aria-hidden="true">#</a></h5>
+
+<p><code>Math.log2(x)</code> computes the logarithm to base 2.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.log2(8)
+3
+</pre></div>
+
+</figure>
+
+<h5 id="_mathlog10x">
+<span class="section-number">5.4.3.2 </span><code>Math.log10(x)</code>
+ <a class="header-anchor" href="ch_numbers.html#_mathlog10x" aria-hidden="true">#</a></h5>
+
+<p><code>Math.log10(x)</code> computes the logarithm to base 10.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.log10(100)
+2
+</pre></div>
+
+</figure>
+
+<h4 id="_support-for-compiling-to-javascript">
+<span class="section-number">5.4.4 </span>Support for compiling to JavaScript <a class="header-anchor" href="ch_numbers.html#_support-for-compiling-to-javascript" aria-hidden="true">#</a></h4>
+
+<p><a href="https://github.com/kripken/emscripten">Emscripten</a> pioneered a coding style that was later picked up by <a href="http://asmjs.org/">asm.js</a>: The operations of a virtual machine (think bytecode) are expressed in static subset of JavaScript. That subset can be executed efficiently by JavaScript engines: If it is the result of a compilation from C++, it runs at about 70% of native speed.</p>
+
+<p>The following <code>Math</code> methods were mainly added to support asm.js and similar compilation strategies, they are not that useful for other applications.</p>
+
+<h5 id="_mathfroundx">
+<span class="section-number">5.4.4.1 </span><code>Math.fround(x)</code>
+ <a class="header-anchor" href="ch_numbers.html#_mathfroundx" aria-hidden="true">#</a></h5>
+
+<p><code>Math.fround(x)</code> rounds <code>x</code> to a 32 bit floating point value (<code>float</code>). Used by asm.js to tell an engine to internally use a <code>float</code> value.</p>
+
+<h5 id="_mathimulx-y">
+<span class="section-number">5.4.4.2 </span><code>Math.imul(x, y)</code>
+ <a class="header-anchor" href="ch_numbers.html#_mathimulx-y" aria-hidden="true">#</a></h5>
+
+<p><code>Math.imul(x, y)</code> multiplies the two 32 bit integers <code>x</code> and <code>y</code> and returns the lower 32 bits of the result. This is the only 32 bit basic math operation that can&#x2019;t be simulated by using a JavaScript operator and coercing the result back to 32 bits. For example, <code>idiv</code> could be implemented as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">idiv</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="p">(</code><code class="nx">x</code> <code class="o">/</code> <code class="nx">y</code><code class="p">)</code> <code class="o">|</code> <code class="mi">0</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In contrast, multiplying two large 32 bit integers may produce a double that is so large that lower bits are lost.</p>
+
+<h4 id="_bitwise-operations">
+<span class="section-number">5.4.5 </span>Bitwise operations <a class="header-anchor" href="ch_numbers.html#_bitwise-operations" aria-hidden="true">#</a></h4>
+
+<ul>
+  <li>
+<code>Math.clz32(x)</code><br>
+Counts the leading zero bits in the 32 bit integer <code>x</code>.
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; Math.clz32(0b01000000000000000000000000000000)
+  1
+  &gt; Math.clz32(0b00100000000000000000000000000000)
+  2
+  &gt; Math.clz32(2)
+  30
+  &gt; Math.clz32(1)
+  31
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>Why is this interesting? Quoting &#x201C;<a href="http://embeddedgurus.com/state-space/2014/09/fast-deterministic-and-portable-counting-leading-zeros/">Fast, Deterministic, and Portable Counting Leading Zeros</a>&#x201D; by Miro Samek:</p>
+
+<blockquote>
+  <p>Counting leading zeros in an integer number is a critical operation in many DSP algorithms, such as normalization of samples in sound or video processing, as well as in real-time schedulers to quickly find the highest-priority task ready-to-run.</p>
+</blockquote>
+
+<h4 id="_trigonometric-methods">
+<span class="section-number">5.4.6 </span>Trigonometric methods <a class="header-anchor" href="ch_numbers.html#_trigonometric-methods" aria-hidden="true">#</a></h4>
+
+<ul>
+  <li>
+<code>Math.sinh(x)</code><br>
+Computes the hyperbolic sine of <code>x</code>.</li>
+  <li>
+<code>Math.cosh(x)</code><br>
+Computes the hyperbolic cosine of <code>x</code>.</li>
+  <li>
+<code>Math.tanh(x)</code><br>
+Computes the hyperbolic tangent of <code>x</code>.</li>
+  <li>
+<code>Math.asinh(x)</code><br>
+Computes the inverse hyperbolic sine of <code>x</code>.</li>
+  <li>
+<code>Math.acosh(x)</code><br>
+Computes the inverse hyperbolic cosine of <code>x</code>.</li>
+  <li>
+<code>Math.atanh(x)</code><br>
+Computes the inverse hyperbolic tangent of <code>x</code>.</li>
+</ul>
+
+
+<ul>
+  <li>
+<code>Math.hypot(...values)</code><br>
+Computes the square root of the sum of the squares of its arguments (Pythagoras&#x2019; theorem):
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; Math.hypot(3, 4)
+  5    
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+
+<h3 id="sec_faq-numbers">
+<span class="section-number">5.5 </span>FAQ: numbers <a class="header-anchor" href="ch_numbers.html#sec_faq-numbers" aria-hidden="true">#</a></h3>
+
+<h4 id="_how-can-i-use-integers-beyond-javascripts-53-bit-range">
+<span class="section-number">5.5.1 </span>How can I use integers beyond JavaScript&#x2019;s 53 bit range? <a class="header-anchor" href="ch_numbers.html#_how-can-i-use-integers-beyond-javascripts-53-bit-range" aria-hidden="true">#</a></h4>
+
+<p>JavaScript&#x2019;s integers have a range of 53 bits. That is a problem whenever 64 bit integers are needed. For example: In its JSON API, Twitter had to switch from integers to strings when tweet IDs became too large.</p>
+
+<p>At the moment, the only way around that limitation is to use a library for higher-precision numbers (bigints or bigfloats). One such library is <a href="https://github.com/MikeMcl/decimal.js/">decimal.js</a>.</p>
+
+<p>Plans to support larger integers in JavaScript exist, but may take a while to come to fruition.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_strings.html">6. New string features</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

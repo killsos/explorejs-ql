@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>29. Coding style tips for ECMAScript 6</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>29. Coding style tips for ECMAScript 6</b><br>
+        <a href="index.html#toc_ch_coding-style">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_coding-style">
+<span class="section-number">29. </span>Coding style tips for ECMAScript 6 <a class="header-anchor" href="ch_coding-style.html#ch_coding-style" aria-hidden="true">#</a></h2>
+
+<p>This chapter lists a few ideas related to ES6 coding style:</p>
+
+<ul>
+  <li>
+<code>var</code> versus <code>let</code> versus <code>const</code> (details are explained in <a href="ch_variables.html#const-vs-let-vs-var">the chapter on variables</a>):
+    <p></p>
+
+    <ul>
+      <li>Prefer <code>const</code>. You can use it for all variables whose values never change.</li>
+      <li>Otherwise, use <code>let</code> &#x2013; for variables whose values do change.</li>
+      <li>Avoid <code>var</code>.</li>
+    </ul>
+  </li>
+  <li>An arrow function is the superior solution whenever a function fits into a single line:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="nx">readFilePromisified</code><code class="p">(</code><code class="nx">filename</code><code class="p">)</code>
+  <code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">text</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">text</code><code class="p">))</code>
+</pre></div>
+
+    </figure>
+
+    <p>For multi-line functions, traditional functions work well, too (with the caveat of <code>this</code> not being lexical):</p>
+
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="nx">readFilePromisified</code><code class="p">(</code><code class="nx">filename</code><code class="p">)</code>
+  <code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="kd">function</code> <code class="p">(</code><code class="nx">text</code><code class="p">)</code> <code class="p">{</code>
+      <code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="nx">JSON</code><code class="p">.</code><code class="nx">parse</code><code class="p">(</code><code class="nx">text</code><code class="p">);</code>
+      <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">JSON</code><code class="p">.</code><code class="nx">stringify</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="kc">null</code><code class="p">,</code> <code class="mi">4</code><code class="p">));</code>
+  <code class="p">});</code>
+</pre></div>
+
+    </figure>
+
+    <p>Single-line functions tend to be throw-away. If a function isn&#x2019;t then a traditional function has the advantage that you can name it, which is useful for documentation and debugging.</p>
+  </li>
+  <li>Properties in object literals: As soon as an object literal spans multiple lines, I add a comma after the last entry. Such a trailing comma has been legal since ES5. It makes adding, removing and rearranging entries simpler. As a consequence, method definitions always end with <code>},</code>:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+      <code class="nx">foo</code><code class="p">()</code> <code class="p">{</code>
+      <code class="p">},</code>
+      <code class="nx">bar</code><code class="p">()</code> <code class="p">{</code>
+      <code class="p">},</code>
+  <code class="p">};</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Modules: don&#x2019;t mix default exports and named exports. Your module should either specialize on a single thing or export multiple, named, things. Details are explained in <a href="ch_modules.html#sec_mixing-named-and-default-exports">the chapter on modules</a>.</li>
+  <li>Format generators as follows:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="c1">// Generator function declaration</code>
+  <code class="kd">function</code><code class="o">*</code> <code class="nx">genFunc</code><code class="p">()</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+
+  <code class="c1">// Generator function expression</code>
+  <code class="kr">const</code> <code class="nx">genFunc</code> <code class="o">=</code> <code class="kd">function</code><code class="o">*</code> <code class="p">()</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">};</code>
+
+  <code class="c1">// Generator method definition in an object literal</code>
+  <code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+      <code class="o">*</code> <code class="nx">generatorMethod</code><code class="p">()</code> <code class="p">{</code>
+          <code class="err">&#xB7;&#xB7;&#xB7;</code>
+      <code class="p">}</code>
+  <code class="p">};</code>
+
+  <code class="c1">// Generator method definition in a class definition</code>
+  <code class="kr">class</code> <code class="nx">MyClass</code> <code class="p">{</code>
+      <code class="o">*</code> <code class="nx">generatorMethod</code><code class="p">()</code> <code class="p">{</code>
+          <code class="err">&#xB7;&#xB7;&#xB7;</code>
+      <code class="p">}</code>
+  <code class="p">}</code>
+</pre></div>
+
+    </figure>
+
+    <p>Details are explained in <a href="ch_generators.html#sec_formating-generators">the chapter on generators</a>.</p>
+  </li>
+  <li>The chapter on parameter handling has <a href="ch_parameter-handling.html#sec_parameter-handling-style-tips">style tips for function signatures</a>:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="c1">// Mark optional parameters via the parameter default value `undefined`</code>
+  <code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">optional</code> <code class="o">=</code> <code class="kc">undefined</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+
+  <code class="c1">// Mark required parameters via a function that throws an exception</code>
+  <code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">required</code> <code class="o">=</code> <code class="nx">throwException</code><code class="p">())</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+
+  <code class="c1">// Enforcing a maximum arity (variant 1 of 2)</code>
+  <code class="kd">function</code> <code class="nx">f</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">,</code> <code class="p">...</code><code class="nx">empty</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// max arity: 2</code>
+      <code class="k">if</code> <code class="p">(</code><code class="nx">empty</code><code class="p">.</code><code class="nx">length</code> <code class="o">&gt;</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+          <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">();</code>
+      <code class="p">}</code>
+  <code class="p">}</code>
+  <code class="c1">// Enforcing a maximum arity (variant 2 of 2)</code>
+  <code class="kd">function</code> <code class="nx">f</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// max arity: 2</code>
+      <code class="k">if</code> <code class="p">(</code><code class="nx">arguments</code><code class="p">.</code><code class="nx">length</code> <code class="o">&gt;</code> <code class="mi">2</code><code class="p">)</code> <code class="p">{</code>
+          <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">();</code>
+      <code class="p">}</code>
+  <code class="p">}</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>In <a href="ch_callables.html#sec_callables-style">the chapter on callable entities</a> (traditional functions, arrow functions, classes, etc.) there is a section that gives recommendations (when to use which one etc.).</li>
+</ul>
+
+<p>Additionally, the <a href="http://speakingjs.com/es5/ch26.html">ES5 coding style tips</a> in &#x201C;Speaking JavaScript&#x201D; are still relevant for ES6.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_overviews.html">30. An overview of what&#x2019;s new in ES6</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

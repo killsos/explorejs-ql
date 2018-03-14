@@ -1,0 +1,1850 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>12. Callable entities in ECMAScript 6</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>12. Callable entities in ECMAScript 6</b><br>
+        <a href="index.html#toc_ch_callables">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_callables">
+<span class="section-number">12. </span>Callable entities in ECMAScript 6 <a class="header-anchor" href="ch_callables.html#ch_callables" aria-hidden="true">#</a></h2>
+
+<p>This chapter gives advice on how to properly use entities you can call (via function calls, method calls, etc.) in ES6.</p>
+
+<hr class="scene-break">
+
+<ul>
+  <li>12.1. <a href="ch_callables.html#sec_overview-callables">Overview</a>
+</li>
+  <li>12.2. <a href="ch_callables.html#sec_ways-of-calling">Ways of calling in ES6</a>
+    <ul>
+      <li>12.2.1. Calls that can be made anywhere</li>
+      <li>12.2.2. Calls via <code>super</code> are restricted to specific locations</li>
+      <li>12.2.3. Non-method functions versus methods</li>
+    </ul>
+  </li>
+  <li>12.3. <a href="ch_callables.html#sec_callables-style">Recommendations for using callable entities</a>
+    <ul>
+      <li>12.3.1. Prefer arrow functions as callbacks</li>
+      <li>12.3.2. Prefer function declarations as stand-alone functions</li>
+      <li>12.3.3. Prefer method definitions for methods</li>
+      <li>12.3.4. Methods versus callbacks</li>
+      <li>12.3.5. Avoid IIFEs in ES6</li>
+      <li>12.3.6. Use classes as constructors</li>
+    </ul>
+  </li>
+  <li>12.4. <a href="ch_callables.html#sec_callable-entities-details">ES6 callable entities in detail</a>
+    <ul>
+      <li>12.4.1. Cheat sheet: callable entities</li>
+      <li>12.4.2. Traditional functions</li>
+      <li>12.4.3. Generator functions</li>
+      <li>12.4.4. Method definitions</li>
+      <li>12.4.5. Generator method definitions</li>
+      <li>12.4.6. Arrow functions</li>
+      <li>12.4.7. Classes</li>
+    </ul>
+  </li>
+  <li>12.5. <a href="ch_callables.html#sec_dispatched-direct-method-calls">Dispatched and direct method calls in ES5 and ES6</a>
+    <ul>
+      <li>12.5.1. Background: prototype chains</li>
+      <li>12.5.2. Dispatched method calls</li>
+      <li>12.5.3. Direct method calls</li>
+      <li>12.5.4. Use cases for direct method calls</li>
+      <li>12.5.5. Abbreviations for <code>Object.prototype</code> and <code>Array.prototype</code>
+</li>
+    </ul>
+  </li>
+  <li>12.6. <a href="ch_callables.html#sec_function-names">The <code>name</code> property of functions</a>
+    <ul>
+      <li>12.6.1. Constructs that provide names for functions</li>
+      <li>12.6.2. Caveats</li>
+      <li>12.6.3. Changing the names of functions</li>
+      <li>12.6.4. The function property <code>name</code> in the spec</li>
+    </ul>
+  </li>
+  <li>12.7. <a href="ch_callables.html#sec_faq-callables">FAQ: callable entities</a>
+    <ul>
+      <li>12.7.1. How do I determine whether a function was invoked via <code>new</code>?</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-callables">
+<span class="section-number">12.1 </span>Overview <a class="header-anchor" href="ch_callables.html#sec_overview-callables" aria-hidden="true">#</a></h3>
+
+<p>In ES5, a single construct, the (traditional) function, played three roles:</p>
+
+<ul>
+  <li>Real (non-method) function</li>
+  <li>Method</li>
+  <li>Constructor</li>
+</ul>
+
+<p>In ES6, there is more specialization. The three duties are now handled as follows. As far as function definitions and class definitions are concerned, a definition is either a declaration or an expression.</p>
+
+<ul>
+  <li>Real (non-method) function:
+    <ul>
+      <li>Arrow functions (only have an expression form)</li>
+      <li>Traditional functions (created via function definitions)</li>
+      <li>Generator functions (created via generator function definitions)</li>
+    </ul>
+  </li>
+  <li>Method:
+    <ul>
+      <li>Methods (created by method definitions in object literals and class definitions)</li>
+      <li>Generator methods (created by generator method definitions in object literals and class definitions)</li>
+    </ul>
+  </li>
+  <li>Constructor:
+    <ul>
+      <li>Classes (created via class definitions)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Especially for callbacks, arrow functions are handy, because they don&#x2019;t shadow the <code>this</code> of the surrounding scope.</p>
+
+<p>For longer callbacks and stand-alone functions, traditional functions can be OK. Some APIs use <code>this</code> as an implicit parameter. In that case, you have no choice but to use traditional functions.</p>
+
+<p>Note that I distinguish:</p>
+
+<ul>
+  <li>The entities: e.g. traditional functions</li>
+  <li>The syntax that creates the entities: e.g. function definitions</li>
+</ul>
+
+<p>Even though their behaviors differ (as explained later), all of these entities are functions. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; typeof (() =&gt; {}) // arrow function
+&apos;function&apos;
+&gt; typeof function* () {} // generator function
+&apos;function&apos;
+&gt; typeof class {} // class
+&apos;function&apos;
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_ways-of-calling">
+<span class="section-number">12.2 </span>Ways of calling in ES6 <a class="header-anchor" href="ch_callables.html#sec_ways-of-calling" aria-hidden="true">#</a></h3>
+
+<p>Some calls can be made anywhere, others are restricted to specific locations.</p>
+
+<h4 id="_calls-that-can-be-made-anywhere">
+<span class="section-number">12.2.1 </span>Calls that can be made anywhere <a class="header-anchor" href="ch_callables.html#_calls-that-can-be-made-anywhere" aria-hidden="true">#</a></h4>
+
+<p>Three kinds of calls can be made anywhere in ES6:</p>
+
+<ul>
+  <li>Function calls: <code>func(3, 1)</code>
+</li>
+  <li>Method calls: <code>obj.method(&apos;abc&apos;)</code>
+</li>
+  <li>Constructor calls: <code>new Constr(8)</code>
+</li>
+</ul>
+
+<h4 id="_calls-via-super-are-restricted-to-specific-locations">
+<span class="section-number">12.2.2 </span>Calls via <code>super</code> are restricted to specific locations <a class="header-anchor" href="ch_callables.html#_calls-via-super-are-restricted-to-specific-locations" aria-hidden="true">#</a></h4>
+
+<p>Two kinds of calls can be made via the <code>super</code> keyword; their use is restricted to specific locations:</p>
+
+<ul>
+  <li>Super-method calls: <code>super.method(&apos;abc&apos;)</code><br>
+Only available within method definitions inside either object literals or derived class definitions.</li>
+  <li>Super-constructor calls: <code>super(8)</code><br>
+Only available inside the special method <code>constructor()</code> inside a derived class definition.</li>
+</ul>
+
+<h4 id="_non-method-functions-versus-methods">
+<span class="section-number">12.2.3 </span>Non-method functions versus methods <a class="header-anchor" href="ch_callables.html#_non-method-functions-versus-methods" aria-hidden="true">#</a></h4>
+
+<p>The difference between non-method functions and methods is becoming more pronounced in ECMAScript 6. There are now special entities for both and things that only they can do:</p>
+
+<ul>
+  <li>Arrow functions are made for non-method functions. They pick up <code>this</code> from their surrounding scopes (&#x201C;lexical <code>this</code>&#x201D;).</li>
+  <li>Method definitions are made for methods. They provide support for <code>super</code>, to refer to super-properties and to make super-method calls.</li>
+</ul>
+
+
+<h3 id="sec_callables-style">
+<span class="section-number">12.3 </span>Recommendations for using callable entities <a class="header-anchor" href="ch_callables.html#sec_callables-style" aria-hidden="true">#</a></h3>
+
+<p>This section gives tips for using callable entities: When it&#x2019;s best to use which entity; etc.</p>
+
+
+<h4 id="_prefer-arrow-functions-as-callbacks">
+<span class="section-number">12.3.1 </span>Prefer arrow functions as callbacks <a class="header-anchor" href="ch_callables.html#_prefer-arrow-functions-as-callbacks" aria-hidden="true">#</a></h4>
+
+<p>As callbacks, arrow functions have two advantages over traditional functions:</p>
+
+<ul>
+  <li>
+<code>this</code> is lexical and therefore safer to use.</li>
+  <li>Their syntax is more compact. That matters especially in functional programming, where there are many higher-order functions and methods (functions and methods whose parameters are functions).</li>
+</ul>
+
+<aside class="information blurb">
+    <p>For callbacks that span multiple lines, I find traditional function expressions acceptable, too. But you have to be careful with <code>this</code>.</p>
+
+</aside>
+
+<h5 id="_problem-this-as-an-implicit-parameter">
+<span class="section-number">12.3.1.1 </span>Problem: <code>this</code> as an implicit parameter <a class="header-anchor" href="ch_callables.html#_problem-this-as-an-implicit-parameter" aria-hidden="true">#</a></h5>
+
+<p>Alas, some JavaScript APIs use <code>this</code> as an implicit argument for their callbacks, which prevents you from using arrow functions. For example: The <code>this</code> in line B is an implicit argument of the function in line A.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">beforeEach</code><code class="p">(</code><code class="kd">function</code> <code class="p">()</code> <code class="p">{</code> <code class="c1">// (A)</code>
+    <code class="k">this</code><code class="p">.</code><code class="nx">addMatchers</code><code class="p">({</code> <code class="c1">// (B)</code>
+        <code class="nx">toBeInRange</code><code class="o">:</code> <code class="kd">function</code> <code class="p">(</code><code class="nx">start</code><code class="p">,</code> <code class="nx">end</code><code class="p">)</code> <code class="p">{</code>  
+            <code class="err">&#xB7;&#xB7;&#xB7;</code>
+        <code class="p">}</code>  
+    <code class="p">});</code>  
+<code class="p">});</code>  
+</pre></div>
+
+</figure>
+
+<p>This pattern is less explicit and prevents you from using arrow functions.</p>
+
+<h5 id="_solution-1-change-the-api">
+<span class="section-number">12.3.1.2 </span>Solution 1: change the API <a class="header-anchor" href="ch_callables.html#_solution-1-change-the-api" aria-hidden="true">#</a></h5>
+
+<p>This is easy to fix, but requires the API to change:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">beforeEach</code><code class="p">(</code><code class="nx">api</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="nx">api</code><code class="p">.</code><code class="nx">addMatchers</code><code class="p">({</code>
+        <code class="nx">toBeInRange</code><code class="p">(</code><code class="nx">start</code><code class="p">,</code> <code class="nx">end</code><code class="p">)</code> <code class="p">{</code>
+            <code class="err">&#xB7;&#xB7;&#xB7;</code>
+        <code class="p">}</code>
+    <code class="p">});</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>We have turned the API from an implicit parameter <code>this</code> into an explicit parameter <code>api</code>. I like this kind of explicitness.</p>
+
+<h5 id="_solution-2-access-the-value-of-this-in-some-other-way">
+<span class="section-number">12.3.1.3 </span>Solution 2: access the value of <code>this</code> in some other way <a class="header-anchor" href="ch_callables.html#_solution-2-access-the-value-of-this-in-some-other-way" aria-hidden="true">#</a></h5>
+
+<p>In some APIs, there are alternate ways to get to the value of <code>this</code>. For example, the following code uses <code>this</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">$button</code> <code class="o">=</code> <code class="nx">$</code><code class="p">(</code><code class="s1">&apos;#myButton&apos;</code><code class="p">);</code>
+<code class="nx">$button</code><code class="p">.</code><code class="nx">on</code><code class="p">(</code><code class="s1">&apos;click&apos;</code><code class="p">,</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+    <code class="k">this</code><code class="p">.</code><code class="nx">classList</code><code class="p">.</code><code class="nx">toggle</code><code class="p">(</code><code class="s1">&apos;clicked&apos;</code><code class="p">);</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>But the target of the event can also be accessed via <code>event.target</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">$button</code> <code class="o">=</code> <code class="nx">$</code><code class="p">(</code><code class="s1">&apos;#myButton&apos;</code><code class="p">);</code>
+<code class="nx">$button</code><code class="p">.</code><code class="nx">on</code><code class="p">(</code><code class="s1">&apos;click&apos;</code><code class="p">,</code> <code class="nx">event</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="nx">event</code><code class="p">.</code><code class="nx">target</code><code class="p">.</code><code class="nx">classList</code><code class="p">.</code><code class="nx">toggle</code><code class="p">(</code><code class="s1">&apos;clicked&apos;</code><code class="p">);</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_prefer-function-declarations-as-stand-alone-functions">
+<span class="section-number">12.3.2 </span>Prefer function declarations as stand-alone functions <a class="header-anchor" href="ch_callables.html#_prefer-function-declarations-as-stand-alone-functions" aria-hidden="true">#</a></h4>
+
+<p>As stand-alone functions (versus callbacks), I prefer function declarations:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">arg1</code><code class="p">,</code> <code class="nx">arg2</code><code class="p">)</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The benefits are:</p>
+
+<ul>
+  <li>Subjectively, I find they look nicer. In this case, the verbose keyword <code>function</code> is an advantage &#x2013; you want the construct to stand out.</li>
+  <li>They look like generator function declarations, leading to more visual consistency of the code.</li>
+</ul>
+
+<p>There is one caveat: Normally, you don&#x2019;t need <code>this</code> in stand-alone functions. If you use it, you want to access the <code>this</code> of the surrounding scope (e.g. a method which contains the stand-alone function). Alas, function declarations don&#x2019;t let you do that &#x2013; they have their own <code>this</code>, which shadows the <code>this</code> of the surrounding scope. Therefore, you may want to let a linter warn you about <code>this</code> in function declarations.</p>
+
+<p>Another option for stand-alone functions is assigning arrow functions to variables. Problems with <code>this</code> are avoided, because it is lexical.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">foo</code> <code class="o">=</code> <code class="p">(</code><code class="nx">arg1</code><code class="p">,</code> <code class="nx">arg2</code><code class="p">)</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_prefer-method-definitions-for-methods">
+<span class="section-number">12.3.3 </span>Prefer method definitions for methods <a class="header-anchor" href="ch_callables.html#_prefer-method-definitions-for-methods" aria-hidden="true">#</a></h4>
+
+<p>Method definitions are the only way to create methods that use <code>super</code>. They are the obvious choice in object literals and classes (where they are the only way to define methods), but what about adding a method to an existing object? For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">MyClass</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">foo</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">(</code><code class="nx">arg1</code><code class="p">,</code> <code class="nx">arg2</code><code class="p">)</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>The following is a quick way to do the same thing in ES6 (caveat: <code>Object.assign()</code> doesn&#x2019;t move methods with <code>super</code> properly).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">(</code><code class="nx">MyClass</code><code class="p">.</code><code class="nx">prototype</code><code class="p">,</code> <code class="p">{</code>
+    <code class="nx">foo</code><code class="p">(</code><code class="nx">arg1</code><code class="p">,</code> <code class="nx">arg2</code><code class="p">)</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>For more information and caveats, consult <a href="ch_oop-besides-classes.html#Object_assign">the section on <code>Object.assign()</code></a>.</p>
+
+
+<h4 id="sec_methods-vs-callbacks">
+<span class="section-number">12.3.4 </span>Methods versus callbacks <a class="header-anchor" href="ch_callables.html#sec_methods-vs-callbacks" aria-hidden="true">#</a></h4>
+
+<p>Usually, function-valued properties should be created via method definitions. However, occasionally, arrow functions are the better choice. The following two subsections explain what to use when: the former approach is better for objects with methods, the latter approach is better for objects with callbacks.</p>
+
+<h5 id="_an-object-whose-properties-are-methods">
+<span class="section-number">12.3.4.1 </span>An object whose properties are methods <a class="header-anchor" href="ch_callables.html#_an-object-whose-properties-are-methods" aria-hidden="true">#</a></h5>
+
+<p>Create function-valued properties via method definitions if those properties are really methods. That&#x2019;s the case if the property values are closely related to the object (<code>obj</code> in the following example) and their sibling methods, not to the surrounding scope (<code>surroundingMethod()</code> in the example).</p>
+
+<p>With a method definition, the <code>this</code> of a property value is the <em>receiver</em> of the method call (e.g. <code>obj</code> if the method call is <code>obj.m(&#xB7;&#xB7;&#xB7;)</code>).</p>
+
+<p>For example, you can use <a href="https://streams.spec.whatwg.org/">the WHATWG streams API</a> as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">surroundingObject</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">surroundingMethod</code><code class="p">()</code> <code class="p">{</code>
+        <code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+            <code class="nx">data</code><code class="o">:</code> <code class="s1">&apos;abc&apos;</code><code class="p">,</code>
+            <code class="nx">start</code><code class="p">(</code><code class="nx">controller</code><code class="p">)</code> <code class="p">{</code>
+                <code class="err">&#xB7;&#xB7;&#xB7;</code>
+                <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="k">this</code><code class="p">.</code><code class="nx">data</code><code class="p">);</code> <code class="c1">// abc (*)</code>
+                <code class="k">this</code><code class="p">.</code><code class="nx">pull</code><code class="p">();</code> <code class="c1">// (**)</code>
+                <code class="err">&#xB7;&#xB7;&#xB7;</code>
+            <code class="p">},</code>
+            <code class="nx">pull</code><code class="p">()</code> <code class="p">{</code>
+                <code class="err">&#xB7;&#xB7;&#xB7;</code>
+            <code class="p">},</code>
+            <code class="nx">cancel</code><code class="p">()</code> <code class="p">{</code>
+                <code class="err">&#xB7;&#xB7;&#xB7;</code>
+            <code class="p">},</code>
+        <code class="p">};</code>
+        <code class="kr">const</code> <code class="nx">stream</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">ReadableStream</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+    <code class="p">},</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p><code>obj</code> is an object whose properties <code>start</code>, <code>pull</code> and <code>cancel</code> are real methods. Accordingly, these methods can use <code>this</code> to access object-local state (line *) and to call each other (line **).</p>
+
+<h5 id="_an-object-whose-properties-are-callbacks">
+<span class="section-number">12.3.4.2 </span>An object whose properties are callbacks <a class="header-anchor" href="ch_callables.html#_an-object-whose-properties-are-callbacks" aria-hidden="true">#</a></h5>
+
+<p>Create function-valued properties via arrow functions if the property values are callbacks. Such callbacks tend to be closely related to their surrounding scopes (<code>surroundingMethod()</code> in the following example), not to the objects they are stored in (<code>obj</code> in the example).</p>
+
+<p>The <code>this</code> of an arrow function is the <code>this</code> of the surrounding scope (<em>lexical <code>this</code></em>). Arrow functions make great callbacks, because that is the behavior you normally want for callbacks (real, non-method, functions). A callback shouldn&#x2019;t have its own <code>this</code> that shadows the <code>this</code> of the surrounding scope.</p>
+
+<p>If the properties <code>start</code>, <code>pull</code> and <code>cancel</code> are arrow functions then they pick up the <code>this</code> of <code>surroundingMethod()</code> (their surrounding scope):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">surroundingObject</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">surroundingData</code><code class="o">:</code> <code class="s1">&apos;xyz&apos;</code><code class="p">,</code>
+    <code class="nx">surroundingMethod</code><code class="p">()</code> <code class="p">{</code>
+        <code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+            <code class="nx">start</code><code class="o">:</code> <code class="nx">controller</code> <code class="o">=&gt;</code> <code class="p">{</code>
+                <code class="err">&#xB7;&#xB7;&#xB7;</code>
+                <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="k">this</code><code class="p">.</code><code class="nx">surroundingData</code><code class="p">);</code> <code class="c1">// xyz (*)</code>
+                <code class="err">&#xB7;&#xB7;&#xB7;</code>
+            <code class="p">},</code>
+
+            <code class="nx">pull</code><code class="o">:</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="p">{</code>
+                <code class="err">&#xB7;&#xB7;&#xB7;</code>
+            <code class="p">},</code>
+
+            <code class="nx">cancel</code><code class="o">:</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="p">{</code>
+                <code class="err">&#xB7;&#xB7;&#xB7;</code>
+            <code class="p">},</code>
+        <code class="p">};</code>
+        <code class="kr">const</code> <code class="nx">stream</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">ReadableStream</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+    <code class="p">},</code>
+<code class="p">};</code>
+<code class="kr">const</code> <code class="nx">stream</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">ReadableStream</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p>If the output in line * surprises you then consider the following code:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code><code class="p">,</code>
+    <code class="nx">bar</code><code class="p">()</code> <code class="p">{</code>
+        <code class="kr">const</code> <code class="nx">f</code> <code class="o">=</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="k">this</code><code class="p">.</code><code class="nx">foo</code><code class="p">);</code> <code class="c1">// 123</code>
+        <code class="kr">const</code> <code class="nx">o</code> <code class="o">=</code> <code class="p">{</code>
+            <code class="nx">p</code><code class="o">:</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="k">this</code><code class="p">.</code><code class="nx">foo</code><code class="p">),</code> <code class="c1">// 123</code>
+        <code class="p">};</code>
+    <code class="p">},</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Inside method <code>bar()</code>, the behavior of <code>f</code> should make immediate sense. The behavior of <code>o.p</code> is less obvious, but it is the same as <code>f</code>&#x2019;s. Both arrow functions have the same surrounding lexical scope, <code>bar()</code>. The latter arrow function being surrounded by an object literal does not change that.</p>
+
+
+<h4 id="sec_iifes-in-es6">
+<span class="section-number">12.3.5 </span>Avoid IIFEs in ES6 <a class="header-anchor" href="ch_callables.html#sec_iifes-in-es6" aria-hidden="true">#</a></h4>
+
+<p>This section gives tips for avoiding IIFEs in ES6.</p>
+
+<h5 id="_replace-an-iife-with-a-block">
+<span class="section-number">12.3.5.1 </span>Replace an IIFE with a block <a class="header-anchor" href="ch_callables.html#_replace-an-iife-with-a-block" aria-hidden="true">#</a></h5>
+
+<p>In ES5, you had to use an IIFE if you wanted to keep a variable local:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">(</code><code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>  <code class="c1">// open IIFE</code>
+    <code class="kd">var</code> <code class="nx">tmp</code> <code class="o">=</code> <code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">;</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}());</code>  <code class="c1">// close IIFE</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">tmp</code><code class="p">);</code> <code class="c1">// ReferenceError</code>
+</pre></div>
+
+</figure>
+
+<p>In ECMAScript 6, you can simply use a block and a <code>let</code> or <code>const</code> declaration:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code>  <code class="c1">// open block</code>
+    <code class="kd">let</code> <code class="nx">tmp</code> <code class="o">=</code> <code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">;</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>  <code class="c1">// close block</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">tmp</code><code class="p">);</code> <code class="c1">// ReferenceError</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_replace-an-iife-with-a-module">
+<span class="section-number">12.3.5.2 </span>Replace an IIFE with a module <a class="header-anchor" href="ch_callables.html#_replace-an-iife-with-a-module" aria-hidden="true">#</a></h5>
+
+<p>In ECMAScript 5 code that doesn&#x2019;t use modules via libraries (such as RequireJS, browserify or webpack), the <em>revealing module pattern</em> is popular, and based on an IIFE. Its advantage is that it clearly separates between what is public and what is private:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">my_module</code> <code class="o">=</code> <code class="p">(</code><code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+    <code class="c1">// Module-private variable:</code>
+    <code class="kd">var</code> <code class="nx">countInvocations</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+
+    <code class="kd">function</code> <code class="nx">myFunc</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">countInvocations</code><code class="o">++</code><code class="p">;</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+
+    <code class="c1">// Exported by module:</code>
+    <code class="k">return</code> <code class="p">{</code>
+        <code class="nx">myFunc</code><code class="o">:</code> <code class="nx">myFunc</code>
+    <code class="p">};</code>
+<code class="p">}());</code>
+</pre></div>
+
+</figure>
+
+<p>This module pattern produces a global variable and is used as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">my_module</code><code class="p">.</code><code class="nx">myFunc</code><code class="p">(</code><code class="mi">33</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>In ECMAScript 6, <a href="ch_modules.html#ch_modules">modules</a> are built in, which is why the barrier to adopting them is low:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// my_module.js</code>
+
+<code class="c1">// Module-private variable:</code>
+<code class="kd">let</code> <code class="nx">countInvocations</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+
+<code class="kr">export</code> <code class="kd">function</code> <code class="nx">myFunc</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">countInvocations</code><code class="o">++</code><code class="p">;</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>This module does not produce a global variable and is used as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">import</code> <code class="p">{</code> <code class="nx">myFunc</code> <code class="p">}</code> <code class="nx">from</code> <code class="s1">&apos;my_module.js&apos;</code><code class="p">;</code>
+
+<code class="nx">myFunc</code><code class="p">(</code><code class="mi">33</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_immediately-invoked-arrow-functions">
+<span class="section-number">12.3.5.3 </span>Immediately-invoked arrow functions <a class="header-anchor" href="ch_callables.html#_immediately-invoked-arrow-functions" aria-hidden="true">#</a></h5>
+
+<p>There is one use case where you still need an immediately-invoked function in ES6: Sometimes you only can produce a result via a sequence of statements, not via a single expression. If you want to inline those statements, you have to immediately invoke a function. In ES6, you can save a few characters via immediately-invoked arrow functions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">SENTENCE</code> <code class="o">=</code> <code class="s1">&apos;How are you?&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">REVERSED_SENTENCE</code> <code class="o">=</code> <code class="p">(()</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="c1">// Iteration over the string gives us code points</code>
+    <code class="c1">// (better for reversal than characters)</code>
+    <code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[...</code><code class="nx">SENTENCE</code><code class="p">];</code>
+    <code class="nx">arr</code><code class="p">.</code><code class="nx">reverse</code><code class="p">();</code>
+    <code class="k">return</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">join</code><code class="p">(</code><code class="s1">&apos;&apos;</code><code class="p">);</code>
+<code class="p">})();</code>
+</pre></div>
+
+</figure>
+
+<p>Note that you must parenthesize as shown (the parens are around the arrow function, not around the complete function call). Details are explained in <a href="ch_arrow-functions.html#iiaf">the chapter on arrow functions</a>.</p>
+
+
+<h4 id="_use-classes-as-constructors">
+<span class="section-number">12.3.6 </span>Use classes as constructors <a class="header-anchor" href="ch_callables.html#_use-classes-as-constructors" aria-hidden="true">#</a></h4>
+
+<p>In ES5, constructor functions were the mainstream way of creating factories for objects (but there were also many other techniques, some arguably more elegant). In ES6, classes are the mainstream way of implementing constructor functions. Several frameworks support them as alternatives to their custom inheritance APIs.</p>
+
+
+<h3 id="sec_callable-entities-details">
+<span class="section-number">12.4 </span>ES6 callable entities in detail <a class="header-anchor" href="ch_callables.html#sec_callable-entities-details" aria-hidden="true">#</a></h3>
+
+<p>This section starts with a cheat sheet, before describing each ES6 callable entity in detail.</p>
+
+
+<h4 id="_cheat-sheet-callable-entities">
+<span class="section-number">12.4.1 </span>Cheat sheet: callable entities <a class="header-anchor" href="ch_callables.html#_cheat-sheet-callable-entities" aria-hidden="true">#</a></h4>
+
+<h5 id="_the-behavior-and-structure-of-callable-entities">
+<span class="section-number">12.4.1.1 </span>The behavior and structure of callable entities <a class="header-anchor" href="ch_callables.html#_the-behavior-and-structure-of-callable-entities" aria-hidden="true">#</a></h5>
+
+<p>Characteristics of the values produced by the entities:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>&#xA0;</th>
+      <th>Func decl/Func expr</th>
+      <th>Arrow</th>
+      <th>Class</th>
+      <th>Method</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Function-callable</td>
+      <td>&#x2714;</td>
+      <td>&#x2714;</td>
+      <td>&#xD7;</td>
+      <td>&#x2714;</td>
+    </tr>
+    <tr>
+      <td>Constructor-callable</td>
+      <td>&#x2714;</td>
+      <td>&#xD7;</td>
+      <td>&#x2714;</td>
+      <td>&#xD7;</td>
+    </tr>
+    <tr>
+      <td>Prototype</td>
+      <td><code>F.p</code></td>
+      <td><code>F.p</code></td>
+      <td>SC</td>
+      <td><code>F.p</code></td>
+    </tr>
+    <tr>
+      <td>Property <code>prototype</code>
+</td>
+      <td>&#x2714;</td>
+      <td>&#xD7;</td>
+      <td>&#x2714;</td>
+      <td>&#xD7;</td>
+    </tr>
+  </tbody>
+
+</table>
+
+<p>Characteristics of the whole entities:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>&#xA0;</th>
+      <th>Func decl</th>
+      <th>Func expr</th>
+      <th>Arrow</th>
+      <th>Class</th>
+      <th>Method</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Hoisted</td>
+      <td>&#x2714;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xD7;</td>
+      <td>&#xA0;</td>
+    </tr>
+    <tr>
+      <td>Creates <code>window</code> prop. (1)</td>
+      <td>&#x2714;</td>
+      <td>&#xA0;</td>
+      <td>&#xA0;</td>
+      <td>&#xD7;</td>
+      <td>&#xA0;</td>
+    </tr>
+    <tr>
+      <td>Inner name (2)</td>
+      <td>&#xD7;</td>
+      <td>&#x2714;</td>
+      <td>&#xA0;</td>
+      <td>&#x2714;</td>
+      <td>&#xD7;</td>
+    </tr>
+  </tbody>
+
+</table>
+
+<p>Characteristics of the bodies of the entities:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>&#xA0;</th>
+      <th>Func decl</th>
+      <th>Func expr</th>
+      <th>Arrow</th>
+      <th>Class (3)</th>
+      <th>Method</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>this</code></td>
+      <td>&#x2714;</td>
+      <td>&#x2714;</td>
+      <td>lex</td>
+      <td>&#x2714;</td>
+      <td>&#x2714;</td>
+    </tr>
+    <tr>
+      <td><code>new.target</code></td>
+      <td>&#x2714;</td>
+      <td>&#x2714;</td>
+      <td>lex</td>
+      <td>&#x2714;</td>
+      <td>&#x2714;</td>
+    </tr>
+    <tr>
+      <td><code>super.prop</code></td>
+      <td>&#xD7;</td>
+      <td>&#xD7;</td>
+      <td>lex</td>
+      <td>&#x2714;</td>
+      <td>&#x2714;</td>
+    </tr>
+    <tr>
+      <td><code>super()</code></td>
+      <td>&#xD7;</td>
+      <td>&#xD7;</td>
+      <td>&#xD7;</td>
+      <td>&#x2714;</td>
+      <td>&#xD7;</td>
+    </tr>
+  </tbody>
+
+</table>
+
+<p>Legend &#x2013; table cells:</p>
+
+<ul>
+  <li>&#x2714; exists, allowed</li>
+  <li>&#xD7; does not exist, not allowed</li>
+  <li>Empty cell: not applicable, not relevant</li>
+  <li>lex: lexical, inherited from surrounding lexical scope</li>
+  <li>
+<code>F.p</code>: <code>Function.prototype</code>
+</li>
+  <li>SC: superclass for derived classes, <code>Function.prototype</code> for base classes. The details are explained in <a href="ch_classes.html#details-of-subclassing">the chapter on classes</a>.</li>
+</ul>
+
+<p>Legend &#x2013; footnotes:</p>
+
+<ul>
+  <li>(1) The rules for what declarations create properties on the global object are explained in <a href="ch_variables.html#sect_global-object">the chapter on variables and scoping</a>.</li>
+  <li>(2) The inner names of named function expressions and classes are explained in <a href="ch_classes.html#sec_classes-inner-names">the chapter on classes</a>.</li>
+  <li>(3) This column is about the body of the class constructor.</li>
+</ul>
+
+<p><strong>What about generator functions and methods?</strong> Those work like their non-generator counterparts, with two exceptions:</p>
+
+<ul>
+  <li>Generator functions and methods have the prototype <code>(GeneratorFunction).prototype</code> (<code>(GeneratorFunction)</code> is an internal object, see diagram in Sect. &#x201C;<a href="ch_generators.html#sec_iteration-api-inheritance">Inheritance within the iteration API (including generators)</a>&#x201D;).</li>
+  <li>You can&#x2019;t constructor-call generator functions.</li>
+</ul>
+
+<h5 id="_the-rules-for-this">
+<span class="section-number">12.4.1.2 </span>The rules for <code>this</code>
+ <a class="header-anchor" href="ch_callables.html#_the-rules-for-this" aria-hidden="true">#</a></h5>
+
+
+<table>
+  <thead>
+    <tr>
+      <th>&#xA0;</th>
+      <th>function call</th>
+      <th>Method call</th>
+      <th><code>new</code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Traditional function (strict)</td>
+      <td><code>undefined</code></td>
+      <td>receiver</td>
+      <td>instance</td>
+    </tr>
+    <tr>
+      <td>Traditional function (sloppy)</td>
+      <td><code>window</code></td>
+      <td>receiver</td>
+      <td>instance</td>
+    </tr>
+    <tr>
+      <td>Generator function (strict)</td>
+      <td><code>undefined</code></td>
+      <td>receiver</td>
+      <td><code>TypeError</code></td>
+    </tr>
+    <tr>
+      <td>Generator function (sloppy)</td>
+      <td><code>window</code></td>
+      <td>receiver</td>
+      <td><code>TypeError</code></td>
+    </tr>
+    <tr>
+      <td>Method (strict)</td>
+      <td><code>undefined</code></td>
+      <td>receiver</td>
+      <td><code>TypeError</code></td>
+    </tr>
+    <tr>
+      <td>Method (sloppy)</td>
+      <td><code>window</code></td>
+      <td>receiver</td>
+      <td><code>TypeError</code></td>
+    </tr>
+    <tr>
+      <td>Generator method (strict)</td>
+      <td><code>undefined</code></td>
+      <td>receiver</td>
+      <td><code>TypeError</code></td>
+    </tr>
+    <tr>
+      <td>Generator method (sloppy)</td>
+      <td><code>window</code></td>
+      <td>receiver</td>
+      <td><code>TypeError</code></td>
+    </tr>
+    <tr>
+      <td>Arrow function (strict&amp;sloppy)</td>
+      <td>lexical</td>
+      <td>lexical</td>
+      <td><code>TypeError</code></td>
+    </tr>
+    <tr>
+      <td>Class (implicitly strict)</td>
+      <td><code>TypeError</code></td>
+      <td><code>TypeError</code></td>
+      <td>SC protocol</td>
+    </tr>
+  </tbody>
+
+</table>
+
+<p>Legend &#x2013; table cells:</p>
+
+<ul>
+  <li>lexical: inherited from surrounding lexical scope</li>
+  <li>SC (subclassing) protocol: A base class receives a new instance via <code>this</code>. A derived class gets its instance from its superclass. The details are explained in <a href="ch_classes.html#details-of-subclassing">the chapter on classes</a>.</li>
+</ul>
+
+
+<h4 id="_traditional-functions">
+<span class="section-number">12.4.2 </span>Traditional functions <a class="header-anchor" href="ch_callables.html#_traditional-functions" aria-hidden="true">#</a></h4>
+
+<p>These are the functions that you know from ES5. There are two ways to create them:</p>
+
+<ul>
+  <li>Function expression:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">foo</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">};</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Function declaration:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>Rules for <code>this</code>:</p>
+
+<ul>
+  <li>Function calls: <code>this</code> is <code>undefined</code> in strict-mode functions and the global object in sloppy mode.</li>
+  <li>Method calls: <code>this</code> is the receiver of the method call (or the first argument of <code>call</code>/<code>apply</code>).</li>
+  <li>Constructor calls: <code>this</code> is the newly created instance.</li>
+</ul>
+
+<h4 id="_generator-functions">
+<span class="section-number">12.4.3 </span>Generator functions <a class="header-anchor" href="ch_callables.html#_generator-functions" aria-hidden="true">#</a></h4>
+
+<p>Generator functions are explained in <a href="ch_generators.html#ch_generators">the chapter on generators</a>. Their syntax is similar to traditional functions, but they have an extra asterisk:</p>
+
+<ul>
+  <li>Generator function expression:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">foo</code> <code class="o">=</code> <code class="kd">function</code><code class="o">*</code> <code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">};</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Generator function declaration:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kd">function</code><code class="o">*</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>The rules for <code>this</code> are as follows. Note that <code>this</code> never refers to the generator object.</p>
+
+<ul>
+  <li>Function/method calls: <code>this</code> is handled like it is with traditional functions. The results of such calls are generator objects.</li>
+  <li>Constructor calls: You can&#x2019;t constructor-call generator functions. A <code>TypeError</code> is thrown if you do.</li>
+</ul>
+
+<h4 id="_method-definitions">
+<span class="section-number">12.4.4 </span>Method definitions <a class="header-anchor" href="ch_callables.html#_method-definitions" aria-hidden="true">#</a></h4>
+
+<p>Method definitions can appear <a href="ch_oop-besides-classes.html#object-literal-method-definitions">inside object literals</a>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">add</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">x</code> <code class="o">+</code> <code class="nx">y</code><code class="p">;</code>
+    <code class="p">},</code> <code class="c1">// comma is required</code>
+    <code class="nx">sub</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">x</code> <code class="o">-</code> <code class="nx">y</code><code class="p">;</code>
+    <code class="p">},</code> <code class="c1">// comma is optional</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>And <a href="ch_classes.html#ch_classes">inside class definitions</a>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">AddSub</code> <code class="p">{</code>
+    <code class="nx">add</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">x</code> <code class="o">+</code> <code class="nx">y</code><code class="p">;</code>
+    <code class="p">}</code> <code class="c1">// no comma</code>
+    <code class="nx">sub</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">x</code> <code class="o">-</code> <code class="nx">y</code><code class="p">;</code>
+    <code class="p">}</code> <code class="c1">// no comma</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>As you can see, you must separate method definitions in an object literal with commas, but there are no separators between them in a class definition. The former is necessary to keep the syntax consistent, especially with regard to getters and setters.</p>
+
+<p>Method definitions are the only place where you can use <code>super</code> to refer to super-properties. Only method definitions that use <code>super</code> produce functions that have the internal property <code>[[HomeObject]]</code>, which is required for that feature (details are explained in <a href="ch_classes.html#superproperties">the chapter on classes</a>).</p>
+
+<p>Rules:</p>
+
+<ul>
+  <li>Function calls: If you extract a method and call it as a function, it behaves like a traditional function.</li>
+  <li>Method calls: work as with traditional functions, but additionally allow <code>super</code>.</li>
+  <li>Constructor calls: throw a <code>TypeError</code>.</li>
+</ul>
+
+<p>Inside class definitions, methods whose name is <code>constructor</code> are special, as explained later in this chapter.</p>
+
+<h4 id="_generator-method-definitions">
+<span class="section-number">12.4.5 </span>Generator method definitions <a class="header-anchor" href="ch_callables.html#_generator-method-definitions" aria-hidden="true">#</a></h4>
+
+<p>Generator methods are explained in <a href="ch_generators.html#ch_generators">the chapter on generators</a>. Their syntax is similar to method definitions, but they have an extra asterisk:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="o">*</code> <code class="nx">generatorMethod</code><code class="p">(</code><code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">)</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">},</code>
+<code class="p">};</code>
+<code class="kr">class</code> <code class="nx">MyClass</code> <code class="p">{</code>
+    <code class="o">*</code> <code class="nx">generatorMethod</code><code class="p">(</code><code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">)</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Rules:</p>
+
+<ul>
+  <li>Calling a generator method returns a generator object.</li>
+  <li>You can use <code>this</code> and <code>super</code> as you would in normal method definitions.</li>
+</ul>
+
+<h4 id="_arrow-functions">
+<span class="section-number">12.4.6 </span>Arrow functions <a class="header-anchor" href="ch_callables.html#_arrow-functions" aria-hidden="true">#</a></h4>
+
+<p>Arrow functions are explained in <a href="ch_arrow-functions.html#ch_arrow-functions">their own chapter</a>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">squares</code> <code class="o">=</code> <code class="p">[</code><code class="mi">1</code><code class="p">,</code><code class="mi">2</code><code class="p">,</code><code class="mi">3</code><code class="p">].</code><code class="nx">map</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">x</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>The following variables are <em>lexical</em> inside an arrow function (picked up from the surrounding scope):</p>
+
+<ul>
+  <li><code>arguments</code></li>
+  <li><code>super</code></li>
+  <li><code>this</code></li>
+  <li><code>new.target</code></li>
+</ul>
+
+<p>Rules:</p>
+
+<ul>
+  <li>Function calls: lexical <code>this</code> etc.</li>
+  <li>Method calls: You can use arrow functions as methods, but their <code>this</code> continues to be lexical and does not refer to the receiver of a method call.</li>
+  <li>Constructor calls: produce a <code>TypeError</code>.</li>
+</ul>
+
+<h4 id="_classes">
+<span class="section-number">12.4.7 </span>Classes <a class="header-anchor" href="ch_callables.html#_classes" aria-hidden="true">#</a></h4>
+
+<p>Classes are explained in <a href="ch_classes.html#ch_classes">their own chapter</a>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Base class: no `extends`</code>
+<code class="kr">class</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">x</code> <code class="o">=</code> <code class="nx">x</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">y</code> <code class="o">=</code> <code class="nx">y</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="sb">`(</code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">x</code><code class="si">}</code><code class="sb">, </code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">y</code><code class="si">}</code><code class="sb">)`</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="c1">// This class is derived from `Point`</code>
+<code class="kr">class</code> <code class="nx">ColorPoint</code> <code class="kr">extends</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">,</code> <code class="nx">color</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kr">super</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">);</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">color</code> <code class="o">=</code> <code class="nx">color</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="kr">super</code><code class="p">.</code><code class="nx">toString</code><code class="p">()</code> <code class="o">+</code> <code class="s1">&apos; in &apos;</code> <code class="o">+</code> <code class="k">this</code><code class="p">.</code><code class="nx">color</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The Method <code>constructor</code> is special, because it &#x201C;becomes&#x201D; the class. That is, classes are very similar to constructor functions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Point.prototype.constructor === Point
+true
+</pre></div>
+
+</figure>
+
+<p>Rules:</p>
+
+<ul>
+  <li>Function/method calls: Classes can&#x2019;t be called as functions or methods (why is explained in <a href="ch_classes.html#cannot-function-call-classes">the chapter on classes</a>).</li>
+  <li>Constructor calls: follow <a href="ch_classes.html#details-of-subclassing">a protocol that supports subclassing</a>. In a base class, an instance is created and <code>this</code> refers to it. A derived class receives its instance from its superclass, which is why it needs to call <code>super()</code> before it can access <code>this</code>.</li>
+</ul>
+
+
+<h3 id="sec_dispatched-direct-method-calls">
+<span class="section-number">12.5 </span>Dispatched and direct method calls in ES5 and ES6 <a class="header-anchor" href="ch_callables.html#sec_dispatched-direct-method-calls" aria-hidden="true">#</a></h3>
+
+<p>There are two ways to call methods in JavaScript:</p>
+
+<ul>
+  <li>Dynamic dispatch (<code>arr.slice(1)</code>): property <code>slice</code> is searched for in the prototype chain of <code>arr</code>. Its result is called with <code>this</code> set to <code>arr</code>.</li>
+  <li>Direct call (<code>Array.prototype.slice.call(arr, 1)</code>): <code>slice</code> is called directly with <code>this</code> set to <code>arr</code> (the first argument of <code>call()</code>).</li>
+</ul>
+
+<p>This section explains how these two work and why you will rarely call methods directly in ECMAScript 6. Before we get started, let&#x2019;s refresh our knowledge of prototype chains.</p>
+
+
+<h4 id="_background-prototype-chains">
+<span class="section-number">12.5.1 </span>Background: prototype chains <a class="header-anchor" href="ch_callables.html#_background-prototype-chains" aria-hidden="true">#</a></h4>
+
+<p>Remember that each object in JavaScript is actually a chain of one or more objects. The first object inherits properties from the later objects. For example, the prototype chain of an Array <code>[&apos;a&apos;, &apos;b&apos;]</code> looks as follows:</p>
+
+<ol class="numeric">
+  <li>The instance, holding the elements <code>&apos;a&apos;</code> and <code>&apos;b&apos;</code>
+</li>
+  <li>
+<code>Array.prototype</code>, the properties provided by the <code>Array</code> constructor</li>
+  <li>
+<code>Object.prototype</code>, the properties provided by the <code>Object</code> constructor</li>
+  <li>
+<code>null</code> (the end of the chain, so not really a member of it)</li>
+</ol>
+
+<p>You can examine the chain via <code>Object.getPrototypeOf()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; var arr = [&apos;a&apos;, &apos;b&apos;];
+&gt; var p = Object.getPrototypeOf;
+
+&gt; p(arr) === Array.prototype
+true
+&gt; p(p(arr)) === Object.prototype
+true
+&gt; p(p(p(arr)))
+null
+</pre></div>
+
+</figure>
+
+<p>Properties in &#x201C;earlier&#x201D; objects override properties in &#x201C;later&#x201D; objects. For example, <code>Array.prototype</code> provides an Array-specific version of the <code>toString()</code> method, overriding <code>Object.prototype.toString()</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; var arr = [&apos;a&apos;, &apos;b&apos;];
+&gt; Object.getOwnPropertyNames(Array.prototype)
+[ &apos;toString&apos;, &apos;join&apos;, &apos;pop&apos;, &#xB7;&#xB7;&#xB7; ]
+&gt; arr.toString()
+&apos;a,b&apos;
+</pre></div>
+
+</figure>
+
+
+<h4 id="_dispatched-method-calls">
+<span class="section-number">12.5.2 </span>Dispatched method calls <a class="header-anchor" href="ch_callables.html#_dispatched-method-calls" aria-hidden="true">#</a></h4>
+
+<p>If you look at the method call <code>arr.toString()</code> you can see that it actually performs two steps:</p>
+
+<ol class="numeric">
+  <li>Dispatch: In the prototype chain of <code>arr</code>, retrieve the value of the first property whose name is <code>toString</code>.</li>
+  <li>Call: Call the value and set the implicit parameter <code>this</code> to the <em>receiver</em> <code>arr</code> of the method invocation.</li>
+</ol>
+
+<p>You can make the two steps explicit by using the <code>call()</code> method of functions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; var func = arr.toString; // dispatch
+&gt; func.call(arr) // direct call, providing a value for `this`
+&apos;a,b&apos;
+</pre></div>
+
+</figure>
+
+
+<h4 id="_direct-method-calls">
+<span class="section-number">12.5.3 </span>Direct method calls <a class="header-anchor" href="ch_callables.html#_direct-method-calls" aria-hidden="true">#</a></h4>
+
+<p>There are two ways to make direct method calls in JavaScript:</p>
+
+<ul>
+  <li><code>Function.prototype.call(thisValue, arg0?, arg1?, &#xB7;&#xB7;&#xB7;)</code></li>
+  <li><code>Function.prototype.apply(thisValue, argArray)</code></li>
+</ul>
+
+<p>Both method <code>call</code> and method <code>apply</code> are invoked on functions. They are different from normal function calls in that you specify a value for <code>this</code>. <code>call</code> provides the arguments of the method call via individual parameters, <code>apply</code> provides them via an Array.</p>
+
+<p>With a dispatched method call, the receiver plays two roles: It is used to find the method and it is an implicit parameter. A problem with the first role is that a method must be in the prototype chain of an object if you want to invoke it. With a direct method call, the method can come from anywhere. That allows you to borrow a method from another object. For example, you can borrow <code>Object.prototype.toString</code> and thus apply the original, un-overridden implementation of <code>toString</code> to an Array <code>arr</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="k">const</code> <code class="n">arr</code> <code class="o">=</code> <code class="p">[</code><code class="sc">&apos;a&apos;</code><code class="p">,</code><code class="sc">&apos;b&apos;</code><code class="p">,</code><code class="sc">&apos;c&apos;</code><code class="p">];</code>
+<code class="o">&gt;</code> <code class="n">Object</code><code class="p">.</code><code class="n">prototype</code><code class="p">.</code><code class="n">toString</code><code class="p">.</code><code class="n">call</code><code class="p">(</code><code class="n">arr</code><code class="p">)</code>
+<code class="err">&apos;</code><code class="p">[</code><code class="n">object</code> <code class="n">Array</code><code class="p">]</code><code class="err">&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>The Array version of <code>toString()</code> produces a different result:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; arr.toString() // dispatched
+&apos;a,b,c&apos;
+&gt; Array.prototype.toString.call(arr); // direct
+&apos;a,b,c&apos;
+</pre></div>
+
+</figure>
+
+<p>Methods that work with a variety of objects (not just with instances of &#x201C;their&#x201D; constructors) are called <em>generic</em>. <em>Speaking JavaScript</em> has <a href="http://speakingjs.com/es5/ch17.html#list_of_generic_methods">a list</a> of all methods that are generic. The list includes most Array methods and all methods of <code>Object.prototype</code> (which have to work with all objects and are thus implicitly generic).</p>
+
+
+<h4 id="_use-cases-for-direct-method-calls">
+<span class="section-number">12.5.4 </span>Use cases for direct method calls <a class="header-anchor" href="ch_callables.html#_use-cases-for-direct-method-calls" aria-hidden="true">#</a></h4>
+
+<p>This section covers use cases for direct method calls. Each time, I&#x2019;ll first describe the use case in ES5 and then how it changes with ES6 (where you&#x2019;ll rarely need direct method calls).</p>
+
+<h5 id="_es5-provide-parameters-to-a-method-via-an-array">
+<span class="section-number">12.5.4.1 </span>ES5: Provide parameters to a method via an Array <a class="header-anchor" href="ch_callables.html#_es5-provide-parameters-to-a-method-via-an-array" aria-hidden="true">#</a></h5>
+
+<p>Some functions accept multiple values, but only one value per parameter. What if you want to pass the values via an Array?</p>
+
+<p>For example, <code>push()</code> lets you destructively append several values to an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; var arr = [&apos;a&apos;, &apos;b&apos;];
+&gt; arr.push(&apos;c&apos;, &apos;d&apos;)
+4
+&gt; arr
+[ &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos; ]
+</pre></div>
+
+</figure>
+
+<p>But you can&#x2019;t destructively append a whole Array. You can work around that limitation by using <code>apply()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; var arr = [&apos;a&apos;, &apos;b&apos;];
+&gt; Array.prototype.push.apply(arr, [&apos;c&apos;, &apos;d&apos;])
+4
+&gt; arr
+[ &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos; ]
+</pre></div>
+
+</figure>
+
+<p>Similarly, <code>Math.max()</code> and <code>Math.min()</code> only work for single values:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.max(-1, 7, 2)
+7
+</pre></div>
+
+</figure>
+
+<p>With <code>apply()</code>, you can use them for Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.max.apply(null, [-1, 7, 2])
+7
+</pre></div>
+
+</figure>
+
+<h5 id="_es6-the-spread-operator--mostly-replaces-apply">
+<span class="section-number">12.5.4.2 </span>ES6: The spread operator (<code>...</code>) mostly replaces <code>apply()</code>
+ <a class="header-anchor" href="ch_callables.html#_es6-the-spread-operator--mostly-replaces-apply" aria-hidden="true">#</a></h5>
+
+<p>Making a direct method call via <code>apply()</code> only because you want to turn an Array into arguments is clumsy, which is why ECMAScript 6 has the spread operator (<code>...</code>) for this. It provides this functionality even in dispatched method calls.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.max(...[-1, 7, 2])
+7
+</pre></div>
+
+</figure>
+
+<p>Another example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const arr = [&apos;a&apos;, &apos;b&apos;];
+&gt; arr.push(...[&apos;c&apos;, &apos;d&apos;])
+4
+&gt; arr
+[ &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos; ]
+</pre></div>
+
+</figure>
+
+<p>As a bonus, spread also works with the <code>new</code> operator:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; new Date(...[2011, 11, 24])
+Sat Dec 24 2011 00:00:00 GMT+0100 (CET)
+</pre></div>
+
+</figure>
+
+<p>Note that <code>apply()</code> can&#x2019;t be used with <code>new</code> &#x2013; the above feat can only be achieved via <a href="http://speakingjs.com/es5/ch17.html#apply_constructors">a complicated work-around</a> in ECMAScript 5.</p>
+
+<h5 id="_es5-convert-an-array-like-object-to-an-array">
+<span class="section-number">12.5.4.3 </span>ES5: Convert an Array-like object to an Array <a class="header-anchor" href="ch_callables.html#_es5-convert-an-array-like-object-to-an-array" aria-hidden="true">#</a></h5>
+
+<p>Some objects in JavaScript are <em>Array-like</em>, they are almost Arrays, but don&#x2019;t have any of the Array methods. Let&#x2019;s look at two examples.</p>
+
+<p>First, the special variable <code>arguments</code> of functions is Array-like. It has a <code>length</code> and indexed access to elements.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="kd">var</code> <code class="nx">args</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code> <code class="k">return</code> <code class="nx">arguments</code> <code class="p">}(</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">);</code>
+<code class="o">&gt;</code> <code class="nx">args</code><code class="p">.</code><code class="nx">length</code>
+<code class="mi">2</code>
+<code class="o">&gt;</code> <code class="nx">args</code><code class="p">[</code><code class="mi">0</code><code class="p">]</code>
+<code class="s1">&apos;a&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>But <code>arguments</code> isn&#x2019;t an instance of <code>Array</code> and does not have the method <code>map()</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nx">args</code> <code class="k">instanceof</code> <code class="nb">Array</code>
+<code class="kc">false</code>
+<code class="o">&gt;</code> <code class="nx">args</code><code class="p">.</code><code class="nx">map</code>
+<code class="kc">undefined</code>
+</pre></div>
+
+</figure>
+
+<p>Second, the DOM method <code>document.querySelectorAll()</code> returns an instance of <code>NodeList</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; document.querySelectorAll(&apos;a[href]&apos;) instanceof NodeList
+true
+&gt; document.querySelectorAll(&apos;a[href]&apos;).map // no Array methods!
+undefined
+</pre></div>
+
+</figure>
+
+<p>Thus, for many complex operations, you need to convert Array-like objects to Arrays first. That is achieved via <code>Array.prototype.slice()</code>. This method copies the elements of its receiver into a new Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; var arr = [&apos;a&apos;, &apos;b&apos;];
+&gt; arr.slice()
+[ &apos;a&apos;, &apos;b&apos; ]
+&gt; arr.slice() === arr
+false
+</pre></div>
+
+</figure>
+
+<p>If you call <code>slice()</code> directly, you can convert a <code>NodeList</code> to an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">domLinks</code> <code class="o">=</code> <code class="nb">document</code><code class="p">.</code><code class="nx">querySelectorAll</code><code class="p">(</code><code class="s1">&apos;a[href]&apos;</code><code class="p">);</code>
+<code class="kd">var</code> <code class="nx">links</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">slice</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nx">domLinks</code><code class="p">);</code>
+<code class="nx">links</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="kd">function</code> <code class="p">(</code><code class="nx">link</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">link</code><code class="p">.</code><code class="nx">href</code><code class="p">;</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>And you can convert <code>arguments</code> to an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">format</code><code class="p">(</code><code class="nx">pattern</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// params start at arguments[1], skipping `pattern`</code>
+    <code class="kd">var</code> <code class="nx">params</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">slice</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nx">arguments</code><code class="p">,</code> <code class="mi">1</code><code class="p">);</code>
+    <code class="k">return</code> <code class="nx">params</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">format</code><code class="p">(</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">));</code> <code class="c1">// [&apos;b&apos;, &apos;c&apos;]</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_es6-array-like-objects-are-less-burdensome">
+<span class="section-number">12.5.4.4 </span>ES6: Array-like objects are less burdensome <a class="header-anchor" href="ch_callables.html#_es6-array-like-objects-are-less-burdensome" aria-hidden="true">#</a></h5>
+
+<p>On one hand, ECMAScript 6 has <code>Array.from()</code>, a simpler way of converting Array-like objects to Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">domLinks</code> <code class="o">=</code> <code class="nb">document</code><code class="p">.</code><code class="nx">querySelectorAll</code><code class="p">(</code><code class="s1">&apos;a[href]&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">links</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">from</code><code class="p">(</code><code class="nx">domLinks</code><code class="p">);</code>
+<code class="nx">links</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">link</code> <code class="o">=&gt;</code> <code class="nx">link</code><code class="p">.</code><code class="nx">href</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>On the other hand, you won&#x2019;t need the Array-like <code>arguments</code>, because ECMAScript 6 has <em>rest parameters</em> (declared via a triple dot):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">format</code><code class="p">(</code><code class="nx">pattern</code><code class="p">,</code> <code class="p">...</code><code class="nx">params</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">params</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">format</code><code class="p">(</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">));</code> <code class="c1">// [&apos;b&apos;, &apos;c&apos;]</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_es5-using-hasownproperty-safely">
+<span class="section-number">12.5.4.5 </span>ES5: Using <code>hasOwnProperty()</code> safely <a class="header-anchor" href="ch_callables.html#_es5-using-hasownproperty-safely" aria-hidden="true">#</a></h5>
+
+<p><code>obj.hasOwnProperty(&apos;prop&apos;)</code> tells you whether <code>obj</code> has the <em>own</em> (non-inherited) property <code>prop</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nt">var</code> <code class="nt">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="n">prop</code><code class="o">:</code> <code class="m">123</code> <code class="p">}</code><code class="o">;</code>
+
+<code class="o">&gt;</code> <code class="nt">obj</code><code class="nc">.hasOwnProperty</code><code class="o">(</code><code class="s1">&apos;prop&apos;</code><code class="o">)</code>
+<code class="nt">true</code>
+
+<code class="o">&gt;</code> <code class="s1">&apos;toString&apos;</code> <code class="nt">in</code> <code class="nt">obj</code> <code class="o">//</code> <code class="nt">inherited</code>
+<code class="nt">true</code>
+<code class="o">&gt;</code> <code class="nt">obj</code><code class="nc">.hasOwnProperty</code><code class="o">(</code><code class="s1">&apos;toString&apos;</code><code class="o">)</code> <code class="o">//</code> <code class="nt">own</code>
+<code class="nt">false</code>
+</pre></div>
+
+</figure>
+
+<p>However, calling <code>hasOwnProperty</code> via dispatch can cease to work properly if <code>Object.prototype.hasOwnProperty</code> is overridden.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nt">var</code> <code class="nt">obj1</code> <code class="o">=</code> <code class="p">{</code> <code class="n">hasOwnProperty</code><code class="o">:</code> <code class="m">123</code> <code class="p">}</code><code class="o">;</code>
+<code class="o">&gt;</code> <code class="nt">obj1</code><code class="nc">.hasOwnProperty</code><code class="o">(</code><code class="s1">&apos;toString&apos;</code><code class="o">)</code>
+<code class="nt">TypeError</code><code class="o">:</code> <code class="nt">Property</code> <code class="s1">&apos;hasOwnProperty&apos;</code> <code class="nt">is</code> <code class="nt">not</code> <code class="nt">a</code> <code class="nt">function</code>
+</pre></div>
+
+</figure>
+
+<p><code>hasOwnProperty</code> may also be unavailable via dispatch if <code>Object.prototype</code> is not in the prototype chain of an object.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; var obj2 = Object.create(null);
+&gt; obj2.hasOwnProperty(&apos;toString&apos;)
+TypeError: Object has no method &apos;hasOwnProperty&apos;
+</pre></div>
+
+</figure>
+
+<p>In both cases, the solution is to make a direct call to <code>hasOwnProperty</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nt">var</code> <code class="nt">obj1</code> <code class="o">=</code> <code class="p">{</code> <code class="n">hasOwnProperty</code><code class="o">:</code> <code class="m">123</code> <code class="p">}</code><code class="o">;</code>
+<code class="o">&gt;</code> <code class="nt">Object</code><code class="nc">.prototype.hasOwnProperty.call</code><code class="o">(</code><code class="nt">obj1</code><code class="o">,</code> <code class="s1">&apos;hasOwnProperty&apos;</code><code class="o">)</code>
+<code class="nt">true</code>
+
+<code class="o">&gt;</code> <code class="nt">var</code> <code class="nt">obj2</code> <code class="o">=</code> <code class="nt">Object</code><code class="nc">.create</code><code class="o">(</code><code class="nt">null</code><code class="o">);</code>
+<code class="o">&gt;</code> <code class="nt">Object</code><code class="nc">.prototype.hasOwnProperty.call</code><code class="o">(</code><code class="nt">obj2</code><code class="o">,</code> <code class="s1">&apos;toString&apos;</code><code class="o">)</code>
+<code class="nt">false</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_es6-less-need-for-hasownproperty">
+<span class="section-number">12.5.4.6 </span>ES6: Less need for <code>hasOwnProperty()</code>
+ <a class="header-anchor" href="ch_callables.html#_es6-less-need-for-hasownproperty" aria-hidden="true">#</a></h5>
+
+<p><code>hasOwnProperty()</code> is mostly used to implement Maps via objects. Thankfully, ECMAScript 6 has a built-in <code>Map</code> data structure, which means that you&#x2019;ll need <code>hasOwnProperty()</code> less.</p>
+
+
+<h4 id="_abbreviations-for-objectprototype-and-arrayprototype">
+<span class="section-number">12.5.5 </span>Abbreviations for <code>Object.prototype</code> and <code>Array.prototype</code>
+ <a class="header-anchor" href="ch_callables.html#_abbreviations-for-objectprototype-and-arrayprototype" aria-hidden="true">#</a></h4>
+
+<p>You can access the methods of <code>Object.prototype</code> via an empty object literal (whose prototype is <code>Object.prototype</code>). For example, the following two direct method calls are equivalent:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Object</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">hasOwnProperty</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="s1">&apos;propKey&apos;</code><code class="p">)</code>
+<code class="p">{}.</code><code class="nx">hasOwnProperty</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="s1">&apos;propKey&apos;</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<p>The same trick works for <code>Array.prototype</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">slice</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nx">arguments</code><code class="p">)</code>
+<code class="p">[].</code><code class="nx">slice</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nx">arguments</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<p>This pattern has become quite popular. It does not reflect the intention of the author as clearly as the longer version, but it&#x2019;s much less verbose. <a href="http://jsperf.com/array-prototype-slice-call-vs-slice-call/17">Speed-wise</a>, there isn&#x2019;t much of a difference between the two versions.</p>
+
+
+<h3 id="sec_function-names">
+<span class="section-number">12.6 </span>The <code>name</code> property of functions <a class="header-anchor" href="ch_callables.html#sec_function-names" aria-hidden="true">#</a></h3>
+
+<p>The <code>name</code> property of a function contains the function&#x2019;s name:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; function foo() {}
+&gt; foo.name
+&apos;foo&apos;
+</pre></div>
+
+</figure>
+
+<p>This property is useful for debugging (its value shows up in stack traces) and some metaprogramming tasks (picking a function by name etc.).</p>
+
+<p>Prior to ECMAScript 6, this property was already supported by most engines. With ES6, it becomes part of the language standard and is frequently filled in automatically.</p>
+
+<h4 id="_constructs-that-provide-names-for-functions">
+<span class="section-number">12.6.1 </span>Constructs that provide names for functions <a class="header-anchor" href="ch_callables.html#_constructs-that-provide-names-for-functions" aria-hidden="true">#</a></h4>
+
+<p>The following sections describe how <code>name</code> is set up automatically for various programming constructs.</p>
+
+<h5 id="_variable-declarations-and-assignments">
+<span class="section-number">12.6.1.1 </span>Variable declarations and assignments <a class="header-anchor" href="ch_callables.html#_variable-declarations-and-assignments" aria-hidden="true">#</a></h5>
+
+<p>Functions pick up names if they are created via variable declarations:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">let</code> <code class="nx">func1</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">func1</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// func1</code>
+
+<code class="kr">const</code> <code class="nx">func2</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">func2</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// func2</code>
+
+<code class="kd">var</code> <code class="nx">func3</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">func3</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// func3</code>
+</pre></div>
+
+</figure>
+
+<p>But even with a normal assignment, <code>name</code> is set up properly:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">let</code> <code class="nx">func4</code><code class="p">;</code>
+<code class="nx">func4</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">func4</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// func4</code>
+
+<code class="kd">var</code> <code class="nx">func5</code><code class="p">;</code>
+<code class="nx">func5</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">func5</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// func5</code>
+</pre></div>
+
+</figure>
+
+<p>With regard to names, arrow functions are like anonymous function expressions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">func</code> <code class="o">=</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="p">{};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">func</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// func</code>
+</pre></div>
+
+</figure>
+
+<p>From now on, whenever you see an anonymous function expression, you can assume that an arrow function works the same way.</p>
+
+<h5 id="_default-values">
+<span class="section-number">12.6.1.2 </span>Default values <a class="header-anchor" href="ch_callables.html#_default-values" aria-hidden="true">#</a></h5>
+
+
+<p>If a function is a default value, it gets its name from its variable or parameter:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">let</code> <code class="p">[</code><code class="nx">func1</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{}]</code> <code class="o">=</code> <code class="p">[];</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">func1</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// func1</code>
+
+<code class="kd">let</code> <code class="p">{</code> <code class="nx">f2</code><code class="o">:</code> <code class="nx">func2</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{}</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">func2</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// func2</code>
+
+<code class="kd">function</code> <code class="nx">g</code><code class="p">(</code><code class="nx">func3</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{})</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">func3</code><code class="p">.</code><code class="nx">name</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">g</code><code class="p">());</code> <code class="c1">// func3</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_named-function-definitions">
+<span class="section-number">12.6.1.3 </span>Named function definitions <a class="header-anchor" href="ch_callables.html#_named-function-definitions" aria-hidden="true">#</a></h5>
+
+
+<p>Function declarations and function expression are <em>function definitions</em>. This scenario has been supported for a long time: a function definition with a name passes it on to the <code>name</code> property.</p>
+
+<p>For example, a function declaration:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">foo</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// foo</code>
+</pre></div>
+
+</figure>
+
+<p>The name of a named function expression also sets up the <code>name</code> property.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">bar</code> <code class="o">=</code> <code class="kd">function</code> <code class="nx">baz</code><code class="p">()</code> <code class="p">{};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">bar</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// baz</code>
+</pre></div>
+
+</figure>
+
+<p>Because it comes first, the function expression&#x2019;s name <code>baz</code> takes precedence over other names (e.g. the name <code>bar</code> provided via the variable declaration):</p>
+
+<p>However, as in ES5, the name of a function expression is only a variable inside the function expression:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">bar</code> <code class="o">=</code> <code class="kd">function</code> <code class="nx">baz</code><code class="p">()</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">baz</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// baz</code>
+<code class="p">};</code>
+<code class="nx">bar</code><code class="p">();</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">baz</code><code class="p">);</code> <code class="c1">// ReferenceError</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_methods-in-object-literals">
+<span class="section-number">12.6.1.4 </span>Methods in object literals <a class="header-anchor" href="ch_callables.html#_methods-in-object-literals" aria-hidden="true">#</a></h5>
+
+<p>If a function is the value of a property, it gets its name from that property. It doesn&#x2019;t matter if that happens via a method definition (line A), a traditional property definition (line B), a property definition with a computed property key (line C) or a property value shorthand (line D).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">func</code><code class="p">()</code> <code class="p">{}</code>
+<code class="kd">let</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">m1</code><code class="p">()</code> <code class="p">{},</code> <code class="c1">// (A)</code>
+    <code class="nx">m2</code><code class="o">:</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{},</code> <code class="c1">// (B)</code>
+    <code class="p">[</code><code class="s1">&apos;m&apos;</code> <code class="o">+</code> <code class="s1">&apos;3&apos;</code><code class="p">]</code><code class="o">:</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{},</code> <code class="c1">// (C)</code>
+    <code class="nx">func</code><code class="p">,</code> <code class="c1">// (D)</code>
+<code class="p">};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">m1</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// m1</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">m2</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// m2</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">m3</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// m3</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">func</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// func</code>
+</pre></div>
+
+</figure>
+
+<p>The names of getters are prefixed with <code>&apos;get&apos;</code>, the names of setters are prefixed with <code>&apos;set&apos;</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">let</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">get</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{},</code>
+    <code class="nx">set</code> <code class="nx">bar</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code> <code class="p">{},</code>
+<code class="p">};</code>
+<code class="kd">let</code> <code class="nx">getter</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="s1">&apos;foo&apos;</code><code class="p">).</code><code class="nx">get</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">getter</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// &apos;get foo&apos;</code>
+
+<code class="kd">let</code> <code class="nx">setter</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="s1">&apos;bar&apos;</code><code class="p">).</code><code class="nx">set</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">setter</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// &apos;set bar&apos;</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_methods-in-class-definitions">
+<span class="section-number">12.6.1.5 </span>Methods in class definitions <a class="header-anchor" href="ch_callables.html#_methods-in-class-definitions" aria-hidden="true">#</a></h5>
+
+<p>The naming of methods in class definitions is similar to object literals:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">C</code> <code class="p">{</code>
+    <code class="nx">m1</code><code class="p">()</code> <code class="p">{}</code>
+    <code class="p">[</code><code class="s1">&apos;m&apos;</code> <code class="o">+</code> <code class="s1">&apos;2&apos;</code><code class="p">]()</code> <code class="p">{}</code> <code class="c1">// computed property key</code>
+
+    <code class="kr">static</code> <code class="nx">classMethod</code><code class="p">()</code> <code class="p">{}</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">C</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">m1</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// m1</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="k">new</code> <code class="nx">C</code><code class="p">().</code><code class="nx">m1</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// m1</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">C</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">m2</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// m2</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">C</code><code class="p">.</code><code class="nx">classMethod</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// classMethod</code>
+</pre></div>
+
+</figure>
+
+<p>Getters and setters again have the name prefixes <code>&apos;get&apos;</code> and <code>&apos;set&apos;</code>, respectively:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">C</code> <code class="p">{</code>
+    <code class="nx">get</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{}</code>
+    <code class="nx">set</code> <code class="nx">bar</code><code class="p">(</code><code class="nx">value</code><code class="p">)</code> <code class="p">{}</code>
+<code class="p">}</code>
+<code class="kd">let</code> <code class="nx">getter</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">C</code><code class="p">.</code><code class="nx">prototype</code><code class="p">,</code> <code class="s1">&apos;foo&apos;</code><code class="p">).</code><code class="nx">get</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">getter</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// &apos;get foo&apos;</code>
+
+<code class="kd">let</code> <code class="nx">setter</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">C</code><code class="p">.</code><code class="nx">prototype</code><code class="p">,</code> <code class="s1">&apos;bar&apos;</code><code class="p">).</code><code class="nx">set</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">setter</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// &apos;set bar&apos;</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_methods-whose-keys-are-symbols">
+<span class="section-number">12.6.1.6 </span>Methods whose keys are symbols <a class="header-anchor" href="ch_callables.html#_methods-whose-keys-are-symbols" aria-hidden="true">#</a></h5>
+
+<p>In ES6, the key of a method can be a symbol. The <code>name</code> property of such a method is still a string:</p>
+
+<ul>
+  <li>If the symbol has a description, the method&#x2019;s name is the description in square brackets.</li>
+  <li>Otherwise, the method&#x2019;s name is the empty string (<code>&apos;&apos;</code>).</li>
+</ul>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">key1</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;description&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">key2</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">();</code>
+
+<code class="kd">let</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">key1</code><code class="p">]()</code> <code class="p">{},</code>
+    <code class="p">[</code><code class="nx">key2</code><code class="p">]()</code> <code class="p">{},</code>
+<code class="p">};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">[</code><code class="nx">key1</code><code class="p">].</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// &apos;[description]&apos;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">[</code><code class="nx">key2</code><code class="p">].</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// &apos;&apos;</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_class-definitions">
+<span class="section-number">12.6.1.7 </span>Class definitions <a class="header-anchor" href="ch_callables.html#_class-definitions" aria-hidden="true">#</a></h5>
+
+<p>Remember that class definitions create functions. Those functions also have their property <code>name</code> set up correctly:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Foo</code> <code class="p">{}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">Foo</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// Foo</code>
+
+<code class="kr">const</code> <code class="nx">Bar</code> <code class="o">=</code> <code class="kr">class</code> <code class="p">{};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">Bar</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// Bar</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_default-exports">
+<span class="section-number">12.6.1.8 </span>Default exports <a class="header-anchor" href="ch_callables.html#_default-exports" aria-hidden="true">#</a></h5>
+
+<p>All of the following statements set <code>name</code> to <code>&apos;default&apos;</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">export</code> <code class="k">default</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{}</code>
+<code class="kr">export</code> <code class="k">default</code> <code class="p">(</code><code class="kd">function</code> <code class="p">()</code> <code class="p">{});</code>
+
+<code class="kr">export</code> <code class="k">default</code> <code class="kr">class</code> <code class="p">{}</code>
+<code class="kr">export</code> <code class="k">default</code> <code class="p">(</code><code class="kr">class</code> <code class="p">{});</code>
+
+<code class="kr">export</code> <code class="k">default</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="p">{};</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_other-programming-constructs">
+<span class="section-number">12.6.1.9 </span>Other programming constructs <a class="header-anchor" href="ch_callables.html#_other-programming-constructs" aria-hidden="true">#</a></h5>
+
+<ul>
+  <li>Generator functions and generator methods get their names the same way that normal functions and methods do.</li>
+  <li>
+<code>new Function()</code> produces functions whose <code>name</code> is <code>&apos;anonymous&apos;</code>. <a href="https://bugs.webkit.org/show_bug.cgi?id=7726">A webkit bug</a> describes why that is necessary on the web.</li>
+  <li>
+<code>func.bind()</code> produces a function whose <code>name</code> is <code>&apos;bound &apos;+func.name</code>:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+      <code class="k">return</code> <code class="nx">x</code>
+  <code class="p">}</code>
+  <code class="kr">const</code> <code class="nx">bound</code> <code class="o">=</code> <code class="nx">foo</code><code class="p">.</code><code class="nx">bind</code><code class="p">(</code><code class="kc">undefined</code><code class="p">,</code> <code class="mi">123</code><code class="p">);</code>
+  <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">bound</code><code class="p">.</code><code class="nx">name</code><code class="p">);</code> <code class="c1">// &apos;bound foo&apos;</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<h4 id="_caveats">
+<span class="section-number">12.6.2 </span>Caveats <a class="header-anchor" href="ch_callables.html#_caveats" aria-hidden="true">#</a></h4>
+
+<h5 id="caveat-names-assigned-at-creation">
+<span class="section-number">12.6.2.1 </span>Caveat: the name of a function is always assigned at creation <a class="header-anchor" href="ch_callables.html#caveat-names-assigned-at-creation" aria-hidden="true">#</a></h5>
+
+<p>Function names are always assigned during creation and never changed later on. That is, JavaScript engines detect the previously mentioned patterns and create functions that start their lives with the correct names. The following code demonstrates that the name of the function created by <code>functionFactory()</code> is assigned in line A and not changed by the declaration in line B.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">functionFactory</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{};</code> <code class="c1">// (A)</code>
+<code class="p">}</code>
+<code class="kr">const</code> <code class="nx">foo</code> <code class="o">=</code> <code class="nx">functionFactory</code><code class="p">();</code> <code class="c1">// (B)</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">foo</code><code class="p">.</code><code class="nx">name</code><code class="p">.</code><code class="nx">length</code><code class="p">);</code> <code class="c1">// 0 (anonymous)</code>
+</pre></div>
+
+</figure>
+
+<p>One could, in theory, check for each assignment whether the right-hand side evaluates to a function and whether that function doesn&#x2019;t have a name, yet. But that would incur a significant performance penalty.</p>
+
+<h5 id="caveat-minification">
+<span class="section-number">12.6.2.2 </span>Caveat: minification <a class="header-anchor" href="ch_callables.html#caveat-minification" aria-hidden="true">#</a></h5>
+
+<p>Function names are subject to minification, which means that they will usually change in minified code. Depending on what you want to do, you may have to manage function names via strings (which are not minified) or you may have to tell your minifier what names not to minify.</p>
+
+<h4 id="_changing-the-names-of-functions">
+<span class="section-number">12.6.3 </span>Changing the names of functions <a class="header-anchor" href="ch_callables.html#_changing-the-names-of-functions" aria-hidden="true">#</a></h4>
+
+<p>These are the attributes of property <code>name</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; let func = function () {}
+&gt; Object.getOwnPropertyDescriptor(func, &apos;name&apos;)
+{ value: &apos;func&apos;,
+  writable: false,
+  enumerable: false,
+  configurable: true }
+</pre></div>
+
+</figure>
+
+<p>The property not being writable means that you can&#x2019;t change its value via assignment:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; func.name = &apos;foo&apos;;
+&gt; func.name
+&apos;func&apos;
+</pre></div>
+
+</figure>
+
+<p>The property is, however, configurable, which means that you can change it by re-defining it:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nt">Object</code><code class="nc">.defineProperty</code><code class="o">(</code><code class="nt">func</code><code class="o">,</code> <code class="s1">&apos;name&apos;</code><code class="o">,</code> <code class="p">{</code><code class="n">value</code><code class="o">:</code> <code class="s1">&apos;foo&apos;</code><code class="o">,</code> <code class="n">configurable</code><code class="o">:</code> <code class="n">true</code><code class="p">}</code><code class="o">);</code>
+<code class="o">&gt;</code> <code class="nt">func</code><code class="nc">.name</code>
+<code class="s1">&apos;foo&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>If the property <code>name</code> already exists then you can omit the descriptor property <code>configurable</code>, because missing descriptor properties mean that the corresponding attributes are not changed.</p>
+
+<p>If the property <code>name</code> does not exist yet then the descriptor property <code>configurable</code> ensures that <code>name</code> remains configurable (the default attribute values are all <code>false</code> or <code>undefined</code>).</p>
+
+<h4 id="_the-function-property-name-in-the-spec">
+<span class="section-number">12.6.4 </span>The function property <code>name</code> in the spec <a class="header-anchor" href="ch_callables.html#_the-function-property-name-in-the-spec" aria-hidden="true">#</a></h4>
+
+<ul>
+  <li>The spec operation <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-setfunctionname"><code>SetFunctionName()</code></a> sets up the property <code>name</code>. Search for its name in the spec to find out where that happens.
+    <ul>
+      <li>The third parameter of that operation specifies a name prefix. It is used for:
+        <ul>
+          <li>
+<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-method-definitions-runtime-semantics-propertydefinitionevaluation">Getters and setters</a> (prefixes <code>&apos;get&apos;</code> and <code>&apos;set&apos;</code>)</li>
+          <li>
+<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-function.prototype.bind"><code>Function.prototype.bind()</code></a> (prefix <code>&apos;bound&apos;</code>)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Anonymous function expressions not having a property <code>name</code> can be seen by looking at <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-function-definitions-runtime-semantics-evaluation">their runtime semantics</a>:
+    <ul>
+      <li>The names of named function expressions are set up via <code>SetFunctionName()</code>. That operation is not invoked for anonymous function expressions.</li>
+      <li>The names of function declarations are set up when entering a scope (they are hoisted!).</li>
+    </ul>
+  </li>
+  <li>
+<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-arrow-function-definitions-runtime-semantics-evaluation">When an arrow function is created</a>, no name is set up, either (<code>SetFunctionName()</code> is not invoked).</li>
+</ul>
+
+
+<h3 id="sec_faq-callables">
+<span class="section-number">12.7 </span>FAQ: callable entities <a class="header-anchor" href="ch_callables.html#sec_faq-callables" aria-hidden="true">#</a></h3>
+
+<h4 id="_how-do-i-determine-whether-a-function-was-invoked-via-new">
+<span class="section-number">12.7.1 </span>How do I determine whether a function was invoked via <code>new</code>? <a class="header-anchor" href="ch_callables.html#_how-do-i-determine-whether-a-function-was-invoked-via-new" aria-hidden="true">#</a></h4>
+
+<p>ES6 has a new protocol for subclassing, which is explained in <a href="ch_classes.html#sec_allocating-and-initializing-instances">the chapter on classes</a>. Part of that protocol is the <em>meta-property</em> <code>new.target</code>, which refers to the first element in a chain of constructor calls (similar to <code>this</code> in a chain for supermethod calls). It is <code>undefined</code> if there is no constructor call. We can use that to enforce that a function must be invoked via <code>new</code> or that it must not be invoked via it. This is an example for the latter:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">realFunction</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="k">new</code><code class="p">.</code><code class="nx">target</code> <code class="o">!==</code> <code class="kc">undefined</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">(</code><code class="s1">&apos;Can&#x2019;t be invoked via `new`&apos;</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In ES5, this was usually checked like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">realFunction</code><code class="p">()</code> <code class="p">{</code>
+    <code class="s2">&quot;use strict&quot;</code><code class="p">;</code>
+    <code class="k">if</code> <code class="p">(</code><code class="k">this</code> <code class="o">!==</code> <code class="kc">undefined</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">(</code><code class="s1">&apos;Can&#x2019;t be invoked via `new`&apos;</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_arrow-functions.html">13. Arrow functions</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

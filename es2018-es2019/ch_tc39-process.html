@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>The TC39 process for ECMAScript features • Exploring ES2018 and ES2019</title>
+    <link rel="stylesheet" href="site.css" type="text/css">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="top-bar-content">
+            <a href="toc.html">Table of contents</a><br>
+            Please support this book:
+            <a href="https://payhip.com/b/JrTz">buy it (PDF, EPUB, MOBI)</a>
+            or
+            <a href="http://www.2ality.com/p/donate.html">donate</a>
+        </div>
+    </div>
+
+    <div id="page-content">
+
+        <div id="adbox">
+        <div id="adbox-explain">(Ad, please don’t block.)</div>
+                    <script async type="text/javascript" src="https://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+                </div>
+
+        <h2 id="ch_tc39-process">The TC39 process for ECMAScript features</h2>
+<p>This chapter explains the so-called <em>TC39 process</em>, which governs how ECMAScript features are designed, starting with ECMAScript 2016 (ES7).</p>
+<h3 id="tc39">Who designs ECMAScript?</h3>
+<p>Answer: TC39 (Technical Committee 39).</p>
+<p><a href="http://www.ecma-international.org/memento/TC39.htm">TC39</a> is the committee that evolves JavaScript. Its members are companies (among others, all major browser vendors). <a href="http://www.ecma-international.org/memento/TC39-M.htm">TC39 meets regularly</a>, its meetings are attended by delegates that members send and by invited experts. Minutes of the meetings are <a href="https://github.com/tc39/tc39-notes">available online</a> and give you a good idea of how TC39 works.</p>
+<p>Occasionally (even in this book), you’ll see the term <em>TC39 member</em> referring to a human. Then it means: a delegate sent by a TC39 member company.</p>
+<p>It is interesting to note that TC39 operates by consensus: Decisions require that a large majority agrees and nobody disagrees strongly enough to veto. For many members, agreements lead to real obligations (they’ll have to implement features etc.).</p>
+<h3 id="tc39-process">How is ECMAScript designed?</h3>
+<h4 id="problem-ecmascript-2015-es6-was-too-large-a-release">Problem: ECMAScript 2015 (ES6) was too large a release</h4>
+<p>The most recent release of ECMAScript, ES6, is large and was standardized almost 6 years after ES5 (December 2009 vs. June 2015). There are two main problems with so much time passing between releases:</p>
+<ul>
+<li>Features that are ready sooner than the release have to wait until the release is finished.</li>
+<li>Features that take long are under pressure to be wrapped up, because postponing them until the next release would mean a long wait. Such features may also delay a release.</li>
+</ul>
+<p>Therefore, starting with ECMAScript 2016 (ES7), releases will happen more frequently and be much smaller as a consequence. There will be one release per year and it will contain all features that are finished by a yearly deadline.</p>
+<h4 id="solution-the-tc39-process">Solution: the TC39 process</h4>
+<p>Each proposal for an ECMAScript feature goes through the following <em>maturity stages</em>, starting with stage 0. The progression from one stage to the next one must be approved by TC39.</p>
+<h5 id="stage-0-strawman">Stage 0: strawman</h5>
+<p><strong>What is it?</strong> A free-form way of submitting ideas for evolving ECMAScript. Submissions must come either from a TC39 member or a non-member who <a href="http://www.ecma-international.org/memento/contribute_TC39_Royalty_Free_Task_Group.php">has registered as a TC39 contributor</a>.</p>
+<p><strong>What’s required?</strong> The document must be reviewed at a TC39 meeting (<a href="https://github.com/tc39/ecma262/blob/master/FAQ.md">source</a>) and is then added to <a href="https://github.com/tc39/ecma262/blob/master/stage0.md">the page with stage 0 proposals</a>.</p>
+<h5 id="stage-1-proposal">Stage 1: proposal</h5>
+<p><strong>What is it?</strong> A formal proposal for the feature.</p>
+<p><strong>What’s required?</strong> A so-called <em>champion</em> must be identified who is responsible for the proposal. Either the champion or a co-champion must be a member of TC39 (<a href="https://github.com/tc39/ecma262/blob/master/FAQ.md">source</a>). The problem solved by the proposal must be described in prose. The solution must be described via examples, an API and a discussion of semantics and algorithms. Lastly, potential obstacles for the proposal must be identified, such as interactions with other features and implementation challenges. Implementation-wise, polyfills and demos are needed.</p>
+<p><strong>What’s next?</strong> By accepting a proposal for stage 1, TC39 declares its willingness to examine, discuss and contribute to the proposal. Going forward, major changes to the proposal are expected.</p>
+<h5 id="stage-2-draft">Stage 2: draft</h5>
+<p><strong>What is it?</strong> A first version of what will be in the specification. At this point, an eventual inclusion of the feature in the standard is likely.</p>
+<p><strong>What’s required?</strong> The proposal must now additionally have a formal description of the syntax and semantics of the feature (using the formal language of the ECMAScript specification). The description should be as complete as possible, but can contain todos and placeholders. Two experimental implementations of the feature are needed, but one of them can be in a transpiler such as Babel.</p>
+<p><strong>What’s next?</strong> Only incremental changes are expected from now on.</p>
+<h5 id="stage-3-candidate">Stage 3: candidate</h5>
+<p><strong>What is it?</strong> The proposal is mostly finished and now needs feedback from implementations and users to progress further.</p>
+<p><strong>What’s required?</strong> The spec text must be complete. Designated reviewers (appointed by TC39, not by the champion) and the ECMAScript spec editor must sign off on the spec text. There must be at least two spec-compliant implementations (which don’t have to be enabled by default).</p>
+<p><strong>What’s next?</strong> Henceforth, changes should only be made in response to critical issues raised by the implementations and their use.</p>
+<h5 id="stage-4-finished">Stage 4: finished</h5>
+<p><strong>What is it?</strong> The proposal is ready to be included in the standard.</p>
+<p><strong>What’s required?</strong> The following things are needed before a proposal can reach this stage:</p>
+<ul>
+<li><a href="https://github.com/tc39/test262">Test 262</a> acceptance tests (roughly, unit tests for the language feature, written in JavaScript).</li>
+<li>Two spec-compliant shipping implementations that pass the tests.</li>
+<li>Significant practical experience with the implementations.</li>
+<li>The ECMAScript spec editor must sign off on the spec text.</li>
+</ul>
+<p><strong>What’s next?</strong> The proposal will be included in the ECMAScript specification as soon as possible. When the spec goes through its yearly ratification as a standard, the proposal is ratified as part of it.</p>
+<h3 id="dont-call-them-ecmascript-20xx-features">Don’t call them ECMAScript 20xx features</h3>
+<p>As you can see, you can only be sure that a feature will be included in the standard once its proposal has reached stage 4. Then its inclusion in the next ECMAScript release is probable, but not 100% sure, either (it may take longer). Therefore, you can’t call proposals (e.g.) “ES7 features” or “ES2016 features”, anymore. My two favorite ways of writing headings for articles and blog posts are therefore:</p>
+<ul>
+<li>“ECMAScript proposal: the foo feature”. The stage of the proposal is mentioned at the beginning of the article.</li>
+<li>“ES.stage2: the foo feature”</li>
+</ul>
+<p>If a proposal is at stage 4, I’d be OK with calling it an ES20xx feature, but it’s safest to wait until the spec editor confirms what release it will be included in. <code>Object.observe</code> is an example of an ECMAScript proposal that had progressed until stage 2, but was ultimately withdrawn.</p>
+<h3 id="further-reading">Further reading</h3>
+<p>The following were important sources of this chapter:</p>
+<ul>
+<li><a href="https://github.com/tc39/ecma262">The ecma262 (ECMA-262 is the ID of the ECMAScript standard) GitHub repository</a>, which contains:
+<ul>
+<li><a href="https://github.com/tc39/ecma262/blob/master/README.md">A readme file with all proposals at stage 1 or higher</a></li>
+<li><a href="https://github.com/tc39/ecma262/blob/master/stage0.md">A list of stage 0 proposals</a></li>
+<li><a href="https://github.com/tc39/ecma262/blob/master/FAQ.md">ECMA-262 frequently asked questions</a></li>
+</ul></li>
+<li><a href="https://tc39.github.io/process-document/">The TC39 process document</a></li>
+</ul>
+<p>Other things to read:</p>
+<ul>
+<li><p><a href="https://kangax.github.io/compat-table/es7/">Kangax’ ES7 compatibility table</a> shows what proposals are supported where and groups proposals by stage.</p></li>
+<li><p>More information on the ES6 design process: section “<a href="../es6/ch_about-es6.html#_how-ecmascript-6-was-designed">How ECMAScript 6 was designed</a>” in “Exploring ES6”</p></li>
+</ul>
+
+        <div class="footer">
+            <div>
+                            </div>
+                        <div>
+                Next: <a href="pt_es2018.html">ECMAScript 2018</a>
+            </div>
+                    </div>
+    </div>
+</body>
+</html>

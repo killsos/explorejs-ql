@@ -1,0 +1,207 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>8. New string methods: padStart and padEnd</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+    <div id="top-bar-content">
+        <a href="index.html#toc_ch_string-padding">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es2016-es2017/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="page-content">
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+
+<h2 id="ch_string-padding">
+<span class="section-number">8. </span>New string methods: <code>padStart</code> and <code>padEnd</code>
+ <a class="header-anchor" href="ch_string-padding.html#ch_string-padding" aria-hidden="true">#</a></h2>
+
+<p>This chapter explains the ECMAScript 2017 feature &#x201C;<a href="https://github.com/tc39/proposal-string-pad-start-end">String padding</a>&#x201D; by Jordan Harband &amp; Rick Waldron.</p>
+
+<h3 id="_overview-4">
+<span class="section-number">8.1 </span>Overview <a class="header-anchor" href="ch_string-padding.html#_overview-4" aria-hidden="true">#</a></h3>
+
+<p>ECMAScript 2017 has two new string methods:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;x&apos;.padStart(5, &apos;ab&apos;)
+&apos;ababx&apos;
+&gt; &apos;x&apos;.padEnd(5, &apos;ab&apos;)
+&apos;xabab&apos;
+</pre></div>
+
+</figure>
+
+<h3 id="_why-pad-strings">
+<span class="section-number">8.2 </span>Why pad strings? <a class="header-anchor" href="ch_string-padding.html#_why-pad-strings" aria-hidden="true">#</a></h3>
+
+<p>Use cases for padding strings include:</p>
+
+<ul>
+  <li>Displaying tabular data in a monospaced font.</li>
+  <li>Adding a count or an ID to a file name or a URL: <code>&apos;file 001.txt&apos;</code>
+</li>
+  <li>Aligning console output: <code>&apos;Test 001: &#x2713;&apos;</code>
+</li>
+  <li>Printing hexadecimal or binary numbers that have a fixed number of digits: <code>&apos;0x00FF&apos;</code>
+</li>
+</ul>
+
+<h3 id="_stringprototypepadstartmaxlength-fillstring-">
+<span class="section-number">8.3 </span><code>String.prototype.padStart(maxLength, fillString=&apos; &apos;)</code>
+ <a class="header-anchor" href="ch_string-padding.html#_stringprototypepadstartmaxlength-fillstring-" aria-hidden="true">#</a></h3>
+
+<p>This method (possibly repeatedly) prefixes the receiver with <code>fillString</code>, until its length is <code>maxLength</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;x&apos;.padStart(5, &apos;ab&apos;)
+&apos;ababx&apos;
+</pre></div>
+
+</figure>
+
+<p>If necessary, a fragment of <code>fillString</code> is used so that the result&#x2019;s length is exactly <code>maxLength</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;x&apos;.padStart(4, &apos;ab&apos;)
+&apos;abax&apos;
+</pre></div>
+
+</figure>
+
+<p>If the receiver is as long as, or longer than, <code>maxLength</code>, it is returned unchanged:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;abcd&apos;.padStart(2, &apos;#&apos;)
+&apos;abcd&apos;
+</pre></div>
+
+</figure>
+
+<p>If <code>maxLength</code> and <code>fillString.length</code> are the same, <code>fillString</code> becomes a mask into which the receiver is inserted, at the end:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;abc&apos;.padStart(10, &apos;0123456789&apos;)
+&apos;0123456abc&apos;
+</pre></div>
+
+</figure>
+
+<p>If you omit <code>fillString</code>, a string with a single space in it is used (<code>&apos; &apos;</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;x&apos;.padStart(3)
+&apos;  x&apos;
+</pre></div>
+
+</figure>
+
+<h4 id="_a-simple-implementation-of-padstart">
+<span class="section-number">8.3.1 </span>A simple implementation of <code>padStart()</code>
+ <a class="header-anchor" href="ch_string-padding.html#_a-simple-implementation-of-padstart" aria-hidden="true">#</a></h4>
+
+<p>The following implementation gives you a rough idea of how <code>padStart()</code> works, but isn&#x2019;t completely spec-compliant (for a few edge cases).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">String</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">padStart</code> <code class="o">=</code>
+<code class="kd">function</code> <code class="p">(</code><code class="nx">maxLength</code><code class="p">,</code> <code class="nx">fillString</code><code class="o">=</code><code class="s1">&apos; &apos;</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="nx">str</code> <code class="o">=</code> <code class="nb">String</code><code class="p">(</code><code class="k">this</code><code class="p">);</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">str</code><code class="p">.</code><code class="nx">length</code> <code class="o">&gt;=</code> <code class="nx">maxLength</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">str</code><code class="p">;</code>
+    <code class="p">}</code>
+
+    <code class="nx">fillString</code> <code class="o">=</code> <code class="nb">String</code><code class="p">(</code><code class="nx">fillString</code><code class="p">);</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">fillString</code><code class="p">.</code><code class="nx">length</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">fillString</code> <code class="o">=</code> <code class="s1">&apos; &apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+
+    <code class="kd">let</code> <code class="nx">fillLen</code> <code class="o">=</code> <code class="nx">maxLength</code> <code class="o">-</code> <code class="nx">str</code><code class="p">.</code><code class="nx">length</code><code class="p">;</code>
+    <code class="kd">let</code> <code class="nx">timesToRepeat</code> <code class="o">=</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">ceil</code><code class="p">(</code><code class="nx">fillLen</code> <code class="o">/</code> <code class="nx">fillString</code><code class="p">.</code><code class="nx">length</code><code class="p">);</code>
+    <code class="kd">let</code> <code class="nx">truncatedStringFiller</code> <code class="o">=</code> <code class="nx">fillString</code>
+        <code class="p">.</code><code class="nx">repeat</code><code class="p">(</code><code class="nx">timesToRepeat</code><code class="p">)</code>
+        <code class="p">.</code><code class="nx">slice</code><code class="p">(</code><code class="mi">0</code><code class="p">,</code> <code class="nx">fillLen</code><code class="p">);</code>
+    <code class="k">return</code> <code class="nx">truncatedStringFiller</code> <code class="o">+</code> <code class="nx">str</code><code class="p">;</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<h3 id="_stringprototypepadendmaxlength-fillstring-">
+<span class="section-number">8.4 </span><code>String.prototype.padEnd(maxLength, fillString=&apos; &apos;)</code>
+ <a class="header-anchor" href="ch_string-padding.html#_stringprototypepadendmaxlength-fillstring-" aria-hidden="true">#</a></h3>
+
+<p><code>padEnd()</code> works similarly to <code>padStart()</code>, but instead of inserting the repeated <code>fillString</code> at the start, it inserts it at the end:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;x&apos;.padEnd(5, &apos;ab&apos;)
+&apos;xabab&apos;
+&gt; &apos;x&apos;.padEnd(4, &apos;ab&apos;)
+&apos;xaba&apos;
+&gt; &apos;abcd&apos;.padEnd(2, &apos;#&apos;)
+&apos;abcd&apos;
+&gt; &apos;abc&apos;.padEnd(10, &apos;0123456789&apos;)
+&apos;abc0123456&apos;
+&gt; &apos;x&apos;.padEnd(3)
+&apos;x  &apos;
+</pre></div>
+
+</figure>
+
+<p>Only the last line of an implementation of <code>padEnd()</code> is different, compared to the implementation of <code>padStart()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">return</code> <code class="nx">str</code> <code class="o">+</code> <code class="nx">truncatedStringFiller</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<h3 id="_faq-padstart-and-padend">
+<span class="section-number">8.5 </span>FAQ: <code>padStart</code> and <code>padEnd</code>
+ <a class="header-anchor" href="ch_string-padding.html#_faq-padstart-and-padend" aria-hidden="true">#</a></h3>
+
+<h4 id="_why-arent-the-padding-methods-called-padleft-and-padright">
+<span class="section-number">8.5.1 </span>Why aren&#x2019;t the padding methods called <code>padLeft</code> and <code>padRight</code>? <a class="header-anchor" href="ch_string-padding.html#_why-arent-the-padding-methods-called-padleft-and-padright" aria-hidden="true">#</a></h4>
+
+<p>For bidirectional or right-to-left languages, the terms <code>left</code> and <code>right</code> don&#x2019;t work well. Therefore, the naming of <code>padStart</code> and <code>padEnd</code> follows the existing names <code>startsWith</code> and <code>endsWith</code>.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_object-getownpropertydescriptors.html">9. <code>Object.getOwnPropertyDescriptors()</code></a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

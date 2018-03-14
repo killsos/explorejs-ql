@@ -1,0 +1,244 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Rest/Spread Properties • Exploring ES2018 and ES2019</title>
+    <link rel="stylesheet" href="site.css" type="text/css">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="top-bar-content">
+            <a href="toc.html">Table of contents</a><br>
+            Please support this book:
+            <a href="https://payhip.com/b/JrTz">buy it (PDF, EPUB, MOBI)</a>
+            or
+            <a href="http://www.2ality.com/p/donate.html">donate</a>
+        </div>
+    </div>
+
+    <div id="page-content">
+
+        <div id="adbox">
+        <div id="adbox-explain">(Ad, please don’t block.)</div>
+                    <script async type="text/javascript" src="https://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+                </div>
+
+        <h2 id="ch_rest-spread-properties">Rest/Spread Properties</h2>
+<p>The ECMAScript proposal “<a href="https://github.com/sebmarkbage/ecmascript-rest-spread">Rest/Spread Properties</a>” by Sebastian Markbåge enables:</p>
+<ul>
+<li><p>The rest operator (<code>...</code>) in object destructuring. At the moment, this operator only works for Array destructuring and in parameter definitions.</p></li>
+<li><p>The spread operator (<code>...</code>) in object literals. At the moment, this operator only works in Array literals and in function and method calls.</p></li>
+</ul>
+<h3 id="the-rest-operator-...-in-object-destructuring">The rest operator (<code>...</code>) in object destructuring</h3>
+<p>Inside object destructuring patterns, the rest operator (<code>...</code>) copies all enumerable own properties of the destructuring source into its operand, except those that were already mentioned in the object literal.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb37-1" data-line-number="1"><span class="kw">const</span> obj <span class="op">=</span> <span class="op">{</span><span class="dt">foo</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">bar</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span> <span class="dt">baz</span><span class="op">:</span> <span class="dv">3</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb37-2" data-line-number="2"><span class="kw">const</span> <span class="op">{</span>foo<span class="op">,</span> ...<span class="at">rest</span><span class="op">}</span> <span class="op">=</span> obj<span class="op">;</span></a>
+<a class="sourceLine" id="cb37-3" data-line-number="3">    <span class="co">// Same as:</span></a>
+<a class="sourceLine" id="cb37-4" data-line-number="4">    <span class="co">// const foo = 1;</span></a>
+<a class="sourceLine" id="cb37-5" data-line-number="5">    <span class="co">// const rest = {bar: 2, baz: 3};</span></a></code></pre></div>
+<p>If you are using object destructuring to handle named parameters, the rest operator enables you to collect all remaining parameters:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb38-1" data-line-number="1"><span class="kw">function</span> <span class="at">func</span>(<span class="op">{</span>param1<span class="op">,</span> param2<span class="op">,</span> ...<span class="at">rest</span><span class="op">}</span>) <span class="op">{</span> <span class="co">// rest operator</span></a>
+<a class="sourceLine" id="cb38-2" data-line-number="2">    <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;All parameters: &#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb38-3" data-line-number="3">        <span class="op">{</span>param1<span class="op">,</span> param2<span class="op">,</span> ...<span class="at">rest</span><span class="op">}</span>)<span class="op">;</span> <span class="co">// spread operator</span></a>
+<a class="sourceLine" id="cb38-4" data-line-number="4">    <span class="cf">return</span> param1 <span class="op">+</span> param2<span class="op">;</span></a>
+<a class="sourceLine" id="cb38-5" data-line-number="5"><span class="op">}</span></a></code></pre></div>
+<h4 id="syntactic-restrictions">Syntactic restrictions</h4>
+<p>Per top level of each object literal, you can use the rest operator at most once and it must appear at the end:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb39-1" data-line-number="1"><span class="kw">const</span> <span class="op">{</span>...<span class="at">rest</span><span class="op">,</span> foo<span class="op">}</span> <span class="op">=</span> obj<span class="op">;</span> <span class="co">// SyntaxError</span></a>
+<a class="sourceLine" id="cb39-2" data-line-number="2"><span class="kw">const</span> <span class="op">{</span>foo<span class="op">,</span> ...<span class="at">rest1</span><span class="op">,</span> ...<span class="at">rest2</span><span class="op">}</span> <span class="op">=</span> obj<span class="op">;</span> <span class="co">// SyntaxError</span></a></code></pre></div>
+<p>You can, however, use the rest operator several times if you nest it:</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb40-1" data-line-number="1"><span class="kw">const</span> obj <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb40-2" data-line-number="2">    <span class="dt">foo</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb40-3" data-line-number="3">        <span class="dt">a</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb40-4" data-line-number="4">        <span class="dt">b</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb40-5" data-line-number="5">        <span class="dt">c</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb40-6" data-line-number="6">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb40-7" data-line-number="7">    <span class="dt">bar</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb40-8" data-line-number="8">    <span class="dt">baz</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb40-9" data-line-number="9"><span class="op">};</span></a>
+<a class="sourceLine" id="cb40-10" data-line-number="10"><span class="kw">const</span> <span class="op">{</span><span class="dt">foo</span><span class="op">:</span> <span class="op">{</span>a<span class="op">,</span> ...<span class="at">rest1</span><span class="op">},</span> ...<span class="at">rest2</span><span class="op">}</span> <span class="op">=</span> obj<span class="op">;</span></a>
+<a class="sourceLine" id="cb40-11" data-line-number="11"><span class="co">// Same as:</span></a>
+<a class="sourceLine" id="cb40-12" data-line-number="12"><span class="co">// const a = 1;</span></a>
+<a class="sourceLine" id="cb40-13" data-line-number="13"><span class="co">// const rest1 = {b: 2, c: 3};</span></a>
+<a class="sourceLine" id="cb40-14" data-line-number="14"><span class="co">// const rest2 = {bar: 4, baz: 5};</span></a></code></pre></div>
+<h3 id="the-spread-operator-...-in-object-literals">The spread operator (<code>...</code>) in object literals</h3>
+<p>Inside object literals, the spread operator (<code>...</code>) inserts all enumerable own properties of its operand into the object created via the literal:</p>
+<pre class="repl"><code>&gt; const obj = {foo: 1, bar: 2, baz: 3};
+&gt; {...obj, qux: 4}
+{ foo: 1, bar: 2, baz: 3, qux: 4 }</code></pre>
+<p>Note that order matters even if property keys don’t clash, because objects record insertion order:</p>
+<pre class="repl"><code>&gt; {qux: 4, ...obj}
+{ qux: 4, foo: 1, bar: 2, baz: 3 }</code></pre>
+<p>If keys clash, order determines which entry “wins”:</p>
+<pre class="repl"><code>&gt; const obj = {foo: 1, bar: 2, baz: 3};
+&gt; {...obj, foo: true}
+{ foo: true, bar: 2, baz: 3 }
+&gt; {foo: true, ...obj}
+{ foo: 1, bar: 2, baz: 3 }</code></pre>
+<h3 id="common-use-cases-for-the-object-spread-operator">Common use cases for the object spread operator</h3>
+<p>In this section, we’ll look at things that you can use the spread operator for. I’ll also show how to do these things via <a href="../es6/ch_oop-besides-classes.html#Object_assign"><code>Object.assign()</code></a>, which is very similar to the spread operator (we’ll compare them in more detail later).</p>
+<h4 id="cloning-objects">Cloning objects</h4>
+<p>Cloning the enumerable own properties of an object <code>obj</code>:</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb44-1" data-line-number="1"><span class="kw">const</span> clone1 <span class="op">=</span> <span class="op">{</span>...<span class="at">obj</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb44-2" data-line-number="2"><span class="kw">const</span> clone2 <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> obj)<span class="op">;</span></a></code></pre></div>
+<p>The prototypes of the clones are always <code>Object.prototype</code>, which is the default for objects created via object literals:</p>
+<pre class="repl"><code>&gt; Object.getPrototypeOf(clone1) === Object.prototype
+true
+&gt; Object.getPrototypeOf(clone2) === Object.prototype
+true
+&gt; Object.getPrototypeOf({}) === Object.prototype
+true</code></pre>
+<p>Cloning an object <code>obj</code>, including its prototype:</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb46-1" data-line-number="1"><span class="kw">const</span> clone1 <span class="op">=</span> <span class="op">{</span><span class="dt">__proto__</span><span class="op">:</span> <span class="va">Object</span>.<span class="at">getPrototypeOf</span>(obj)<span class="op">,</span> ...<span class="at">obj</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb46-2" data-line-number="2"><span class="kw">const</span> clone2 <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(</a>
+<a class="sourceLine" id="cb46-3" data-line-number="3">    <span class="va">Object</span>.<span class="at">create</span>(<span class="va">Object</span>.<span class="at">getPrototypeOf</span>(obj))<span class="op">,</span> obj)<span class="op">;</span></a></code></pre></div>
+<p>Note that <code>__proto__</code> inside object literals is only a mandatory feature in web browsers, not in JavaScript engines in general.</p>
+<h4 id="true-clones-of-objects">True clones of objects</h4>
+<p>Sometimes you need to faithfully copy all own properties of an object <code>obj</code> and their attributes (<code>writable</code>, <code>enumerable</code>, …), including getters and setters. Then <code>Object.assign()</code> and the spread operator don’t work. You need to use <a href="http://speakingjs.com/es5/ch17.html#property_attributes">property descriptors</a>:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb47-1" data-line-number="1"><span class="kw">const</span> clone1 <span class="op">=</span> <span class="va">Object</span>.<span class="at">defineProperties</span>(<span class="op">{},</span></a>
+<a class="sourceLine" id="cb47-2" data-line-number="2">    <span class="va">Object</span>.<span class="at">getOwnPropertyDescriptors</span>(obj))<span class="op">;</span></a></code></pre></div>
+<p>If you additionally want to preserve the prototype of <code>obj</code>, you can use <a href="http://speakingjs.com/es5/ch17.html#Object.create"><code>Object.create()</code></a>:</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb48-1" data-line-number="1"><span class="kw">const</span> clone2 <span class="op">=</span> <span class="va">Object</span>.<span class="at">create</span>(</a>
+<a class="sourceLine" id="cb48-2" data-line-number="2">    <span class="va">Object</span>.<span class="at">getPrototypeOf</span>(obj)<span class="op">,</span></a>
+<a class="sourceLine" id="cb48-3" data-line-number="3">    <span class="va">Object</span>.<span class="at">getOwnPropertyDescriptors</span>(obj))<span class="op">;</span></a></code></pre></div>
+<p><a href="../es2016-es2017/ch_object-getownpropertydescriptors.html"><code>Object.getOwnPropertyDescriptors()</code></a> is explained in “Exploring ES2016 and ES2017”.</p>
+<h4 id="pitfall-cloning-is-always-shallow">Pitfall: cloning is always shallow</h4>
+<p>Keep in mind that with all the ways of cloning that we have looked at, you only get shallow copies: If one of the original property values is an object, the clone will refer to the same object, it will not be (recursively, deeply) cloned itself:</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb49-1" data-line-number="1"><span class="kw">const</span> original <span class="op">=</span> <span class="op">{</span> <span class="dt">prop</span><span class="op">:</span> <span class="op">{}</span> <span class="op">};</span></a>
+<a class="sourceLine" id="cb49-2" data-line-number="2"><span class="kw">const</span> clone <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> original)<span class="op">;</span></a>
+<a class="sourceLine" id="cb49-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb49-4" data-line-number="4"><span class="va">console</span>.<span class="at">log</span>(<span class="va">original</span>.<span class="at">prop</span> <span class="op">===</span> <span class="va">clone</span>.<span class="at">prop</span>)<span class="op">;</span> <span class="co">// true</span></a>
+<a class="sourceLine" id="cb49-5" data-line-number="5"><span class="va">original</span>.<span class="va">prop</span>.<span class="at">foo</span> <span class="op">=</span> <span class="st">&#39;abc&#39;</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb49-6" data-line-number="6"><span class="va">console</span>.<span class="at">log</span>(<span class="va">clone</span>.<span class="va">prop</span>.<span class="at">foo</span>)<span class="op">;</span> <span class="co">// abc</span></a></code></pre></div>
+<h4 id="various-other-use-cases">Various other use cases</h4>
+<p>Merging two objects <code>obj1</code> and <code>obj2</code>:</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb50-1" data-line-number="1"><span class="kw">const</span> merged <span class="op">=</span> <span class="op">{</span>...<span class="at">obj1</span><span class="op">,</span> ...<span class="at">obj2</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb50-2" data-line-number="2"><span class="kw">const</span> merged <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> obj1<span class="op">,</span> obj2)<span class="op">;</span></a></code></pre></div>
+<p>Filling in defaults for user data:</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb51-1" data-line-number="1"><span class="kw">const</span> DEFAULTS <span class="op">=</span> <span class="op">{</span><span class="dt">foo</span><span class="op">:</span> <span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="dt">bar</span><span class="op">:</span> <span class="st">&#39;b&#39;</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb51-2" data-line-number="2"><span class="kw">const</span> userData <span class="op">=</span> <span class="op">{</span><span class="dt">foo</span><span class="op">:</span> <span class="dv">1</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb51-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb51-4" data-line-number="4"><span class="kw">const</span> data <span class="op">=</span> <span class="op">{</span>...<span class="at">DEFAULTS</span><span class="op">,</span> ...<span class="at">userData</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb51-5" data-line-number="5"><span class="kw">const</span> data <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> DEFAULTS<span class="op">,</span> userData)<span class="op">;</span></a>
+<a class="sourceLine" id="cb51-6" data-line-number="6">    <span class="co">// {foo: 1, bar: &#39;b&#39;}</span></a></code></pre></div>
+<p>Non-destructively updating property <code>foo</code>:</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb52-1" data-line-number="1"><span class="kw">const</span> obj <span class="op">=</span> <span class="op">{</span><span class="dt">foo</span><span class="op">:</span> <span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="dt">bar</span><span class="op">:</span> <span class="st">&#39;b&#39;</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb52-2" data-line-number="2"><span class="kw">const</span> obj2 <span class="op">=</span> <span class="op">{</span>...<span class="at">obj</span><span class="op">,</span> <span class="dt">foo</span><span class="op">:</span> <span class="dv">1</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb52-3" data-line-number="3"><span class="kw">const</span> obj2 <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> obj<span class="op">,</span> <span class="op">{</span><span class="dt">foo</span><span class="op">:</span> <span class="dv">1</span><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb52-4" data-line-number="4">    <span class="co">// {foo: 1, bar: &#39;b&#39;}</span></a></code></pre></div>
+<p>Specifying the default values for properties <code>foo</code> and <code>bar</code> inline:</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb53-1" data-line-number="1"><span class="kw">const</span> userData <span class="op">=</span> <span class="op">{</span><span class="dt">foo</span><span class="op">:</span> <span class="dv">1</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb53-2" data-line-number="2"><span class="kw">const</span> data <span class="op">=</span> <span class="op">{</span><span class="dt">foo</span><span class="op">:</span> <span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="dt">bar</span><span class="op">:</span> <span class="st">&#39;b&#39;</span><span class="op">,</span> ...<span class="at">userData</span><span class="op">};</span></a>
+<a class="sourceLine" id="cb53-3" data-line-number="3"><span class="kw">const</span> data <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> <span class="op">{</span><span class="dt">foo</span><span class="op">:</span><span class="st">&#39;a&#39;</span><span class="op">,</span> <span class="dt">bar</span><span class="op">:</span><span class="st">&#39;b&#39;</span><span class="op">},</span> userData)<span class="op">;</span></a>
+<a class="sourceLine" id="cb53-4" data-line-number="4">    <span class="co">// {foo: 1, bar: &#39;b&#39;}</span></a></code></pre></div>
+<h3 id="spreading-objects-versus-object.assign">Spreading objects versus <code>Object.assign()</code></h3>
+<p>The spread operator and <a href="../es6/ch_oop-besides-classes.html#Object_assign"><code>Object.assign()</code></a> are very similar. The main difference is that spreading defines new properties, while <code>Object.assign()</code> sets them. What exactly that means is explained later.</p>
+<h4 id="the-two-ways-of-using-object.assign">The two ways of using <code>Object.assign()</code></h4>
+<p>There are two ways of using <code>Object.assign()</code>:</p>
+<p>First, destructively (an existing object is changed):</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb54-1" data-line-number="1"><span class="va">Object</span>.<span class="at">assign</span>(target<span class="op">,</span> source1<span class="op">,</span> source2)<span class="op">;</span></a></code></pre></div>
+<p>Here, <code>target</code> is modified; <code>source1</code> and <code>source2</code> are copied into it.</p>
+<p>Second, non-destructively (no existing object is changed):</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb55-1" data-line-number="1"><span class="kw">const</span> result <span class="op">=</span> <span class="va">Object</span>.<span class="at">assign</span>(<span class="op">{},</span> source1<span class="op">,</span> source2)<span class="op">;</span></a></code></pre></div>
+<p>Here, a new object is created via an empty object literal and <code>source1</code> and <code>source2</code> are copied into it. At the end, this new object is returned and assigned to <code>result</code>.</p>
+<p>The spread operator is very similar to the second way of using <code>Object.assign()</code>. Next, we’ll look at where the two are similar and where they differ.</p>
+<h4 id="both-spread-and-object.assign-read-values-via-a-get-operation">Both spread and <code>Object.assign()</code> read values via a “get” operation</h4>
+<p>Both operations use normal “get” operations to read property values from the source, before writing them to the target. As a result, getters are turned into normal data properties during this process.</p>
+<p>Let’s look at an example:</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb56-1" data-line-number="1"><span class="kw">const</span> original <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb56-2" data-line-number="2">    get <span class="at">foo</span>() <span class="op">{</span></a>
+<a class="sourceLine" id="cb56-3" data-line-number="3">        <span class="cf">return</span> <span class="dv">123</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb56-4" data-line-number="4">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb56-5" data-line-number="5"><span class="op">};</span></a></code></pre></div>
+<p><code>original</code> has the getter <code>foo</code> (its <a href="http://speakingjs.com/es5/ch17.html#property_attributes"><em>property descriptor</em></a> has the properties <code>get</code> and <code>set</code>):</p>
+<pre class="repl"><code>&gt; Object.getOwnPropertyDescriptor(original, &#39;foo&#39;)
+{ get: [Function: foo],
+  set: undefined,
+  enumerable: true,
+  configurable: true }</code></pre>
+<p>But it its clones <code>clone1</code> and <code>clone2</code>, <code>foo</code> is a normal data property (its property descriptor has the properties <code>value</code> and <code>writable</code>):</p>
+<pre class="repl"><code>&gt; const clone1 = {...original};
+&gt; Object.getOwnPropertyDescriptor(clone1, &#39;foo&#39;)
+{ value: 123,
+  writable: true,
+  enumerable: true,
+  configurable: true }
+
+&gt; const clone2 = Object.assign({}, original);
+&gt; Object.getOwnPropertyDescriptor(clone2, &#39;foo&#39;)
+{ value: 123,
+  writable: true,
+  enumerable: true,
+  configurable: true }</code></pre>
+<h4 id="spread-defines-properties-object.assign-sets-them">Spread defines properties, <code>Object.assign()</code> sets them</h4>
+<p>The spread operator defines new properties in the target, <code>Object.assign()</code> uses a normal “set” operation to create them. That has two consequences.</p>
+<h5 id="targets-with-setters">Targets with setters</h5>
+<p>First, <code>Object.assign()</code> triggers setters, spread doesn’t:</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb59-1" data-line-number="1"><span class="va">Object</span>.<span class="at">defineProperty</span>(<span class="va">Object</span>.<span class="at">prototype</span><span class="op">,</span> <span class="st">&#39;foo&#39;</span><span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb59-2" data-line-number="2">    <span class="at">set</span>(value) <span class="op">{</span></a>
+<a class="sourceLine" id="cb59-3" data-line-number="3">        <span class="va">console</span>.<span class="at">log</span>(<span class="st">&#39;SET&#39;</span><span class="op">,</span> value)<span class="op">;</span></a>
+<a class="sourceLine" id="cb59-4" data-line-number="4">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb59-5" data-line-number="5"><span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb59-6" data-line-number="6"><span class="kw">const</span> obj <span class="op">=</span> <span class="op">{</span><span class="dt">foo</span><span class="op">:</span> <span class="dv">123</span><span class="op">};</span></a></code></pre></div>
+<p>The previous piece of code installs a setter <code>foo</code> that is inherited by all normal objects.</p>
+<p>If we clone <code>obj</code> via <code>Object.assign()</code>, the inherited setter is triggered:</p>
+<pre class="repl"><code>&gt; Object.assign({}, obj)
+SET 123
+{}</code></pre>
+<p>With spread, it isn’t:</p>
+<pre class="repl"><code>&gt; { ...obj }
+{ foo: 123 }</code></pre>
+<p><code>Object.assign()</code> also triggers own setters during copying, it does not overwrite them.</p>
+<h5 id="targets-with-read-only-properties">Targets with read-only properties</h5>
+<p>Second, you can stop <code>Object.assign()</code> from creating own properties via inherited read-only properties, but not the spread operator:</p>
+<div class="sourceCode" id="cb62"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb62-1" data-line-number="1"><span class="va">Object</span>.<span class="at">defineProperty</span>(<span class="va">Object</span>.<span class="at">prototype</span><span class="op">,</span> <span class="st">&#39;bar&#39;</span><span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb62-2" data-line-number="2">    <span class="dt">writable</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb62-3" data-line-number="3">    <span class="dt">value</span><span class="op">:</span> <span class="st">&#39;abc&#39;</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb62-4" data-line-number="4"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>The previous piece of code installs the read-only property <code>bar</code> that is inherited by all normal objects.</p>
+<p>As a consequence, you can’t use assignment to create the own property <code>bar</code>, anymore (you only get an exception in strict mode; in sloppy mode, setting fails silently):</p>
+<pre class="repl"><code>&gt; const tmp = {};
+&gt; tmp.bar = 123;
+TypeError: Cannot assign to read only property &#39;bar&#39;</code></pre>
+<p>In the following code, we successfully create the property <code>bar</code> via an object literal. This works, because object literals don’t set properties, they <em>define</em> them:</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb64-1" data-line-number="1"><span class="kw">const</span> obj <span class="op">=</span> <span class="op">{</span><span class="dt">bar</span><span class="op">:</span> <span class="dv">123</span><span class="op">};</span></a></code></pre></div>
+<p>However, <code>Object.assign()</code> uses assignment for creating properties, which is why we can’t clone <code>obj</code>:</p>
+<pre class="repl"><code>&gt; Object.assign({}, obj)
+TypeError: Cannot assign to read only property &#39;bar&#39;</code></pre>
+<p>Cloning via the spread operator works:</p>
+<pre class="repl"><code>&gt; { ...obj }
+{ bar: 123 }</code></pre>
+<h4 id="both-spread-and-object.assign-only-consider-own-enumerable-properties">Both spread and <code>Object.assign()</code> only consider own enumerable properties</h4>
+<p>Both operations ignore all inherited properties and all non-enumerable own properties.</p>
+<p>The following object <code>obj</code> inherits one (enumerable!) property from <code>proto</code> and has two own properties:</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb67-1" data-line-number="1"><span class="kw">const</span> proto <span class="op">=</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb67-2" data-line-number="2">    <span class="dt">inheritedEnumerable</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb67-3" data-line-number="3"><span class="op">};</span></a>
+<a class="sourceLine" id="cb67-4" data-line-number="4"><span class="kw">const</span> obj <span class="op">=</span> <span class="va">Object</span>.<span class="at">create</span>(proto<span class="op">,</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb67-5" data-line-number="5">    <span class="dt">ownEnumerable</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb67-6" data-line-number="6">        <span class="dt">value</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb67-7" data-line-number="7">        <span class="dt">enumerable</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb67-8" data-line-number="8">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb67-9" data-line-number="9">    <span class="dt">ownNonEnumerable</span><span class="op">:</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb67-10" data-line-number="10">        <span class="dt">value</span><span class="op">:</span> <span class="dv">3</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb67-11" data-line-number="11">        <span class="dt">enumerable</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb67-12" data-line-number="12">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb67-13" data-line-number="13"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>If you clone <code>obj</code>, the result only has the property <code>ownEnumerable</code>. The properties <code>inheritedEnumerable</code> and <code>ownNonEnumerable</code> are not copied:</p>
+<pre class="repl"><code>&gt; {...obj}
+{ ownEnumerable: 2 }
+&gt; Object.assign({}, obj)
+{ ownEnumerable: 2 }</code></pre>
+
+        <div class="footer">
+            <div>
+                                <a id="commentLink" href="https://github.com/rauschma/exploring-es2018-es2019/issues/2">Comments</a>
+                <script defer src="count-comments.js"></script>
+                            </div>
+                        <div>
+                Next: <a href="ch_regexp-named-capture-groups.html">RegExp named capture groups</a>
+            </div>
+                    </div>
+    </div>
+</body>
+</html>

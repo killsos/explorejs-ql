@@ -1,0 +1,786 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>5. Async functions</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+    <div id="top-bar-content">
+        <a href="index.html#toc_ch_async-functions">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es2016-es2017/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="page-content">
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+
+<h2 id="ch_async-functions">
+<span class="section-number">5. </span>Async functions <a class="header-anchor" href="ch_async-functions.html#ch_async-functions" aria-hidden="true">#</a></h2>
+
+
+<p>The ECMAScript 2017 feature &#x201C;<a href="https://github.com/tc39/ecmascript-asyncawait">Async Functions</a>&#x201D; was proposed by Brian Terlson.</p>
+
+
+<h3 id="_overview-2">
+<span class="section-number">5.1 </span>Overview <a class="header-anchor" href="ch_async-functions.html#_overview-2" aria-hidden="true">#</a></h3>
+
+<h4 id="_variants">
+<span class="section-number">5.1.1 </span>Variants <a class="header-anchor" href="ch_async-functions.html#_variants" aria-hidden="true">#</a></h4>
+
+<p>The following variants of async functions exist. Note the keyword <code>async</code> everywhere.</p>
+
+<ul>
+  <li>Async function declarations: <code>async function foo() {}</code>
+</li>
+  <li>Async function expressions: <code>const foo = async function () {};</code>
+</li>
+  <li>Async method definitions: <code>let obj = { async foo() {} }</code>
+</li>
+  <li>Async arrow functions: <code>const foo = async () =&gt; {};</code>
+</li>
+</ul>
+
+<h4 id="_async-functions-always-return-promises">
+<span class="section-number">5.1.2 </span>Async functions always return Promises <a class="header-anchor" href="ch_async-functions.html#_async-functions-always-return-promises" aria-hidden="true">#</a></h4>
+
+<p>Fulfilling the Promise of an async function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="mi">123</code><code class="p">;</code>
+<code class="p">}</code>
+
+<code class="nx">asyncFunc</code><code class="p">()</code>
+<code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">x</code> <code class="p">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">));</code>
+    <code class="c1">// 123</code>
+</pre></div>
+
+</figure>
+
+<p>Rejecting the Promise of an async function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">(</code><code class="s1">&apos;Problem!&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="nx">asyncFunc</code><code class="p">()</code>
+<code class="p">.</code><code class="k">catch</code><code class="p">(</code><code class="nx">err</code> <code class="p">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">err</code><code class="p">));</code>
+    <code class="c1">// Error: Problem!</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_handling-results-and-errors-of-asynchronous-computations-via-await">
+<span class="section-number">5.1.3 </span>Handling results and errors of asynchronous computations via <code>await</code>
+ <a class="header-anchor" href="ch_async-functions.html#_handling-results-and-errors-of-asynchronous-computations-via-await" aria-hidden="true">#</a></h4>
+
+<p>The operator <code>await</code> (which is only allowed inside async functions) waits for its operand, a Promise, to be settled:</p>
+
+<ul>
+  <li>If the Promise is fulfilled, the result of <code>await</code> is the fulfillment value.</li>
+  <li>If the Promise is rejected, <code>await</code> throws the rejection value.</li>
+</ul>
+
+<p>Handling a single asynchronous result:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">result</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">otherAsyncFunc</code><code class="p">();</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Equivalent to:</code>
+<code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">otherAsyncFunc</code><code class="p">()</code>
+    <code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">result</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result</code><code class="p">);</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Handling multiple asynchronous results sequentially:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">result1</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">otherAsyncFunc1</code><code class="p">();</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result1</code><code class="p">);</code>
+    <code class="kr">const</code> <code class="nx">result2</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">otherAsyncFunc2</code><code class="p">();</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result2</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Equivalent to:</code>
+<code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">otherAsyncFunc1</code><code class="p">()</code>
+    <code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">result1</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result1</code><code class="p">);</code>
+        <code class="k">return</code> <code class="nx">otherAsyncFunc2</code><code class="p">();</code>
+    <code class="p">})</code>
+    <code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">result2</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result2</code><code class="p">);</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Handling multiple asynchronous results in parallel:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="p">[</code><code class="nx">result1</code><code class="p">,</code> <code class="nx">result2</code><code class="p">]</code> <code class="o">=</code> <code class="nx">await</code> <code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">([</code>
+        <code class="nx">otherAsyncFunc1</code><code class="p">(),</code>
+        <code class="nx">otherAsyncFunc2</code><code class="p">(),</code>
+    <code class="p">]);</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result1</code><code class="p">,</code> <code class="nx">result2</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Equivalent to:</code>
+<code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">([</code>
+        <code class="nx">otherAsyncFunc1</code><code class="p">(),</code>
+        <code class="nx">otherAsyncFunc2</code><code class="p">(),</code>
+    <code class="p">])</code>
+    <code class="p">.</code><code class="nx">then</code><code class="p">([</code><code class="nx">result1</code><code class="p">,</code> <code class="nx">result2</code><code class="p">]</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result1</code><code class="p">,</code> <code class="nx">result2</code><code class="p">);</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Handling errors:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">try</code> <code class="p">{</code>
+        <code class="nx">await</code> <code class="nx">otherAsyncFunc</code><code class="p">();</code>
+    <code class="p">}</code> <code class="k">catch</code> <code class="p">(</code><code class="nx">err</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">error</code><code class="p">(</code><code class="nx">err</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="c1">// Equivalent to:</code>
+<code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">otherAsyncFunc</code><code class="p">()</code>
+    <code class="p">.</code><code class="k">catch</code><code class="p">(</code><code class="nx">err</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">error</code><code class="p">(</code><code class="nx">err</code><code class="p">);</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="_understanding-async-functions">
+<span class="section-number">5.2 </span>Understanding async functions <a class="header-anchor" href="ch_async-functions.html#_understanding-async-functions" aria-hidden="true">#</a></h3>
+
+<p>Before I can explain async functions, I need to explain how Promises and generators can be combined to perform asynchronous operations via synchronous-looking code.</p>
+
+<p>For functions that compute their one-off results asynchronously, Promises, which are part of ES6, have become popular. One example is <a href="https://fetch.spec.whatwg.org/#concept-request">the client-side <code>fetch</code> API</a>, which is an alternative to XMLHttpRequest for retrieving files. Using it looks as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">fetchJson</code><code class="p">(</code><code class="nx">url</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">fetch</code><code class="p">(</code><code class="nx">url</code><code class="p">)</code>
+    <code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">request</code> <code class="p">=&gt;</code> <code class="nx">request</code><code class="p">.</code><code class="nx">text</code><code class="p">())</code>
+    <code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">text</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">JSON</code><code class="p">.</code><code class="nx">parse</code><code class="p">(</code><code class="nx">text</code><code class="p">);</code>
+    <code class="p">})</code>
+    <code class="p">.</code><code class="k">catch</code><code class="p">(</code><code class="nx">error</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`ERROR: </code><code class="si">${</code><code class="nx">error</code><code class="p">.</code><code class="nx">stack</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+<code class="nx">fetchJson</code><code class="p">(</code><code class="s1">&apos;http://example.com/some_file.json&apos;</code><code class="p">)</code>
+<code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">obj</code> <code class="p">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">));</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_writing-asynchronous-code-via-generators">
+<span class="section-number">5.2.1 </span>Writing asynchronous code via generators <a class="header-anchor" href="ch_async-functions.html#_writing-asynchronous-code-via-generators" aria-hidden="true">#</a></h4>
+
+<p>co is a library that uses Promises and generators to enable a coding style that looks more synchronous, but works the same as the style used in the previous example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">fetchJson</code> <code class="o">=</code> <code class="nx">co</code><code class="p">.</code><code class="nx">wrap</code><code class="p">(</code><code class="kd">function</code><code class="o">*</code> <code class="p">(</code><code class="nx">url</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">try</code> <code class="p">{</code>
+        <code class="kd">let</code> <code class="nx">request</code> <code class="o">=</code> <code class="k">yield</code> <code class="nx">fetch</code><code class="p">(</code><code class="nx">url</code><code class="p">);</code>
+        <code class="kd">let</code> <code class="nx">text</code> <code class="o">=</code> <code class="k">yield</code> <code class="nx">request</code><code class="p">.</code><code class="nx">text</code><code class="p">();</code>
+        <code class="k">return</code> <code class="nx">JSON</code><code class="p">.</code><code class="nx">parse</code><code class="p">(</code><code class="nx">text</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="k">catch</code> <code class="p">(</code><code class="nx">error</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`ERROR: </code><code class="si">${</code><code class="nx">error</code><code class="p">.</code><code class="nx">stack</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>Every time the callback (a generator function!) yields a Promise to co, the callback gets suspended. Once the Promise is settled, co resumes the callback: if the Promise was fulfilled, <code>yield</code> returns the fulfillment value, if it was rejected, <code>yield</code> throws the rejection error. Additionally, co promisifies the result returned by the callback (similarly to how <code>then()</code> does it).</p>
+
+<h4 id="_writing-asynchronous-code-via-async-functions">
+<span class="section-number">5.2.2 </span>Writing asynchronous code via async functions <a class="header-anchor" href="ch_async-functions.html#_writing-asynchronous-code-via-async-functions" aria-hidden="true">#</a></h4>
+
+<p>Async functions are basically dedicated syntax for what co does:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">fetchJson</code><code class="p">(</code><code class="nx">url</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">try</code> <code class="p">{</code>
+        <code class="kd">let</code> <code class="nx">request</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">fetch</code><code class="p">(</code><code class="nx">url</code><code class="p">);</code>
+        <code class="kd">let</code> <code class="nx">text</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">request</code><code class="p">.</code><code class="nx">text</code><code class="p">();</code>
+        <code class="k">return</code> <code class="nx">JSON</code><code class="p">.</code><code class="nx">parse</code><code class="p">(</code><code class="nx">text</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="k">catch</code> <code class="p">(</code><code class="nx">error</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`ERROR: </code><code class="si">${</code><code class="nx">error</code><code class="p">.</code><code class="nx">stack</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Internally, async functions work much like generators.</p>
+
+<h4 id="_async-functions-are-started-synchronously-settled-asynchronously">
+<span class="section-number">5.2.3 </span>Async functions are started synchronously, settled asynchronously <a class="header-anchor" href="ch_async-functions.html#_async-functions-are-started-synchronously-settled-asynchronously" aria-hidden="true">#</a></h4>
+
+<p>This is how async functions are executed:</p>
+
+<ol class="numeric">
+  <li>The result of an async function is always a Promise <code>p</code>. That Promise is created when starting the execution of the async function.</li>
+  <li>The body is executed. Execution may finish permanently via <code>return</code> or <code>throw</code>. Or it may finish temporarily via <code>await</code>; in which case execution will usually continue later on.</li>
+  <li>The Promise <code>p</code> is returned.</li>
+</ol>
+
+<p>While executing the body of the async function, <code>return x</code> resolves the Promise <code>p</code> with <code>x</code>, while <code>throw err</code> rejects <code>p</code> with <code>err</code>. The notification of a settlement happens asynchronously. In other words: the callbacks of <code>then()</code> and <code>catch()</code> are always executed after the current code is finished.</p>
+
+<p>The following code demonstrates how that works:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;asyncFunc()&apos;</code><code class="p">);</code> <code class="c1">// (A)</code>
+    <code class="k">return</code> <code class="s1">&apos;abc&apos;</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">asyncFunc</code><code class="p">().</code>
+<code class="nx">then</code><code class="p">(</code><code class="nx">x</code> <code class="p">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`Resolved: </code><code class="si">${</code><code class="nx">x</code><code class="si">}</code><code class="sb">`</code><code class="p">));</code> <code class="c1">// (B)</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;main&apos;</code><code class="p">);</code> <code class="c1">// (C)</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// asyncFunc()</code>
+<code class="c1">// main</code>
+<code class="c1">// Resolved: abc</code>
+</pre></div>
+
+</figure>
+
+<p>You can rely on the following order:</p>
+
+<ol class="numeric">
+  <li>Line (A): the async function is started synchronously. The async function&#x2019;s Promise is resolved via <code>return</code>.</li>
+  <li>Line (C): execution continues.</li>
+  <li>Line (B): Notification of Promise resolution happens asynchronously.</li>
+</ol>
+
+<h4 id="_returned-promises-are-not-wrapped">
+<span class="section-number">5.2.4 </span>Returned Promises are not wrapped <a class="header-anchor" href="ch_async-functions.html#_returned-promises-are-not-wrapped" aria-hidden="true">#</a></h4>
+
+
+<p>Resolving a Promise is a standard operation. <code>return</code> uses it to resolve the Promise <code>p</code> of an async function. That means:</p>
+
+<ol class="numeric">
+  <li>Returning a non-Promise value fulfills <code>p</code> with that value.</li>
+  <li>Returning a Promise means that <code>p</code> now mirrors the state of that Promise.</li>
+</ol>
+
+<p>Therefore, you can return a Promise and that Promise won&#x2019;t be wrapped in a Promise:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nb">Promise</code><code class="p">.</code><code class="nx">resolve</code><code class="p">(</code><code class="mi">123</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="nx">asyncFunc</code><code class="p">()</code>
+<code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">x</code> <code class="p">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">))</code> <code class="c1">// 123</code>
+</pre></div>
+
+</figure>
+
+<p>Intriguingly, returning a rejected Promise leads to the result of the async function being rejected (normally, you&#x2019;d use <code>throw</code> for that):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nb">Promise</code><code class="p">.</code><code class="nx">reject</code><code class="p">(</code><code class="k">new</code> <code class="nb">Error</code><code class="p">(</code><code class="s1">&apos;Problem!&apos;</code><code class="p">));</code>
+<code class="p">}</code>
+<code class="nx">asyncFunc</code><code class="p">()</code>
+<code class="p">.</code><code class="k">catch</code><code class="p">(</code><code class="nx">err</code> <code class="p">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">error</code><code class="p">(</code><code class="nx">err</code><code class="p">));</code> <code class="c1">// Error: Problem!</code>
+</pre></div>
+
+</figure>
+
+<p>That is in line with how Promise resolution works. It enables you to forward both fulfillments and rejections of another asynchronous computation, without an <code>await</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">anotherAsyncFunc</code><code class="p">();</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The previous code is roughly similar to &#x2013; but more efficient than &#x2013; the following code (which unwraps the Promise of <code>anotherAsyncFunc()</code> only to wrap it again):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">await</code> <code class="nx">anotherAsyncFunc</code><code class="p">();</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="_tips-for-using-await">
+<span class="section-number">5.3 </span>Tips for using <code>await</code>
+ <a class="header-anchor" href="ch_async-functions.html#_tips-for-using-await" aria-hidden="true">#</a></h3>
+
+<h4 id="_dont-forget-await">
+<span class="section-number">5.3.1 </span>Don&#x2019;t forget <code>await</code>
+ <a class="header-anchor" href="ch_async-functions.html#_dont-forget-await" aria-hidden="true">#</a></h4>
+
+
+<p>One easy mistake to make in async functions is to forget <code>await</code> when making an asynchronous function call:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">value</code> <code class="o">=</code> <code class="nx">otherAsyncFunc</code><code class="p">();</code> <code class="c1">// missing `await`!</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In this example, <code>value</code> is set to a Promise, which is usually not what you want in async functions.</p>
+
+<p><code>await</code> can even make sense if an async function doesn&#x2019;t return anything. Then its Promise is simply used as a signal for telling the caller that it is finished. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{</code>
+    <code class="nx">await</code> <code class="nx">step1</code><code class="p">();</code> <code class="c1">// (A)</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The <code>await</code> in line (A) guarantees that <code>step1()</code> is completely finished before the remainder of <code>foo()</code> is executed.</p>
+
+<h4 id="_you-dont-need-await-if-you-fire-and-forget">
+<span class="section-number">5.3.2 </span>You don&#x2019;t need <code>await</code> if you &#x201C;fire and forget&#x201D; <a class="header-anchor" href="ch_async-functions.html#_you-dont-need-await-if-you-fire-and-forget" aria-hidden="true">#</a></h4>
+
+
+<p>Sometimes, you only want to trigger an asynchronous computation and are not interested in when it is finished. The following code is an example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">writer</code> <code class="o">=</code> <code class="nx">openFile</code><code class="p">(</code><code class="s1">&apos;someFile.txt&apos;</code><code class="p">);</code>
+    <code class="nx">writer</code><code class="p">.</code><code class="nx">write</code><code class="p">(</code><code class="s1">&apos;hello&apos;</code><code class="p">);</code> <code class="c1">// don&#x2019;t wait</code>
+    <code class="nx">writer</code><code class="p">.</code><code class="nx">write</code><code class="p">(</code><code class="s1">&apos;world&apos;</code><code class="p">);</code> <code class="c1">// don&#x2019;t wait</code>
+    <code class="nx">await</code> <code class="nx">writer</code><code class="p">.</code><code class="nx">close</code><code class="p">();</code> <code class="c1">// wait for file to close</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Here, we don&#x2019;t care when individual writes are finished, only that they are executed in the right order (which the API would have to guarantee, but that is encouraged by the execution model of async functions &#x2013; as we have seen).</p>
+
+<p>The <code>await</code> in the last line of <code>asyncFunc()</code> ensures that the function is only fulfilled after the file was successfully closed.</p>
+
+<p>Given that returned Promises are not wrapped, you can also <code>return</code> instead of <code>await</code> <code>writer.close()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">writer</code> <code class="o">=</code> <code class="nx">openFile</code><code class="p">(</code><code class="s1">&apos;someFile.txt&apos;</code><code class="p">);</code>
+    <code class="nx">writer</code><code class="p">.</code><code class="nx">write</code><code class="p">(</code><code class="s1">&apos;hello&apos;</code><code class="p">);</code>
+    <code class="nx">writer</code><code class="p">.</code><code class="nx">write</code><code class="p">(</code><code class="s1">&apos;world&apos;</code><code class="p">);</code>
+    <code class="k">return</code> <code class="nx">writer</code><code class="p">.</code><code class="nx">close</code><code class="p">();</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Both versions have pros and cons, the <code>await</code> version is probably slightly easier to understand.</p>
+
+<h4 id="_await-is-sequential-promiseall-is-parallel">
+<span class="section-number">5.3.3 </span><code>await</code> is sequential, <code>Promise.all()</code> is parallel <a class="header-anchor" href="ch_async-functions.html#_await-is-sequential-promiseall-is-parallel" aria-hidden="true">#</a></h4>
+
+<p>The following code make two asynchronous function calls, <code>asyncFunc1()</code> and <code>asyncFunc2()</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">result1</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">asyncFunc1</code><code class="p">();</code>
+    <code class="kr">const</code> <code class="nx">result2</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">asyncFunc2</code><code class="p">();</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>However, these two function calls are executed sequentially. Executing them in parallel tends to speed things up. You can use <code>Promise.all()</code> to do so:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="p">[</code><code class="nx">result1</code><code class="p">,</code> <code class="nx">result2</code><code class="p">]</code> <code class="o">=</code> <code class="nx">await</code> <code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">([</code>
+        <code class="nx">asyncFunc1</code><code class="p">(),</code>
+        <code class="nx">asyncFunc2</code><code class="p">(),</code>
+    <code class="p">]);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Instead of awaiting two Promises, we are now awaiting a Promise for an Array with two elements.</p>
+
+
+<h3 id="_async-functions-and-callbacks">
+<span class="section-number">5.4 </span>Async functions and callbacks <a class="header-anchor" href="ch_async-functions.html#_async-functions-and-callbacks" aria-hidden="true">#</a></h3>
+
+
+<p>One limitation of async functions is that <code>await</code> only affects the directly surrounding async function. Therefore, an async function can&#x2019;t <code>await</code> in a callback (however, callbacks can be async functions themselves, as we&#x2019;ll see later on). That makes callback-based utility functions and methods tricky to use. Examples include the Array methods <code>map()</code> and <code>forEach()</code>.</p>
+
+<h4 id="_arrayprototypemap">
+<span class="section-number">5.4.1 </span><code>Array.prototype.map()</code>
+ <a class="header-anchor" href="ch_async-functions.html#_arrayprototypemap" aria-hidden="true">#</a></h4>
+
+<p>Let&#x2019;s start with the Array method <code>map()</code>. In the following code, we want to download the files pointed to by an Array of URLs and return them in an Array.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">downloadContent</code><code class="p">(</code><code class="nx">urls</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">urls</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">url</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="c1">// Wrong syntax!</code>
+        <code class="kr">const</code> <code class="nx">content</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">httpGet</code><code class="p">(</code><code class="nx">url</code><code class="p">);</code>
+        <code class="k">return</code> <code class="nx">content</code><code class="p">;</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>This does not work, because <code>await</code> is syntactically illegal inside normal arrow functions. How about using an async arrow function, then?</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">downloadContent</code><code class="p">(</code><code class="nx">urls</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">urls</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">async</code> <code class="p">(</code><code class="nx">url</code><code class="p">)</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="kr">const</code> <code class="nx">content</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">httpGet</code><code class="p">(</code><code class="nx">url</code><code class="p">);</code>
+        <code class="k">return</code> <code class="nx">content</code><code class="p">;</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>There are two issues with this code:</p>
+
+<ul>
+  <li>The result is now an Array of Promises, not an Array of strings.</li>
+  <li>The work performed by the callbacks isn&#x2019;t finished once <code>map()</code> is finished, because <code>await</code> only pauses the surrounding arrow function and <code>httpGet()</code> is resolved asynchronously. That means you can&#x2019;t use <code>await</code> to wait until <code>downloadContent()</code> is finished.</li>
+</ul>
+
+<p>We can fix both issues via <code>Promise.all()</code>, which converts an Array of Promises to a Promise for an Array (with the values fulfilled by the Promises):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">downloadContent</code><code class="p">(</code><code class="nx">urls</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">promiseArray</code> <code class="o">=</code> <code class="nx">urls</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">async</code> <code class="p">(</code><code class="nx">url</code><code class="p">)</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="kr">const</code> <code class="nx">content</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">httpGet</code><code class="p">(</code><code class="nx">url</code><code class="p">);</code>
+        <code class="k">return</code> <code class="nx">content</code><code class="p">;</code>
+    <code class="p">});</code>
+    <code class="k">return</code> <code class="nx">await</code> <code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">(</code><code class="nx">promiseArray</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The callback for <code>map()</code> doesn&#x2019;t do much with the result of <code>httpGet()</code>, it only forwards it. Therefore, we don&#x2019;t need an async arrow function here, a normal arrow function will do:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">downloadContent</code><code class="p">(</code><code class="nx">urls</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">promiseArray</code> <code class="o">=</code> <code class="nx">urls</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code>
+        <code class="nx">url</code> <code class="p">=&gt;</code> <code class="nx">httpGet</code><code class="p">(</code><code class="nx">url</code><code class="p">));</code>
+    <code class="k">return</code> <code class="nx">await</code> <code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">(</code><code class="nx">promiseArray</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>There is one small improvement that we still can make: This async function is slightly inefficient &#x2013; it first unwraps the result of <code>Promise.all()</code> via <code>await</code>, before wrapping it again via <code>return</code>. Given that <code>return</code> doesn&#x2019;t wrap Promises, we can return the result of <code>Promise.all()</code> directly:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">downloadContent</code><code class="p">(</code><code class="nx">urls</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">promiseArray</code> <code class="o">=</code> <code class="nx">urls</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code>
+        <code class="nx">url</code> <code class="p">=&gt;</code> <code class="nx">httpGet</code><code class="p">(</code><code class="nx">url</code><code class="p">));</code>
+    <code class="k">return</code> <code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">(</code><code class="nx">promiseArray</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_arrayprototypeforeach">
+<span class="section-number">5.4.2 </span><code>Array.prototype.forEach()</code>
+ <a class="header-anchor" href="ch_async-functions.html#_arrayprototypeforeach" aria-hidden="true">#</a></h4>
+
+<p>Let&#x2019;s use the Array method <code>forEach()</code> to log the contents of several files pointed to via URLs:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">logContent</code><code class="p">(</code><code class="nx">urls</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">urls</code><code class="p">.</code><code class="nx">forEach</code><code class="p">(</code><code class="nx">url</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="c1">// Wrong syntax</code>
+        <code class="kr">const</code> <code class="nx">content</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">httpGet</code><code class="p">(</code><code class="nx">url</code><code class="p">);</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">content</code><code class="p">);</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Again, this code will produce a syntax error, because you can&#x2019;t use <code>await</code> inside normal arrow functions.</p>
+
+<p>Let&#x2019;s use an async arrow function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">logContent</code><code class="p">(</code><code class="nx">urls</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">urls</code><code class="p">.</code><code class="nx">forEach</code><code class="p">(</code><code class="nx">async</code> <code class="nx">url</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="kr">const</code> <code class="nx">content</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">httpGet</code><code class="p">(</code><code class="nx">url</code><code class="p">);</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">content</code><code class="p">);</code>
+    <code class="p">});</code>
+    <code class="c1">// Not finished here</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>This does work, but there is one caveat: the Promise returned by <code>httpGet()</code> is resolved asynchronously, which means that the callbacks are not finished when <code>forEach()</code> returns. As a consequence, you can&#x2019;t await the end of <code>logContent()</code>.</p>
+
+<p>If that&#x2019;s not what you want, you can convert <code>forEach()</code> into a <code>for-of</code> loop:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">logContent</code><code class="p">(</code><code class="nx">urls</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">url</code> <code class="k">of</code> <code class="nx">urls</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kr">const</code> <code class="nx">content</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">httpGet</code><code class="p">(</code><code class="nx">url</code><code class="p">);</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">content</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Now everything is finished after the <code>for-of</code> loop. However, the processing steps happen sequentially: <code>httpGet()</code> is only called a second time <em>after</em> the first call is finished. If you want the processing steps to happen in parallel, you must use <code>Promise.all()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">logContent</code><code class="p">(</code><code class="nx">urls</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">await</code> <code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">(</code><code class="nx">urls</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code>
+        <code class="nx">async</code> <code class="nx">url</code> <code class="p">=&gt;</code> <code class="p">{</code>
+            <code class="kr">const</code> <code class="nx">content</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">httpGet</code><code class="p">(</code><code class="nx">url</code><code class="p">);</code>
+            <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">content</code><code class="p">);</code>
+        <code class="p">}));</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><code>map()</code> is used to create an Array of Promises. We are not interested in the results they fulfill, we only <code>await</code> until all of them are fulfilled. That means that we are completely done at the end of this async function. We could just as well return <code>Promise.all()</code>, but then the result of the function would be an Array whose elements are all <code>undefined</code>.</p>
+
+
+<h3 id="_tips-for-using-async-functions">
+<span class="section-number">5.5 </span>Tips for using async functions <a class="header-anchor" href="ch_async-functions.html#_tips-for-using-async-functions" aria-hidden="true">#</a></h3>
+
+<h4 id="_know-your-promises">
+<span class="section-number">5.5.1 </span>Know your Promises <a class="header-anchor" href="ch_async-functions.html#_know-your-promises" aria-hidden="true">#</a></h4>
+
+
+<p>The foundation of async functions is <a href="../es6/ch_promises.html">Promises</a>. That&#x2019;s why understanding the latter is crucial for understanding the former. Especially when connecting old code that isn&#x2019;t based on Promises with async functions, you often have no choice but to use Promises directly.</p>
+
+<p>For example, this is a &#x201C;promisified&#x201D; version of <code>XMLHttpRequest</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">httpGet</code><code class="p">(</code><code class="nx">url</code><code class="p">,</code> <code class="nx">responseType</code><code class="o">=</code><code class="s2">&quot;&quot;</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="k">new</code> <code class="nb">Promise</code><code class="p">(</code>
+        <code class="kd">function</code> <code class="p">(</code><code class="nx">resolve</code><code class="p">,</code> <code class="nx">reject</code><code class="p">)</code> <code class="p">{</code>
+            <code class="kr">const</code> <code class="nx">request</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">XMLHttpRequest</code><code class="p">();</code>
+            <code class="nx">request</code><code class="p">.</code><code class="nx">onload</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+                <code class="k">if</code> <code class="p">(</code><code class="k">this</code><code class="p">.</code><code class="nx">status</code> <code class="o">===</code> <code class="mi">200</code><code class="p">)</code> <code class="p">{</code>
+                    <code class="c1">// Success</code>
+                    <code class="nx">resolve</code><code class="p">(</code><code class="k">this</code><code class="p">.</code><code class="nx">response</code><code class="p">);</code>
+                <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+                    <code class="c1">// Something went wrong (404 etc.)</code>
+                    <code class="nx">reject</code><code class="p">(</code><code class="k">new</code> <code class="nb">Error</code><code class="p">(</code><code class="k">this</code><code class="p">.</code><code class="nx">statusText</code><code class="p">));</code>
+                <code class="p">}</code>
+            <code class="p">};</code>
+            <code class="nx">request</code><code class="p">.</code><code class="nx">onerror</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+                <code class="nx">reject</code><code class="p">(</code><code class="k">new</code> <code class="nb">Error</code><code class="p">(</code>
+                    <code class="s1">&apos;XMLHttpRequest Error: &apos;</code><code class="o">+</code><code class="k">this</code><code class="p">.</code><code class="nx">statusText</code><code class="p">));</code>
+            <code class="p">};</code>
+            <code class="nx">request</code><code class="p">.</code><code class="nx">open</code><code class="p">(</code><code class="s1">&apos;GET&apos;</code><code class="p">,</code> <code class="nx">url</code><code class="p">);</code>
+            <code class="nx">xhr</code><code class="p">.</code><code class="nx">responseType</code> <code class="o">=</code> <code class="nx">responseType</code><code class="p">;</code>
+            <code class="nx">request</code><code class="p">.</code><code class="nx">send</code><code class="p">();</code>
+        <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The API of <code>XMLHttpRequest</code> is based on callbacks. Promisifying it via an async function would mean that you&#x2019;d have to fulfill or reject the Promise returned by the function from within callbacks. That&#x2019;s impossible, because you can only do so via <code>return</code> and <code>throw</code>. And you can&#x2019;t <code>return</code> the result of a function from within a callback. <code>throw</code> has similar constraints.</p>
+
+<p>Therefore, the common coding style for async functions will be:</p>
+
+<ul>
+  <li>Use Promises directly to build asynchronous primitives.</li>
+  <li>Use those primitives via async functions.</li>
+</ul>
+
+<p><strong>Further reading:</strong> chapter &#x201C;<a href="../es6/ch_promises.html">Promises for asynchronous programming</a>&#x201D; in &#x201C;Exploring ES6&#x201D;.</p>
+
+<h4 id="_immediately-invoked-async-function-expressions">
+<span class="section-number">5.5.2 </span>Immediately Invoked Async Function Expressions <a class="header-anchor" href="ch_async-functions.html#_immediately-invoked-async-function-expressions" aria-hidden="true">#</a></h4>
+
+<p>Sometimes, it&#x2019;d be nice if you could use <code>await</code> at the top level of a module or script. Alas, it&#x2019;s only available inside async functions. You therefore have several options. You can either create an async function <code>main()</code> and call it immediately afterwards:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">main</code><code class="p">()</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">await</code> <code class="nx">asyncFunction</code><code class="p">());</code>
+<code class="p">}</code>
+<code class="nx">main</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p>Or you can use an Immediately Invoked Async Function Expression:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">(</code><code class="nx">async</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">await</code> <code class="nx">asyncFunction</code><code class="p">());</code>
+<code class="p">})();</code>
+</pre></div>
+
+</figure>
+
+<p>Another option is an Immediately Invoked Async Arrow Function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">(</code><code class="nx">async</code> <code class="p">()</code> <code class="p">=&gt;</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">await</code> <code class="nx">asyncFunction</code><code class="p">());</code>
+<code class="p">})();</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_unit-testing-with-async-functions">
+<span class="section-number">5.5.3 </span>Unit testing with async functions <a class="header-anchor" href="ch_async-functions.html#_unit-testing-with-async-functions" aria-hidden="true">#</a></h4>
+
+<p>The following code uses <a href="https://mochajs.org/">the test-framework mocha</a> to unit-test the asynchronous functions <code>asyncFunc1()</code> and <code>asyncFunc2()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">import</code> <code class="nx">assert</code> <code class="nx">from</code> <code class="s1">&apos;assert&apos;</code><code class="p">;</code>
+
+<code class="c1">// Bug: the following test always succeeds</code>
+<code class="nx">test</code><code class="p">(</code><code class="s1">&apos;Testing async code&apos;</code><code class="p">,</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+    <code class="nx">asyncFunc1</code><code class="p">()</code> <code class="c1">// (A)</code>
+    <code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">result1</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="nx">assert</code><code class="p">.</code><code class="nx">strictEqual</code><code class="p">(</code><code class="nx">result1</code><code class="p">,</code> <code class="s1">&apos;a&apos;</code><code class="p">);</code> <code class="c1">// (B)</code>
+        <code class="k">return</code> <code class="nx">asyncFunc2</code><code class="p">();</code>
+    <code class="p">})</code>
+    <code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">result2</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="nx">assert</code><code class="p">.</code><code class="nx">strictEqual</code><code class="p">(</code><code class="nx">result2</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">);</code> <code class="c1">// (C)</code>
+    <code class="p">});</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>However, this test always succeeds, because mocha doesn&#x2019;t wait until the assertions in line (B) and line (C) are executed.</p>
+
+<p>You can fix this by returning the result of the Promise chain, because mocha recognizes if a test returns a Promise and then waits until that Promise is settled (unless there is a timeout).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">return</code> <code class="nx">asyncFunc1</code><code class="p">()</code> <code class="c1">// (A)</code>
+</pre></div>
+
+</figure>
+
+<p>Conveniently, async functions always return Promises, which makes them perfect for this kind of unit test:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">import</code> <code class="nx">assert</code> <code class="nx">from</code> <code class="s1">&apos;assert&apos;</code><code class="p">;</code>
+<code class="nx">test</code><code class="p">(</code><code class="s1">&apos;Testing async code&apos;</code><code class="p">,</code> <code class="nx">async</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">result1</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">asyncFunc1</code><code class="p">();</code>
+    <code class="nx">assert</code><code class="p">.</code><code class="nx">strictEqual</code><code class="p">(</code><code class="nx">result1</code><code class="p">,</code> <code class="s1">&apos;a&apos;</code><code class="p">);</code>
+    <code class="kr">const</code> <code class="nx">result2</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">asyncFunc2</code><code class="p">();</code>
+    <code class="nx">assert</code><code class="p">.</code><code class="nx">strictEqual</code><code class="p">(</code><code class="nx">result2</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">);</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>There are thus two advantages to using async functions for asynchronous unit tests in mocha: the code is more concise and returning Promises is taken care of, too.</p>
+
+<h4 id="_dont-worry-about-unhandled-rejections">
+<span class="section-number">5.5.4 </span>Don&#x2019;t worry about unhandled rejections <a class="header-anchor" href="ch_async-functions.html#_dont-worry-about-unhandled-rejections" aria-hidden="true">#</a></h4>
+
+<p>JavaScript engines are becoming increasingly good at warning about rejections that are not handled. For example, the following code would often fail silently in the past, but most modern JavaScript engines now report an unhandled rejection:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">(</code><code class="s1">&apos;Problem!&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="nx">foo</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="_further-reading-3">
+<span class="section-number">5.6 </span>Further reading <a class="header-anchor" href="ch_async-functions.html#_further-reading-3" aria-hidden="true">#</a></h3>
+
+<ul>
+  <li>
+<a href="https://github.com/tc39/ecmascript-asyncawait">Async Functions</a> (proposal by Brian Terlson)</li>
+  <li>
+<a href="../es6/ch_generators.html#sec_co-library">Simplifying asynchronous computations via generators</a> (section in &#x201C;Exploring ES6&#x201D;)</li>
+</ul>
+
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_shared-array-buffer.html">6. Shared memory and atomics</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

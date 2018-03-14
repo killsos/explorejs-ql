@@ -1,0 +1,350 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>1. About ECMAScript 6 (ES6)</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>1. About ECMAScript 6 (ES6)</b><br>
+        <a href="index.html#toc_ch_about-es6">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_about-es6">
+<span class="section-number">1. </span>About ECMAScript 6 (ES6) <a class="header-anchor" href="ch_about-es6.html#ch_about-es6" aria-hidden="true">#</a></h2>
+
+<hr class="scene-break">
+
+<ul>
+  <li>1.1. <a href="ch_about-es6.html#sec_tc39">TC39 (Ecma Technical Committee 39)</a>
+</li>
+  <li>1.2. <a href="ch_about-es6.html#sec_designing-es6">How ECMAScript 6 was designed</a>
+    <ul>
+      <li>1.2.1. The design process after ES6</li>
+    </ul>
+  </li>
+  <li>1.3. <a href="ch_about-es6.html#sec_javascript-vs-ecmascript">JavaScript versus ECMAScript</a>
+</li>
+  <li>1.4. <a href="ch_about-es6.html#sec_upgrading-to-es6">Upgrading to ES6</a>
+</li>
+  <li>1.5. <a href="ch_about-es6.html#sec_es6-goals">Goals for ES6</a>
+    <ul>
+      <li>1.5.1. Goal: Be a better language</li>
+      <li>1.5.2. Goal: Improve interoperation</li>
+      <li>1.5.3. Goal: Versioning</li>
+    </ul>
+  </li>
+  <li>1.6. <a href="ch_about-es6.html#sec_es6-feature-categories">Categories of ES6 features</a>
+</li>
+  <li>1.7. <a href="ch_about-es6.html#sec_ecmascript-history">A brief history of ECMAScript</a>
+    <ul>
+      <li>1.7.1. The early years: ECMAScript 1&#x2013;3</li>
+      <li>1.7.2. ECMAScript 4 (abandoned in July 2008)</li>
+      <li>1.7.3. ECMAScript Harmony</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+<p>It took a long time to finish it, but ECMAScript 6, the next version of JavaScript, is finally a reality:</p>
+
+<ul>
+  <li>
+<a href="http://www.ecma-international.org/news/Publication%20of%20ECMA-262%206th%20edition.htm">It became a standard on 17 June 2015</a>.</li>
+  <li>Most of its features are already widely available (as documented in kangax&#x2019; <a href="http://kangax.github.io/compat-table/es6/">ES6 compatibility table</a>).</li>
+  <li>Transpilers (such as <a href="https://babeljs.io/">Babel</a>) let you compile ES6 to ES5.</li>
+</ul>
+
+<p>The next sections explain concepts that are important in the world of ES6.</p>
+
+
+<h3 id="sec_tc39">
+<span class="section-number">1.1 </span>TC39 (Ecma Technical Committee 39) <a class="header-anchor" href="ch_about-es6.html#sec_tc39" aria-hidden="true">#</a></h3>
+
+<p><a href="http://www.ecma-international.org/memento/TC39.htm">TC39 (Ecma Technical Committee 39)</a> is the committee that evolves JavaScript. Its members are companies (among others, all major browser vendors). <a href="http://www.ecma-international.org/memento/TC39-M.htm">TC39 meets regularly</a>, its meetings are attended by delegates that members send and by invited experts. Minutes of the meetings are <a href="https://github.com/tc39/tc39-notes">available online</a> and give you a good idea of how TC39 works.</p>
+
+
+<h3 id="sec_designing-es6">
+<span class="section-number">1.2 </span>How ECMAScript 6 was designed <a class="header-anchor" href="ch_about-es6.html#sec_designing-es6" aria-hidden="true">#</a></h3>
+
+<p>The ECMAScript 6 design process centers on <em>proposals</em> for features. Proposals are often triggered by suggestions from the developer community. To avoid design by committee, proposals are maintained by <em>champions</em> (1&#x2013;2 committee delegates).</p>
+
+<p>A proposal goes through the following steps before it becomes a standard:</p>
+
+<ul>
+  <li>Sketch (informally: &#x201C;strawman proposal&#x201D;): A first description of the proposed feature.</li>
+  <li>Proposal: If TC39 agrees that a feature is important, it gets promoted to official proposal status. That does not guarantee it will become a standard, but it considerably increases its chances. The deadline for ES6 proposals was May 2011. No major new proposals were considered after that.</li>
+  <li>Implementations: Proposed features must be implemented. Ideally in two JavaScript engines. Implementations and feedback from the community shape the proposal as it evolves.</li>
+  <li>Standard: If the proposal continues to prove itself and is accepted by TC39, it will eventually be included in an edition of the ECMAScript standard. At this point, it is a standard feature.</li>
+</ul>
+
+<p>[Source of this section: &#x201C;<a href="http://tc39wiki.calculist.org/about/harmony/">The Harmony Process</a>&#x201D; by David Herman.]</p>
+
+<h4 id="_the-design-process-after-es6">
+<span class="section-number">1.2.1 </span>The design process after ES6 <a class="header-anchor" href="ch_about-es6.html#_the-design-process-after-es6" aria-hidden="true">#</a></h4>
+
+<p>Starting with ECMAScript 2016 (ES7), TC39 will time-box releases. A new version of ECMAScript will be released every year, with whatever features are ready at that time. That means that from now on, ECMAScript versions will be relatively small upgrades. For more information on the new process, including finished and upcoming feature proposals, consult <a href="https://github.com/tc39/ecma262">the GitHub repository <code>ecma262</code></a>.</p>
+
+
+<h3 id="sec_javascript-vs-ecmascript">
+<span class="section-number">1.3 </span>JavaScript versus ECMAScript <a class="header-anchor" href="ch_about-es6.html#sec_javascript-vs-ecmascript" aria-hidden="true">#</a></h3>
+
+<p>JavaScript is what everyone calls the language, but that name is trademarked (by Oracle, which inherited the trademark from Sun). Therefore, the official name of JavaScript is <em>ECMAScript</em>. That name comes from the standards organization Ecma, which manages the language standard. Since ECMAScript&#x2019;s inception, the name of the organization has changed from the acronym &#x201C;ECMA&#x201D; to the proper name &#x201C;Ecma&#x201D;.</p>
+
+<p>Versions of JavaScript are defined by specifications that carry the official name of the language. Hence, the first standard version of JavaScript is ECMAScript 1 which is short for &#x201C;ECMAScript Language Specification, Edition 1&#x201D;. ECMAScript x is often abbreviated ESx.</p>
+
+
+<h3 id="sec_upgrading-to-es6">
+<span class="section-number">1.4 </span>Upgrading to ES6 <a class="header-anchor" href="ch_about-es6.html#sec_upgrading-to-es6" aria-hidden="true">#</a></h3>
+
+<p>The stake holders on the web are:</p>
+
+<ul>
+  <li>Implementors of JavaScript engines</li>
+  <li>Developers of web applications</li>
+  <li>Users</li>
+</ul>
+
+<p>These groups have remarkably little control over each other. That&#x2019;s why upgrading a web language is so challenging.</p>
+
+<p>On one hand, upgrading engines is challenging, because they are confronted with all kinds of code on the web, some of which is very old. You also want engine upgrades to be automatic and unnoticeable for users. Therefore, ES6 is a superset of ES5, nothing is removed<sup id="fnref-introduction_1"><a href="leanpub-endnotes.html#fn-introduction_1" rel="footnote">1</a></sup>. ES6 upgrades the language without introducing versions or modes. It even manages to make strict mode the de-facto default (via modules), without increasing the rift between it and sloppy mode. The approach that was taken is called &#x201C;One JavaScript&#x201D; and explained in <a href="ch_one-javascript.html#ch_one-javascript">a separate chapter</a>.</p>
+
+<p>On the other hand, upgrading code is challenging, because your code must run on all JavaScript engines that are used by your target audience. Therefore, if you want to use ES6 in your code, you only have two choices: You can either wait until no one in your target audience uses a non-ES6 engine, anymore. That will take years; mainstream audiences were at that point w.r.t. ES5 when ES6 became a standard in June 2015. And ES5 was standardized in December 2009! Or you can compile ES6 to ES5 and use it now. More information on how to do that is given in the book &#x201C;<a href="https://leanpub.com/setting-up-es6">Setting up ES6</a>&#x201D;, which is free to read online.</p>
+
+<p>Goals and requirements clash in the design of ES6:</p>
+
+<ul>
+  <li>Goals are fixing JavaScript&#x2019;s pitfalls and adding new features.</li>
+  <li>Requirements are that both need to be done without breaking existing code and without changing the lightweight nature of the language.</li>
+</ul>
+
+
+<h3 id="sec_es6-goals">
+<span class="section-number">1.5 </span>Goals for ES6 <a class="header-anchor" href="ch_about-es6.html#sec_es6-goals" aria-hidden="true">#</a></h3>
+
+<p><a href="http://wiki.ecmascript.org/doku.php?id=harmony:harmony">The original project page for Harmony/ES6</a> mentions several goals. In the following subsections, I&#x2019;m taking a look at some of them.</p>
+
+<h4 id="_goal-be-a-better-language">
+<span class="section-number">1.5.1 </span>Goal: Be a better language <a class="header-anchor" href="ch_about-es6.html#_goal-be-a-better-language" aria-hidden="true">#</a></h4>
+
+<p>The goal is: Be a better language for writing:</p>
+
+<ol class="lower-roman">
+  <li>complex applications;</li>
+  <li>libraries (possibly including the DOM) shared by those applications;</li>
+  <li>code generators targeting the new edition.</li>
+</ol>
+
+<p>Sub-goal (i) acknowledges that applications written in JavaScript have grown huge. A key ES6 feature fulfilling this goal is built-in modules.</p>
+
+<p>Modules are also an answer to goal (ii). As an aside, the DOM is notoriously difficult to implement in JavaScript. <a href="ch_proxies.html#ch_proxies">ES6 Proxies</a> should help here.</p>
+
+<p>Several features were mainly added to make it easier to compile to JavaScript. Two examples are:</p>
+
+<ul>
+  <li>
+<code>Math.fround()</code> &#x2013; rounding Numbers to 32 bit floats</li>
+  <li>
+<code>Math.imul()</code> &#x2013; multiplying two 32 bit ints</li>
+</ul>
+
+<p>They are both useful for, e.g., compiling C/C++ to JavaScript via <a href="https://github.com/kripken/emscripten">Emscripten</a>.</p>
+
+<h4 id="_goal-improve-interoperation">
+<span class="section-number">1.5.2 </span>Goal: Improve interoperation <a class="header-anchor" href="ch_about-es6.html#_goal-improve-interoperation" aria-hidden="true">#</a></h4>
+
+<p>The goal is: Improve interoperation, adopting de facto standards where possible.</p>
+
+<p>Examples are:</p>
+
+<ul>
+  <li>Classes: are based on how constructor functions are currently used.</li>
+  <li>Modules: picked up design ideas from the CommonJS module format.</li>
+  <li>Arrow functions: have syntax that is borrowed from CoffeeScript.</li>
+  <li>Named function parameters: There is no built-in support for named parameters. Instead, the existing practice of naming parameters via object literals is supported via <a href="ch_parameter-handling.html#sec_named-parameters">destructuring in parameter definitions</a>.</li>
+</ul>
+
+<h4 id="_goal-versioning">
+<span class="section-number">1.5.3 </span>Goal: Versioning <a class="header-anchor" href="ch_about-es6.html#_goal-versioning" aria-hidden="true">#</a></h4>
+
+<p>The goal is: Keep versioning as simple and linear as possible.</p>
+
+<p>As mentioned previously, ES6 avoids versioning via &#x201C;<a href="ch_one-javascript.html#ch_one-javascript">One JavaScript</a>&#x201D;: In an ES6 code base, everything is ES6, there are no parts that are ES5-specific.</p>
+
+
+<h3 id="sec_es6-feature-categories">
+<span class="section-number">1.6 </span>Categories of ES6 features <a class="header-anchor" href="ch_about-es6.html#sec_es6-feature-categories" aria-hidden="true">#</a></h3>
+
+<p>The introduction of the ES6 specification lists all new features:</p>
+
+<blockquote>
+  <p>Some of [ECMAScript 6&#x2019;s] major enhancements include modules, class declarations, lexical block scoping, iterators and generators, promises for asynchronous programming, destructuring patterns, and proper tail calls. The ECMAScript library of built-ins has been expanded to support additional data abstractions including maps, sets, and arrays of binary numeric values as well as additional support for Unicode supplemental characters in strings and regular expressions. The built-ins are now extensible via subclassing.</p>
+</blockquote>
+
+<p>There are three major categories of features:</p>
+
+<ul>
+  <li>Better syntax for features that already exist (e.g. via libraries). For example:
+    <ul>
+      <li><a href="ch_classes.html#ch_classes">Classes</a></li>
+      <li><a href="ch_modules.html#ch_modules">Modules</a></li>
+    </ul>
+  </li>
+  <li>New functionality in the standard library. For example:
+    <ul>
+      <li>New methods for <a href="ch_strings.html#ch_strings">strings</a> and <a href="ch_arrays.html#ch_arrays">Arrays</a>
+</li>
+      <li><a href="ch_promises.html#ch_promises">Promises</a></li>
+      <li><a href="ch_maps-sets.html#ch_maps-sets">Maps, Sets</a></li>
+    </ul>
+  </li>
+  <li>Completely new features. For example:
+    <ul>
+      <li><a href="ch_generators.html#ch_generators">Generators</a></li>
+      <li><a href="ch_proxies.html#ch_proxies">Proxies</a></li>
+      <li><a href="ch_maps-sets.html#sec_weakmap">WeakMaps</a></li>
+    </ul>
+  </li>
+</ul>
+
+
+<h3 id="sec_ecmascript-history">
+<span class="section-number">1.7 </span>A brief history of ECMAScript <a class="header-anchor" href="ch_about-es6.html#sec_ecmascript-history" aria-hidden="true">#</a></h3>
+
+<p>This section describes what happened on the road to ECMAScript 6.</p>
+
+<h4 id="_the-early-years-ecmascript-13">
+<span class="section-number">1.7.1 </span>The early years: ECMAScript 1&#x2013;3 <a class="header-anchor" href="ch_about-es6.html#_the-early-years-ecmascript-13" aria-hidden="true">#</a></h4>
+
+<ul>
+  <li>
+<strong>ECMAScript 1 (June 1997)</strong> was the first version of the JavaScript language standard.</li>
+  <li>
+<strong>ECMAScript 2 (June 1998)</strong> contained minor changes, to keep the spec in sync with a separate ISO standard for JavaScript.</li>
+  <li>
+<strong>ECMAScript 3 (December 1999)</strong> introduced many features that have become popular parts of the language, as described in the introduction of the ES6 specification: &#x201C;[&#x2026;] regular expressions, better string handling, new control statements, try/catch exception handling, tighter definition of errors, formatting for numeric output and other enhancements.&#x201D;</li>
+</ul>
+
+<h4 id="_ecmascript-4-abandoned-in-july-2008">
+<span class="section-number">1.7.2 </span>ECMAScript 4 (abandoned in July 2008) <a class="header-anchor" href="ch_about-es6.html#_ecmascript-4-abandoned-in-july-2008" aria-hidden="true">#</a></h4>
+
+<p>Work on ES4 started after the release of ES3 in 1999. In 2003, an interim report was released after which work on ES4 paused. Subsets of the language described in the interim report were implemented by Adobe (in ActionScript) and by Microsoft (in JScript.NET).</p>
+
+<p>In February 2005, Jesse James Garrett observed that a combination of techniques had become popular for implementing dynamic frontend apps in JavaScript. <a href="http://www.adaptivepath.com/ideas/ajax-new-approach-web-applications/">He called those techniques Ajax</a>. Ajax enabled a completely new class of web apps and led to a surge of interest in JavaScript.</p>
+
+<p>That may have contributed to TC39 resuming work on ES4 in fall 2005. They based ES4 on ES3, the interim ES4 report and experiences with ActionScript and JScript.NET.</p>
+
+<p>There were now two groups working on future ECMAScript versions:</p>
+
+<ul>
+  <li>ECMAScript 4 was designed by Adobe, Mozilla, Opera, and Google and was a massive upgrade. Its planned feature sets included:
+    <ul>
+      <li>Programming in the large (classes, interfaces, namespaces, packages, program units, optional type annotations, and optional static type checking and verification)</li>
+      <li>Evolutionary programming and scripting (structural types, duck typing, type definitions, and multimethods)</li>
+      <li>Data structure construction (parameterized types, getters and setters, and meta-level methods)</li>
+      <li>Control abstractions (proper tail calls, iterators, and generators)</li>
+      <li>Introspection (type meta-objects and stack marks)</li>
+    </ul>
+  </li>
+  <li>ECMAScript 3.1 was designed by Microsoft and Yahoo. It was planned as a subset of ES4 and an incremental upgrade of ECMAScript 3, with bug fixes and minor new features. ECMAScript 3.1 eventually became ECMAScript 5.</li>
+</ul>
+
+<p>The two groups disagreed on the future of JavaScript and tensions between them continued to increase.</p>
+
+<aside class="generic_inbar blurb external-link icon-external-link">
+    <h3 id="_sources-of-this-section">Sources of this section: <a class="header-anchor" href="ch_about-es6.html#_sources-of-this-section" aria-hidden="true">#</a></h3>
+
+  <ul>
+    <li>&#x201C;<a href="http://www.ecmascript.org/es4/spec/overview.pdf">Proposed ECMAScript 4th Edition &#x2013; Language Overview</a>&#x201D;. 2007-10-23</li>
+    <li>&#x201C;<a href="http://ejohn.org/blog/ecmascript-harmony/">ECMAScript Harmony</a>&#x201D; by John Resig. 2008-08-13</li>
+  </ul>
+
+</aside>
+
+<h4 id="_ecmascript-harmony">
+<span class="section-number">1.7.3 </span>ECMAScript Harmony <a class="header-anchor" href="ch_about-es6.html#_ecmascript-harmony" aria-hidden="true">#</a></h4>
+
+<p>At the end of July 2008, there was a TC39 meeting in Oslo, whose outcome was <a href="https://mail.mozilla.org/pipermail/es-discuss/2008-August/006837.html">described</a> as follows by Brendan Eich:</p>
+
+<blockquote>
+  <p>It&#x2019;s no secret that the JavaScript standards body, Ecma&#x2019;s Technical Committee 39, has been split for over a year, with some members favoring ES4 [&#x2026;] and others advocating ES3.1 [&#x2026;]. Now, I&#x2019;m happy to report, the split is over.</p>
+</blockquote>
+
+<p>The agreement that was worked out at the meeting consisted of four points:</p>
+
+<ol class="numeric">
+  <li>Develop an incremental update of ECMAScript (which became ECMAScript 5).</li>
+  <li>Develop a major new release, which was to be more modest than ECMAScript 4, but much larger in scope than the version after ECMAScript 3. This version was code-named <em>Harmony</em>, due to the nature of the meeting in which it was conceived.</li>
+  <li>Features from ECMAScript 4 that would be dropped: packages, namespaces, early binding.</li>
+  <li>Other ideas were to be developed in consensus with all of TC39.</li>
+</ol>
+
+<p>Thus: The ES4 group agreed to make Harmony less radical than ES4, the rest of TC39 agreed to keep moving things forward.</p>
+
+<p>The next versions of ECMAScript are:</p>
+
+<ul>
+  <li>
+<strong>ECMAScript 5 (December 2009).</strong> This is the version of ECMAScript that most browsers support today. It brings several enhancements to the standard library and updated language semantics via a <em>strict mode</em>.</li>
+  <li>
+<strong>ECMAScript 5.1 (June 2011).</strong> ES5 was submitted as an ISO standard. In the process, minor corrections were made. ES5.1 contains those corrections. It is the same text as ISO/IEC 16262:2011.</li>
+  <li>
+<strong>ECMAScript 6 (June 2015).</strong> This version went through several name changes:
+    <ul>
+      <li>ECMAScript Harmony: was the initial code name for JavaScript improvements after ECMAScript 5.</li>
+      <li>ECMAScript.next: It became apparent that the plans for Harmony were too ambitious for a single version, so its features were split into two groups: The first group of features had highest priority and was to become the next version after ES5. The code name of that version was ECMAScript.next, to avoid prematurely comitting to a version number, which proved problematic with ES4. The second group of features had time until after ECMAScript.next.</li>
+      <li>ECMAScript 6: As ECMAScript.next matured, its code name was dropped and everybody started to call it ECMAScript 6.</li>
+      <li>ECMAScript 2015: In late 2014, TC39 decided to change the official name of ECMAScript 6 to ECMAScript 2015, in light of upcoming yearly spec releases. However, given how established the name &#x201C;ECMAScript 6&#x201D; already is and how late TC39 changed their minds, I expect that that&#x2019;s how everybody will continue to refer to that version.</li>
+    </ul>
+  </li>
+  <li>
+<strong>ECMAScript 2016</strong> was previously called ECMAScript 7. Starting with ES2016, the language standard will see smaller yearly releases.</li>
+</ul>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_faq.html">2. FAQ: ECMAScript 6</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

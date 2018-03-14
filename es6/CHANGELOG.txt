@@ -1,0 +1,242 @@
+# Release 2016-03-02
+
+* New: per-chapter TOCs
+* Chapter “Callable entities in ECMAScript 6”: many small improvements
+* Chapter “Arrow functions”: several improvements and major rewrites of three sections:
+    * Arrow functions bind very loosely
+    * Returning object literals
+    * Immediately-invoked arrow functions
+
+# Release 2016-11-19
+
+* Chapter “Parameter handling”: better overview section, a few minor improvements.
+* Chapter “Destructuring”: various smaller improvements and fixes.
+* Chapter “Proxies”: new section “Pitfall: not all objects can be wrapped transparently by proxies”.
+
+# Release 2016-11-07
+
+* Major rewrite of chapter “Template literals”.
+* Numerous smaller improvements in chapter “Variables and scoping”.
+* Completely new overview section for chapter “Generators”.
+* New section “Three ways of understanding Promises” in chapter “Promises”.
+
+# Release 2016-10-29
+
+Many smaller fixes and improvements in the following chapters:
+
+* New string features
+* Symbols
+
+# Release 2016-09-09
+
+Numerous smaller improvements in chapters 1–5.
+
+# Release 2016-04-11
+
+* New Sect. “Tips for error handling” in Chap. “Promises for asynchronous programming”
+* New Sect. “Throwing an exception from a generator” in Chap. “Generators”
+* Made sure destructuring assignments that start with a curly brace are correct everywhere (you need to parenthesize the whole expression, not just the pattern).
+* Complete rewrite of Sect. “Traversing properties in ES6” in Chap. “New OOP features besides classes”
+* Fixed terminology: some operations “traverse” properties (for-in, Object.keys(), etc.); iterators “iterate over” the “items” of an iterable.
+* Fixed many errata.
+* Major rewrite of the section on `Promise.resolve()` in Chap. “Promises for asynchronous programming”
+* Major rewrite of Sect. “ES6-compatible Promise libraries” in Chap. “Promises for asynchronous programming”
+
+
+# Release 2016-04-05
+
+* Added a short TOC.
+* Improved intro for Sect. “Composing Promises” in Chap. “Promises for asynchronous programming”
+* New entry “How can I use ES6 today?” in Chap. “FAQ: ECMAScript 6”
+* New Sect. “Arrow functions versus `bind()`” in Chap. “Arrow functions”
+
+# Release 2016-03-28
+
+* New chapter: “An overview of what’s new in ES6”
+* New Sect. “Other ways of creating Promises” in Chap. “Promises for asynchronous programming”
+
+# Release 2016-03-23
+
+* New Sect. “Removing holes from Arrays” in Chap. “New Array features”
+* Complete rewrite of Sect. “Creating Arrays filled with values” in Chap. “New Array features”
+* New Sect. “Line terminators in template literals are always LF (`\n`)” in Chap. “Template literals”
+* New Sect. “Benefit: compact bundling, no custom bundle format” in Chap. “Modules”
+
+# Release 2016-03-13
+
+* Substantial rewrite of Chap. “Promises for asynchronous programming”. New sections: “Parallel computations via `Promise.all()`” and “Common Promise mistakes”
+* New Sect. “Imports and exports must be at the top level” in Chap. “Modules”
+* FAQ in Chap. “Generators”: “Why use the keyword `function*` for generators and not `generator`?”
+* FAQ in Chap. “Generators”: “Is `yield` a keyword?”
+* FAQ in Chap. “Maps and Sets”: “When would I use an object as a key in a Map?”
+* Explained one more use case for WeakMaps: “Managing listeners” (Chap. “Maps and Sets”)
+* New Sect. “No separators between members of class definitions” in Chap. “Classes”
+* New Sect. “Example: an iterable version of `exec()`” in Chap. “New regular expression features”
+
+# Release 2016-02-23
+
+* Syntax highlighting finally upgraded to ES6 (esp. template literals look much better now).
+* New Sect. “Examples of name clashes in JavaScript’s standard library” in Chap. “Symbols”
+* Major rewrite of Sect. “Symbols as keys of properties” in Chap. “Symbols”
+* New Sect. “The `name` property of functions” in Chap. “Callable entities in ECMAScript 6”
+* Complete rewrite of Sect. “Iterating over property keys in ES6” in Chap. “New OOP features besides classes”.
+* More content in Sect. “Examples of destructuring” of Chap. “Destructuring”.
+* New Sect. “Pitfall: `Object.freeze()` is shallow” in Chap. “Variables and scoping”.
+* More examples for tagged template literals in Chap. “Template literals”.
+* Many small improvements and corrections.
+
+# Release 2016-02-14
+
+* New chapter 17: “The for-of loop” (I moved the existing material there)
+* Rewrote the intro for the chapter on Promises.
+* New glossary entries: “Strict mode versus sloppy mode”, “Bindings and environments”
+* Mentioned that the enumerate trap was recently removed (proxies).
+* New Sect. “Sources of this book” in Chap. “What you need to know about this book”
+* Example “Why are per-iteration bindings useful?” in Chap. “Variables and scoping”.
+* Lots of small fixes, improvements and additions.
+
+# Release 2016-01-18
+
+* New Sect. “Simple mixins” in Chap. “Classes”
+* Major rewrite of Chap. “Callable entities in ECMAScript 6”
+* New Sect. “Classes have inner names” in Chap. “Classes”
+* New material on trailing commas in object literals in Chap. “Coding style tips for ECMAScript 6”
+* New sections in Chap. “Template literals”: Sect. “Text templating with untagged template literals” and Sect. “A tag function for HTML templating”
+* New Sect. “Example: assembling regular expressions” in Chap. “Template literals”
+* Improved overview for Chap. “Iterables and iterators”
+* Chap. “Symbols”: improved overview (at the beginning) and summary (at the end)
+* Better introductory paragraph for Sect. “What is tail call optimization?” in Chap. “Tail call optimization”
+* Significant rewrite of Sect. “Is ES6 bloated?” in Chap. “FAQ: ECMAScript 6”
+
+# Release 2016-01-12
+
+* Chap. “Classes”: New FAQ entry “How do I determine whether a function was invoked via `new`?”
+* Chap. “Callable entities in ECMAScript 6”: major rewrite.
+* Chap. “Classes”: New FAQ entry “How are classes different from traditional functions?”
+* Complete rewrite of Sect. “Managing the private data of classes” in Chap. “Classes”.
+* Major rewrite of Sect. “The details of subclassing” in Chap. “Classes”.
+* New Sect. “Recommendation: avoid mixing default exports and named exports” in Chap. “Modules”
+* New Sect. “Benefit: dead code elimination during bundling” in Chap. “Modules”
+* New Sect. with some new content: “Why a new approach to importing?” in Chap. “Modules”
+* Significant rewrite of Sect. “Advantages of ECMAScript 6 modules” in Chap. “Modules”
+* Better intro for Sect. “The species pattern” in Chap. “Classes”
+* Minor improvements in Chap. “Metaprogramming with proxies”
+* Much improved introduction in Sect. “Implementing tag functions” of Chap. “Template literals”
+* I switched all code to “prefer const” (from “prefer let”). This is a massive change. Let me know if you spot any errors: http://exploringjs.com/#errata
+
+# Release 2016-01-07
+
+* Chap. “First steps with ECMAScript 6”: major rewrite of Sect. “From `var` to `let`/`const`”.
+* Chap. “First steps with ECMAScript 6”: new sections on new string methods and new Array methods.
+* Complete rewrite of symbol FAQ entry “Can I use symbols to define private properties?”
+* Major rewrite of the section on WeakMaps.
+* New Sect. “The numeric range of Array indices” in Chap. “New Array features”.
+* Various smaller improvements in Chap. “Generators”.
+* Various smaller improvements in Chap. “Symbols” (e.g. a table in the overview at the beginning)
+* Major rewrite of Sect. “Overview” of Chap. “Destructuring”.
+
+# Release 2016-01-01
+
+* A few minor fixes.
+
+# Release 2015-12-30
+
+Announcement:
+
+I have written a new book: “Setting up ES6”. Everyone who owns “Exploring ES6” right now can get a free copy via this coupon (valid until January 11): [sent via email to owners]
+
+As a step towards a stable version 1.0 of “Exploring ES6”, along with a print version (hopefully by mid-2016), I have moved Chap. “Deploying ES6” to the new book. Apologies for the inconveniences this causes, but it was the only way of keeping “Exploring ES6” from aging too quickly.
+
+Other changes:
+
+* New entry in the glossary: “protocol”
+* Major rewrite of Sect. “The temporal dead zone” in Chap. “Variables and scoping”.
+
+# Release 2015-12-27
+
+* New section “Configuring which objects are spread by `concat()`” in the chapter on Arrays.
+* New section “Assigning versus defining properties” in Chap. “New OOP features besides classes”
+* New section “Enumerability in ECMAScript 6” in Chap. “New OOP features besides classes”
+* New section “Customizing basic language operations via well-known symbols” in Chap. “New OOP features besides classes”
+* New sections in Chap. “Maps and Sets”: “Arbitrary Maps as JSON via Arrays of pairs” and “String Maps as JSON via objects”
+* Chap. “metaprogramming with proxies”: new section “Intercepting method calls”, various smaller improvements
+* Complete rewrite of Sect. “Well-known symbols” in the chapter on symbols.
+* New section “String methods that delegate regular expression work to their parameters” in the chapter on strings.
+
+# Release 2015-12-25
+
+* Array chapter has a new section on holes
+* Removed outdated section on bundling
+
+# Release 2015-12-19
+
+* A lot of work went into a complete rewrite of chapter “Deploying ECMAScript 6”:
+    * More type checkers and transpilers are mentioned (Closure Compiler, Flow, etc.)
+    * Everything was upgraded to Babel 6.
+    * I’m always using npm for build tasks (I previously used gulp in the section on deploying client-side ES6 via webpack).
+* A few smaller fixes.
+
+# Release 2015-11-25
+
+* Fixed many errata
+* New section on `__proto__` in the chapter “New OOP features besides classes”
+* New chapter “About the author”
+
+# Release 2015-10-19
+
+* Foreword by Allen Wirfs-Brock
+* Rewrite of section “Why should I read this book?” in chapter “What you need to know about this book”
+* A few smaller fixes
+
+# Release 2015-10-03
+
+* New chapter: “Typed Arrays”
+* Complete rewrite of Sect. “Methods versus callbacks” in Chap. “Callable entities in ECMAScript 6”
+* I improved the following two sections (chapter “Parameter handling”):
+    * ‘Referring to other parameters in default values’
+    * ‘Referring to “inner” variables in default values’
+
+# Release 2015-09-20
+
+* New chapter: “New regular expression features”
+* New chapter: “Unicode in ES6”
+* New entry in the ES6 FAQ: “Isn’t ECMAScript 6 now called ECMAScript 2015?”
+* A few smaller fixes and changes.
+
+# Release 2015-09-12
+
+* Chapter on modules: I changed much of this chapter and am now describing imports as views on exports.
+    * Complete rewrite of section “Default exports (one per module)”.
+    * New section: “Details: imports as views on exports”.
+    * Rearranged several sections, so that information is introduced more incrementally.
+    * New FAQ entries.
+* Chapter on Arrays:
+    * Explanation of Array.prototype.copyWithin().
+    * New section “Overview” at the beginning.
+* Various smaller fixes.
+
+# Release 2015-08-15
+
+* New chapter: “First steps with ECMAScript 6”
+
+# Release 2015-08-04
+
+* New chapter: “Tail call optimization”
+* One additional TOC level
+* Back, due to popular demand: Sect 15.5, “Constructor calls explained via JavaScript code”
+* Several minor corrections and fixed typos
+
+# Release 2015-06-28
+
+* Moved the HTML spec links
+    * From: https://people.mozilla.org/~jorendorff/es6-draft.html
+    * To: http://www.ecma-international.org/ecma-262/6.0/
+* Mentioned the old terminology in the template literals FAQ.
+* Chapter on modules, Sect. “All exporting styles”: default exports were missing the keyword `default`.
+* Removed Sect 15.5, “Constructor calls explained via JavaScript code”
+* Sect. 9.1.3: Fixed the table: classes are block-scoped, `import` is module-global only.
+* Chapter on classes: fixed the code of the functions `SpeciesConstructor()` and `isObject()`.
+* Minor edits to make FAQ headlines more consistent
+* Fixed a few minor submitted errata
+
+# First release: 2015-06-13

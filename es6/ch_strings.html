@@ -1,0 +1,435 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>6. New string features</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>6. New string features</b><br>
+        <a href="index.html#toc_ch_strings">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_strings">
+<span class="section-number">6. </span>New string features <a class="header-anchor" href="ch_strings.html#ch_strings" aria-hidden="true">#</a></h2>
+
+<hr class="scene-break">
+
+<ul>
+  <li>6.1. <a href="ch_strings.html#sec_overview-strings">Overview</a>
+</li>
+  <li>6.2. <a href="ch_strings.html#sec_unicode-code-point-escapes">Unicode code point escapes</a>
+</li>
+  <li>6.3. <a href="ch_strings.html#sec_string-interpolation-etc">String interpolation, multi-line string literals and raw string literals</a>
+</li>
+  <li>6.4. <a href="ch_strings.html#sec_iterating-over-strings">Iterating over strings</a>
+    <ul>
+      <li>6.4.1. Iteration honors Unicode code points</li>
+      <li>6.4.2. Counting code points</li>
+      <li>6.4.3. Reversing strings with non-BMP code points</li>
+    </ul>
+  </li>
+  <li>6.5. <a href="ch_strings.html#sec_numer-values-of-code-points">Numeric values of code points</a>
+</li>
+  <li>6.6. <a href="ch_strings.html#sec_string-inclusion">Checking for inclusion</a>
+</li>
+  <li>6.7. <a href="ch_strings.html#sec_repeating-strings">Repeating strings</a>
+</li>
+  <li>6.8. <a href="ch_strings.html#sec_delegating-string-methods-regexp">String methods that delegate regular expression work to their parameters</a>
+</li>
+  <li>6.9. <a href="ch_strings.html#sec_reference-strings">Reference: the new string methods</a>
+</li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-strings">
+<span class="section-number">6.1 </span>Overview <a class="header-anchor" href="ch_strings.html#sec_overview-strings" aria-hidden="true">#</a></h3>
+
+<p>New string methods:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;hello&apos;.startsWith(&apos;hell&apos;)
+true
+&gt; &apos;hello&apos;.endsWith(&apos;ello&apos;)
+true
+&gt; &apos;hello&apos;.includes(&apos;ell&apos;)
+true
+&gt; &apos;doo &apos;.repeat(3)
+&apos;doo doo doo &apos;
+</pre></div>
+
+</figure>
+
+<p>ES6 has a new kind of string literal, the <em>template literal</em>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// String interpolation via template literals (in backticks)</code>
+<code class="kr">const</code> <code class="nx">first</code> <code class="o">=</code> <code class="s1">&apos;Jane&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">last</code> <code class="o">=</code> <code class="s1">&apos;Doe&apos;</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`Hello </code><code class="si">${</code><code class="nx">first</code><code class="si">}</code><code class="sb"> </code><code class="si">${</code><code class="nx">last</code><code class="si">}</code><code class="sb">!`</code><code class="p">);</code>
+    <code class="c1">// Hello Jane Doe!</code>
+
+<code class="c1">// Template literals also let you create strings with multiple lines</code>
+<code class="kr">const</code> <code class="nx">multiLine</code> <code class="o">=</code> <code class="sb">`</code>
+<code class="sb">This is</code>
+<code class="sb">a string</code>
+<code class="sb">with multiple</code>
+<code class="sb">lines`</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_unicode-code-point-escapes">
+<span class="section-number">6.2 </span>Unicode code point escapes <a class="header-anchor" href="ch_strings.html#sec_unicode-code-point-escapes" aria-hidden="true">#</a></h3>
+
+<p>In ECMAScript 6, there is a new kind of Unicode escape that lets you specify any code point (even those beyond 16 bits):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;\u{1F680}&apos;</code><code class="p">);</code>    <code class="c1">// ES6: single code point</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;\uD83D\uDE80&apos;</code><code class="p">);</code> <code class="c1">// ES5: two code units</code>
+</pre></div>
+
+</figure>
+
+<p>More information on escapes is given in <a href="ch_unicode.html#sec_escape-sequences">the chapter on Unicode</a>.</p>
+
+
+<h3 id="sec_string-interpolation-etc">
+<span class="section-number">6.3 </span>String interpolation, multi-line string literals and raw string literals <a class="header-anchor" href="ch_strings.html#sec_string-interpolation-etc" aria-hidden="true">#</a></h3>
+
+<p>Template literals are described in depth in <a href="ch_template-literals.html#ch_template-literals">their own chapter</a>. They provide three interesting features.</p>
+
+<p>First, template literals support string interpolation:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">first</code> <code class="o">=</code> <code class="s1">&apos;Jane&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">last</code> <code class="o">=</code> <code class="s1">&apos;Doe&apos;</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`Hello </code><code class="si">${</code><code class="nx">first</code><code class="si">}</code><code class="sb"> </code><code class="si">${</code><code class="nx">last</code><code class="si">}</code><code class="sb">!`</code><code class="p">);</code>
+    <code class="c1">// Hello Jane Doe!</code>
+</pre></div>
+
+</figure>
+
+<p>Second, template literals can contain multiple lines:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">multiLine</code> <code class="o">=</code> <code class="sb">`</code>
+<code class="sb">This is</code>
+<code class="sb">a string</code>
+<code class="sb">with multiple</code>
+<code class="sb">lines`</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>Third, template literals are &#x201C;raw&#x201D; if you prefix them with the <em>tag</em> <code>String.raw</code> &#x2013; the backslash is not a special character and escapes such as <code>\n</code> are not interpreted:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">str</code> <code class="o">=</code> <code class="nb">String</code><code class="p">.</code><code class="nx">raw</code><code class="sb">`Not a newline: </code><code class="err">\</code><code class="sb">n`</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">str</code> <code class="o">===</code> <code class="s1">&apos;Not a newline: \\n&apos;</code><code class="p">);</code> <code class="c1">// true</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_iterating-over-strings">
+<span class="section-number">6.4 </span>Iterating over strings <a class="header-anchor" href="ch_strings.html#sec_iterating-over-strings" aria-hidden="true">#</a></h3>
+
+<p>Strings are <a href="ch_iteration.html#ch_iteration"><em>iterable</em></a>, which means that you can use <code>for-of</code> to iterate over their characters:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">ch</code> <code class="k">of</code> <code class="s1">&apos;abc&apos;</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">ch</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+<code class="c1">// c</code>
+</pre></div>
+
+</figure>
+
+<p>And you can use the spread operator (<code>...</code>) to turn strings into Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">chars</code> <code class="o">=</code> <code class="p">[...</code><code class="s1">&apos;abc&apos;</code><code class="p">];</code>
+    <code class="c1">// [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="sec_string-iteration-honors-code-points">
+<span class="section-number">6.4.1 </span>Iteration honors Unicode code points <a class="header-anchor" href="ch_strings.html#sec_string-iteration-honors-code-points" aria-hidden="true">#</a></h4>
+
+<p>The string iterator splits strings along code point boundaries, which means that the strings it returns comprise one or two JavaScript characters:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">ch</code> <code class="k">of</code> <code class="s1">&apos;x\uD83D\uDE80y&apos;</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">ch</code><code class="p">.</code><code class="nx">length</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// 1</code>
+<code class="c1">// 2</code>
+<code class="c1">// 1</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_counting-code-points">
+<span class="section-number">6.4.2 </span>Counting code points <a class="header-anchor" href="ch_strings.html#_counting-code-points" aria-hidden="true">#</a></h4>
+
+<p>Iteration gives you a quick way to count the Unicode code points in a string:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [...&apos;x\uD83D\uDE80y&apos;].length
+3
+</pre></div>
+
+</figure>
+
+<h4 id="_reversing-strings-with-non-bmp-code-points">
+<span class="section-number">6.4.3 </span>Reversing strings with non-BMP code points <a class="header-anchor" href="ch_strings.html#_reversing-strings-with-non-bmp-code-points" aria-hidden="true">#</a></h4>
+
+<p>Iteration also helps with reversing strings that contain non-BMP code points (which are larger than 16 bit and encoded as two JavaScript characters):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">str</code> <code class="o">=</code> <code class="s1">&apos;x\uD83D\uDE80y&apos;</code><code class="p">;</code>
+
+<code class="c1">// ES5: \uD83D\uDE80 are (incorrectly) reversed</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">str</code><code class="p">.</code><code class="nx">split</code><code class="p">(</code><code class="s1">&apos;&apos;</code><code class="p">).</code><code class="nx">reverse</code><code class="p">().</code><code class="nx">join</code><code class="p">(</code><code class="s1">&apos;&apos;</code><code class="p">));</code>
+    <code class="c1">// &apos;y\uDE80\uD83Dx&apos;</code>
+
+<code class="c1">// ES6: order of \uD83D\uDE80 is preserved</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">([...</code><code class="nx">str</code><code class="p">].</code><code class="nx">reverse</code><code class="p">().</code><code class="nx">join</code><code class="p">(</code><code class="s1">&apos;&apos;</code><code class="p">));</code>
+    <code class="c1">// &apos;y\uD83D\uDE80x&apos;</code>
+</pre></div>
+
+</figure>
+
+
+<figure class="image center">
+  <img src="images/strings----firefox_unicode_strings_75dpi.png" alt="The two reversed strings in the Firefox console." width="135" height="83">
+  <figcaption>The two reversed strings in the Firefox console.</figcaption>
+</figure>
+
+
+<aside class="warning blurb">
+    <h3 id="_remaining-problem-combining-marks">Remaining problem: combining marks <a class="header-anchor" href="ch_strings.html#_remaining-problem-combining-marks" aria-hidden="true">#</a></h3>
+
+  <p>A <em>combining mark</em> is a sequence of two Unicode code points that is displayed as single symbol. The ES6 approach to reversing a string that I have presented here works for non-BMP code points, but not for combining marks. For those, you need a library, e.g. Mathias Bynens&#x2019; <a href="https://github.com/mathiasbynens/esrever">Esrever</a>.</p>
+
+</aside>
+
+
+<h3 id="sec_numer-values-of-code-points">
+<span class="section-number">6.5 </span>Numeric values of code points <a class="header-anchor" href="ch_strings.html#sec_numer-values-of-code-points" aria-hidden="true">#</a></h3>
+
+<p>The new method <code>codePointAt()</code> returns the numeric value of a code point at a given index in a string:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">str</code> <code class="o">=</code> <code class="s1">&apos;x\uD83D\uDE80y&apos;</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">str</code><code class="p">.</code><code class="nx">codePointAt</code><code class="p">(</code><code class="mi">0</code><code class="p">).</code><code class="nx">toString</code><code class="p">(</code><code class="mi">16</code><code class="p">));</code> <code class="c1">// 78</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">str</code><code class="p">.</code><code class="nx">codePointAt</code><code class="p">(</code><code class="mi">1</code><code class="p">).</code><code class="nx">toString</code><code class="p">(</code><code class="mi">16</code><code class="p">));</code> <code class="c1">// 1f680</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">str</code><code class="p">.</code><code class="nx">codePointAt</code><code class="p">(</code><code class="mi">3</code><code class="p">).</code><code class="nx">toString</code><code class="p">(</code><code class="mi">16</code><code class="p">));</code> <code class="c1">// 79</code>
+</pre></div>
+
+</figure>
+
+<p>This method works well when combined with iteration over strings:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">ch</code> <code class="k">of</code> <code class="s1">&apos;x\uD83D\uDE80y&apos;</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">ch</code><code class="p">.</code><code class="nx">codePointAt</code><code class="p">(</code><code class="mi">0</code><code class="p">).</code><code class="nx">toString</code><code class="p">(</code><code class="mi">16</code><code class="p">));</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// 78</code>
+<code class="c1">// 1f680</code>
+<code class="c1">// 79</code>
+</pre></div>
+
+</figure>
+
+<p>The opposite of <code>codePointAt()</code> is <code>String.fromCodePoint()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; String.fromCodePoint(0x78, 0x1f680, 0x79) === &apos;x\uD83D\uDE80y&apos;
+true
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_string-inclusion">
+<span class="section-number">6.6 </span>Checking for inclusion <a class="header-anchor" href="ch_strings.html#sec_string-inclusion" aria-hidden="true">#</a></h3>
+
+<p>Three new methods check whether a string exists within another string:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;hello&apos;.startsWith(&apos;hell&apos;)
+true
+&gt; &apos;hello&apos;.endsWith(&apos;ello&apos;)
+true
+&gt; &apos;hello&apos;.includes(&apos;ell&apos;)
+true
+</pre></div>
+
+</figure>
+
+<p>Each of these methods has a position as an optional second parameter, which specifies where the string to be searched starts or ends:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;hello&apos;.startsWith(&apos;ello&apos;, 1)
+true
+&gt; &apos;hello&apos;.endsWith(&apos;hell&apos;, 4)
+true
+
+&gt; &apos;hello&apos;.includes(&apos;ell&apos;, 1)
+true
+&gt; &apos;hello&apos;.includes(&apos;ell&apos;, 2)
+false
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_repeating-strings">
+<span class="section-number">6.7 </span>Repeating strings <a class="header-anchor" href="ch_strings.html#sec_repeating-strings" aria-hidden="true">#</a></h3>
+
+<p>The <code>repeat()</code> method repeats strings:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;doo &apos;.repeat(3)
+&apos;doo doo doo &apos;
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_delegating-string-methods-regexp">
+<span class="section-number">6.8 </span>String methods that delegate regular expression work to their parameters <a class="header-anchor" href="ch_strings.html#sec_delegating-string-methods-regexp" aria-hidden="true">#</a></h3>
+
+<p>In ES6, the four string methods that accept regular expression parameters do relatively little. They mainly call methods of their parameters:</p>
+
+<ul>
+  <li>
+<code>String.prototype.match(regexp)</code> calls<br>
+<code>regexp[Symbol.match](this)</code>.</li>
+  <li>
+<code>String.prototype.replace(searchValue, replaceValue)</code> calls<br>
+<code>searchValue[Symbol.replace](this, replaceValue)</code>.</li>
+  <li>
+<code>String.prototype.search(regexp)</code> calls<br>
+<code>regexp[Symbol.search](this)</code>.</li>
+  <li>
+<code>String.prototype.split(separator, limit)</code> calls<br>
+<code>separator[Symbol.split](this, limit)</code>.</li>
+</ul>
+
+<p>The parameters don&#x2019;t have to be regular expressions, anymore. Any objects with appropriate methods will do.</p>
+
+
+<h3 id="sec_reference-strings">
+<span class="section-number">6.9 </span>Reference: the new string methods <a class="header-anchor" href="ch_strings.html#sec_reference-strings" aria-hidden="true">#</a></h3>
+
+<p>Tagged templates:</p>
+
+<ul>
+  <li>
+<code>String.raw(callSite, ...substitutions) : string</code><br>
+Template tag for &#x201C;raw&#x201D; content (backslashes are not interpreted):
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; String.raw`\n` === &apos;\\n&apos;
+  true
+</pre></div>
+
+    </figure>
+
+    <p>Consult <a href="ch_template-literals.html#ch_template-literals">the chapter on template literals</a> for more information.</p>
+  </li>
+</ul>
+
+<p>Unicode and code points:</p>
+
+<ul>
+  <li>
+<code>String.fromCodePoint(...codePoints : number[]) : string</code><br>
+Turns numbers denoting Unicode code points into a string.</li>
+  <li>
+<code>String.prototype.codePointAt(pos) : number</code><br>
+Returns the number of the code point starting at position <code>pos</code> (comprising one or two JavaScript characters).</li>
+  <li>
+<code>String.prototype.normalize(form? : string) : string</code><br>
+Different combinations of code points may look the same. <a href="http://unicode.org/faq/normalization.html">Unicode normalization</a> changes them all to the same value(s), their so-called <em>canonical representation</em>. That helps with comparing and searching for strings. The <code>&apos;NFC&apos;</code> form is recommended for general text.</li>
+</ul>
+
+<p>Finding strings:</p>
+
+<ul>
+  <li>
+<code>String.prototype.startsWith(searchString, position=0) : boolean</code><br>
+Does the receiver start with <code>searchString</code>? <code>position</code> lets you specify where the string to be checked starts.</li>
+  <li>
+<code>String.prototype.endsWith(searchString, endPosition=searchString.length) : boolean</code><br>
+Does the receiver end with <code>searchString</code>? <code>endPosition</code> lets you specify where the string to be checked ends.</li>
+  <li>
+<code>String.prototype.includes(searchString, position=0) : boolean</code><br>
+Does the receiver contain <code>searchString</code>? <code>position</code> lets you specify where the string to be searched starts.</li>
+</ul>
+
+<p>Repeating strings:</p>
+
+<ul>
+  <li>
+<code>String.prototype.repeat(count) : string</code><br>
+Returns the receiver, concatenated <code>count</code> times.</li>
+</ul>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_symbols.html">7. Symbols</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

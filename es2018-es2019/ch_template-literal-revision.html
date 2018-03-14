@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Template Literal Revision • Exploring ES2018 and ES2019</title>
+    <link rel="stylesheet" href="site.css" type="text/css">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="top-bar-content">
+            <a href="toc.html">Table of contents</a><br>
+            Please support this book:
+            <a href="https://payhip.com/b/JrTz">buy it (PDF, EPUB, MOBI)</a>
+            or
+            <a href="http://www.2ality.com/p/donate.html">donate</a>
+        </div>
+    </div>
+
+    <div id="page-content">
+
+        <div id="adbox">
+        <div id="adbox-explain">(Ad, please don’t block.)</div>
+                    <script async type="text/javascript" src="https://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+                </div>
+
+        <h2 id="ch_template-literal-revision">Template Literal Revision</h2>
+<p>The ECMAScript proposal “<a href="https://tc39.github.io/proposal-template-literal-revision/">Template Literal Revision</a>” by Tim Disney gives the innards of tagged template literals more syntactic freedom.</p>
+<h3 id="tag-functions-and-escape-sequences">Tag functions and escape sequences</h3>
+<p>With tagged template literals, you can make a function call by mentioning a function before a template literal:</p>
+<pre class="repl"><code>&gt; String.raw`\u{4B}`
+&#39;\\u{4B}&#39;</code></pre>
+<p><code>String.raw</code> is a so-called <em>tag function</em>. Tag functions receive two versions of the fixed string pieces (<em>template strings</em>) in a template literal:</p>
+<ul>
+<li>Cooked: escape sequences are interpreted. <code>`\u{4B}`</code> becomes <code>'K'</code>.</li>
+<li>Raw: escape sequences are normal text. <code>`\u{4B}`</code> becomes <code>'\\u{4B}'</code>.</li>
+</ul>
+<p>The following tag function illustrates how that works:</p>
+<div class="sourceCode" id="cb120"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb120-1" data-line-number="1"><span class="kw">function</span> <span class="at">tagFunc</span>(tmplObj<span class="op">,</span> substs) <span class="op">{</span></a>
+<a class="sourceLine" id="cb120-2" data-line-number="2">    <span class="cf">return</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb120-3" data-line-number="3">        <span class="dt">Cooked</span><span class="op">:</span> tmplObj<span class="op">,</span></a>
+<a class="sourceLine" id="cb120-4" data-line-number="4">        <span class="dt">Raw</span><span class="op">:</span> <span class="va">tmplObj</span>.<span class="at">raw</span><span class="op">,</span></a>
+<a class="sourceLine" id="cb120-5" data-line-number="5">    <span class="op">};</span></a>
+<a class="sourceLine" id="cb120-6" data-line-number="6"><span class="op">}</span></a></code></pre></div>
+<p>Using the tag function:</p>
+<pre class="repl"><code>&gt; tagFunc`\u{4B}`;
+{ Cooked: [ &#39;K&#39; ], Raw: [ &#39;\\u{4B}&#39; ] }</code></pre>
+<p>For more information on tag functions, consult Sect. “<a href="../es6/ch_template-literals.html#_implementing-tag-functions">Implementing tag functions</a>” in “Exploring ES6”.</p>
+<h3 id="problem-some-text-is-illegal-after-backslashes">Problem: some text is illegal after backslashes</h3>
+<p>The problem is that even with the raw version, you don’t have total freedom within template literals in ES2016. After a backslash, some sequences of characters are not legal anymore:</p>
+<ul>
+<li><code>\u</code> starts a Unicode escape, which must look like <code>\u{1F4A4}</code> or <code>\u004B</code>.</li>
+<li><code>\x</code> starts a hex escape, which must look like <code>\x4B</code>.</li>
+<li><code>\</code> plus digit starts an octal escape (such as <code>\141</code>). Octal escapes are forbidden in template literals and strict mode string literals.</li>
+</ul>
+<p>That prevents tagged template literals such as:</p>
+<div class="sourceCode" id="cb122"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb122-1" data-line-number="1">latex<span class="vs">`\unicode`</span></a>
+<a class="sourceLine" id="cb122-2" data-line-number="2">windowsPath<span class="vs">`C:\uuu\xxx\111`</span></a></code></pre></div>
+<h3 id="solution">Solution</h3>
+<p>The solution is drop all syntactic restrictions related to escape sequences. Then illegal escape sequences simply show up verbatim in the raw representation. But what about the cooked representation? Every template string with an illegal escape sequence is an undefined element in the cooked Array:</p>
+<pre class="repl"><code>&gt; tagFunc`\uu ${1} \xx`
+{ Cooked: [ undefined, undefined ], Raw: [ &#39;\\uu &#39;, &#39; \\xx&#39; ] }</code></pre>
+
+        <div class="footer">
+            <div>
+                                <a id="commentLink" href="https://github.com/rauschma/exploring-es2018-es2019/issues/8">Comments</a>
+                <script defer src="count-comments.js"></script>
+                            </div>
+                    </div>
+    </div>
+</body>
+</html>

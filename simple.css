@@ -1,0 +1,109 @@
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    line-height: 1.4;
+    margin: 0 0 0 0;
+}
+.content {
+    margin-top: 2em;
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 40em;
+}
+h1 {
+    text-align: center;
+}
+h2 {
+    border-bottom: thin solid lightgray;
+    margin-top: 1.5em;
+}
+
+li {
+    margin-top: 0.5em;
+}
+
+/****** Header and footer *****/
+
+.header {
+    font-size: 18pt;
+    background: #0080FF;
+    padding-top: 10pt;
+    padding-bottom: 10pt;
+    text-align: center;
+}
+
+.footer {
+    text-align: right;
+    border-top: thin solid gray;
+    padding-top: 3px;
+}
+
+/****** Toolbar *****/
+
+#toolbar {
+    font-size: 18pt;
+    background: black;
+    height: 41px;
+    padding: 0px 0px 0px 0px;
+}
+#toolbar a {
+    text-decoration: none;
+
+    display: inline-block;
+
+    height: 27px;
+
+    padding: 7px 18px 7px 18px;
+    margin-left: 10px;
+    margin-right: 10px;
+
+    color: white;
+}
+#toolbar a:hover {
+    background: gray;
+    cursor: pointer;
+}
+#toolbar a.selected {
+    background: gray;
+    cursor: default;
+}
+
+/****** anchors *****/
+
+a {
+    color: darkblue;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:visited {
+    color: darkblue;
+}
+
+*:target {
+    background: yellow;
+}
+
+/****** Tables *****/
+
+td {
+    vertical-align: text-top;
+}
+table.framed {
+    border-collapse: collapse;
+}
+table.framed td {
+    border: thin solid black;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+    padding-left: 0.6em;
+    padding-right: 0.6em;
+}
+table.framed td.right {
+    text-align: right;
+}
+table.framed tr.doubleline {
+    border-bottom: double;
+}

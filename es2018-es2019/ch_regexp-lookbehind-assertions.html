@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>RegExp lookbehind assertions • Exploring ES2018 and ES2019</title>
+    <link rel="stylesheet" href="site.css" type="text/css">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="top-bar-content">
+            <a href="toc.html">Table of contents</a><br>
+            Please support this book:
+            <a href="https://payhip.com/b/JrTz">buy it (PDF, EPUB, MOBI)</a>
+            or
+            <a href="http://www.2ality.com/p/donate.html">donate</a>
+        </div>
+    </div>
+
+    <div id="page-content">
+
+        <div id="adbox">
+        <div id="adbox-explain">(Ad, please don’t block.)</div>
+                    <script async type="text/javascript" src="https://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+                </div>
+
+        <h2 id="ch_regexp-lookbehind-assertions">RegExp lookbehind assertions</h2>
+<p>This chapter explains the proposal “<a href="https://github.com/tc39/proposal-regexp-lookbehind">RegExp Lookbehind Assertions</a>” by Gorkem Yakin, Nozomu Katō, Daniel Ehrenberg.</p>
+<p>A <em>lookaround assertion</em> is a construct inside a regular expression that specifies what the surroundings of the current location must look like, but has no other effect. It is also called a <em>zero-width assertion</em>.</p>
+<p>The only lookaround assertion currently supported by JavaScript is the <em>lookahead assertion</em>, which matches what follows the current location. This chapter describes a proposal for a <em>lookbehind assertion</em>, which matches what precedes the current location.</p>
+<h3 id="lookahead-assertions">Lookahead assertions</h3>
+<p>A lookahead assertion inside a regular expression means: whatever comes next must match the assertion, but nothing else happens. That is, nothing is captured and the assertion doesn’t contribute to the overall matched string.</p>
+<p>Take, for example, the following regular expression</p>
+<div class="sourceCode" id="cb97"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb97-1" data-line-number="1"><span class="kw">const</span> RE_AS_BS <span class="op">=</span> <span class="ss">/aa</span><span class="sc">(?</span><span class="ss">=bb</span><span class="sc">)</span><span class="ss">/</span><span class="op">;</span></a></code></pre></div>
+<p>It matches the string <code>'aabb'</code>, but the overall matched string does not include the b’s:</p>
+<div class="sourceCode" id="cb98"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb98-1" data-line-number="1"><span class="kw">const</span> match1 <span class="op">=</span> <span class="va">RE_AS_BS</span>.<span class="at">exec</span>(<span class="st">&#39;aabb&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb98-2" data-line-number="2"><span class="va">console</span>.<span class="at">log</span>(match1[<span class="dv">0</span>])<span class="op">;</span> <span class="co">// &#39;aa&#39;</span></a></code></pre></div>
+<p>Furthermore, it does not match a string that doesn’t have two b’s:</p>
+<div class="sourceCode" id="cb99"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb99-1" data-line-number="1"><span class="kw">const</span> match2 <span class="op">=</span> <span class="va">RE_AS_BS</span>.<span class="at">exec</span>(<span class="st">&#39;aab&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb99-2" data-line-number="2"><span class="va">console</span>.<span class="at">log</span>(match2)<span class="op">;</span> <span class="co">// null</span></a></code></pre></div>
+<p>A negative lookahead assertion means that what comes next must <em>not</em> match the assertion. For example:</p>
+<pre class="repl"><code>&gt; const RE_AS_NO_BS = /aa(?!bb)/;
+&gt; RE_AS_NO_BS.test(&#39;aabb&#39;)
+false
+&gt; RE_AS_NO_BS.test(&#39;aab&#39;)
+true
+&gt; RE_AS_NO_BS.test(&#39;aac&#39;)
+true</code></pre>
+<h3 id="lookbehind-assertions">Lookbehind assertions</h3>
+<p>Lookbehind assertions work like lookahead assertions, but in the opposite direction.</p>
+<h4 id="positive-lookbehind-assertions">Positive lookbehind assertions</h4>
+<p>For a positive lookbehind assertion, the text preceding the current location must match the assertion (but nothing else happens).</p>
+<div class="sourceCode" id="cb101"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb101-1" data-line-number="1"><span class="kw">const</span> RE_DOLLAR_PREFIX <span class="op">=</span> <span class="ss">/</span><span class="sc">(?</span><span class="ss">&lt;=</span><span class="sc">\$)</span><span class="ss">foo/g</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb101-2" data-line-number="2"><span class="st">&#39;$foo %foo foo&#39;</span>.<span class="at">replace</span>(RE_DOLLAR_PREFIX<span class="op">,</span> <span class="st">&#39;bar&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb101-3" data-line-number="3">    <span class="co">// &#39;$bar %foo foo&#39;</span></a></code></pre></div>
+<p>As you can see, <code>'foo'</code> is only replaced if it is preceded by a dollar sign. You can also see that the dollar sign is not part of the total match, because the latter is completely replaced by <code>'bar'</code>.</p>
+<p>Achieving the same result without a lookbehind assertion is less elegant:</p>
+<div class="sourceCode" id="cb102"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb102-1" data-line-number="1"><span class="kw">const</span> RE_DOLLAR_PREFIX <span class="op">=</span> <span class="ss">/</span><span class="sc">(\$)</span><span class="ss">foo/g</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb102-2" data-line-number="2"><span class="st">&#39;$foo %foo foo&#39;</span>.<span class="at">replace</span>(RE_DOLLAR_PREFIX<span class="op">,</span> <span class="st">&#39;$1bar&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb102-3" data-line-number="3">    <span class="co">// &#39;$bar %foo foo&#39;</span></a></code></pre></div>
+<p>And this approach doesn’t work if the prefix should be part of the previous match:</p>
+<pre class="repl"><code>&gt; &#39;a1ba2ba3b&#39;.match(/(?&lt;=b)a.b/g)
+[ &#39;a2b&#39;, &#39;a3b&#39; ]</code></pre>
+<h4 id="negative-lookbehind-assertions">Negative lookbehind assertions</h4>
+<p>A negative lookbehind assertion only matches if the current location is <em>not</em> preceded by the assertion, but has no other effect. For example:</p>
+<div class="sourceCode" id="cb104"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb104-1" data-line-number="1"><span class="kw">const</span> RE_NO_DOLLAR_PREFIX <span class="op">=</span> <span class="ss">/</span><span class="sc">(?</span><span class="ss">&lt;!</span><span class="sc">\$)</span><span class="ss">foo/g</span><span class="op">;</span></a>
+<a class="sourceLine" id="cb104-2" data-line-number="2"><span class="st">&#39;$foo %foo foo&#39;</span>.<span class="at">replace</span>(RE_NO_DOLLAR_PREFIX<span class="op">,</span> <span class="st">&#39;bar&#39;</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb104-3" data-line-number="3">    <span class="co">// &#39;$foo %bar bar&#39;</span></a></code></pre></div>
+<p>There is no simple (general) way to achieve the same result without a lookbehind assertion.</p>
+<h3 id="conclusions">Conclusions</h3>
+<p>Lookahead assertions make most sense at the end of regular expressions. Lookbehind assertions make most sense at the beginning of regular expressions.</p>
+<p>The use cases for lookaround assertions are:</p>
+<ul>
+<li><code>replace()</code></li>
+<li><code>match()</code> (especially if the regular expression has the flag <code>/g</code>)</li>
+<li><p><code>split()</code> (note the space at the beginning of <code>' b,c'</code>):</p>
+<pre class="repl"><code>&gt; &#39;a, b,c&#39;.split(/,(?= )/)
+[ &#39;a&#39;, &#39; b,c&#39; ]</code></pre></li>
+</ul>
+<p>Other than those use cases, you can just as well make the assertion a real part of the regular expression.</p>
+<h3 id="further-reading-4">Further reading</h3>
+<ul>
+<li><a href="https://v8project.blogspot.de/2016/02/regexp-lookbehind-assertions.html">V8 JavaScript Engine: RegExp lookbehind assertions</a></li>
+<li>Section “<a href="http://speakingjs.com/es5/ch19.html#regexp-look-behind">Manually Implementing Lookbehind</a>” in “Speaking JavaScript”</li>
+</ul>
+
+        <div class="footer">
+            <div>
+                                <a id="commentLink" href="https://github.com/rauschma/exploring-es2018-es2019/issues/5">Comments</a>
+                <script defer src="count-comments.js"></script>
+                            </div>
+                        <div>
+                Next: <a href="ch_regexp-dotall-flag.html"><code>s</code> (<code>dotAll</code>) flag for regular expressions</a>
+            </div>
+                    </div>
+    </div>
+</body>
+</html>

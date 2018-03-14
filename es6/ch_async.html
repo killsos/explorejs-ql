@@ -1,0 +1,497 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>24. Asynchronous programming (background)</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>24. Asynchronous programming (background)</b><br>
+        <a href="index.html#toc_ch_async">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_async">
+<span class="section-number">24. </span>Asynchronous programming (background) <a class="header-anchor" href="ch_async.html#ch_async" aria-hidden="true">#</a></h2>
+
+<p>This chapter explains foundations of asynchronous programming in JavaScript. It provides background knowledge for <a href="ch_promises.html#ch_promises">the next chapter on ES6 Promises</a>.</p>
+
+<hr class="scene-break">
+
+<ul>
+  <li>24.1. <a href="ch_async.html#sec_javascript-call-stack">The JavaScript call stack</a>
+</li>
+  <li>24.2. <a href="ch_async.html#sec_browser-event-loop">The browser event loop</a>
+    <ul>
+      <li>24.2.1. Timers</li>
+      <li>24.2.2. Displaying DOM changes</li>
+      <li>24.2.3. Run-to-completion semantics</li>
+      <li>24.2.4. Blocking the event loop</li>
+      <li>24.2.5. Avoiding blocking</li>
+    </ul>
+  </li>
+  <li>24.3. <a href="ch_async.html#sec_receiving-results-asynchronously">Receiving results asynchronously</a>
+    <ul>
+      <li>24.3.1. Asynchronous results via events</li>
+      <li>24.3.2. Asynchronous results via callbacks</li>
+      <li>24.3.3. Continuation-passing style</li>
+      <li>24.3.4. Composing code in CPS</li>
+      <li>24.3.5. Pros and cons of callbacks</li>
+    </ul>
+  </li>
+  <li>24.4. <a href="ch_async.html#sec_looking-ahead-async">Looking ahead</a>
+</li>
+  <li>24.5. <a href="ch_async.html#sec_further-reading-async">Further reading</a>
+</li>
+</ul>
+
+<hr class="scene-break">
+
+<h3 id="sec_javascript-call-stack">
+<span class="section-number">24.1 </span>The JavaScript call stack <a class="header-anchor" href="ch_async.html#sec_javascript-call-stack" aria-hidden="true">#</a></h3>
+
+<p>When a function <code>f</code> calls a function <code>g</code>, <code>g</code> needs to know where to return to (inside <code>f</code>) after it is done. This information is usually managed with a stack, the <em>call stack</em>. Let&#x2019;s look at an example.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">h</code><code class="p">(</code><code class="nx">z</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// Print stack trace</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="k">new</code> <code class="nb">Error</code><code class="p">().</code><code class="nx">stack</code><code class="p">);</code> <code class="c1">// (A)</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">g</code><code class="p">(</code><code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">h</code><code class="p">(</code><code class="nx">y</code> <code class="o">+</code> <code class="mi">1</code><code class="p">);</code> <code class="c1">// (B)</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">f</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">g</code><code class="p">(</code><code class="nx">x</code> <code class="o">+</code> <code class="mi">1</code><code class="p">);</code> <code class="c1">// (C)</code>
+<code class="p">}</code>
+<code class="nx">f</code><code class="p">(</code><code class="mi">3</code><code class="p">);</code> <code class="c1">// (D)</code>
+<code class="k">return</code><code class="p">;</code> <code class="c1">// (E)</code>
+</pre></div>
+
+</figure>
+
+<p>Initially, when the program above is started, the call stack is empty. After the function call <code>f(3)</code> in line D, the stack has one entry:</p>
+
+<ul>
+  <li>Location in global scope</li>
+</ul>
+
+<p>After the function call <code>g(x + 1)</code> in line C, the stack has two entries:</p>
+
+<ul>
+  <li>Location in <code>f</code>
+</li>
+  <li>Location in global scope</li>
+</ul>
+
+<p>After the function call <code>h(y + 1)</code> in line B, the stack has three entries:</p>
+
+<ul>
+  <li>Location in <code>g</code>
+</li>
+  <li>Location in <code>f</code>
+</li>
+  <li>Location in global scope</li>
+</ul>
+
+<p>The stack trace printed in line A shows you what the call stack looks like:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>Error
+    at h (stack_trace.js:2:17)
+    at g (stack_trace.js:6:5)
+    at f (stack_trace.js:9:5)
+    at &lt;global&gt; (stack_trace.js:11:1)
+</pre></div>
+
+</figure>
+
+<p>Next, each of the functions terminates and each time the top entry is removed from the stack. After function <code>f</code> is done, we are back in global scope and the call stack is empty. In line E we return and the stack is empty, which means that the program terminates.</p>
+
+<h3 id="sec_browser-event-loop">
+<span class="section-number">24.2 </span>The browser event loop <a class="header-anchor" href="ch_async.html#sec_browser-event-loop" aria-hidden="true">#</a></h3>
+
+<p>Simplifyingly, each browser tab runs (in) a single process: the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop"><em>event loop</em></a>. This loop executes browser-related things (so-called <em>tasks</em>) that it is fed via a <em>task queue</em>. Examples of tasks are:</p>
+
+<ol class="numeric">
+  <li>Parsing HTML</li>
+  <li>Executing JavaScript code in script elements</li>
+  <li>Reacting to user input (mouse clicks, key presses, etc.)</li>
+  <li>Processing the result of an asynchronous network request</li>
+</ol>
+
+<p>Items 2&#x2013;4 are tasks that run JavaScript code, via the engine built into the browser. They terminate when the code terminates. Then the next task from the queue can be executed. The following diagram (inspired by <a href="ch_async.html#ch_async_ref_1">a slide by Philip Roberts [1]</a>) gives an overview of how all these mechanisms are connected.</p>
+
+
+<figure class="image center">
+  <img src="images/async----event_loop.jpg" alt="" width="311.25" height="298.75">
+  <figcaption></figcaption>
+</figure>
+
+
+<p>The event loop is surrounded by other processes running in parallel to it (timers, input handling, etc.). These processes communicate with it by adding tasks to its queue.</p>
+
+<h4 id="_timers">
+<span class="section-number">24.2.1 </span>Timers <a class="header-anchor" href="ch_async.html#_timers" aria-hidden="true">#</a></h4>
+
+<p>Browsers have <a href="https://html.spec.whatwg.org/multipage/webappapis.html#timers">timers</a>. <code>setTimeout()</code> creates a timer, waits until it fires and then adds a task to the queue. It has the signature:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">setTimeout</code><code class="p">(</code><code class="nx">callback</code><code class="p">,</code> <code class="nx">ms</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<p>After <code>ms</code> milliseconds, <code>callback</code> is added to the task queue. It is important to note that <code>ms</code> only specifies when the callback is <em>added</em>, not when it actually executed. That may happen much later, especially if the event loop is blocked (as demonstrated later in this chapter).</p>
+
+<p><code>setTimeout()</code> with <code>ms</code> set to zero is a commonly used work-around to add something to the task queue right away. However, some browsers do not allow <code>ms</code> to be below a minimum (4 ms in Firefox); they set it <em>to</em> that minimum if it is.</p>
+
+<h4 id="_displaying-dom-changes">
+<span class="section-number">24.2.2 </span>Displaying DOM changes <a class="header-anchor" href="ch_async.html#_displaying-dom-changes" aria-hidden="true">#</a></h4>
+
+<p>For most DOM changes (especially those involving a re-layout), the display isn&#x2019;t updated right away. &#x201C;Layout happens off a refresh tick every 16ms&#x201D; (<a href="https://twitter.com/bz_moz/status/513777809287028736">@bz_moz</a>) and must be given a chance to run via the event loop.</p>
+
+<p>There are ways to coordinate frequent DOM updates with the browser, to avoid clashing with its layout rhythm. Consult the <a href="https://developer.mozilla.org/en/docs/Web/API/window.requestAnimationFrame">documentation</a> on <code>requestAnimationFrame()</code> for details.</p>
+
+<h4 id="_run-to-completion-semantics">
+<span class="section-number">24.2.3 </span>Run-to-completion semantics <a class="header-anchor" href="ch_async.html#_run-to-completion-semantics" aria-hidden="true">#</a></h4>
+
+<p>JavaScript has so-called run-to-completion semantics: The current task is always finished before the next task is executed. That means that each task has complete control over all current state and doesn&#x2019;t have to worry about concurrent modification.</p>
+
+<p>Let&#x2019;s look at an example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">setTimeout</code><code class="p">(</code><code class="kd">function</code> <code class="p">()</code> <code class="p">{</code> <code class="c1">// (A)</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;Second&apos;</code><code class="p">);</code>
+<code class="p">},</code> <code class="mi">0</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;First&apos;</code><code class="p">);</code> <code class="c1">// (B)</code>
+</pre></div>
+
+</figure>
+
+<p>The function starting in line A is added to the task queue immediately, but only executed after the current piece of code is done (in particular line B!). That means that this code&#x2019;s output will always be:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>First
+Second
+</pre></div>
+
+</figure>
+
+<h4 id="_blocking-the-event-loop">
+<span class="section-number">24.2.4 </span>Blocking the event loop <a class="header-anchor" href="ch_async.html#_blocking-the-event-loop" aria-hidden="true">#</a></h4>
+
+<p>As we have seen, each tab (in some browers, the complete browser) is managed by a single process &#x2013; both the user interface and all other computations. That means that you can freeze the user interface by performing a long-running computation in that process. The following code demonstrates that.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">&lt;</code><code class="nt">a</code> <code class="na">id</code><code class="o">=</code><code class="s">&quot;block&quot;</code> <code class="na">href</code><code class="o">=</code><code class="s">&quot;&quot;</code><code class="p">&gt;</code>Block for 5 seconds<code class="p">&lt;/</code><code class="nt">a</code><code class="p">&gt;</code>
+<code class="p">&lt;</code><code class="nt">p</code><code class="p">&gt;</code>
+<code class="p">&lt;</code><code class="nt">button</code><code class="p">&gt;</code>This is a button<code class="p">&lt;/</code><code class="nt">button</code><code class="p">&gt;</code>
+<code class="p">&lt;</code><code class="nt">div</code> <code class="na">id</code><code class="o">=</code><code class="s">&quot;statusMessage&quot;</code><code class="p">&gt;&lt;/</code><code class="nt">div</code><code class="p">&gt;</code>
+<code class="p">&lt;</code><code class="nt">script</code><code class="p">&gt;</code>
+    <code class="nb">document</code><code class="p">.</code><code class="nx">getElementById</code><code class="p">(</code><code class="s1">&apos;block&apos;</code><code class="p">)</code>
+    <code class="p">.</code><code class="nx">addEventListener</code><code class="p">(</code><code class="s1">&apos;click&apos;</code><code class="p">,</code> <code class="nx">onClick</code><code class="p">);</code>
+
+    <code class="kd">function</code> <code class="nx">onClick</code><code class="p">(</code><code class="nx">event</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">event</code><code class="p">.</code><code class="nx">preventDefault</code><code class="p">();</code>
+
+        <code class="nx">setStatusMessage</code><code class="p">(</code><code class="s1">&apos;Blocking...&apos;</code><code class="p">);</code>
+
+        <code class="c1">// Call setTimeout(), so that browser has time to display</code>
+        <code class="c1">// status message</code>
+        <code class="nx">setTimeout</code><code class="p">(</code><code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+            <code class="nx">sleep</code><code class="p">(</code><code class="mi">5000</code><code class="p">);</code>
+            <code class="nx">setStatusMessage</code><code class="p">(</code><code class="s1">&apos;Done&apos;</code><code class="p">);</code>
+        <code class="p">},</code> <code class="mi">0</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="kd">function</code> <code class="nx">setStatusMessage</code><code class="p">(</code><code class="nx">msg</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nb">document</code><code class="p">.</code><code class="nx">getElementById</code><code class="p">(</code><code class="s1">&apos;statusMessage&apos;</code><code class="p">).</code><code class="nx">textContent</code> <code class="o">=</code> <code class="nx">msg</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="kd">function</code> <code class="nx">sleep</code><code class="p">(</code><code class="nx">milliseconds</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kd">var</code> <code class="nx">start</code> <code class="o">=</code> <code class="nb">Date</code><code class="p">.</code><code class="nx">now</code><code class="p">();</code>
+        <code class="k">while</code> <code class="p">((</code><code class="nb">Date</code><code class="p">.</code><code class="nx">now</code><code class="p">()</code> <code class="o">-</code> <code class="nx">start</code><code class="p">)</code> <code class="o">&lt;</code> <code class="nx">milliseconds</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">&lt;/</code><code class="nt">script</code><code class="p">&gt;</code>
+</pre></div>
+
+</figure>
+
+<aside class="generic_inbar blurb github-alt icon-github-alt">
+    <p>You can try out the code <a href="http://rauschma.github.io/async-examples/blocking.html">online</a>.</p>
+
+</aside>
+
+<p>Whenever the link at the beginning is clicked, the function <code>onClick()</code> is triggered. It uses the &#x2013; synchronous &#x2013; <code>sleep()</code> function to block the event loop for five seconds. During those seconds, the user interface doesn&#x2019;t work. For example, you can&#x2019;t click the &#x201C;Simple button&#x201D;.</p>
+
+<h4 id="_avoiding-blocking">
+<span class="section-number">24.2.5 </span>Avoiding blocking <a class="header-anchor" href="ch_async.html#_avoiding-blocking" aria-hidden="true">#</a></h4>
+
+<p>You avoid blocking the event loop in two ways:</p>
+
+<p>First, you don&#x2019;t perform long-running computations in the main process, you move them to a different process. This can be achieved via the <a href="https://developer.mozilla.org/en/docs/Web/API/Worker">Worker API</a>.</p>
+
+<p>Second, you don&#x2019;t (synchronously) wait for the results of a long-running computation (your own algorithm in a Worker process, a network request, etc.), you carry on with the event loop and let the computation notify you when it is finished. In fact, you usually don&#x2019;t even have a choice in browsers and have to do things this way. For example, there is no built-in way to sleep synchronously (like the previously implemented <code>sleep()</code>). Instead, <code>setTimeout()</code> lets you sleep asynchronously.</p>
+
+<p>The next section explains techniques for waiting asynchronously for results.</p>
+
+<h3 id="sec_receiving-results-asynchronously">
+<span class="section-number">24.3 </span>Receiving results asynchronously <a class="header-anchor" href="ch_async.html#sec_receiving-results-asynchronously" aria-hidden="true">#</a></h3>
+
+<p>Two common patterns for receiving results asynchronously are: events and callbacks.</p>
+
+<h4 id="_asynchronous-results-via-events">
+<span class="section-number">24.3.1 </span>Asynchronous results via events <a class="header-anchor" href="ch_async.html#_asynchronous-results-via-events" aria-hidden="true">#</a></h4>
+
+<p>In this pattern for asynchronously receiving results, you create an object for each request and register event handlers with it: one for a successful computation, another one for handling errors. The following code shows how that works with the <code>XMLHttpRequest</code> API:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">req</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">XMLHttpRequest</code><code class="p">();</code>
+<code class="nx">req</code><code class="p">.</code><code class="nx">open</code><code class="p">(</code><code class="s1">&apos;GET&apos;</code><code class="p">,</code> <code class="nx">url</code><code class="p">);</code>
+
+<code class="nx">req</code><code class="p">.</code><code class="nx">onload</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">req</code><code class="p">.</code><code class="nx">status</code> <code class="o">==</code> <code class="mi">200</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">processData</code><code class="p">(</code><code class="nx">req</code><code class="p">.</code><code class="nx">response</code><code class="p">);</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;ERROR&apos;</code><code class="p">,</code> <code class="nx">req</code><code class="p">.</code><code class="nx">statusText</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+
+<code class="nx">req</code><code class="p">.</code><code class="nx">onerror</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;Network Error&apos;</code><code class="p">);</code>
+<code class="p">};</code>
+
+<code class="nx">req</code><code class="p">.</code><code class="nx">send</code><code class="p">();</code> <code class="c1">// Add request to task queue</code>
+</pre></div>
+
+</figure>
+
+<p>Note that the last line doesn&#x2019;t actually perform the request, it adds it to the task queue. Therefore, you could also call that method right after <code>open()</code>, before setting up <code>onload</code> and <code>onerror</code>. Things would work the same, due to JavaScript&#x2019;s run-to-completion semantics.</p>
+
+<h5 id="_implicit-requests">
+<span class="section-number">24.3.1.1 </span>Implicit requests <a class="header-anchor" href="ch_async.html#_implicit-requests" aria-hidden="true">#</a></h5>
+
+<p>The browser API IndexedDB has a slightly peculiar style of event handling:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">openRequest</code> <code class="o">=</code> <code class="nx">indexedDB</code><code class="p">.</code><code class="nx">open</code><code class="p">(</code><code class="s1">&apos;test&apos;</code><code class="p">,</code> <code class="mi">1</code><code class="p">);</code>
+
+<code class="nx">openRequest</code><code class="p">.</code><code class="nx">onsuccess</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">(</code><code class="nx">event</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;Success!&apos;</code><code class="p">);</code>
+    <code class="kd">var</code> <code class="nx">db</code> <code class="o">=</code> <code class="nx">event</code><code class="p">.</code><code class="nx">target</code><code class="p">.</code><code class="nx">result</code><code class="p">;</code>
+<code class="p">};</code>
+
+<code class="nx">openRequest</code><code class="p">.</code><code class="nx">onerror</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">(</code><code class="nx">error</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">error</code><code class="p">);</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>You first create a request object, to which you add event listeners that are notified of results. However, you don&#x2019;t need to explicitly queue the request, that is done by <code>open()</code>. It is executed after the current task is finished. That is why you can (and in fact must) register event handlers <em>after</em> calling <code>open()</code>.</p>
+
+<p>If you are used to multi-threaded programming languages, this style of handling requests probably looks strange, as if it may be prone to race conditions. But, due to run to completion, things are always safe.</p>
+
+<h5 id="_events-dont-work-well-for-single-results">
+<span class="section-number">24.3.1.2 </span>Events don&#x2019;t work well for single results <a class="header-anchor" href="ch_async.html#_events-dont-work-well-for-single-results" aria-hidden="true">#</a></h5>
+
+<p>This style of handling asynchronously computed results is OK if you receive results multiple times. If, however, there is only a single result then the verbosity becomes a problem. For that use case, callbacks have become popular.</p>
+
+<h4 id="_asynchronous-results-via-callbacks">
+<span class="section-number">24.3.2 </span>Asynchronous results via callbacks <a class="header-anchor" href="ch_async.html#_asynchronous-results-via-callbacks" aria-hidden="true">#</a></h4>
+
+<p>If you handle asynchronous results via callbacks, you pass callback functions as trailing parameters to asynchronous function or method calls.</p>
+
+<p>The following is an example in Node.js. We read the contents of a text file via an asynchronous call to <code>fs.readFile()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Node.js</code>
+<code class="nx">fs</code><code class="p">.</code><code class="nx">readFile</code><code class="p">(</code><code class="s1">&apos;myfile.txt&apos;</code><code class="p">,</code> <code class="p">{</code> <code class="nx">encoding</code><code class="o">:</code> <code class="s1">&apos;utf8&apos;</code> <code class="p">},</code>
+    <code class="kd">function</code> <code class="p">(</code><code class="nx">error</code><code class="p">,</code> <code class="nx">text</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// (A)</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">error</code><code class="p">)</code> <code class="p">{</code>
+            <code class="c1">// ...</code>
+        <code class="p">}</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">text</code><code class="p">);</code>
+    <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>If <code>readFile()</code> is successful, the callback in line A receives a result via the parameter <code>text</code>. If it isn&#x2019;t, the callback gets an error (often an instance of <code>Error</code> or a sub-constructor) via its first parameter.</p>
+
+<p>The same code in classic functional programming style would look like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Functional</code>
+<code class="nx">readFileFunctional</code><code class="p">(</code><code class="s1">&apos;myfile.txt&apos;</code><code class="p">,</code> <code class="p">{</code> <code class="nx">encoding</code><code class="o">:</code> <code class="s1">&apos;utf8&apos;</code> <code class="p">},</code>
+    <code class="kd">function</code> <code class="p">(</code><code class="nx">text</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// success</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">text</code><code class="p">);</code>
+    <code class="p">},</code>
+    <code class="kd">function</code> <code class="p">(</code><code class="nx">error</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// failure</code>
+        <code class="c1">// ...</code>
+    <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_continuation-passing-style">
+<span class="section-number">24.3.3 </span>Continuation-passing style <a class="header-anchor" href="ch_async.html#_continuation-passing-style" aria-hidden="true">#</a></h4>
+
+<p>The programming style of using callbacks (especially in the functional manner shown previously) is also called <em>continuation-passing style</em> (CPS), because the next step (the <em>continuation</em>) is explicitly passed as a parameter. This gives an invoked function more control over what happens next and when.</p>
+
+<p>The following code illustrates CPS:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;A&apos;</code><code class="p">);</code>
+<code class="nx">identity</code><code class="p">(</code><code class="s1">&apos;B&apos;</code><code class="p">,</code> <code class="kd">function</code> <code class="nx">step2</code><code class="p">(</code><code class="nx">result2</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result2</code><code class="p">);</code>
+    <code class="nx">identity</code><code class="p">(</code><code class="s1">&apos;C&apos;</code><code class="p">,</code> <code class="kd">function</code> <code class="nx">step3</code><code class="p">(</code><code class="nx">result3</code><code class="p">)</code> <code class="p">{</code>
+       <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result3</code><code class="p">);</code>
+    <code class="p">});</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;D&apos;</code><code class="p">);</code>
+<code class="p">});</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;E&apos;</code><code class="p">);</code>
+
+<code class="c1">// Output: A E B D C</code>
+
+<code class="kd">function</code> <code class="nx">identity</code><code class="p">(</code><code class="nx">input</code><code class="p">,</code> <code class="nx">callback</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">setTimeout</code><code class="p">(</code><code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+        <code class="nx">callback</code><code class="p">(</code><code class="nx">input</code><code class="p">);</code>
+    <code class="p">},</code> <code class="mi">0</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>For each step, the control flow of the program continues inside the callback. This leads to nested functions, which are sometimes referred to as <em>callback hell</em>. However, you can often avoid nesting, because JavaScript&#x2019;s function declarations are <em>hoisted</em> (their definitions are evaluated at the beginning of their scope). That means that you can call ahead and invoke functions defined later in the program. The following code uses hoisting to flatten the previous example.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;A&apos;</code><code class="p">);</code>
+<code class="nx">identity</code><code class="p">(</code><code class="s1">&apos;B&apos;</code><code class="p">,</code> <code class="nx">step2</code><code class="p">);</code>
+<code class="kd">function</code> <code class="nx">step2</code><code class="p">(</code><code class="nx">result2</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// The program continues here</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result2</code><code class="p">);</code>
+    <code class="nx">identity</code><code class="p">(</code><code class="s1">&apos;C&apos;</code><code class="p">,</code> <code class="nx">step3</code><code class="p">);</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;D&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">step3</code><code class="p">(</code><code class="nx">result3</code><code class="p">)</code> <code class="p">{</code>
+   <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">result3</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;E&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p><a href="ch_async.html#ch_async_ref_3">More information on CPS is given in [3]</a>.</p>
+
+<h4 id="_composing-code-in-cps">
+<span class="section-number">24.3.4 </span>Composing code in CPS <a class="header-anchor" href="ch_async.html#_composing-code-in-cps" aria-hidden="true">#</a></h4>
+
+<p>In normal JavaScript style, you compose pieces of code via:</p>
+
+<ol class="numeric">
+  <li>Putting them one after another. This is blindingly obvious, but it&#x2019;s good to remind ourselves that concatenating code in normal style is sequential composition.</li>
+  <li>Array methods such as <code>map()</code>, <code>filter()</code> and <code>forEach()</code>
+</li>
+  <li>Loops such as <code>for</code> and <code>while</code>
+</li>
+</ol>
+
+<p>The library <a href="https://github.com/caolan/async">Async.js</a> provides combinators to let you do similar things in CPS, with Node.js-style callbacks. It is used in the following example to load the contents of three files, whose names are stored in an Array.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">async</code> <code class="o">=</code> <code class="nx">require</code><code class="p">(</code><code class="s1">&apos;async&apos;</code><code class="p">);</code>
+
+<code class="kd">var</code> <code class="nx">fileNames</code> <code class="o">=</code> <code class="p">[</code> <code class="s1">&apos;foo.txt&apos;</code><code class="p">,</code> <code class="s1">&apos;bar.txt&apos;</code><code class="p">,</code> <code class="s1">&apos;baz.txt&apos;</code> <code class="p">];</code>
+<code class="nx">async</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">fileNames</code><code class="p">,</code>
+    <code class="kd">function</code> <code class="p">(</code><code class="nx">fileName</code><code class="p">,</code> <code class="nx">callback</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">fs</code><code class="p">.</code><code class="nx">readFile</code><code class="p">(</code><code class="nx">fileName</code><code class="p">,</code> <code class="p">{</code> <code class="nx">encoding</code><code class="o">:</code> <code class="s1">&apos;utf8&apos;</code> <code class="p">},</code> <code class="nx">callback</code><code class="p">);</code>
+    <code class="p">},</code>
+    <code class="c1">// Process the result</code>
+    <code class="kd">function</code> <code class="p">(</code><code class="nx">error</code><code class="p">,</code> <code class="nx">textArray</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">error</code><code class="p">)</code> <code class="p">{</code>
+            <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">error</code><code class="p">);</code>
+            <code class="k">return</code><code class="p">;</code>
+        <code class="p">}</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;TEXTS:\n&apos;</code> <code class="o">+</code> <code class="nx">textArray</code><code class="p">.</code><code class="nx">join</code><code class="p">(</code><code class="s1">&apos;\n----\n&apos;</code><code class="p">));</code>
+    <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_pros-and-cons-of-callbacks">
+<span class="section-number">24.3.5 </span>Pros and cons of callbacks <a class="header-anchor" href="ch_async.html#_pros-and-cons-of-callbacks" aria-hidden="true">#</a></h4>
+
+<p>Using callbacks results in a radically different programming style, CPS. The main advantage of CPS is that its basic mechanisms are easy to understand. But there are also disadvantages:</p>
+
+<ul>
+  <li>Error handling becomes more complicated: There are now two ways in which errors are reported &#x2013; via callbacks and via exceptions. You have to be careful to combine both properly.</li>
+  <li>Less elegant signatures: In synchronous functions, there is a clear separation of concerns between input (parameters) and output (function result). In asynchronous functions that use callbacks, these concerns are mixed: the function result doesn&#x2019;t matter and some parameters are used for input, others for output.</li>
+  <li>Composition is more complicated: Because the concern &#x201C;output&#x201D; shows up in the parameters, it is more complicated to compose code via combinators.</li>
+</ul>
+
+<p>Callbacks in Node.js style have three disadvantages (compared to those in a functional style):</p>
+
+<ul>
+  <li>The <code>if</code> statement for error handling adds verbosity.</li>
+  <li>Reusing error handlers is harder.</li>
+  <li>Providing a default error handler is also harder. A default error handler is useful if you make a function call and don&#x2019;t want to write your own handler. It could also be used by a function if a caller doesn&#x2019;t specify a handler.</li>
+</ul>
+
+<h3 id="sec_looking-ahead-async">
+<span class="section-number">24.4 </span>Looking ahead <a class="header-anchor" href="ch_async.html#sec_looking-ahead-async" aria-hidden="true">#</a></h3>
+
+<p>The next chapter covers Promises and the ES6 Promise API. Promises are more complicated under the hood than callbacks. In exchange, they bring several significant advantages and eliminate most of the aforementioned cons of callbacks.</p>
+
+<h3 id="sec_further-reading-async">
+<span class="section-number">24.5 </span>Further reading <a class="header-anchor" href="ch_async.html#sec_further-reading-async" aria-hidden="true">#</a></h3>
+
+<p id="ch_async_ref_1">[1] &#x201C;<a href="http://vimeo.com/96425312">Help, I&#x2019;m stuck in an event-loop</a>&#x201D; by Philip Roberts (video).</p>
+
+<p id="ch_async_ref_2">[2] &#x201C;<a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loops">Event loops</a>&#x201D; in the HTML Specification.</p>
+
+<p id="ch_async_ref_3">[3] &#x201C;<a href="http://www.2ality.com/2012/06/continuation-passing-style.html">Asynchronous programming and continuation-passing style in JavaScript</a>&#x201D; by Axel Rauschmayer.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_promises.html">25. Promises for asynchronous programming</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

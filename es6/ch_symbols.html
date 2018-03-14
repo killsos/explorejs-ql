@@ -1,0 +1,1183 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>7. Symbols</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>7. Symbols</b><br>
+        <a href="index.html#toc_ch_symbols">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_symbols">
+<span class="section-number">7. </span>Symbols <a class="header-anchor" href="ch_symbols.html#ch_symbols" aria-hidden="true">#</a></h2>
+
+<hr class="scene-break">
+
+<ul>
+  <li>7.1. <a href="ch_symbols.html#sec_overview-symbols">Overview</a>
+    <ul>
+      <li>7.1.1. Use case 1: unique property keys</li>
+      <li>7.1.2. Use case 2: constants representing concepts</li>
+      <li>7.1.3. Pitfall: you can&#x2019;t coerce symbols to strings</li>
+      <li>7.1.4. Which operations related to property keys are aware of symbols?</li>
+    </ul>
+  </li>
+  <li>7.2. <a href="ch_symbols.html#sec_primitive-type-symbol">A new primitive type</a>
+    <ul>
+      <li>7.2.1. Symbols as property keys</li>
+      <li>7.2.2. Enumerating own property keys</li>
+    </ul>
+  </li>
+  <li>7.3. <a href="ch_symbols.html#sec_symbols-for-concepts">Using symbols to represent concepts</a>
+</li>
+  <li>7.4. <a href="ch_symbols.html#sec_symbols-as-prop-keys">Symbols as keys of properties</a>
+    <ul>
+      <li>7.4.1. Symbols as keys of non-public properties</li>
+      <li>7.4.2. Symbols as keys of meta-level properties</li>
+      <li>7.4.3. Examples of name clashes in JavaScript&#x2019;s standard library</li>
+    </ul>
+  </li>
+  <li>7.5. <a href="ch_symbols.html#sec_converting-symbols-to-primitives">Converting symbols to other primitive types</a>
+    <ul>
+      <li>7.5.1. Pitfall: coercion to string</li>
+      <li>7.5.2. Making sense of the coercion rules</li>
+      <li>7.5.3. Explicit and implicit conversion in the spec</li>
+    </ul>
+  </li>
+  <li>7.6. <a href="ch_symbols.html#sec_symbol-wrapper-objects">Wrapper objects for symbols</a>
+    <ul>
+      <li>7.6.1. Accessing properties via <code>[ ]</code> and wrapped keys</li>
+    </ul>
+  </li>
+  <li>7.7. <a href="ch_symbols.html#sec_symbols-crossing-realms">Crossing realms with symbols</a>
+</li>
+  <li>7.8. <a href="ch_symbols.html#sec_faq-symbols">FAQ: symbols</a>
+    <ul>
+      <li>7.8.1. Can I use symbols to define private properties?</li>
+      <li>7.8.2. Are symbols primitives or objects?</li>
+      <li>7.8.3. Do we really need symbols? Aren&#x2019;t strings enough?</li>
+      <li>7.8.4. Are JavaScript&#x2019;s symbols like Ruby&#x2019;s symbols?</li>
+    </ul>
+  </li>
+  <li>7.9. <a href="ch_symbols.html#sec_spelling-well-known-symbols">The spelling of well-known symbols: why <code>Symbol.iterator</code> and not <code>Symbol.ITERATOR</code> (etc.)?</a>
+</li>
+  <li>7.10. <a href="ch_symbols.html#sec_symbol-api">The symbol API</a>
+    <ul>
+      <li>7.10.1. The function <code>Symbol</code>
+</li>
+      <li>7.10.2. Methods of symbols</li>
+      <li>7.10.3. Converting symbols to other values</li>
+      <li>7.10.4. Well-known symbols</li>
+      <li>7.10.5. Global symbol registry</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-symbols">
+<span class="section-number">7.1 </span>Overview <a class="header-anchor" href="ch_symbols.html#sec_overview-symbols" aria-hidden="true">#</a></h3>
+
+<p>Symbols are a new primitive type in ECMAScript 6. They are created via a factory function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">mySymbol</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;mySymbol&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>Every time you call the factory function, a new and unique symbol is created. The optional parameter is a descriptive string that is shown when printing the symbol (it has no other purpose):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; mySymbol
+Symbol(mySymbol)
+</pre></div>
+
+</figure>
+
+<h4 id="_use-case-1-unique-property-keys">
+<span class="section-number">7.1.1 </span>Use case 1: unique property keys <a class="header-anchor" href="ch_symbols.html#_use-case-1-unique-property-keys" aria-hidden="true">#</a></h4>
+
+<p>Symbols are mainly used as unique property keys &#x2013; a symbol never clashes with any other property key (symbol or string). For example, you can make an object <em>iterable</em> (usable via the <code>for-of</code> loop and other language mechanisms), by using the symbol stored in <code>Symbol.iterator</code> as the key of a method (more information on iterables is given in <a href="ch_iteration.html#ch_iteration">the chapter on iteration</a>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">iterableObject</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code> <code class="c1">// (A)</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterableObject</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// hello</code>
+<code class="c1">// world</code>
+</pre></div>
+
+</figure>
+
+<p>In line A, a symbol is used as the key of the method. This unique marker makes the object iterable and enables us to use the <code>for-of</code> loop.</p>
+
+<h4 id="_use-case-2-constants-representing-concepts">
+<span class="section-number">7.1.2 </span>Use case 2: constants representing concepts <a class="header-anchor" href="ch_symbols.html#_use-case-2-constants-representing-concepts" aria-hidden="true">#</a></h4>
+
+<p>In ECMAScript 5, you may have used strings to represent concepts such as colors. In ES6, you can use symbols and be sure that they are always unique:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">COLOR_RED</code>    <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Red&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_ORANGE</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Orange&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_YELLOW</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Yellow&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_GREEN</code>  <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Green&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_BLUE</code>   <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Blue&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_VIOLET</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Violet&apos;</code><code class="p">);</code>
+
+<code class="kd">function</code> <code class="nx">getComplement</code><code class="p">(</code><code class="nx">color</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">switch</code> <code class="p">(</code><code class="nx">color</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">case</code> <code class="nx">COLOR_RED</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_GREEN</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_ORANGE</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_BLUE</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_YELLOW</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_VIOLET</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_GREEN</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_RED</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_BLUE</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_ORANGE</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_VIOLET</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_YELLOW</code><code class="p">;</code>
+        <code class="k">default</code><code class="o">:</code>
+            <code class="k">throw</code> <code class="k">new</code> <code class="nx">Exception</code><code class="p">(</code><code class="s1">&apos;Unknown color: &apos;</code><code class="o">+</code><code class="nx">color</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Every time you call <code>Symbol(&apos;Red&apos;)</code>, a new symbol is created. Therefore, <code>COLOR_RED</code> can never be mistaken for another value. That would be different if it were the string <code>&apos;Red&apos;</code>.</p>
+
+<h4 id="_pitfall-you-cant-coerce-symbols-to-strings">
+<span class="section-number">7.1.3 </span>Pitfall: you can&#x2019;t coerce symbols to strings <a class="header-anchor" href="ch_symbols.html#_pitfall-you-cant-coerce-symbols-to-strings" aria-hidden="true">#</a></h4>
+
+<p>Coercing (implicitly converting) symbols to strings throws exceptions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">sym</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;desc&apos;</code><code class="p">);</code>
+
+<code class="kr">const</code> <code class="nx">str1</code> <code class="o">=</code> <code class="s1">&apos;&apos;</code> <code class="o">+</code> <code class="nx">sym</code><code class="p">;</code> <code class="c1">// TypeError</code>
+<code class="kr">const</code> <code class="nx">str2</code> <code class="o">=</code> <code class="sb">`</code><code class="si">${</code><code class="nx">sym</code><code class="si">}</code><code class="sb">`</code><code class="p">;</code> <code class="c1">// TypeError</code>
+</pre></div>
+
+</figure>
+
+<p>The only solution is to convert explicitly:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">str2</code> <code class="o">=</code> <code class="nb">String</code><code class="p">(</code><code class="nx">sym</code><code class="p">);</code> <code class="c1">// &apos;Symbol(desc)&apos;</code>
+<code class="kr">const</code> <code class="nx">str3</code> <code class="o">=</code> <code class="nx">sym</code><code class="p">.</code><code class="nx">toString</code><code class="p">();</code> <code class="c1">// &apos;Symbol(desc)&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>Forbidding coercion prevents some errors, but also makes working with symbols more complicated.</p>
+
+<h4 id="_which-operations-related-to-property-keys-are-aware-of-symbols">
+<span class="section-number">7.1.4 </span>Which operations related to property keys are aware of symbols? <a class="header-anchor" href="ch_symbols.html#_which-operations-related-to-property-keys-are-aware-of-symbols" aria-hidden="true">#</a></h4>
+
+<p>The following operations are aware of symbols as property keys:</p>
+
+<ul>
+  <li><code>Reflect.ownKeys()</code></li>
+  <li>Property access via <code>[]</code>
+</li>
+  <li><code>Object.assign()</code></li>
+</ul>
+
+<p>The following operations ignore symbols as property keys:</p>
+
+<ul>
+  <li><code>Object.keys()</code></li>
+  <li><code>Object.getOwnPropertyNames()</code></li>
+  <li>
+<code>for-in</code> loop</li>
+</ul>
+
+
+<h3 id="sec_primitive-type-symbol">
+<span class="section-number">7.2 </span>A new primitive type <a class="header-anchor" href="ch_symbols.html#sec_primitive-type-symbol" aria-hidden="true">#</a></h3>
+
+<p>ECMAScript 6 introduces a new primitive type: symbols. They are tokens that serve as unique IDs. You create symbols via the factory function <code>Symbol()</code> (which is loosely similar to <code>String</code> returning strings if called as a function):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">symbol1</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p><code>Symbol()</code> has an optional string-valued parameter that lets you give the newly created Symbol a description. That description is used when the symbol is converted to a string (via <code>toString()</code> or <code>String()</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const symbol2 = Symbol(&apos;symbol2&apos;);
+&gt; String(symbol2)
+&apos;Symbol(symbol2)&apos;
+</pre></div>
+
+</figure>
+
+<p>Every symbol returned by <code>Symbol()</code> is unique, every symbol has its own identity:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Symbol() === Symbol()
+false
+</pre></div>
+
+</figure>
+
+<p>You can see that symbols are primitive if you apply the <code>typeof</code> operator to one of them &#x2013; it will return a new symbol-specific result:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; typeof Symbol()
+&apos;symbol&apos;
+</pre></div>
+
+</figure>
+
+<h4 id="_symbols-as-property-keys">
+<span class="section-number">7.2.1 </span>Symbols as property keys <a class="header-anchor" href="ch_symbols.html#_symbols-as-property-keys" aria-hidden="true">#</a></h4>
+
+<p>Symbols can be used as property keys:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">MY_KEY</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">();</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{};</code>
+
+<code class="nx">obj</code><code class="p">[</code><code class="nx">MY_KEY</code><code class="p">]</code> <code class="o">=</code> <code class="mi">123</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">[</code><code class="nx">MY_KEY</code><code class="p">]);</code> <code class="c1">// 123</code>
+</pre></div>
+
+</figure>
+
+<p>Classes and object literals have a feature called <em>computed property keys</em>: You can specify the key of a property via an expression, by putting it in square brackets. In the following object literal, we use a computed property key to make the value of <code>MY_KEY</code> the key of a property.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">MY_KEY</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">();</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">MY_KEY</code><code class="p">]</code><code class="o">:</code> <code class="mi">123</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>A method definition can also have a computed key:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">FOO</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">();</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">FOO</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="s1">&apos;bar&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">[</code><code class="nx">FOO</code><code class="p">]());</code> <code class="c1">// bar</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_enumerating-own-property-keys">
+<span class="section-number">7.2.2 </span>Enumerating own property keys <a class="header-anchor" href="ch_symbols.html#_enumerating-own-property-keys" aria-hidden="true">#</a></h4>
+
+<p>Given that there is now a new kind of value that can become the key of a property, the following terminology is used for ECMAScript 6:</p>
+
+<ul>
+  <li>
+<em>Property keys</em> are either strings or symbols.</li>
+  <li>String-valued property keys are called <em>property names</em>.</li>
+  <li>Symbol-valued property keys are called <em>property symbols</em>.</li>
+</ul>
+
+<p>Let&#x2019;s examine the APIs for enumerating own property keys by first creating an object.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;my_key&apos;</code><code class="p">)]</code><code class="o">:</code> <code class="mi">1</code><code class="p">,</code>
+    <code class="kr">enum</code><code class="o">:</code> <code class="mi">2</code><code class="p">,</code>
+    <code class="nx">nonEnum</code><code class="o">:</code> <code class="mi">3</code>
+<code class="p">};</code>
+<code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperty</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code>
+    <code class="s1">&apos;nonEnum&apos;</code><code class="p">,</code> <code class="p">{</code> <code class="nx">enumerable</code><code class="o">:</code> <code class="kc">false</code> <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p><code>Object.getOwnPropertyNames()</code> ignores symbol-valued property keys:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Object.getOwnPropertyNames(obj)
+[&apos;enum&apos;, &apos;nonEnum&apos;]
+</pre></div>
+
+</figure>
+
+<p><code>Object.getOwnPropertySymbols()</code> ignores string-valued property keys:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Object.getOwnPropertySymbols(obj)
+[Symbol(my_key)]
+</pre></div>
+
+</figure>
+
+<p><code>Reflect.ownKeys()</code> considers all kinds of keys:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Reflect.ownKeys(obj)
+[Symbol(my_key), &apos;enum&apos;, &apos;nonEnum&apos;]
+</pre></div>
+
+</figure>
+
+<p><code>Object.keys()</code> only considers enumerable property keys that are strings:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Object.keys(obj)
+[&apos;enum&apos;]
+</pre></div>
+
+</figure>
+
+<p>The name <code>Object.keys</code> clashes with the new terminology (only string keys are listed). <code>Object.names</code> or <code>Object.getEnumerableOwnPropertyNames</code> would be a better choice now.</p>
+
+
+<h3 id="sec_symbols-for-concepts">
+<span class="section-number">7.3 </span>Using symbols to represent concepts <a class="header-anchor" href="ch_symbols.html#sec_symbols-for-concepts" aria-hidden="true">#</a></h3>
+
+<p>In ECMAScript 5, one often represents concepts (think enum constants) via strings. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">COLOR_RED</code>    <code class="o">=</code> <code class="s1">&apos;Red&apos;</code><code class="p">;</code>
+<code class="kd">var</code> <code class="nx">COLOR_ORANGE</code> <code class="o">=</code> <code class="s1">&apos;Orange&apos;</code><code class="p">;</code>
+<code class="kd">var</code> <code class="nx">COLOR_YELLOW</code> <code class="o">=</code> <code class="s1">&apos;Yellow&apos;</code><code class="p">;</code>
+<code class="kd">var</code> <code class="nx">COLOR_GREEN</code>  <code class="o">=</code> <code class="s1">&apos;Green&apos;</code><code class="p">;</code>
+<code class="kd">var</code> <code class="nx">COLOR_BLUE</code>   <code class="o">=</code> <code class="s1">&apos;Blue&apos;</code><code class="p">;</code>
+<code class="kd">var</code> <code class="nx">COLOR_VIOLET</code> <code class="o">=</code> <code class="s1">&apos;Violet&apos;</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>However, strings are not as unique as we&#x2019;d like them to be. To see why, let&#x2019;s look at the following function.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">getComplement</code><code class="p">(</code><code class="nx">color</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">switch</code> <code class="p">(</code><code class="nx">color</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">case</code> <code class="nx">COLOR_RED</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_GREEN</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_ORANGE</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_BLUE</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_YELLOW</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_VIOLET</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_GREEN</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_RED</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_BLUE</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_ORANGE</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_VIOLET</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_YELLOW</code><code class="p">;</code>
+        <code class="k">default</code><code class="o">:</code>
+            <code class="k">throw</code> <code class="k">new</code> <code class="nx">Exception</code><code class="p">(</code><code class="s1">&apos;Unknown color: &apos;</code><code class="o">+</code><code class="nx">color</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>It is noteworthy that you can use arbitrary expressions as <code>switch</code> cases, you are not limited in any way. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">isThree</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">switch</code> <code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">case</code> <code class="mi">1</code> <code class="o">+</code> <code class="mi">1</code> <code class="o">+</code> <code class="mi">1</code><code class="o">:</code>
+            <code class="k">return</code> <code class="kc">true</code><code class="p">;</code>
+        <code class="k">default</code><code class="o">:</code>
+            <code class="k">return</code> <code class="kc">false</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>We use the flexibility that <code>switch</code> offers us and refer to the colors via our constants (<code>COLOR_RED</code> etc.) instead of hard-coding them (<code>&apos;RED&apos;</code> etc.).</p>
+
+<p>Interestingly, even though we do so, there can still be mix-ups. For example, someone may define a constant for a mood:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">MOOD_BLUE</code> <code class="o">=</code> <code class="s1">&apos;BLUE&apos;</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>Now the value of <code>BLUE</code> is not unique anymore and <code>MOOD_BLUE</code> can be mistaken for it. If you use it as a parameter for <code>getComplement()</code>, it returns <code>&apos;ORANGE&apos;</code> where it should throw an exception.</p>
+
+<p>Let&#x2019;s use symbols to fix this example. Now we can also use <a href="ch_variables.html#sec_let-const">the ES6 feature <code>const</code></a>, which lets us declare actual constants (you can&#x2019;t change what value is bound to a constant, but the value itself may be mutable).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">COLOR_RED</code>    <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Red&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_ORANGE</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Orange&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_YELLOW</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Yellow&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_GREEN</code>  <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Green&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_BLUE</code>   <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Blue&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_VIOLET</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Violet&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>Each value returned by <code>Symbol</code> is unique, which is why no other value can be mistaken for <code>BLUE</code> now. Intriguingly, the code of <code>getComplement()</code> doesn&#x2019;t change at all if we use symbols instead of strings, which shows how similar they are.</p>
+
+
+<h3 id="sec_symbols-as-prop-keys">
+<span class="section-number">7.4 </span>Symbols as keys of properties <a class="header-anchor" href="ch_symbols.html#sec_symbols-as-prop-keys" aria-hidden="true">#</a></h3>
+
+<p>Being able to create properties whose keys never clash with other keys is useful in two situations:</p>
+
+<ul>
+  <li>For non-public properties in inheritance hierarchies.</li>
+  <li>To keep meta-level properties from clashing with base-level properties.</li>
+</ul>
+
+<h4 id="_symbols-as-keys-of-non-public-properties">
+<span class="section-number">7.4.1 </span>Symbols as keys of non-public properties <a class="header-anchor" href="ch_symbols.html#_symbols-as-keys-of-non-public-properties" aria-hidden="true">#</a></h4>
+
+<p>Whenever there are inheritance hierarchies in JavaScript (e.g. created via classes, mixins or a purely prototypal approach), you have two kinds of properties:</p>
+
+<ul>
+  <li>
+<em>Public properties</em> are seen by clients of the code.</li>
+  <li>
+<em>Private properties</em> are used internally within the pieces (e.g. classes, mixins or objects) that make up the inheritance hierarchy. (<em>Protected properties</em> are shared between several pieces and face the same issues as private properties.)</li>
+</ul>
+
+<p>For usability&#x2019;s sake, public properties usually have string keys. But for private properties with string keys, accidental name clashes can become a problem. Therefore, symbols are a good choice. For example, in the following code, symbols are used for the private properties <code>_counter</code> and <code>_action</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">_counter</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;counter&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">_action</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;action&apos;</code><code class="p">);</code>
+<code class="kr">class</code> <code class="nx">Countdown</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">counter</code><code class="p">,</code> <code class="nx">action</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">[</code><code class="nx">_counter</code><code class="p">]</code> <code class="o">=</code> <code class="nx">counter</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">[</code><code class="nx">_action</code><code class="p">]</code> <code class="o">=</code> <code class="nx">action</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">dec</code><code class="p">()</code> <code class="p">{</code>
+        <code class="kd">let</code> <code class="nx">counter</code> <code class="o">=</code> <code class="k">this</code><code class="p">[</code><code class="nx">_counter</code><code class="p">];</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">counter</code> <code class="o">&lt;</code> <code class="mi">1</code><code class="p">)</code> <code class="k">return</code><code class="p">;</code>
+        <code class="nx">counter</code><code class="o">--</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">[</code><code class="nx">_counter</code><code class="p">]</code> <code class="o">=</code> <code class="nx">counter</code><code class="p">;</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">counter</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+            <code class="k">this</code><code class="p">[</code><code class="nx">_action</code><code class="p">]();</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Note that symbols only protect you from name clashes, not from unauthorized access, because you can find out all own property keys &#x2013; including symbols &#x2013; of an object via <code>Reflect.ownKeys()</code>. If you want protection there, as well, you can use one of the approaches listed in Sect. &#x201C;<a href="ch_classes.html#sec_private-data-for-classes">Private data for classes</a>&#x201D;.</p>
+
+<h4 id="_symbols-as-keys-of-meta-level-properties">
+<span class="section-number">7.4.2 </span>Symbols as keys of meta-level properties <a class="header-anchor" href="ch_symbols.html#_symbols-as-keys-of-meta-level-properties" aria-hidden="true">#</a></h4>
+
+<p>Symbols having unique identities makes them ideal as keys of public properties that exist on a different level than &#x201C;normal&#x201D; property keys, because meta-level keys and normal keys must not clash. One example of meta-level properties are methods that objects can implement to customize how they are treated by a library. Using symbol keys protects the library from mistaking normal methods as customization methods.</p>
+
+<p><a href="ch_iteration.html#ch_iteration">ES6 <em>Iterability</em></a> is one such customization. An object is <em>iterable</em> if it has a method whose key is the symbol (stored in) <code>Symbol.iterator</code>. In the following code, <code>obj</code> is iterable.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">data</code><code class="o">:</code> <code class="p">[</code> <code class="s1">&apos;hello&apos;</code><code class="p">,</code> <code class="s1">&apos;world&apos;</code> <code class="p">],</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>The iterability of <code>obj</code> enables you to use the <code>for-of</code> loop and similar JavaScript features:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// hello</code>
+<code class="c1">// world</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_examples-of-name-clashes-in-javascripts-standard-library">
+<span class="section-number">7.4.3 </span>Examples of name clashes in JavaScript&#x2019;s standard library <a class="header-anchor" href="ch_symbols.html#_examples-of-name-clashes-in-javascripts-standard-library" aria-hidden="true">#</a></h4>
+
+<p>In case you think that name clashes don&#x2019;t matter, here are three examples of where name clashes caused problems in the evolution of the JavaScript standard library:</p>
+
+<ul>
+  <li>When the new method <code>Array.prototype.values()</code> was created, it broke existing code where <code>with</code> was used with an Array and shadowed a variable <code>values</code> in an outer scope (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=881782">bug report 1</a>, <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=883914">bug report 2</a>). Therefore, a mechanism was introduced to hide properties from <code>with</code> (<a href="ch_oop-besides-classes.html#Symbol_unscopables"><code>Symbol.unscopables</code></a>).</li>
+  <li>
+<code>String.prototype.contains</code> clashed with a method added by MooTools and had to be renamed to <code>String.prototype.includes</code> (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=789036">bug report</a>).</li>
+  <li>The ES2016 method <code>Array.prototype.contains</code> also clashed with a method added by MooTools and had to be renamed to <code>Array.prototype.includes</code> (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1075059">bug report</a>).</li>
+</ul>
+
+<p>In contrast, <a href="ch_iteration.html#ch_iteration">adding iterability to an object via the property key <code>Symbol.iterator</code></a> can&#x2019;t cause problems, because that key doesn&#x2019;t clash with anything.</p>
+
+
+<h3 id="sec_converting-symbols-to-primitives">
+<span class="section-number">7.5 </span>Converting symbols to other primitive types <a class="header-anchor" href="ch_symbols.html#sec_converting-symbols-to-primitives" aria-hidden="true">#</a></h3>
+
+<p>The following table shows what happens if you explicitly or implicitly convert symbols to other primitive types:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Conversion to</th>
+      <th>Explicit conversion</th>
+      <th>Coercion (implicit conversion)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>boolean</td>
+      <td>
+<code>Boolean(sym)</code> &#x2192; OK</td>
+      <td>
+<code>!sym</code> &#x2192; OK</td>
+    </tr>
+    <tr>
+      <td>number</td>
+      <td>
+<code>Number(sym)</code> &#x2192; <code>TypeError</code>
+</td>
+      <td>
+<code>sym*2</code> &#x2192; <code>TypeError</code>
+</td>
+    </tr>
+    <tr>
+      <td>string</td>
+      <td>
+<code>String(sym)</code> &#x2192; OK</td>
+      <td>
+<code>&apos;&apos;+sym</code> &#x2192; <code>TypeError</code>
+</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>
+<code>sym.toString()</code> &#x2192; OK</td>
+      <td>
+<code>`${sym}`</code> &#x2192; <code>TypeError</code>
+</td>
+    </tr>
+  </tbody>
+
+</table>
+
+
+<h4 id="_pitfall-coercion-to-string">
+<span class="section-number">7.5.1 </span>Pitfall: coercion to string <a class="header-anchor" href="ch_symbols.html#_pitfall-coercion-to-string" aria-hidden="true">#</a></h4>
+
+<p>Coercion to string being forbidden can easily trip you up:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">sym</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">();</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;A symbol: &apos;</code><code class="o">+</code><code class="nx">sym</code><code class="p">);</code> <code class="c1">// TypeError</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`A symbol: </code><code class="si">${</code><code class="nx">sym</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code> <code class="c1">// TypeError</code>
+</pre></div>
+
+</figure>
+
+<p>To fix these problems, you need an explicit conversion to string:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;A symbol: &apos;</code><code class="o">+</code><code class="nb">String</code><code class="p">(</code><code class="nx">sym</code><code class="p">));</code> <code class="c1">// OK</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`A symbol: </code><code class="si">${</code><code class="nb">String</code><code class="p">(</code><code class="nx">sym</code><code class="p">)</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code> <code class="c1">// OK</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_making-sense-of-the-coercion-rules">
+<span class="section-number">7.5.2 </span>Making sense of the coercion rules <a class="header-anchor" href="ch_symbols.html#_making-sense-of-the-coercion-rules" aria-hidden="true">#</a></h4>
+
+<p>Coercion (implicit conversion) is often forbidden for symbols. This section explains why.</p>
+
+<h5 id="_truthiness-checks-are-allowed">
+<span class="section-number">7.5.2.1 </span>Truthiness checks are allowed <a class="header-anchor" href="ch_symbols.html#_truthiness-checks-are-allowed" aria-hidden="true">#</a></h5>
+
+<p>Coercion to boolean is always allowed, mainly to enable truthiness checks in <code>if</code> statements and other locations:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">if</code> <code class="p">(</code><code class="nx">value</code><code class="p">)</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+
+<code class="nx">param</code> <code class="o">=</code> <code class="nx">param</code> <code class="o">||</code> <code class="mi">0</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_accidentally-turning-symbols-into-property-keys">
+<span class="section-number">7.5.2.2 </span>Accidentally turning symbols into property keys <a class="header-anchor" href="ch_symbols.html#_accidentally-turning-symbols-into-property-keys" aria-hidden="true">#</a></h5>
+
+<p>Symbols are special property keys, which is why you want to avoid accidentally converting them to strings, which are a different kind of property keys. This could happen if you use the addition operator to compute the name of a property:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">myObject</code><code class="p">[</code><code class="s1">&apos;__&apos;</code> <code class="o">+</code> <code class="nx">value</code><code class="p">]</code>
+</pre></div>
+
+</figure>
+
+<p>That&#x2019;s why a <code>TypeError</code> is thrown if <code>value</code> is a symbol.</p>
+
+<h5 id="_accidentally-turning-symbols-into-array-indices">
+<span class="section-number">7.5.2.3 </span>Accidentally turning symbols into Array indices <a class="header-anchor" href="ch_symbols.html#_accidentally-turning-symbols-into-array-indices" aria-hidden="true">#</a></h5>
+
+<p>You also don&#x2019;t want to accidentally turn symbols into Array indices. The following is code where that could happen if <code>value</code> is a symbol:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">myArray</code><code class="p">[</code><code class="mi">1</code> <code class="o">+</code> <code class="nx">value</code><code class="p">]</code>
+</pre></div>
+
+</figure>
+
+<p>That&#x2019;s why the addition operator throws an error in this case.</p>
+
+<h4 id="_explicit-and-implicit-conversion-in-the-spec">
+<span class="section-number">7.5.3 </span>Explicit and implicit conversion in the spec <a class="header-anchor" href="ch_symbols.html#_explicit-and-implicit-conversion-in-the-spec" aria-hidden="true">#</a></h4>
+
+<h5 id="_converting-to-boolean">
+<span class="section-number">7.5.3.1 </span>Converting to boolean <a class="header-anchor" href="ch_symbols.html#_converting-to-boolean" aria-hidden="true">#</a></h5>
+
+<p>To explicitly convert a symbol to boolean, you call <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-boolean-constructor-boolean-value"><code>Boolean()</code></a>, which returns <code>true</code> for symbols:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const sym = Symbol(&apos;hello&apos;);
+&gt; Boolean(sym)
+true
+</pre></div>
+
+</figure>
+
+<p><code>Boolean()</code> computes its result via the internal operation <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-toboolean"><code>ToBoolean()</code></a>, which returns <code>true</code> for symbols and other truthy values.</p>
+
+<p>Coercion also uses <code>ToBoolean()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; !sym
+false
+</pre></div>
+
+</figure>
+
+<h5 id="_converting-to-number">
+<span class="section-number">7.5.3.2 </span>Converting to number <a class="header-anchor" href="ch_symbols.html#_converting-to-number" aria-hidden="true">#</a></h5>
+
+<p>To explicitly convert a symbol to number, you call <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-number-constructor-number-value"><code>Number()</code></a>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const sym = Symbol(&apos;hello&apos;);
+&gt; Number(sym)
+TypeError: can&apos;t convert symbol to number
+</pre></div>
+
+</figure>
+
+<p><code>Number()</code> computes its result via the internal operation <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-tonumber"><code>ToNumber()</code></a>, which throws a <code>TypeError</code> for symbols.</p>
+
+<p>Coercion also uses <code>ToNumber()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; +sym
+TypeError: can&apos;t convert symbol to number
+</pre></div>
+
+</figure>
+
+<h5 id="_converting-to-string">
+<span class="section-number">7.5.3.3 </span>Converting to string <a class="header-anchor" href="ch_symbols.html#_converting-to-string" aria-hidden="true">#</a></h5>
+
+<p>To explicitly convert a symbol to string, you call <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-string-constructor-string-value"><code>String()</code></a>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const sym = Symbol(&apos;hello&apos;);
+&gt; String(sym)
+&apos;Symbol(hello)&apos;
+</pre></div>
+
+</figure>
+
+<p>If the parameter of <code>String()</code> is a symbol then it handles the conversion to string itself and returns the string <code>Symbol()</code> wrapped around the description that was provided when creating the symbol. If no description was given, the empty string is used:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; String(Symbol())
+&apos;Symbol()&apos;
+</pre></div>
+
+</figure>
+
+<p>The <code>toString()</code> method returns the same string as <code>String()</code>, but neither of these two operations calls the other one, they both call the same internal operation <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-symboldescriptivestring"><code>SymbolDescriptiveString()</code></a>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Symbol(&apos;hello&apos;).toString()
+&apos;Symbol(hello)&apos;
+</pre></div>
+
+</figure>
+
+<p>Coercion is handled via the internal operation <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-tostring"><code>ToString()</code></a>, which throws a <code>TypeError</code> for symbols. One method that coerces its parameter to string is <code>Number.parseInt()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Number.parseInt(Symbol())
+TypeError: can&apos;t convert symbol to string
+</pre></div>
+
+</figure>
+
+<h5 id="_not-allowed-converting-via-the-binary-addition-operator-">
+<span class="section-number">7.5.3.4 </span>Not allowed: converting via the binary addition operator (<code>+</code>) <a class="header-anchor" href="ch_symbols.html#_not-allowed-converting-via-the-binary-addition-operator-" aria-hidden="true">#</a></h5>
+
+<p>The <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-addition-operator-plus">addition operator</a> works as follows:</p>
+
+<ul>
+  <li>Convert both operands to primitives.</li>
+  <li>If one of the operands is a string, coerce both operands to strings (via <code>ToString()</code>), concatenate them and return the result.</li>
+  <li>Otherwise, coerce both operands to numbers, add them and return the result.</li>
+</ul>
+
+<p>Coercion to either string or number throws an exception, which means that you can&#x2019;t (directly) use the addition operator for symbols:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;&apos; + Symbol()
+TypeError: can&apos;t convert symbol to string
+&gt; 1 + Symbol()
+TypeError: can&apos;t convert symbol to number
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_symbol-wrapper-objects">
+<span class="section-number">7.6 </span>Wrapper objects for symbols <a class="header-anchor" href="ch_symbols.html#sec_symbol-wrapper-objects" aria-hidden="true">#</a></h3>
+
+<p>While all other primitive values have literals, you need to create symbols by function-calling <code>Symbol</code>. Thus, there is a risk of accidentally invoking <code>Symbol</code> as a constructor. That produces instances of <code>Symbol</code>, which are not very useful. Therefore, an exception is thrown when you try to do that:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; new Symbol()
+TypeError: Symbol is not a constructor
+</pre></div>
+
+</figure>
+
+<p>There is still a way to create wrapper objects, instances of <code>Symbol</code>: <code>Object</code>, called as a function, converts all values to objects, including symbols.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const sym = Symbol();
+&gt; typeof sym
+&apos;symbol&apos;
+
+&gt; const wrapper = Object(sym);
+&gt; typeof wrapper
+&apos;object&apos;
+&gt; wrapper instanceof Symbol
+true
+</pre></div>
+
+</figure>
+
+<h4 id="_accessing-properties-via---and-wrapped-keys">
+<span class="section-number">7.6.1 </span>Accessing properties via <code>[ ]</code> and wrapped keys <a class="header-anchor" href="ch_symbols.html#_accessing-properties-via---and-wrapped-keys" aria-hidden="true">#</a></h4>
+
+<p>The square bracket operator <code>[ ]</code> normally coerces its operand to string. There are now two exceptions: symbol wrapper objects are unwrapped and symbols are used as they are. Let&#x2019;s use the following object to examine this phenomenon.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">sym</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;yes&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">sym</code><code class="p">]</code><code class="o">:</code> <code class="s1">&apos;a&apos;</code><code class="p">,</code>
+    <code class="nx">str</code><code class="o">:</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>The square bracket operator unwraps wrapped symbols:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const wrappedSymbol = Object(sym);
+&gt; typeof wrappedSymbol
+&apos;object&apos;
+&gt; obj[wrappedSymbol]
+&apos;a&apos;
+</pre></div>
+
+</figure>
+
+<p>Like any other value not related to symbols, a wrapped string is converted to a string by the square bracket operator:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const wrappedString = new String(&apos;str&apos;);
+&gt; typeof wrappedString
+&apos;object&apos;
+&gt; obj[wrappedString]
+&apos;b&apos;
+</pre></div>
+
+</figure>
+
+<h5 id="_property-access-in-the-spec">
+<span class="section-number">7.6.1.1 </span>Property access in the spec <a class="header-anchor" href="ch_symbols.html#_property-access-in-the-spec" aria-hidden="true">#</a></h5>
+
+<p>The operator for getting and setting properties uses the internal operation <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-topropertykey"><code>ToPropertyKey()</code></a>, which works as follows:</p>
+
+<ul>
+  <li>Convert the operand to a primitive via <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-toprimitive"><code>ToPrimitive()</code></a> with the preferred type <code>String</code>:
+    <ul>
+      <li>A primitive value is returned as it is.</li>
+      <li>Otherwise, the operand is an object. If it has a method <code>[@@toPrimitive]()</code>, that method is used to convert it to a primitive value. Symbols have such a method, which returns the wrapped symbol.</li>
+      <li>Otherwise, the operand is converted to a primitive via <code>toString()</code> &#x2013; if it returns a primitive value. Otherwise, <code>valueOf()</code> is used &#x2013; if it returns a primitive value. Otherwise, a <code>TypeError</code> is thrown. The preferred type <code>String</code> determines that <code>toString()</code> is called first, <code>valueOf()</code> second.</li>
+    </ul>
+  </li>
+  <li>If the result of the conversion is a symbol, return it.</li>
+  <li>Otherwise, coerce the result to string via <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-tostring"><code>ToString()</code></a>.</li>
+</ul>
+
+
+<h3 id="sec_symbols-crossing-realms">
+<span class="section-number">7.7 </span>Crossing realms with symbols <a class="header-anchor" href="ch_symbols.html#sec_symbols-crossing-realms" aria-hidden="true">#</a></h3>
+
+<aside class="generic_inbar blurb eye icon-eye">
+    <p>This is an advanced topic.</p>
+
+</aside>
+
+<p>A <em>code realm</em> (short: realm) is a context in which pieces of code exist. It includes global variables, loaded modules and more. Even though code exists &#x201C;inside&#x201D; exactly one realm, it may have access to code in other realms. For example, each frame in a browser has its own realm. And execution can jump from one frame to another, as the following HTML demonstrates.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">&lt;</code><code class="nt">head</code><code class="p">&gt;</code>
+    <code class="p">&lt;</code><code class="nt">script</code><code class="p">&gt;</code>
+        <code class="kd">function</code> <code class="nx">test</code><code class="p">(</code><code class="nx">arr</code><code class="p">)</code> <code class="p">{</code>
+            <code class="kd">var</code> <code class="nx">iframe</code> <code class="o">=</code> <code class="nx">frames</code><code class="p">[</code><code class="mi">0</code><code class="p">];</code>
+            <code class="c1">// This code and the iframe&#x2019;s code exist in</code>
+            <code class="c1">// different realms. Therefore, global variables</code>
+            <code class="c1">// such as Array are different:</code>
+            <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nb">Array</code> <code class="o">===</code> <code class="nx">iframe</code><code class="p">.</code><code class="nb">Array</code><code class="p">);</code> <code class="c1">// false</code>
+            <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">arr</code> <code class="k">instanceof</code> <code class="nb">Array</code><code class="p">);</code> <code class="c1">// false</code>
+            <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">arr</code> <code class="k">instanceof</code> <code class="nx">iframe</code><code class="p">.</code><code class="nb">Array</code><code class="p">);</code> <code class="c1">// true</code>
+
+            <code class="c1">// But: symbols are the same</code>
+            <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code> <code class="o">===</code>
+                        <code class="nx">iframe</code><code class="p">.</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">);</code> <code class="c1">// true</code>
+        <code class="p">}</code>
+    <code class="p">&lt;/</code><code class="nt">script</code><code class="p">&gt;</code>
+<code class="p">&lt;/</code><code class="nt">head</code><code class="p">&gt;</code>
+<code class="p">&lt;</code><code class="nt">body</code><code class="p">&gt;</code>
+    <code class="p">&lt;</code><code class="nt">iframe</code> <code class="na">srcdoc</code><code class="o">=</code><code class="s">&quot;&lt;script&gt;window.parent.test([])&lt;/script&gt;&quot;</code><code class="p">&gt;</code>
+<code class="p">&lt;/</code><code class="nt">iframe</code><code class="p">&gt;</code>
+<code class="p">&lt;/</code><code class="nt">body</code><code class="p">&gt;</code>
+</pre></div>
+
+</figure>
+
+<p>The problem is that each realm has its own global variables where each variable <code>Array</code> points to a different object, even though they are all essentially the same object. Similarly, libraries and user code are loaded once per realm and each realm has a different version of the same object.</p>
+
+<p>Objects are compared by identity, but booleans, numbers and strings are compared by value. Therefore, no matter in which realm a number 123 originated, it is indistinguishable from all other 123s. That is similar to the number literal <code>123</code> always producing the same value.</p>
+
+<p>Symbols have individual identities and thus don&#x2019;t travel across realms as smoothly as other primitive values. That is a problem for symbols such as <code>Symbol.iterator</code> that should work across realms: If an object is iterable in one realm, it should be iterable in all realms. All built-in symbols are managed by the JavaScript engine, which makes sure that, e.g., <code>Symbol.iterator</code> is the same value in each realm. If a library wants to provide cross-realm symbols, it has to rely on extra support, which comes in the form of the <em>global symbol registry</em>: This registry is global to all realms and maps strings to symbols. For each symbol, the library needs to come up with a string that is as unique as possible. To create the symbol, it doesn&#x2019;t use <code>Symbol()</code>, it asks the registry for the symbol that the string is mapped to. If the registry already has an entry for the string, the associated symbol is returned. Otherwise, entry and symbol are created first.</p>
+
+<p>You ask the registry for a symbol via <code>Symbol.for()</code> and retrieve the string associated with a symbol (its <em>key</em>) via <code>Symbol.keyFor()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const sym = Symbol.for(&apos;Hello everybody!&apos;);
+&gt; Symbol.keyFor(sym)
+&apos;Hello everybody!&apos;
+</pre></div>
+
+</figure>
+
+<p>Cross-realm symbols, such as <code>Symbol.iterator</code>, that are provided by the JavaScript engine, are not in the registry:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Symbol.keyFor(Symbol.iterator)
+undefined
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_faq-symbols">
+<span class="section-number">7.8 </span>FAQ: symbols <a class="header-anchor" href="ch_symbols.html#sec_faq-symbols" aria-hidden="true">#</a></h3>
+
+<h4 id="_can-i-use-symbols-to-define-private-properties">
+<span class="section-number">7.8.1 </span>Can I use symbols to define private properties? <a class="header-anchor" href="ch_symbols.html#_can-i-use-symbols-to-define-private-properties" aria-hidden="true">#</a></h4>
+
+<p>The original plan was for symbols to support private properties (there would have been public and private symbols). But that feature was dropped, because using &#x201C;get&#x201D; and &#x201C;set&#x201D; (two meta-object protocol operations) for managing private data does not interact well with proxies:</p>
+
+<ul>
+  <li>On one hand, you want a proxy to be able to completely isolate its target (for <a href="ch_proxies.html#sec_membranes">membranes</a>) and to intercept all MOP operations applied to its target.</li>
+  <li>On the other hand, proxies should not be able to extract private data from an object; private data should remain private.</li>
+</ul>
+
+<p>These two goals are at odds. The chapter on classes explains <a href="ch_classes.html#sec_private-data-for-classes">your options for managing private data</a>. Symbols is one of these options, but you don&#x2019;t get the same amount of safety that you&#x2019;d get from private symbols, because it&#x2019;s possible to determine the symbols used as an object&#x2019;s property keys, via <code>Object.getOwnPropertySymbols()</code> and <code>Reflect.ownKeys()</code>.</p>
+
+<h4 id="_are-symbols-primitives-or-objects">
+<span class="section-number">7.8.2 </span>Are symbols primitives or objects? <a class="header-anchor" href="ch_symbols.html#_are-symbols-primitives-or-objects" aria-hidden="true">#</a></h4>
+
+<p>In some ways, symbols are like primitive values, in other ways, they are like objects:</p>
+
+<ul>
+  <li>Symbols are like strings (primitive values) w.r.t. what they are used for: as representations of concepts and as property keys.</li>
+  <li>Symbols are like objects in that each symbol has its own identity.</li>
+</ul>
+
+<p>What are symbols then &#x2013; primitive values or objects? In the end, they were turned into primitives, for two reasons.</p>
+
+<p>First, symbols are more like strings than like objects: They are a fundamental value of the language, they are immutable and they can be used as property keys. Symbols having unique identities doesn&#x2019;t necessarily contradict them being like strings: UUID algorithms produce strings that are quasi-unique.</p>
+
+<p>Second, symbols are most often used as property keys, so it makes sense to optimize the JavaScript specification and implementations for that use case. Then symbols don&#x2019;t need many abilities of objects:</p>
+
+<ul>
+  <li>Objects can become prototypes of other objects.</li>
+  <li>Wrapping an object with a proxy must not affect what it can be used for.</li>
+  <li>Objects can be examined: via <code>instanceof</code>, <code>Object.keys()</code>, etc.</li>
+</ul>
+
+<p>Symbols not having these abilities makes life easier for the specification and the implementations. The V8 team has also said that when it comes to property keys, it is easier to make a primitive type a special case than certain objects.</p>
+
+<h4 id="_do-we-really-need-symbols-arent-strings-enough">
+<span class="section-number">7.8.3 </span>Do we really need symbols? Aren&#x2019;t strings enough? <a class="header-anchor" href="ch_symbols.html#_do-we-really-need-symbols-arent-strings-enough" aria-hidden="true">#</a></h4>
+
+<p>In contrast to strings, symbols are unique and prevent name clashes. That is nice to have for tokens such as colors, but it is essential for supporting meta-level methods such as the one whose key is <code>Symbol.iterator</code>. Python uses the special name <code>__iter__</code> to avoid clashes. You can reserve double underscore names for programming language mechanisms, but what is a library to do? With symbols, we have an extensibility mechanism that works for everyone. As you can see later, in the section on public symbols, JavaScript itself already makes ample use of this mechanism.</p>
+
+<p>There is one hypothetical alternative to symbols when it comes to clash-free property keys: using a naming convention. For example, strings with URLs (e.g. <code>&apos;http://example.com/iterator&apos;</code>). But that would introduce a second category of property keys (versus &#x201C;normal&#x201D; property names that are usually valid identifiers and don&#x2019;t contain colons, slashes, dots, etc.), which is basically what symbols are, anyway. Then we may just as well introduce a new kind of value.</p>
+
+<h4 id="_are-javascripts-symbols-like-rubys-symbols">
+<span class="section-number">7.8.4 </span>Are JavaScript&#x2019;s symbols like Ruby&#x2019;s symbols? <a class="header-anchor" href="ch_symbols.html#_are-javascripts-symbols-like-rubys-symbols" aria-hidden="true">#</a></h4>
+
+<p>No, they are not.</p>
+
+<p>Ruby&#x2019;s symbols are basically literals for creating values. Mentioning the same symbol twice produces the same value twice:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="ss">:foo</code> <code class="o">==</code> <code class="ss">:foo</code>
+</pre></div>
+
+</figure>
+
+<p>The JavaScript function <code>Symbol()</code> is a factory for symbols &#x2013; each value it returns is unique:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;foo&apos;</code><code class="p">)</code> <code class="o">!==</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;foo&apos;</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_spelling-well-known-symbols">
+<span class="section-number">7.9 </span>The spelling of well-known symbols: why <code>Symbol.iterator</code> and not <code>Symbol.ITERATOR</code> (etc.)? <a class="header-anchor" href="ch_symbols.html#sec_spelling-well-known-symbols" aria-hidden="true">#</a></h3>
+
+<p>Well-known symbols are stored in properties whose names start with lowercase characters and are camel-cased. In a way, these properties are constants and it is customary for constants to have all-caps names (<code>Math.PI</code> etc.). But the reasoning for their spelling is different: Well-known symbols are used instead of normal property keys, which is why their &#x201C;names&#x201D; follow the rules for property keys, not the rules for constants.</p>
+
+
+<h3 id="sec_symbol-api">
+<span class="section-number">7.10 </span>The symbol API <a class="header-anchor" href="ch_symbols.html#sec_symbol-api" aria-hidden="true">#</a></h3>
+
+<p>This section gives an overview of the ECMAScript 6 API for symbols.</p>
+
+<h4 id="_the-function-symbol">
+<span class="section-number">7.10.1 </span>The function <code>Symbol</code>
+ <a class="header-anchor" href="ch_symbols.html#_the-function-symbol" aria-hidden="true">#</a></h4>
+
+<p><code>Symbol(description?) : symbol</code><br>
+Creates a new symbol. The optional parameter <code>description</code> allows you to give the symbol a description. The only way to access the description is to convert the symbol to a string (via <code>toString()</code> or <code>String()</code>). The result of such a conversion is <code>&apos;Symbol(&apos;+description+&apos;)&apos;</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const sym = Symbol(&apos;hello&apos;);
+&gt; String(sym)
+&apos;Symbol(hello)&apos;
+</pre></div>
+
+</figure>
+
+<p><code>Symbol</code> is can&#x2019;t be used as a constructor &#x2013; an exception is thrown if you invoke it via <code>new</code>.</p>
+
+<h4 id="_methods-of-symbols">
+<span class="section-number">7.10.2 </span>Methods of symbols <a class="header-anchor" href="ch_symbols.html#_methods-of-symbols" aria-hidden="true">#</a></h4>
+
+<p>The only useful method that symbols have is <code>toString()</code> (via <code>Symbol.prototype.toString()</code>).</p>
+
+<h4 id="_converting-symbols-to-other-values">
+<span class="section-number">7.10.3 </span>Converting symbols to other values <a class="header-anchor" href="ch_symbols.html#_converting-symbols-to-other-values" aria-hidden="true">#</a></h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>Conversion to</th>
+      <th>Explicit conversion</th>
+      <th>Coercion (implicit conversion)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>boolean</td>
+      <td>
+<code>Boolean(sym)</code> &#x2192; OK</td>
+      <td>
+<code>!sym</code> &#x2192; OK</td>
+    </tr>
+    <tr>
+      <td>number</td>
+      <td>
+<code>Number(sym)</code> &#x2192; <code>TypeError</code>
+</td>
+      <td>
+<code>sym*2</code> &#x2192; <code>TypeError</code>
+</td>
+    </tr>
+    <tr>
+      <td>string</td>
+      <td>
+<code>String(sym)</code> &#x2192; OK</td>
+      <td>
+<code>&apos;&apos;+sym</code> &#x2192; <code>TypeError</code>
+</td>
+    </tr>
+    <tr>
+      <td>&#xA0;</td>
+      <td>
+<code>sym.toString()</code> &#x2192; OK</td>
+      <td>
+<code>`${sym}`</code> &#x2192; <code>TypeError</code>
+</td>
+    </tr>
+    <tr>
+      <td>object</td>
+      <td>
+<code>Object(sym)</code> &#x2192; OK</td>
+      <td>
+<code>Object.keys(sym)</code> &#x2192; OK</td>
+    </tr>
+  </tbody>
+
+</table>
+
+
+<h4 id="_well-known-symbols">
+<span class="section-number">7.10.4 </span>Well-known symbols <a class="header-anchor" href="ch_symbols.html#_well-known-symbols" aria-hidden="true">#</a></h4>
+
+<p>The global object <code>Symbol</code> has several properties that serve as constants for so-called <em>well-known symbols</em>. These symbols let you configure how ES6 treats an object, by using them as property keys. This is a list of <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-well-known-symbols">all well-known symbols</a>:</p>
+
+<ul>
+  <li>Customizing basic language operations (<a href="ch_oop-besides-classes.html#sec_customizing-oop-via-well-known-symbols">explained in Chap. &#x201C;New OOP features besides classes&#x201D;</a>):
+    <p></p>
+
+    <ul>
+      <li>
+<code>Symbol.hasInstance</code> (method)<br>
+  Lets an object <code>C</code> customize the behavior of <code>x instanceof C</code>.</li>
+      <li>
+<code>Symbol.toPrimitive</code> (method)<br>
+  Lets an object customize how it is converted to a primitive value. This is the first step whenever something is coerced to a primitive type (via operators etc.).</li>
+      <li>
+<code>Symbol.toStringTag</code> (string)<br>
+  Called by <code>Object.prototype.toString()</code> to compute the default string description of an object <code>obj</code>: &#x2018;[object &#x2018;+obj[Symbol.toStringTag]+&#x2019;]&#x2019;.</li>
+      <li>
+<code>Symbol.unscopables</code> (Object)<br>
+  Lets an object hide some properties from the <code>with</code> statement.</li>
+    </ul>
+  </li>
+  <li>Iteration (explained in <a href="ch_iteration.html#ch_iteration">the chapter on iteration</a>):
+    <ul>
+      <li>
+<code>Symbol.iterator</code> (method)<br>
+  A method with this key makes an object <em>iterable</em> (its contents can be iterated over by language constructs such as the <code>for-of</code> loop and the spread operator (<code>...</code>)). The method returns an <em>iterator</em>. Details: chapter &#x201C;<a href="ch_iteration.html#ch_iteration">Iterables and iterators</a>&#x201D;.</li>
+    </ul>
+  </li>
+  <li>Forwarding string methods: The following string methods are forwarded to methods of their parameters (usually regular expressions).
+    <ul>
+      <li>
+<code>String.prototype.match(x, &#xB7;&#xB7;&#xB7;)</code> is forwarded to <code>x[Symbol.match](&#xB7;&#xB7;&#xB7;)</code>.</li>
+      <li>
+<code>String.prototype.replace(x, &#xB7;&#xB7;&#xB7;)</code> is forwarded to <code>x[Symbol.replace](&#xB7;&#xB7;&#xB7;)</code>.</li>
+      <li>
+<code>String.prototype.search(x, &#xB7;&#xB7;&#xB7;)</code> is forwarded to <code>x[Symbol.search](&#xB7;&#xB7;&#xB7;)</code>.</li>
+      <li>
+<code>String.prototype.split(x, &#xB7;&#xB7;&#xB7;)</code> is forwarded to <code>x[Symbol.split](&#xB7;&#xB7;&#xB7;)</code>.</li>
+    </ul>
+
+    <p>The details are explained in Sect. &#x201C;<a href="ch_strings.html#sec_delegating-string-methods-regexp">String methods that delegate regular expression work to their parameters</a>&#x201D; in the chapter on strings.</p>
+  </li>
+  <li>Miscellaneous:
+    <ul>
+      <li>
+<code>Symbol.species</code> (method)<br>
+  Configures how built-in methods (such as <code>Array.prototype.map()</code>) create objects that are similar to <code>this</code>. The details are explained in <a href="ch_classes.html#sec_species-pattern">the chapter on classes</a>.</li>
+      <li>
+<code>Symbol.isConcatSpreadable</code> (boolean)<br>
+  Configures whether <code>Array.prototype.concat()</code> adds the indexed elements of an object to its result (&#x201C;spreading&#x201D;) or the object as a single element (<a href="ch_arrays.html#Symbol_isConcatSpreadable">details are explained in the chapter on Arrays</a>).</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="_global-symbol-registry">
+<span class="section-number">7.10.5 </span>Global symbol registry <a class="header-anchor" href="ch_symbols.html#_global-symbol-registry" aria-hidden="true">#</a></h4>
+
+<p>If you want a symbol to be the same in all realms, you need to use the global symbol registry, via the following two methods:</p>
+
+<ul>
+  <li>
+<code>Symbol.for(str) : symbol</code><br>
+Returns the symbol whose key is the string <code>str</code> in the registry. If <code>str</code> isn&#x2019;t in the registry yet, a new symbol is created and filed in the registry under the key <code>str</code>.</li>
+  <li>
+<code>Symbol.keyFor(sym) : string</code><br>
+returns the string that is associated with the symbol <code>sym</code> in the registry. If <code>sym</code> isn&#x2019;t in the registry, this method returns <code>undefined</code>. This method can be used to serialize symbols (e.g. to JSON).</li>
+</ul>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_template-literals.html">8. Template literals</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

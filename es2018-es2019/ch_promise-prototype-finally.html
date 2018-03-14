@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>`Promise.prototype.finally()` • Exploring ES2018 and ES2019</title>
+    <link rel="stylesheet" href="site.css" type="text/css">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="top-bar-content">
+            <a href="toc.html">Table of contents</a><br>
+            Please support this book:
+            <a href="https://payhip.com/b/JrTz">buy it (PDF, EPUB, MOBI)</a>
+            or
+            <a href="http://www.2ality.com/p/donate.html">donate</a>
+        </div>
+    </div>
+
+    <div id="page-content">
+
+        <div id="adbox">
+        <div id="adbox-explain">(Ad, please don’t block.)</div>
+                    <script async type="text/javascript" src="https://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+                </div>
+
+        <h2 id="ch_promise-prototype-finally"><code>Promise.prototype.finally()</code></h2>
+<p>This chapter explains the proposal “<a href="https://github.com/tc39/proposal-promise-finally"><code>Promise.prototype.finally</code></a>” by Jordan Harband.</p>
+<h3 id="how-does-it-work">How does it work?</h3>
+<p><code>.finally()</code> works as follows:</p>
+<div class="sourceCode" id="cb115"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb115-1" data-line-number="1">promise</a>
+<a class="sourceLine" id="cb115-2" data-line-number="2">.<span class="at">then</span>(result <span class="op">=&gt;</span> <span class="op">{</span>···<span class="op">}</span>)</a>
+<a class="sourceLine" id="cb115-3" data-line-number="3">.<span class="at">catch</span>(error <span class="op">=&gt;</span> <span class="op">{</span>···<span class="op">}</span>)</a>
+<a class="sourceLine" id="cb115-4" data-line-number="4">.<span class="at">finally</span>(() <span class="op">=&gt;</span> <span class="op">{</span>···<span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p><code>finally</code>’s callback is always executed. Compare:</p>
+<ul>
+<li><code>then</code>’s callback is only executed if <code>promise</code> is fulfilled.</li>
+<li><code>catch</code>’s callback is only executed if <code>promise</code> is rejected. Or if <code>then</code>’s callback throws an exception or returns a rejected Promise.</li>
+</ul>
+<p>In other words: Take the following piece of code.</p>
+<div class="sourceCode" id="cb116"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb116-1" data-line-number="1">promise</a>
+<a class="sourceLine" id="cb116-2" data-line-number="2">.<span class="at">finally</span>(() <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb116-3" data-line-number="3">    «statements»</a>
+<a class="sourceLine" id="cb116-4" data-line-number="4"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<p>This piece of code is equivalent to:</p>
+<div class="sourceCode" id="cb117"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb117-1" data-line-number="1">promise</a>
+<a class="sourceLine" id="cb117-2" data-line-number="2">.<span class="at">then</span>(</a>
+<a class="sourceLine" id="cb117-3" data-line-number="3">    result <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb117-4" data-line-number="4">        «statements»</a>
+<a class="sourceLine" id="cb117-5" data-line-number="5">        <span class="cf">return</span> result<span class="op">;</span></a>
+<a class="sourceLine" id="cb117-6" data-line-number="6">    <span class="op">},</span></a>
+<a class="sourceLine" id="cb117-7" data-line-number="7">    error <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb117-8" data-line-number="8">        «statements»</a>
+<a class="sourceLine" id="cb117-9" data-line-number="9">        <span class="cf">throw</span> error<span class="op">;</span></a>
+<a class="sourceLine" id="cb117-10" data-line-number="10">    <span class="op">}</span></a>
+<a class="sourceLine" id="cb117-11" data-line-number="11">)<span class="op">;</span></a></code></pre></div>
+<h3 id="use-case">Use case</h3>
+<p>The most common use case is similar to the most common use case of the synchronous <code>finally</code> clause: cleaning up after you are done with a resource. That should always happen, regardless of whether everything went smoothly or there was an error.</p>
+<p>For example:</p>
+<div class="sourceCode" id="cb118"><pre class="sourceCode js"><code class="sourceCode javascript"><a class="sourceLine" id="cb118-1" data-line-number="1"><span class="kw">let</span> connection<span class="op">;</span></a>
+<a class="sourceLine" id="cb118-2" data-line-number="2"><span class="va">db</span>.<span class="at">open</span>()</a>
+<a class="sourceLine" id="cb118-3" data-line-number="3">.<span class="at">then</span>(conn <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb118-4" data-line-number="4">    connection <span class="op">=</span> conn<span class="op">;</span></a>
+<a class="sourceLine" id="cb118-5" data-line-number="5">    <span class="cf">return</span> <span class="va">connection</span>.<span class="at">select</span>(<span class="op">{</span> <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Jane&#39;</span> <span class="op">}</span>)<span class="op">;</span></a>
+<a class="sourceLine" id="cb118-6" data-line-number="6"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb118-7" data-line-number="7">.<span class="at">then</span>(result <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb118-8" data-line-number="8">    <span class="co">// Process result</span></a>
+<a class="sourceLine" id="cb118-9" data-line-number="9">    <span class="co">// Use `connection` to make more queries</span></a>
+<a class="sourceLine" id="cb118-10" data-line-number="10"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb118-11" data-line-number="11">···</a>
+<a class="sourceLine" id="cb118-12" data-line-number="12">.<span class="at">catch</span>(error <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb118-13" data-line-number="13">    <span class="co">// handle errors</span></a>
+<a class="sourceLine" id="cb118-14" data-line-number="14"><span class="op">}</span>)</a>
+<a class="sourceLine" id="cb118-15" data-line-number="15">.<span class="at">finally</span>(() <span class="op">=&gt;</span> <span class="op">{</span></a>
+<a class="sourceLine" id="cb118-16" data-line-number="16">    <span class="va">connection</span>.<span class="at">close</span>()<span class="op">;</span></a>
+<a class="sourceLine" id="cb118-17" data-line-number="17"><span class="op">}</span>)<span class="op">;</span></a></code></pre></div>
+<h3 id="finally-is-similar-to-finally-in-synchronous-code"><code>.finally()</code> is similar to <code>finally {}</code> in synchronous code</h3>
+<p>In synchronous code, the <code>try</code> statement has three parts: The <code>try</code> clause, the <code>catch</code> clause and the <code>finally</code> clause.</p>
+<p>In Promises:</p>
+<ul>
+<li>The <code>try</code> clause very loosely corresponds to invoking a Promise-based function or calling <code>.then()</code>.</li>
+<li>The <code>catch</code> clause corresponds to the <code>.catch()</code> method of Promises.</li>
+<li>The <code>finally</code> clause corresponds to the new Promise method <code>.finally()</code> introduced by the proposal.</li>
+</ul>
+<p>However, where <code>finally {}</code> can <code>return</code> and <code>throw</code>, returning has no effect inside the callback <code>.finally()</code>, only throwing. That’s because the method can’t distinguish between the callback returning explicitly and it finishing without doing so.</p>
+<h3 id="availability">Availability</h3>
+<ul>
+<li><a href="https://github.com/es-shims/Promise.prototype.finally">The npm package <code>promise.prototype.finally</code></a> is a polyfill for <code>.finally()</code>.</li>
+<li>V8 5.8+ (e.g. in Node.js 8.1.4+): available behind the flag <code>--harmony-promise-finally</code> (<a href="https://chromium.googlesource.com/v8/v8.git/+/18ad0f13afeaabff4e035fddd9edc3d319152160">details</a>).</li>
+</ul>
+<h3 id="further-reading-5">Further reading</h3>
+<ul>
+<li>“<a href="../es6/ch_promises.html">Promises for asynchronous programming</a>” in “Exploring ES6”</li>
+</ul>
+
+        <div class="footer">
+            <div>
+                                <a id="commentLink" href="https://github.com/rauschma/exploring-es2018-es2019/issues/7">Comments</a>
+                <script defer src="count-comments.js"></script>
+                            </div>
+                        <div>
+                Next: <a href="ch_template-literal-revision.html">Template Literal Revision</a>
+            </div>
+                    </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1250 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>4. Core ES6 features</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>4. Core ES6 features</b><br>
+        <a href="index.html#toc_ch_core-features">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_core-features">
+<span class="section-number">4. </span>Core ES6 features <a class="header-anchor" href="ch_core-features.html#ch_core-features" aria-hidden="true">#</a></h2>
+
+<p>This chapter describes the core ES6 features. These features are easy to adopt; the remaining features are mainly of interest to library authors. I explain each feature via the corresponding ES5 code.</p>
+
+<hr class="scene-break">
+
+<ul>
+  <li>4.1. <a href="ch_core-features.html#sec_from-var-to-const">From <code>var</code> to <code>const</code>/<code>let</code></a>
+</li>
+  <li>4.2. <a href="ch_core-features.html#sec_from-iifes-to-blocks">From IIFEs to blocks</a>
+</li>
+  <li>4.3. <a href="ch_core-features.html#sec_from-str-concat-to-tmpl-lit">From concatenating strings to template literals</a>
+    <ul>
+      <li>4.3.1. String interpolation</li>
+      <li>4.3.2. Multi-line strings</li>
+    </ul>
+  </li>
+  <li>4.4. <a href="ch_core-features.html#sec_from-func-expr-to-arrow-func">From function expressions to arrow functions</a>
+</li>
+  <li>4.5. <a href="ch_core-features.html#sec_multiple-return-values-core-feature">Handling multiple return values</a>
+    <ul>
+      <li>4.5.1. Multiple return values via arrays</li>
+      <li>4.5.2. Multiple return values via objects</li>
+    </ul>
+  </li>
+  <li>4.6. <a href="ch_core-features.html#sec_for-foreach-forof">From <code>for</code> to <code>forEach()</code> to <code>for-of</code></a>
+</li>
+  <li>4.7. <a href="ch_core-features.html#sec_param-defaults-core-feature">Handling parameter default values</a>
+</li>
+  <li>4.8. <a href="ch_core-features.html#sec_named-params-core-feature">Handling named parameters</a>
+    <ul>
+      <li>4.8.1. Making the parameter optional</li>
+    </ul>
+  </li>
+  <li>4.9. <a href="ch_core-features.html#sec_from-arguments-to-rest">From <code>arguments</code> to rest parameters</a>
+</li>
+  <li>4.10. <a href="ch_core-features.html#sec_from-apply-to-spread">From <code>apply()</code> to the spread operator (<code>...</code>)</a>
+    <ul>
+      <li>4.10.1. <code>Math.max()</code>
+</li>
+      <li>4.10.2. <code>Array.prototype.push()</code>
+</li>
+    </ul>
+  </li>
+  <li>4.11. <a href="ch_core-features.html#sec_from-concat-to-spread">From <code>concat()</code> to the spread operator (<code>...</code>)</a>
+</li>
+  <li>4.12. <a href="ch_core-features.html#sec_from-func-expr-to-method-def">From function expressions in object literals to method definitions</a>
+</li>
+  <li>4.13. <a href="ch_core-features.html#sec_from-constr-to-class">From constructors to classes</a>
+    <ul>
+      <li>4.13.1. Base classes</li>
+      <li>4.13.2. Derived classes</li>
+    </ul>
+  </li>
+  <li>4.14. <a href="ch_core-features.html#sec_from-custom-error-to-error-subclass">From custom error constructors to subclasses of <code>Error</code></a>
+</li>
+  <li>4.15. <a href="ch_core-features.html#sec_from-obj-to-map">From objects to Maps</a>
+</li>
+  <li>4.16. <a href="ch_core-features.html#sec_new-str-methods-core-feature">New string methods</a>
+</li>
+  <li>4.17. <a href="ch_core-features.html#sec_new-array-methods-core-feature">New Array methods</a>
+    <ul>
+      <li>4.17.1. From <code>Array.prototype.indexOf</code> to <code>Array.prototype.findIndex</code>
+</li>
+      <li>4.17.2. From <code>Array.prototype.slice()</code> to <code>Array.from()</code> or the spread operator</li>
+      <li>4.17.3. From <code>apply()</code> to <code>Array.prototype.fill()</code>
+</li>
+    </ul>
+  </li>
+  <li>4.18. <a href="ch_core-features.html#sec_from-cjs-to-esm">From CommonJS modules to ES6 modules</a>
+    <ul>
+      <li>4.18.1. Multiple exports</li>
+      <li>4.18.2. Single exports</li>
+    </ul>
+  </li>
+  <li>4.19. <a href="ch_core-features.html#sec_what-next-core-features">What to do next</a>
+</li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_from-var-to-const">
+<span class="section-number">4.1 </span>From <code>var</code> to <code>const</code>/<code>let</code>
+ <a class="header-anchor" href="ch_core-features.html#sec_from-var-to-const" aria-hidden="true">#</a></h3>
+
+<p>In ES5, you declare variables via <code>var</code>. Such variables are <em>function-scoped</em>, their scopes are the innermost enclosing functions. The behavior of <code>var</code> is occasionally confusing. This is an example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">x</code> <code class="o">=</code> <code class="mi">3</code><code class="p">;</code>
+<code class="kd">function</code> <code class="nx">func</code><code class="p">(</code><code class="nx">randomize</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">randomize</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kd">var</code> <code class="nx">x</code> <code class="o">=</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">random</code><code class="p">();</code> <code class="c1">// (A) scope: whole function</code>
+        <code class="k">return</code> <code class="nx">x</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">x</code><code class="p">;</code> <code class="c1">// accesses the x from line A</code>
+<code class="p">}</code>
+<code class="nx">func</code><code class="p">(</code><code class="kc">false</code><code class="p">);</code> <code class="c1">// undefined</code>
+</pre></div>
+
+</figure>
+
+<p>That <code>func()</code> returns <code>undefined</code> may be surprising. You can see why if you rewrite the code so that it more closely reflects what is actually going on:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">x</code> <code class="o">=</code> <code class="mi">3</code><code class="p">;</code>
+<code class="kd">function</code> <code class="nx">func</code><code class="p">(</code><code class="nx">randomize</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">var</code> <code class="nx">x</code><code class="p">;</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">randomize</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">x</code> <code class="o">=</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">random</code><code class="p">();</code>
+        <code class="k">return</code> <code class="nx">x</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">x</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">func</code><code class="p">(</code><code class="kc">false</code><code class="p">);</code> <code class="c1">// undefined</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6, you can additionally declare variables via <code>let</code> and <code>const</code>. Such variables are <em>block-scoped</em>, their scopes are the innermost enclosing blocks. <code>let</code> is roughly a block-scoped version of <code>var</code>. <code>const</code> works like <code>let</code>, but creates variables whose values can&#x2019;t be changed.</p>
+
+<p><code>let</code> and <code>const</code> behave more strictly and throw more exceptions (e.g. when you access their variables inside their scope before they are declared). Block-scoping helps with keeping the effects of code fragments more local (see the next section for a demonstration). And it&#x2019;s more mainstream than function-scoping, which eases moving between JavaScript and other programming languages.</p>
+
+<p>If you replace <code>var</code> with <code>let</code> in the initial version, you get different behavior:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">let</code> <code class="nx">x</code> <code class="o">=</code> <code class="mi">3</code><code class="p">;</code>
+<code class="kd">function</code> <code class="nx">func</code><code class="p">(</code><code class="nx">randomize</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">randomize</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kd">let</code> <code class="nx">x</code> <code class="o">=</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">random</code><code class="p">();</code>
+        <code class="k">return</code> <code class="nx">x</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">x</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">func</code><code class="p">(</code><code class="kc">false</code><code class="p">);</code> <code class="c1">// 3</code>
+</pre></div>
+
+</figure>
+
+<p>That means that you can&#x2019;t blindly replace <code>var</code> with <code>let</code> or <code>const</code> in existing code; you have to be careful during refactoring.</p>
+
+<p>My advice is:</p>
+
+
+<ul>
+  <li>Prefer <code>const</code>. You can use it for all variables whose values never change.</li>
+  <li>Otherwise, use <code>let</code> &#x2013; for variables whose values do change.</li>
+  <li>Avoid <code>var</code>.</li>
+</ul>
+
+<p><strong>More information:</strong> chapter &#x201C;<a href="ch_variables.html#ch_variables">Variables and scoping</a>&#x201D;.</p>
+
+
+<h3 id="sec_from-iifes-to-blocks">
+<span class="section-number">4.2 </span>From IIFEs to blocks <a class="header-anchor" href="ch_core-features.html#sec_from-iifes-to-blocks" aria-hidden="true">#</a></h3>
+
+<p>In ES5, you had to use a pattern called IIFE (Immediately-Invoked Function Expression) if you wanted to restrict the scope of a variable <code>tmp</code> to a block:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">(</code><code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>  <code class="c1">// open IIFE</code>
+    <code class="kd">var</code> <code class="nx">tmp</code> <code class="o">=</code> <code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">;</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}());</code>  <code class="c1">// close IIFE</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">tmp</code><code class="p">);</code> <code class="c1">// ReferenceError</code>
+</pre></div>
+
+</figure>
+
+<p>In ECMAScript 6, you can simply use a block and a <code>let</code> declaration (or a <code>const</code> declaration):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code>  <code class="c1">// open block</code>
+    <code class="kd">let</code> <code class="nx">tmp</code> <code class="o">=</code> <code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">;</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>  <code class="c1">// close block</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">tmp</code><code class="p">);</code> <code class="c1">// ReferenceError</code>
+</pre></div>
+
+</figure>
+
+<p><strong>More information:</strong> section &#x201C;<a href="ch_callables.html#sec_iifes-in-es6">Avoid IIFEs in ES6</a>&#x201D;.</p>
+
+
+<h3 id="sec_from-str-concat-to-tmpl-lit">
+<span class="section-number">4.3 </span>From concatenating strings to template literals <a class="header-anchor" href="ch_core-features.html#sec_from-str-concat-to-tmpl-lit" aria-hidden="true">#</a></h3>
+
+<p>With ES6, JavaScript finally gets literals for string interpolation and multi-line strings.</p>
+
+<h4 id="_string-interpolation">
+<span class="section-number">4.3.1 </span>String interpolation <a class="header-anchor" href="ch_core-features.html#_string-interpolation" aria-hidden="true">#</a></h4>
+
+<p>In ES5, you put values into strings by concatenating those values and string fragments:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">printCoord</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;(&apos;</code><code class="o">+</code><code class="nx">x</code><code class="o">+</code><code class="s1">&apos;, &apos;</code><code class="o">+</code><code class="nx">y</code><code class="o">+</code><code class="s1">&apos;)&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6 you can use string interpolation via template literals:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">printCoord</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`(</code><code class="si">${</code><code class="nx">x</code><code class="si">}</code><code class="sb">, </code><code class="si">${</code><code class="nx">y</code><code class="si">}</code><code class="sb">)`</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_multi-line-strings">
+<span class="section-number">4.3.2 </span>Multi-line strings <a class="header-anchor" href="ch_core-features.html#_multi-line-strings" aria-hidden="true">#</a></h4>
+
+<p>Template literals also help with representing multi-line strings.</p>
+
+<p>For example, this is what you have to do to represent one in ES5:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">HTML5_SKELETON</code> <code class="o">=</code>
+    <code class="s1">&apos;&lt;!doctype html&gt;\n&apos;</code> <code class="o">+</code>
+    <code class="s1">&apos;&lt;html&gt;\n&apos;</code> <code class="o">+</code>
+    <code class="s1">&apos;&lt;head&gt;\n&apos;</code> <code class="o">+</code>
+    <code class="s1">&apos;    &lt;meta charset=&quot;UTF-8&quot;&gt;\n&apos;</code> <code class="o">+</code>
+    <code class="s1">&apos;    &lt;title&gt;&lt;/title&gt;\n&apos;</code> <code class="o">+</code>
+    <code class="s1">&apos;&lt;/head&gt;\n&apos;</code> <code class="o">+</code>
+    <code class="s1">&apos;&lt;body&gt;\n&apos;</code> <code class="o">+</code>
+    <code class="s1">&apos;&lt;/body&gt;\n&apos;</code> <code class="o">+</code>
+    <code class="s1">&apos;&lt;/html&gt;\n&apos;</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>If you escape the newlines via backslashes, things look a bit nicer (but you still have to explicitly add newlines):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">HTML5_SKELETON</code> <code class="o">=</code> <code class="s1">&apos;\</code>
+<code class="s1">    &lt;!doctype html&gt;\n\</code>
+<code class="s1">    &lt;html&gt;\n\</code>
+<code class="s1">    &lt;head&gt;\n\</code>
+<code class="s1">        &lt;meta charset=&quot;UTF-8&quot;&gt;\n\</code>
+<code class="s1">        &lt;title&gt;&lt;/title&gt;\n\</code>
+<code class="s1">    &lt;/head&gt;\n\</code>
+<code class="s1">    &lt;body&gt;\n\</code>
+<code class="s1">    &lt;/body&gt;\n\</code>
+<code class="s1">    &lt;/html&gt;&apos;</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>ES6 template literals can span multiple lines:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">HTML5_SKELETON</code> <code class="o">=</code> <code class="sb">`</code>
+<code class="sb">    &lt;!doctype html&gt;</code>
+<code class="sb">    &lt;html&gt;</code>
+<code class="sb">    &lt;head&gt;</code>
+<code class="sb">        &lt;meta charset=&quot;UTF-8&quot;&gt;</code>
+<code class="sb">        &lt;title&gt;&lt;/title&gt;</code>
+<code class="sb">    &lt;/head&gt;</code>
+<code class="sb">    &lt;body&gt;</code>
+<code class="sb">    &lt;/body&gt;</code>
+<code class="sb">    &lt;/html&gt;`</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>(The examples differ in how much whitespace is included, but that doesn&#x2019;t matter in this case.)</p>
+
+<p><strong>More information:</strong> chapter &#x201C;<a href="ch_template-literals.html#ch_template-literals">Template literals and tagged templates</a>&#x201D;.</p>
+
+
+<h3 id="sec_from-func-expr-to-arrow-func">
+<span class="section-number">4.4 </span>From function expressions to arrow functions <a class="header-anchor" href="ch_core-features.html#sec_from-func-expr-to-arrow-func" aria-hidden="true">#</a></h3>
+
+<p>In current ES5 code, you have to be careful with <code>this</code> whenever you are using function expressions. In the following example, I create the helper variable <code>_this</code> (line A) so that the <code>this</code> of <code>UiComponent</code> can be accessed in line B.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">UiComponent</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kd">var</code> <code class="nx">_this</code> <code class="o">=</code> <code class="k">this</code><code class="p">;</code> <code class="c1">// (A)</code>
+    <code class="kd">var</code> <code class="nx">button</code> <code class="o">=</code> <code class="nb">document</code><code class="p">.</code><code class="nx">getElementById</code><code class="p">(</code><code class="s1">&apos;myButton&apos;</code><code class="p">);</code>
+    <code class="nx">button</code><code class="p">.</code><code class="nx">addEventListener</code><code class="p">(</code><code class="s1">&apos;click&apos;</code><code class="p">,</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;CLICK&apos;</code><code class="p">);</code>
+        <code class="nx">_this</code><code class="p">.</code><code class="nx">handleClick</code><code class="p">();</code> <code class="c1">// (B)</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+<code class="nx">UiComponent</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">handleClick</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6, you can use arrow functions, which don&#x2019;t shadow <code>this</code> (line A):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">UiComponent</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kd">var</code> <code class="nx">button</code> <code class="o">=</code> <code class="nb">document</code><code class="p">.</code><code class="nx">getElementById</code><code class="p">(</code><code class="s1">&apos;myButton&apos;</code><code class="p">);</code>
+    <code class="nx">button</code><code class="p">.</code><code class="nx">addEventListener</code><code class="p">(</code><code class="s1">&apos;click&apos;</code><code class="p">,</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;CLICK&apos;</code><code class="p">);</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">handleClick</code><code class="p">();</code> <code class="c1">// (A)</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>(In ES6, you also have the option of using a class instead of a constructor function. That is explored later.)</p>
+
+<p>Arrow functions are especially handy for short callbacks that only return results of expressions.</p>
+
+<p>In ES5, such callbacks are relatively verbose:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">3</code><code class="p">];</code>
+<code class="kd">var</code> <code class="nx">squares</code> <code class="o">=</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="kd">function</code> <code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code> <code class="k">return</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">x</code> <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6, arrow functions are much more concise:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">3</code><code class="p">];</code>
+<code class="kr">const</code> <code class="nx">squares</code> <code class="o">=</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">x</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>When defining parameters, you can even omit parentheses if the parameters are just a single identifier. Thus: <code>(x) =&gt; x * x</code> and <code>x =&gt; x * x</code> are both allowed.</p>
+
+<p><strong>More information:</strong> chapter &#x201C;<a href="ch_arrow-functions.html#ch_arrow-functions">Arrow functions</a>&#x201D;.</p>
+
+
+<h3 id="sec_multiple-return-values-core-feature">
+<span class="section-number">4.5 </span>Handling multiple return values <a class="header-anchor" href="ch_core-features.html#sec_multiple-return-values-core-feature" aria-hidden="true">#</a></h3>
+
+<p>Some functions or methods return multiple values via arrays or objects. In ES5, you always need to create intermediate variables if you want to access those values. In ES6, you can avoid intermediate variables via destructuring.</p>
+
+<h4 id="_multiple-return-values-via-arrays">
+<span class="section-number">4.5.1 </span>Multiple return values via arrays <a class="header-anchor" href="ch_core-features.html#_multiple-return-values-via-arrays" aria-hidden="true">#</a></h4>
+
+<p><code>exec()</code> returns captured groups via an Array-like object. In ES5, you need an intermediate variable (<code>matchObj</code> in the example below), even if you are only interested in the groups:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">matchObj</code> <code class="o">=</code>
+    <code class="sr">/^(\d\d\d\d)-(\d\d)-(\d\d)$/</code>
+    <code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="s1">&apos;2999-12-31&apos;</code><code class="p">);</code>
+<code class="kd">var</code> <code class="nx">year</code> <code class="o">=</code> <code class="nx">matchObj</code><code class="p">[</code><code class="mi">1</code><code class="p">];</code>
+<code class="kd">var</code> <code class="nx">month</code> <code class="o">=</code> <code class="nx">matchObj</code><code class="p">[</code><code class="mi">2</code><code class="p">];</code>
+<code class="kd">var</code> <code class="nx">day</code> <code class="o">=</code> <code class="nx">matchObj</code><code class="p">[</code><code class="mi">3</code><code class="p">];</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6, destructuring makes this code simpler:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[,</code> <code class="nx">year</code><code class="p">,</code> <code class="nx">month</code><code class="p">,</code> <code class="nx">day</code><code class="p">]</code> <code class="o">=</code>
+    <code class="sr">/^(\d\d\d\d)-(\d\d)-(\d\d)$/</code>
+    <code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="s1">&apos;2999-12-31&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+
+<p>The empty slot at the beginning of the Array pattern skips the Array element at index zero.</p>
+
+<h4 id="_multiple-return-values-via-objects">
+<span class="section-number">4.5.2 </span>Multiple return values via objects <a class="header-anchor" href="ch_core-features.html#_multiple-return-values-via-objects" aria-hidden="true">#</a></h4>
+
+<p>The method <code>Object.getOwnPropertyDescriptor()</code> returns a <em>property descriptor</em>, an object that holds multiple values in its properties.</p>
+
+<p>In ES5, even if you are only interested in the properties of an object, you still need an intermediate variable (<code>propDesc</code> in the example below):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code> <code class="p">};</code>
+
+<code class="kd">var</code> <code class="nx">propDesc</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="s1">&apos;foo&apos;</code><code class="p">);</code>
+<code class="kd">var</code> <code class="nx">writable</code> <code class="o">=</code> <code class="nx">propDesc</code><code class="p">.</code><code class="nx">writable</code><code class="p">;</code>
+<code class="kd">var</code> <code class="nx">configurable</code> <code class="o">=</code> <code class="nx">propDesc</code><code class="p">.</code><code class="nx">configurable</code><code class="p">;</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">writable</code><code class="p">,</code> <code class="nx">configurable</code><code class="p">);</code> <code class="c1">// true true</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6, you can use destructuring:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code> <code class="p">};</code>
+
+<code class="kr">const</code> <code class="p">{</code><code class="nx">writable</code><code class="p">,</code> <code class="nx">configurable</code><code class="p">}</code> <code class="o">=</code>
+    <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="s1">&apos;foo&apos;</code><code class="p">);</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">writable</code><code class="p">,</code> <code class="nx">configurable</code><code class="p">);</code> <code class="c1">// true true</code>
+</pre></div>
+
+</figure>
+
+
+<p><code>{writable, configurable}</code> is an abbreviation for:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code> <code class="nx">writable</code><code class="o">:</code> <code class="nx">writable</code><code class="p">,</code> <code class="nx">configurable</code><code class="o">:</code> <code class="nx">configurable</code> <code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><strong>More information:</strong> chapter &#x201C;<a href="ch_destructuring.html#ch_destructuring">Destructuring</a>&#x201D;.</p>
+
+
+<h3 id="sec_for-foreach-forof">
+<span class="section-number">4.6 </span>From <code>for</code> to <code>forEach()</code> to <code>for-of</code>
+ <a class="header-anchor" href="ch_core-features.html#sec_for-foreach-forof" aria-hidden="true">#</a></h3>
+
+<p>Prior to ES5, you iterated over Arrays as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kd">var</code> <code class="nx">i</code><code class="o">=</code><code class="mi">0</code><code class="p">;</code> <code class="nx">i</code><code class="o">&lt;</code><code class="nx">arr</code><code class="p">.</code><code class="nx">length</code><code class="p">;</code> <code class="nx">i</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">var</code> <code class="nx">elem</code> <code class="o">=</code> <code class="nx">arr</code><code class="p">[</code><code class="nx">i</code><code class="p">];</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">elem</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In ES5, you have the option of using the Array method <code>forEach()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">arr</code><code class="p">.</code><code class="nx">forEach</code><code class="p">(</code><code class="kd">function</code> <code class="p">(</code><code class="nx">elem</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">elem</code><code class="p">);</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>A <code>for</code> loop has the advantage that you can break from it, <code>forEach()</code> has the advantage of conciseness.</p>
+
+<p>In ES6, the <code>for-of</code> loop combines both advantages:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">elem</code> <code class="k">of</code> <code class="nx">arr</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">elem</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>If you want both index and value of each array element, <code>for-of</code> has got you covered, too, via the new Array method <code>entries()</code> and destructuring:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">index</code><code class="p">,</code> <code class="nx">elem</code><code class="p">]</code> <code class="k">of</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">index</code><code class="o">+</code><code class="s1">&apos;. &apos;</code><code class="o">+</code><code class="nx">elem</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><strong>More information:</strong> Chap. &#x201C;<a href="ch_for-of.html#ch_for-of">The <code>for-of</code> loop</a>&#x201D;.</p>
+
+
+<h3 id="sec_param-defaults-core-feature">
+<span class="section-number">4.7 </span>Handling parameter default values <a class="header-anchor" href="ch_core-features.html#sec_param-defaults-core-feature" aria-hidden="true">#</a></h3>
+
+<p>In ES5, you specify default values for parameters like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">x</code> <code class="o">=</code> <code class="nx">x</code> <code class="o">||</code> <code class="mi">0</code><code class="p">;</code>
+    <code class="nx">y</code> <code class="o">=</code> <code class="nx">y</code> <code class="o">||</code> <code class="mi">0</code><code class="p">;</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>ES6 has nicer syntax:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>An added benefit is that in ES6, a parameter default value is only triggered by <code>undefined</code>, while it is triggered by any falsy value in the previous ES5 code.</p>
+
+<p><strong>More information:</strong> section &#x201C;<a href="ch_parameter-handling.html#sec_parameter-default-values">Parameter default values</a>&#x201D;.</p>
+
+
+<h3 id="sec_named-params-core-feature">
+<span class="section-number">4.8 </span>Handling named parameters <a class="header-anchor" href="ch_core-features.html#sec_named-params-core-feature" aria-hidden="true">#</a></h3>
+
+<p>A common way of naming parameters in JavaScript is via object literals (the so-called <em>options object pattern</em>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">start</code><code class="o">:</code> <code class="mi">0</code><code class="p">,</code> <code class="nx">end</code><code class="o">:</code> <code class="o">-</code><code class="mi">1</code> <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>Two advantages of this approach are: Code becomes more self-descriptive and it is easier to omit arbitrary parameters.</p>
+
+<p>In ES5, you can implement <code>selectEntries()</code> as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">selectEntries</code><code class="p">(</code><code class="nx">options</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">var</code> <code class="nx">start</code> <code class="o">=</code> <code class="nx">options</code><code class="p">.</code><code class="nx">start</code> <code class="o">||</code> <code class="mi">0</code><code class="p">;</code>
+    <code class="kd">var</code> <code class="nx">end</code> <code class="o">=</code> <code class="nx">options</code><code class="p">.</code><code class="nx">end</code> <code class="o">||</code> <code class="o">-</code><code class="mi">1</code><code class="p">;</code>
+    <code class="kd">var</code> <code class="nx">step</code> <code class="o">=</code> <code class="nx">options</code><code class="p">.</code><code class="nx">step</code> <code class="o">||</code> <code class="mi">1</code><code class="p">;</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6, you can use destructuring in parameter definitions and the code becomes simpler:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">start</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">end</code><code class="o">=-</code><code class="mi">1</code><code class="p">,</code> <code class="nx">step</code><code class="o">=</code><code class="mi">1</code> <code class="p">})</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_making-the-parameter-optional">
+<span class="section-number">4.8.1 </span>Making the parameter optional <a class="header-anchor" href="ch_core-features.html#_making-the-parameter-optional" aria-hidden="true">#</a></h4>
+
+<p>To make the parameter <code>options</code> optional in ES5, you&#x2019;d add line A to the code:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">selectEntries</code><code class="p">(</code><code class="nx">options</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">options</code> <code class="o">=</code> <code class="nx">options</code> <code class="o">||</code> <code class="p">{};</code> <code class="c1">// (A)</code>
+    <code class="kd">var</code> <code class="nx">start</code> <code class="o">=</code> <code class="nx">options</code><code class="p">.</code><code class="nx">start</code> <code class="o">||</code> <code class="mi">0</code><code class="p">;</code>
+    <code class="kd">var</code> <code class="nx">end</code> <code class="o">=</code> <code class="nx">options</code><code class="p">.</code><code class="nx">end</code> <code class="o">||</code> <code class="o">-</code><code class="mi">1</code><code class="p">;</code>
+    <code class="kd">var</code> <code class="nx">step</code> <code class="o">=</code> <code class="nx">options</code><code class="p">.</code><code class="nx">step</code> <code class="o">||</code> <code class="mi">1</code><code class="p">;</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6 you can specify <code>{}</code> as a parameter default value:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">start</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">end</code><code class="o">=-</code><code class="mi">1</code><code class="p">,</code> <code class="nx">step</code><code class="o">=</code><code class="mi">1</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{})</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><strong>More information:</strong> section &#x201C;<a href="ch_parameter-handling.html#sec_named-parameters">Simulating named parameters</a>&#x201D;.</p>
+
+
+<h3 id="sec_from-arguments-to-rest">
+<span class="section-number">4.9 </span>From <code>arguments</code> to rest parameters <a class="header-anchor" href="ch_core-features.html#sec_from-arguments-to-rest" aria-hidden="true">#</a></h3>
+
+<p>In ES5, if you want a function (or method) to accept an arbitrary number of arguments, you must use the special variable <code>arguments</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">logAllArguments</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kd">var</code> <code class="nx">i</code><code class="o">=</code><code class="mi">0</code><code class="p">;</code> <code class="nx">i</code> <code class="o">&lt;</code> <code class="nx">arguments</code><code class="p">.</code><code class="nx">length</code><code class="p">;</code> <code class="nx">i</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">arguments</code><code class="p">[</code><code class="nx">i</code><code class="p">]);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6, you can declare a rest parameter (<code>args</code> in the example below) via the <code>...</code> operator:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">logAllArguments</code><code class="p">(...</code><code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">arg</code> <code class="k">of</code> <code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">arg</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Rest parameters are even nicer if you are only interested in trailing parameters:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">format</code><code class="p">(</code><code class="nx">pattern</code><code class="p">,</code> <code class="p">...</code><code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Handling this case in ES5 is clumsy:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">format</code><code class="p">(</code><code class="nx">pattern</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">var</code> <code class="nx">args</code> <code class="o">=</code> <code class="p">[].</code><code class="nx">slice</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nx">arguments</code><code class="p">,</code> <code class="mi">1</code><code class="p">);</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Rest parameters make code easier to read: You can tell that a function has a variable number of parameters just by looking at its parameter definitions.</p>
+
+<p><strong>More information:</strong> section &#x201C;<a href="ch_parameter-handling.html#sec_rest-parameters">Rest parameters</a>&#x201D;.</p>
+
+
+<h3 id="sec_from-apply-to-spread">
+<span class="section-number">4.10 </span>From <code>apply()</code> to the spread operator (<code>...</code>) <a class="header-anchor" href="ch_core-features.html#sec_from-apply-to-spread" aria-hidden="true">#</a></h3>
+
+<p>In ES5, you turn arrays into parameters via <code>apply()</code>. ES6 has the spread operator for this purpose.</p>
+
+
+<h4 id="_mathmax">
+<span class="section-number">4.10.1 </span><code>Math.max()</code>
+ <a class="header-anchor" href="ch_core-features.html#_mathmax" aria-hidden="true">#</a></h4>
+
+<p><code>Math.max()</code> returns the numerically greatest of its arguments. It works for an arbitrary number of arguments, but not for Arrays.</p>
+
+<p>ES5 &#x2013; <code>apply()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.max.apply(Math, [-1, 5, 11, 3])
+11
+</pre></div>
+
+</figure>
+
+<p>ES6 &#x2013; spread operator:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.max(...[-1, 5, 11, 3])
+11
+</pre></div>
+
+</figure>
+
+<h4 id="_arrayprototypepush">
+<span class="section-number">4.10.2 </span><code>Array.prototype.push()</code>
+ <a class="header-anchor" href="ch_core-features.html#_arrayprototypepush" aria-hidden="true">#</a></h4>
+
+<p><code>Array.prototype.push()</code> appends all of its arguments as elements to its receiver. There is no method that destructively appends an Array to another one.</p>
+
+<p>ES5 &#x2013; <code>apply()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">arr1</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="kd">var</code> <code class="nx">arr2</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;c&apos;</code><code class="p">,</code> <code class="s1">&apos;d&apos;</code><code class="p">];</code>
+
+<code class="nx">arr1</code><code class="p">.</code><code class="nx">push</code><code class="p">.</code><code class="nx">apply</code><code class="p">(</code><code class="nx">arr1</code><code class="p">,</code> <code class="nx">arr2</code><code class="p">);</code>
+    <code class="c1">// arr1 is now [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;]</code>
+</pre></div>
+
+</figure>
+
+<p>ES6 &#x2013; spread operator:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr1</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="kr">const</code> <code class="nx">arr2</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;c&apos;</code><code class="p">,</code> <code class="s1">&apos;d&apos;</code><code class="p">];</code>
+
+<code class="nx">arr1</code><code class="p">.</code><code class="nx">push</code><code class="p">(...</code><code class="nx">arr2</code><code class="p">);</code>
+    <code class="c1">// arr1 is now [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;]</code>
+</pre></div>
+
+</figure>
+
+<p><strong>More information:</strong> section &#x201C;<a href="ch_parameter-handling.html#sec_spread-operator">The spread operator (<code>...</code>)</a>&#x201D;.</p>
+
+
+<h3 id="sec_from-concat-to-spread">
+<span class="section-number">4.11 </span>From <code>concat()</code> to the spread operator (<code>...</code>) <a class="header-anchor" href="ch_core-features.html#sec_from-concat-to-spread" aria-hidden="true">#</a></h3>
+
+<p>The spread operator can also (non-destructively) turn the contents of its operand into Array elements. That means that it becomes an alternative to the Array method <code>concat()</code>.</p>
+
+<p>ES5 &#x2013; <code>concat()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">arr1</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="kd">var</code> <code class="nx">arr2</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;c&apos;</code><code class="p">];</code>
+<code class="kd">var</code> <code class="nx">arr3</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;d&apos;</code><code class="p">,</code> <code class="s1">&apos;e&apos;</code><code class="p">];</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">arr1</code><code class="p">.</code><code class="nx">concat</code><code class="p">(</code><code class="nx">arr2</code><code class="p">,</code> <code class="nx">arr3</code><code class="p">));</code>
+    <code class="c1">// [ &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos; ]</code>
+</pre></div>
+
+</figure>
+
+<p>ES6 &#x2013; spread operator:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr1</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="kr">const</code> <code class="nx">arr2</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;c&apos;</code><code class="p">];</code>
+<code class="kr">const</code> <code class="nx">arr3</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;d&apos;</code><code class="p">,</code> <code class="s1">&apos;e&apos;</code><code class="p">];</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">([...</code><code class="nx">arr1</code><code class="p">,</code> <code class="p">...</code><code class="nx">arr2</code><code class="p">,</code> <code class="p">...</code><code class="nx">arr3</code><code class="p">]);</code>
+    <code class="c1">// [ &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos; ]</code>
+</pre></div>
+
+</figure>
+
+<p><strong>More information:</strong> section &#x201C;<a href="ch_parameter-handling.html#sec_spread-operator">The spread operator (<code>...</code>)</a>&#x201D;.</p>
+
+
+<h3 id="sec_from-func-expr-to-method-def">
+<span class="section-number">4.12 </span>From function expressions in object literals to method definitions <a class="header-anchor" href="ch_core-features.html#sec_from-func-expr-to-method-def" aria-hidden="true">#</a></h3>
+
+<p>In JavaScript, methods are properties whose values are functions.</p>
+
+<p>In ES5 object literals, methods are created like other properties. The property values are provided via function expressions.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">foo</code><code class="o">:</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">},</code>
+    <code class="nx">bar</code><code class="o">:</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">foo</code><code class="p">();</code>
+    <code class="p">},</code> <code class="c1">// trailing comma is legal in ES5</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>ES6 has <em>method definitions</em>, special syntax for creating methods:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">foo</code><code class="p">()</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">},</code>
+    <code class="nx">bar</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">foo</code><code class="p">();</code>
+    <code class="p">},</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><strong>More information:</strong> section &#x201C;<a href="ch_oop-besides-classes.html#object-literal-method-definitions">Method definitions</a>&#x201D;.</p>
+
+
+<h3 id="sec_from-constr-to-class">
+<span class="section-number">4.13 </span>From constructors to classes <a class="header-anchor" href="ch_core-features.html#sec_from-constr-to-class" aria-hidden="true">#</a></h3>
+
+<p>ES6 classes are mostly just more convenient syntax for constructor functions.</p>
+
+<h4 id="_base-classes">
+<span class="section-number">4.13.1 </span>Base classes <a class="header-anchor" href="ch_core-features.html#_base-classes" aria-hidden="true">#</a></h4>
+
+<p>In ES5, you implement constructor functions directly:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">Person</code><code class="p">(</code><code class="nx">name</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">this</code><code class="p">.</code><code class="nx">name</code> <code class="o">=</code> <code class="nx">name</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">Person</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">describe</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="s1">&apos;Person called &apos;</code><code class="o">+</code><code class="k">this</code><code class="p">.</code><code class="nx">name</code><code class="p">;</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6, classes provide slightly more convenient syntax for constructor functions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Person</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">name</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">name</code> <code class="o">=</code> <code class="nx">name</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">describe</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="s1">&apos;Person called &apos;</code><code class="o">+</code><code class="k">this</code><code class="p">.</code><code class="nx">name</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Note the compact syntax for method definitions &#x2013; no keyword <code>function</code> needed. Also note that there are no commas between the parts of a class.</p>
+
+<h4 id="_derived-classes">
+<span class="section-number">4.13.2 </span>Derived classes <a class="header-anchor" href="ch_core-features.html#_derived-classes" aria-hidden="true">#</a></h4>
+
+<p>Subclassing is complicated in ES5, especially referring to super-constructors and super-properties. This is the canonical way of creating a sub-constructor <code>Employee</code> of <code>Person</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">Employee</code><code class="p">(</code><code class="nx">name</code><code class="p">,</code> <code class="nx">title</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">Person</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="nx">name</code><code class="p">);</code> <code class="c1">// super(name)</code>
+    <code class="k">this</code><code class="p">.</code><code class="nx">title</code> <code class="o">=</code> <code class="nx">title</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">Employee</code><code class="p">.</code><code class="nx">prototype</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nx">Person</code><code class="p">.</code><code class="nx">prototype</code><code class="p">);</code>
+<code class="nx">Employee</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">constructor</code> <code class="o">=</code> <code class="nx">Employee</code><code class="p">;</code>
+<code class="nx">Employee</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">describe</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">Person</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">describe</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="k">this</code><code class="p">)</code> <code class="c1">// super.describe()</code>
+           <code class="o">+</code> <code class="s1">&apos; (&apos;</code> <code class="o">+</code> <code class="k">this</code><code class="p">.</code><code class="nx">title</code> <code class="o">+</code> <code class="s1">&apos;)&apos;</code><code class="p">;</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>ES6 has built-in support for subclassing, via the <code>extends</code> clause:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Employee</code> <code class="kr">extends</code> <code class="nx">Person</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">name</code><code class="p">,</code> <code class="nx">title</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kr">super</code><code class="p">(</code><code class="nx">name</code><code class="p">);</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">title</code> <code class="o">=</code> <code class="nx">title</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">describe</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="kr">super</code><code class="p">.</code><code class="nx">describe</code><code class="p">()</code> <code class="o">+</code> <code class="s1">&apos; (&apos;</code> <code class="o">+</code> <code class="k">this</code><code class="p">.</code><code class="nx">title</code> <code class="o">+</code> <code class="s1">&apos;)&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><strong>More information:</strong> chapter &#x201C;<a href="ch_classes.html#ch_classes">Classes</a>&#x201D;.</p>
+
+
+<h3 id="sec_from-custom-error-to-error-subclass">
+<span class="section-number">4.14 </span>From custom error constructors to subclasses of <code>Error</code>
+ <a class="header-anchor" href="ch_core-features.html#sec_from-custom-error-to-error-subclass" aria-hidden="true">#</a></h3>
+
+<p>In ES5, it is impossible to subclass the built-in constructor for exceptions, <code>Error</code>. The following code shows a work-around that gives the constructor <code>MyError</code> important features such as a stack trace:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">MyError</code><code class="p">()</code> <code class="p">{</code>
+    <code class="c1">// Use Error as a function</code>
+    <code class="kd">var</code> <code class="nx">superInstance</code> <code class="o">=</code> <code class="nb">Error</code><code class="p">.</code><code class="nx">apply</code><code class="p">(</code><code class="kc">null</code><code class="p">,</code> <code class="nx">arguments</code><code class="p">);</code>
+    <code class="nx">copyOwnPropertiesFrom</code><code class="p">(</code><code class="k">this</code><code class="p">,</code> <code class="nx">superInstance</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="nx">MyError</code><code class="p">.</code><code class="nx">prototype</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="nb">Error</code><code class="p">.</code><code class="nx">prototype</code><code class="p">);</code>
+<code class="nx">MyError</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">constructor</code> <code class="o">=</code> <code class="nx">MyError</code><code class="p">;</code>
+
+<code class="kd">function</code> <code class="nx">copyOwnPropertiesFrom</code><code class="p">(</code><code class="nx">target</code><code class="p">,</code> <code class="nx">source</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyNames</code><code class="p">(</code><code class="nx">source</code><code class="p">)</code>
+    <code class="p">.</code><code class="nx">forEach</code><code class="p">(</code><code class="kd">function</code><code class="p">(</code><code class="nx">propKey</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kd">var</code> <code class="nx">desc</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">source</code><code class="p">,</code> <code class="nx">propKey</code><code class="p">);</code>
+        <code class="nb">Object</code><code class="p">.</code><code class="nx">defineProperty</code><code class="p">(</code><code class="nx">target</code><code class="p">,</code> <code class="nx">propKey</code><code class="p">,</code> <code class="nx">desc</code><code class="p">);</code>
+    <code class="p">});</code>
+    <code class="k">return</code> <code class="nx">target</code><code class="p">;</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6, all built-in constructors can be subclassed, which is why the following code achieves what the ES5 code can only simulate:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">MyError</code> <code class="kr">extends</code> <code class="nb">Error</code> <code class="p">{</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><strong>More information:</strong> section &#x201C;<a href="ch_classes.html#subclassing-builtin-constructors">Subclassing built-in constructors</a>&#x201D;.</p>
+
+
+<h3 id="sec_from-obj-to-map">
+<span class="section-number">4.15 </span>From objects to Maps <a class="header-anchor" href="ch_core-features.html#sec_from-obj-to-map" aria-hidden="true">#</a></h3>
+
+<p>Using the language construct <em>object</em> as a map from strings to arbitrary values (a data structure) has always been a makeshift solution in JavaScript. The safest way to do so is by creating an object whose prototype is <code>null</code>. Then you still have to ensure that no key is ever the string <code>&apos;__proto__&apos;</code>, because that property key triggers special functionality in many JavaScript engines.</p>
+
+<p>The following ES5 code contains the function <code>countWords</code> that uses the object <code>dict</code> as a map:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">dict</code> <code class="o">=</code> <code class="nb">Object</code><code class="p">.</code><code class="nx">create</code><code class="p">(</code><code class="kc">null</code><code class="p">);</code>
+<code class="kd">function</code> <code class="nx">countWords</code><code class="p">(</code><code class="nx">word</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">var</code> <code class="nx">escapedWord</code> <code class="o">=</code> <code class="nx">escapeKey</code><code class="p">(</code><code class="nx">word</code><code class="p">);</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">escapedWord</code> <code class="k">in</code> <code class="nx">dict</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">dict</code><code class="p">[</code><code class="nx">escapedWord</code><code class="p">]</code><code class="o">++</code><code class="p">;</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+        <code class="nx">dict</code><code class="p">[</code><code class="nx">escapedWord</code><code class="p">]</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">escapeKey</code><code class="p">(</code><code class="nx">key</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">key</code><code class="p">.</code><code class="nx">indexOf</code><code class="p">(</code><code class="s1">&apos;__proto__&apos;</code><code class="p">)</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">key</code><code class="o">+</code><code class="s1">&apos;%&apos;</code><code class="p">;</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">key</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6, you can use the built-in data structure <code>Map</code> and don&#x2019;t have to escape keys. As a downside, incrementing values inside Maps is less convenient.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">();</code>
+<code class="kd">function</code> <code class="nx">countWords</code><code class="p">(</code><code class="nx">word</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">count</code> <code class="o">=</code> <code class="nx">map</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">word</code><code class="p">)</code> <code class="o">||</code> <code class="mi">0</code><code class="p">;</code>
+    <code class="nx">map</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="nx">word</code><code class="p">,</code> <code class="nx">count</code> <code class="o">+</code> <code class="mi">1</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Another benefit of Maps is that you can use arbitrary values as keys, not just strings.</p>
+
+<p>
+  <strong>More information:</strong>
+</p>
+
+<ul>
+  <li>Section &#x201C;<a href="http://speakingjs.com/es5/ch17.html#dict_pattern">The dict Pattern: Objects Without Prototypes Are Better Maps</a>&#x201D; in &#x201C;Speaking JavaScript&#x201D;</li>
+  <li>Chapter &#x201C;<a href="ch_maps-sets.html#ch_maps-sets">Maps and Sets</a>&#x201D;</li>
+</ul>
+
+
+<h3 id="sec_new-str-methods-core-feature">
+<span class="section-number">4.16 </span>New string methods <a class="header-anchor" href="ch_core-features.html#sec_new-str-methods-core-feature" aria-hidden="true">#</a></h3>
+
+<p>The ECMAScript 6 standard library provides several new methods for strings.</p>
+
+<p>From <code>indexOf</code> to <code>startsWith</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">if</code> <code class="p">(</code><code class="nx">str</code><code class="p">.</code><code class="nx">indexOf</code><code class="p">(</code><code class="s1">&apos;x&apos;</code><code class="p">)</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{}</code> <code class="c1">// ES5</code>
+<code class="k">if</code> <code class="p">(</code><code class="nx">str</code><code class="p">.</code><code class="nx">startsWith</code><code class="p">(</code><code class="s1">&apos;x&apos;</code><code class="p">))</code> <code class="p">{}</code> <code class="c1">// ES6</code>
+</pre></div>
+
+</figure>
+
+<p>From <code>indexOf</code> to <code>endsWith</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">endsWith</code><code class="p">(</code><code class="nx">str</code><code class="p">,</code> <code class="nx">suffix</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// ES5</code>
+  <code class="kd">var</code> <code class="nx">index</code> <code class="o">=</code> <code class="nx">str</code><code class="p">.</code><code class="nx">indexOf</code><code class="p">(</code><code class="nx">suffix</code><code class="p">);</code>
+  <code class="k">return</code> <code class="nx">index</code> <code class="o">&gt;=</code> <code class="mi">0</code>
+    <code class="o">&amp;&amp;</code> <code class="nx">index</code> <code class="o">===</code> <code class="nx">str</code><code class="p">.</code><code class="nx">length</code><code class="o">-</code><code class="nx">suffix</code><code class="p">.</code><code class="nx">length</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="nx">str</code><code class="p">.</code><code class="nx">endsWith</code><code class="p">(</code><code class="nx">suffix</code><code class="p">);</code> <code class="c1">// ES6</code>
+</pre></div>
+
+</figure>
+
+<p>From <code>indexOf</code> to <code>includes</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">if</code> <code class="p">(</code><code class="nx">str</code><code class="p">.</code><code class="nx">indexOf</code><code class="p">(</code><code class="s1">&apos;x&apos;</code><code class="p">)</code> <code class="o">&gt;=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{}</code> <code class="c1">// ES5</code>
+<code class="k">if</code> <code class="p">(</code><code class="nx">str</code><code class="p">.</code><code class="nx">includes</code><code class="p">(</code><code class="s1">&apos;x&apos;</code><code class="p">))</code> <code class="p">{}</code> <code class="c1">// ES6</code>
+</pre></div>
+
+</figure>
+
+<p>From <code>join</code> to <code>repeat</code> (the ES5 way of repeating a string is more of a hack):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">new</code> <code class="nb">Array</code><code class="p">(</code><code class="mi">3</code><code class="o">+</code><code class="mi">1</code><code class="p">).</code><code class="nx">join</code><code class="p">(</code><code class="s1">&apos;#&apos;</code><code class="p">)</code> <code class="c1">// ES5</code>
+<code class="s1">&apos;#&apos;</code><code class="p">.</code><code class="nx">repeat</code><code class="p">(</code><code class="mi">3</code><code class="p">)</code> <code class="c1">// ES6</code>
+</pre></div>
+
+</figure>
+
+<p><strong>More information:</strong> Chapter &#x201C;<a href="ch_strings.html#ch_strings">New string features</a>&#x201D;</p>
+
+
+<h3 id="sec_new-array-methods-core-feature">
+<span class="section-number">4.17 </span>New Array methods <a class="header-anchor" href="ch_core-features.html#sec_new-array-methods-core-feature" aria-hidden="true">#</a></h3>
+
+<p>There are also several new Array methods in ES6.</p>
+
+<h4 id="_from-arrayprototypeindexof-to-arrayprototypefindindex">
+<span class="section-number">4.17.1 </span>From <code>Array.prototype.indexOf</code> to <code>Array.prototype.findIndex</code>
+ <a class="header-anchor" href="ch_core-features.html#_from-arrayprototypeindexof-to-arrayprototypefindindex" aria-hidden="true">#</a></h4>
+
+<p>The latter can be used to find <code>NaN</code>, which the former can&#x2019;t detect:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="kc">NaN</code><code class="p">];</code>
+
+<code class="nx">arr</code><code class="p">.</code><code class="nx">indexOf</code><code class="p">(</code><code class="kc">NaN</code><code class="p">);</code> <code class="c1">// -1</code>
+<code class="nx">arr</code><code class="p">.</code><code class="nx">findIndex</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="nb">Number</code><code class="p">.</code><code class="nb">isNaN</code><code class="p">(</code><code class="nx">x</code><code class="p">));</code> <code class="c1">// 1</code>
+</pre></div>
+
+</figure>
+
+<p>As an aside, the new <code>Number.isNaN()</code> provides a safe way to detect <code>NaN</code> (because it doesn&#x2019;t coerce non-numbers to numbers):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; isNaN(&apos;abc&apos;)
+true
+&gt; Number.isNaN(&apos;abc&apos;)
+false
+</pre></div>
+
+</figure>
+
+<h4 id="sec_from-slice-to-arrayfrom-spread">
+<span class="section-number">4.17.2 </span>From <code>Array.prototype.slice()</code> to <code>Array.from()</code> or the spread operator <a class="header-anchor" href="ch_core-features.html#sec_from-slice-to-arrayfrom-spread" aria-hidden="true">#</a></h4>
+
+<p>In ES5, <code>Array.prototype.slice()</code> was used to convert Array-like objects to Arrays. In ES6, you have <code>Array.from()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">arr1</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">slice</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nx">arguments</code><code class="p">);</code> <code class="c1">// ES5</code>
+<code class="kr">const</code> <code class="nx">arr2</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">from</code><code class="p">(</code><code class="nx">arguments</code><code class="p">);</code> <code class="c1">// ES6</code>
+</pre></div>
+
+</figure>
+
+<p>If a value is iterable (as all Array-like DOM data structure are by now), you can also use the spread operator (<code>...</code>) to convert it to an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr1</code> <code class="o">=</code> <code class="p">[...</code><code class="s1">&apos;abc&apos;</code><code class="p">];</code>
+    <code class="c1">// [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;]</code>
+<code class="kr">const</code> <code class="nx">arr2</code> <code class="o">=</code> <code class="p">[...</code><code class="k">new</code> <code class="nx">Set</code><code class="p">().</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;a&apos;</code><code class="p">).</code><code class="nx">add</code><code class="p">(</code><code class="s1">&apos;b&apos;</code><code class="p">)];</code>
+    <code class="c1">// [&apos;a&apos;, &apos;b&apos;]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_from-apply-to-arrayprototypefill">
+<span class="section-number">4.17.3 </span>From <code>apply()</code> to <code>Array.prototype.fill()</code>
+ <a class="header-anchor" href="ch_core-features.html#_from-apply-to-arrayprototypefill" aria-hidden="true">#</a></h4>
+
+<p>In ES5, you can use <code>apply()</code>, as a hack, to create in Array of arbitrary length that is filled with <code>undefined</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Same as Array(undefined, undefined)</code>
+<code class="kd">var</code> <code class="nx">arr1</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">apply</code><code class="p">(</code><code class="kc">null</code><code class="p">,</code> <code class="k">new</code> <code class="nb">Array</code><code class="p">(</code><code class="mi">2</code><code class="p">));</code>
+    <code class="c1">// [undefined, undefined]</code>
+</pre></div>
+
+</figure>
+
+<p>In ES6, <code>fill()</code> is a simpler alternative:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr2</code> <code class="o">=</code> <code class="k">new</code> <code class="nb">Array</code><code class="p">(</code><code class="mi">2</code><code class="p">).</code><code class="nx">fill</code><code class="p">(</code><code class="kc">undefined</code><code class="p">);</code>
+    <code class="c1">// [undefined, undefined]</code>
+</pre></div>
+
+</figure>
+
+<p><code>fill()</code> is even more convenient if you want to create an Array that is filled with an arbitrary value:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// ES5</code>
+<code class="kd">var</code> <code class="nx">arr3</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">apply</code><code class="p">(</code><code class="kc">null</code><code class="p">,</code> <code class="k">new</code> <code class="nb">Array</code><code class="p">(</code><code class="mi">2</code><code class="p">))</code>
+    <code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="kd">function</code> <code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code> <code class="k">return</code> <code class="s1">&apos;x&apos;</code> <code class="p">});</code>
+    <code class="c1">// [&apos;x&apos;, &apos;x&apos;]</code>
+
+<code class="c1">// ES6</code>
+<code class="kr">const</code> <code class="nx">arr4</code> <code class="o">=</code> <code class="k">new</code> <code class="nb">Array</code><code class="p">(</code><code class="mi">2</code><code class="p">).</code><code class="nx">fill</code><code class="p">(</code><code class="s1">&apos;x&apos;</code><code class="p">);</code>
+    <code class="c1">// [&apos;x&apos;, &apos;x&apos;]</code>
+</pre></div>
+
+</figure>
+
+<p><code>fill()</code> replaces all Array elements with the given value. Holes are treated as if they were elements.</p>
+
+<p><strong>More information:</strong> Sect. &#x201C;<a href="ch_arrays.html#sec_creating-filled-arrays">Creating Arrays filled with values</a>&#x201D;</p>
+
+
+<h3 id="sec_from-cjs-to-esm">
+<span class="section-number">4.18 </span>From CommonJS modules to ES6 modules <a class="header-anchor" href="ch_core-features.html#sec_from-cjs-to-esm" aria-hidden="true">#</a></h3>
+
+<p>Even in ES5, module systems based on either AMD syntax or CommonJS syntax have mostly replaced hand-written solutions such as <a href="http://christianheilmann.com/2007/08/22/again-with-the-module-pattern-reveal-something-to-the-world/">the revealing module pattern</a>.</p>
+
+<p>ES6 has built-in support for modules. Alas, no JavaScript engine supports them natively, yet. But tools such as browserify, webpack or jspm let you use ES6 syntax to create modules, making the code you write future-proof.</p>
+
+<h4 id="_multiple-exports">
+<span class="section-number">4.18.1 </span>Multiple exports <a class="header-anchor" href="ch_core-features.html#_multiple-exports" aria-hidden="true">#</a></h4>
+
+<h5 id="_multiple-exports-in-commonjs">
+<span class="section-number">4.18.1.1 </span>Multiple exports in CommonJS <a class="header-anchor" href="ch_core-features.html#_multiple-exports-in-commonjs" aria-hidden="true">#</a></h5>
+
+<p>In CommonJS, you export multiple entities as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//------ lib.js ------</code>
+<code class="kd">var</code> <code class="nx">sqrt</code> <code class="o">=</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">sqrt</code><code class="p">;</code>
+<code class="kd">function</code> <code class="nx">square</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">x</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">diag</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">sqrt</code><code class="p">(</code><code class="nx">square</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="o">+</code> <code class="nx">square</code><code class="p">(</code><code class="nx">y</code><code class="p">));</code>
+<code class="p">}</code>
+<code class="nx">module</code><code class="p">.</code><code class="nx">exports</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">sqrt</code><code class="o">:</code> <code class="nx">sqrt</code><code class="p">,</code>
+    <code class="nx">square</code><code class="o">:</code> <code class="nx">square</code><code class="p">,</code>
+    <code class="nx">diag</code><code class="o">:</code> <code class="nx">diag</code><code class="p">,</code>
+<code class="p">};</code>
+
+<code class="c1">//------ main1.js ------</code>
+<code class="kd">var</code> <code class="nx">square</code> <code class="o">=</code> <code class="nx">require</code><code class="p">(</code><code class="s1">&apos;lib&apos;</code><code class="p">).</code><code class="nx">square</code><code class="p">;</code>
+<code class="kd">var</code> <code class="nx">diag</code> <code class="o">=</code> <code class="nx">require</code><code class="p">(</code><code class="s1">&apos;lib&apos;</code><code class="p">).</code><code class="nx">diag</code><code class="p">;</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">square</code><code class="p">(</code><code class="mi">11</code><code class="p">));</code> <code class="c1">// 121</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">diag</code><code class="p">(</code><code class="mi">4</code><code class="p">,</code> <code class="mi">3</code><code class="p">));</code> <code class="c1">// 5</code>
+</pre></div>
+
+</figure>
+
+<p>Alternatively, you can import the whole module as an object and access <code>square</code> and <code>diag</code> via it:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//------ main2.js ------</code>
+<code class="kd">var</code> <code class="nx">lib</code> <code class="o">=</code> <code class="nx">require</code><code class="p">(</code><code class="s1">&apos;lib&apos;</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">lib</code><code class="p">.</code><code class="nx">square</code><code class="p">(</code><code class="mi">11</code><code class="p">));</code> <code class="c1">// 121</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">lib</code><code class="p">.</code><code class="nx">diag</code><code class="p">(</code><code class="mi">4</code><code class="p">,</code> <code class="mi">3</code><code class="p">));</code> <code class="c1">// 5</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_multiple-exports-in-es6">
+<span class="section-number">4.18.1.2 </span>Multiple exports in ES6 <a class="header-anchor" href="ch_core-features.html#_multiple-exports-in-es6" aria-hidden="true">#</a></h5>
+
+<p>In ES6, multiple exports are called <em>named exports</em> and handled like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//------ lib.js ------</code>
+<code class="kr">export</code> <code class="kr">const</code> <code class="nx">sqrt</code> <code class="o">=</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">sqrt</code><code class="p">;</code>
+<code class="kr">export</code> <code class="kd">function</code> <code class="nx">square</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">x</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kr">export</code> <code class="kd">function</code> <code class="nx">diag</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">sqrt</code><code class="p">(</code><code class="nx">square</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="o">+</code> <code class="nx">square</code><code class="p">(</code><code class="nx">y</code><code class="p">));</code>
+<code class="p">}</code>
+
+<code class="c1">//------ main1.js ------</code>
+<code class="kr">import</code> <code class="p">{</code> <code class="nx">square</code><code class="p">,</code> <code class="nx">diag</code> <code class="p">}</code> <code class="nx">from</code> <code class="s1">&apos;lib&apos;</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">square</code><code class="p">(</code><code class="mi">11</code><code class="p">));</code> <code class="c1">// 121</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">diag</code><code class="p">(</code><code class="mi">4</code><code class="p">,</code> <code class="mi">3</code><code class="p">));</code> <code class="c1">// 5</code>
+</pre></div>
+
+</figure>
+
+<p>The syntax for importing modules as objects looks as follows (line A):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//------ main2.js ------</code>
+<code class="kr">import</code> <code class="o">*</code> <code class="nx">as</code> <code class="nx">lib</code> <code class="nx">from</code> <code class="s1">&apos;lib&apos;</code><code class="p">;</code> <code class="c1">// (A)</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">lib</code><code class="p">.</code><code class="nx">square</code><code class="p">(</code><code class="mi">11</code><code class="p">));</code> <code class="c1">// 121</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">lib</code><code class="p">.</code><code class="nx">diag</code><code class="p">(</code><code class="mi">4</code><code class="p">,</code> <code class="mi">3</code><code class="p">));</code> <code class="c1">// 5</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_single-exports">
+<span class="section-number">4.18.2 </span>Single exports <a class="header-anchor" href="ch_core-features.html#_single-exports" aria-hidden="true">#</a></h4>
+
+<h5 id="_single-exports-in-commonjs">
+<span class="section-number">4.18.2.1 </span>Single exports in CommonJS <a class="header-anchor" href="ch_core-features.html#_single-exports-in-commonjs" aria-hidden="true">#</a></h5>
+
+<p>Node.js extends CommonJS and lets you export single values from modules, via <code>module.exports</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//------ myFunc.js ------</code>
+<code class="nx">module</code><code class="p">.</code><code class="nx">exports</code> <code class="o">=</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">};</code>
+
+<code class="c1">//------ main1.js ------</code>
+<code class="kd">var</code> <code class="nx">myFunc</code> <code class="o">=</code> <code class="nx">require</code><code class="p">(</code><code class="s1">&apos;myFunc&apos;</code><code class="p">);</code>
+<code class="nx">myFunc</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_single-exports-in-es6">
+<span class="section-number">4.18.2.2 </span>Single exports in ES6 <a class="header-anchor" href="ch_core-features.html#_single-exports-in-es6" aria-hidden="true">#</a></h5>
+
+<p>In ES6, the same thing is done via a so-called <em>default export</em> (declared via <code>export default</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//------ myFunc.js ------</code>
+<code class="kr">export</code> <code class="k">default</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code> <code class="c1">// no semicolon!</code>
+
+<code class="c1">//------ main1.js ------</code>
+<code class="kr">import</code> <code class="nx">myFunc</code> <code class="nx">from</code> <code class="s1">&apos;myFunc&apos;</code><code class="p">;</code>
+<code class="nx">myFunc</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p><strong>More information:</strong> chapter &#x201C;<a href="ch_modules.html#ch_modules">Modules</a>&#x201D;.</p>
+
+
+<h3 id="sec_what-next-core-features">
+<span class="section-number">4.19 </span>What to do next <a class="header-anchor" href="ch_core-features.html#sec_what-next-core-features" aria-hidden="true">#</a></h3>
+
+<p>Now that you got a first taste of ES6, you can continue your exploration by browsing the chapters: Each chapter covers a feature or a set of related features and starts with an overview. <a href="ch_overviews.html#ch_overviews">The last chapter</a> collects all of these overview sections in a single location.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="pt_data.html">II Data</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

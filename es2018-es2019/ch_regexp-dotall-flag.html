@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>`s` (`dotAll`) flag for regular expressions • Exploring ES2018 and ES2019</title>
+    <link rel="stylesheet" href="site.css" type="text/css">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="top-bar-content">
+            <a href="toc.html">Table of contents</a><br>
+            Please support this book:
+            <a href="https://payhip.com/b/JrTz">buy it (PDF, EPUB, MOBI)</a>
+            or
+            <a href="http://www.2ality.com/p/donate.html">donate</a>
+        </div>
+    </div>
+
+    <div id="page-content">
+
+        <div id="adbox">
+        <div id="adbox-explain">(Ad, please don’t block.)</div>
+                    <script async type="text/javascript" src="https://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+                </div>
+
+        <h2 id="ch_regexp-dotall-flag"><code>s</code> (<code>dotAll</code>) flag for regular expressions</h2>
+<p>This chapter explains the proposal “<a href="https://github.com/tc39/proposal-regexp-dotall-flag"><code>s</code> (<code>dotAll</code>) flag for regular expressions</a>” by Mathias Bynens.</p>
+<h3 id="overview-1">Overview</h3>
+<p>Currently, the dot (<code>.</code>) in regular expressions doesn’t match line terminator characters:</p>
+<pre class="repl"><code>&gt; /^.$/.test(&#39;\n&#39;)
+false</code></pre>
+<p>The proposal specifies the regular expression flag <code>/s</code> that changes that:</p>
+<pre class="repl"><code>&gt; /^.$/s.test(&#39;\n&#39;)
+true</code></pre>
+<h3 id="limitations-of-the-dot-.-in-regular-expressions">Limitations of the dot (<code>.</code>) in regular expressions</h3>
+<p>The dot (<code>.</code>) in regular expressions has two limitations.</p>
+<p>First, it doesn’t match astral (non-BMP) characters such as emoji:</p>
+<pre class="repl"><code>&gt; /^.$/.test(&#39;😀&#39;)
+false</code></pre>
+<p>This can be fixed via the <code>/u</code> (<code>unicode</code>) flag:</p>
+<pre class="repl"><code>&gt; /^.$/u.test(&#39;😀&#39;)
+true</code></pre>
+<p>Second, the dot does not match line terminator characters:</p>
+<pre class="repl"><code>&gt; /^.$/.test(&#39;\n&#39;)
+false</code></pre>
+<p>That can currently only be fixed by replacing the dot with work-arounds such as <code>[^]</code> (“all characters except no character”) or <code>[\s\S]</code> (“either whitespace nor not whitespace”).</p>
+<pre class="repl"><code>&gt; /^[^]$/.test(&#39;\n&#39;)
+true
+&gt; /^[\s\S]$/.test(&#39;\n&#39;)
+true</code></pre>
+<h4 id="line-terminators-recognized-by-ecmascript">Line terminators recognized by ECMAScript</h4>
+<p><em>Line termators</em> in ECMAScript affect:</p>
+<ul>
+<li>The dot, in all regular expressions that don’t have the flag <code>/s</code>.</li>
+<li>The anchors <code>^</code> and <code>$</code> if the flag <code>/m</code> (<code>multiline</code>) is used.</li>
+</ul>
+<p>The following for characters are considered line terminators by ECMAScript:</p>
+<ul>
+<li>U+000A LINE FEED (LF) (<code>\n</code>)</li>
+<li>U+000D CARRIAGE RETURN (CR) (<code>\r</code>)</li>
+<li>U+2028 LINE SEPARATOR</li>
+<li>U+2029 PARAGRAPH SEPARATOR</li>
+</ul>
+<p>There are additionally some newline-ish characters that are not considered line terminators by ECMAScript:</p>
+<ul>
+<li>U+000B VERTICAL TAB (<code>\v</code>)</li>
+<li>U+000C FORM FEED (<code>\f</code>)</li>
+<li>U+0085 NEXT LINE</li>
+</ul>
+<p>Those three characters <em>are</em> matched by the dot without a flag:</p>
+<pre class="repl"><code>&gt; /^...$/.test(&#39;\v\f\u{0085}&#39;)
+true</code></pre>
+<h3 id="the-proposal">The proposal</h3>
+<p>The proposal introduces the regular expression flag <code>/s</code> (short for “singleline”), which leads to the dot matching line terminators:</p>
+<pre class="repl"><code>&gt; /^.$/s.test(&#39;\n&#39;)
+true</code></pre>
+<p>The long name of <code>/s</code> is <code>dotAll</code>:</p>
+<pre class="repl"><code>&gt; /./s.dotAll
+true
+&gt; /./s.flags
+&#39;s&#39;
+&gt; new RegExp(&#39;.&#39;, &#39;s&#39;).dotAll
+true
+&gt; /./.dotAll
+false</code></pre>
+<h4 id="dotall-vs.-multiline"><code>dotAll</code> vs. <code>multiline</code></h4>
+<ul>
+<li><code>dotAll</code> only affects the dot.</li>
+<li><code>multiline</code> only affects <code>^</code> and <code>$</code>.</li>
+</ul>
+<h3 id="faq">FAQ</h3>
+<h4 id="why-is-the-flag-named-s">Why is the flag named <code>/s</code>?</h4>
+<p><code>dotAll</code> is a good description of what the flag does, so, arguably, <code>/a</code> or <code>/d</code> would have been better names. However, <code>/s</code> is already an established name (Perl, Python, Java, C#, …).</p>
+
+        <div class="footer">
+            <div>
+                                <a id="commentLink" href="https://github.com/rauschma/exploring-es2018-es2019/issues/6">Comments</a>
+                <script defer src="count-comments.js"></script>
+                            </div>
+                        <div>
+                Next: <a href="ch_promise-prototype-finally.html"><code>Promise.prototype.finally()</code></a>
+            </div>
+                    </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,993 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>18. New Array features</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>18. New Array features</b><br>
+        <a href="index.html#toc_ch_arrays">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_arrays">
+<span class="section-number">18. </span>New Array features <a class="header-anchor" href="ch_arrays.html#ch_arrays" aria-hidden="true">#</a></h2>
+
+<hr class="scene-break">
+
+<ul>
+  <li>18.1. <a href="ch_arrays.html#sec_overview-arrays">Overview</a>
+</li>
+  <li>18.2. <a href="ch_arrays.html#sec_new-static-array-methods">New static <code>Array</code> methods</a>
+    <ul>
+      <li>18.2.1. <code>Array.from(arrayLike, mapFunc?, thisArg?)</code>
+</li>
+      <li>18.2.2. <code>Array.of(...items)</code>
+</li>
+    </ul>
+  </li>
+  <li>18.3. <a href="ch_arrays.html#sec_new-array-prototype-methods">New <code>Array.prototype</code> methods</a>
+    <ul>
+      <li>18.3.1. Iterating over Arrays</li>
+      <li>18.3.2. Searching for Array elements</li>
+      <li>18.3.3. <code>Array.prototype.copyWithin()</code>
+</li>
+      <li>18.3.4. <code>Array.prototype.fill()</code>
+</li>
+    </ul>
+  </li>
+  <li>18.4. <a href="ch_arrays.html#sec_array-holes">ES6 and holes in Arrays</a>
+    <ul>
+      <li>18.4.1. ECMAScript 6 treats holes like <code>undefined</code> elements</li>
+      <li>18.4.2. Array operations and holes</li>
+      <li>18.4.3. Creating Arrays filled with values</li>
+      <li>18.4.4. Removing holes from Arrays</li>
+    </ul>
+  </li>
+  <li>18.5. <a href="ch_arrays.html#Symbol_isConcatSpreadable">Configuring which objects are spread by <code>concat()</code> (<code>Symbol.isConcatSpreadable</code>)</a>
+    <ul>
+      <li>18.5.1. Default for Arrays: spreading</li>
+      <li>18.5.2. Default for non-Arrays: no spreading</li>
+      <li>18.5.3. Detecting Arrays</li>
+      <li>18.5.4. <code>Symbol.isConcatSpreadable</code> in the standard library</li>
+    </ul>
+  </li>
+  <li>18.6. <a href="ch_arrays.html#sec_range-of-array-indices">The numeric range of Array indices</a>
+</li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-arrays">
+<span class="section-number">18.1 </span>Overview <a class="header-anchor" href="ch_arrays.html#sec_overview-arrays" aria-hidden="true">#</a></h3>
+
+<p>New static <code>Array</code> methods:</p>
+
+<ul>
+  <li><code>Array.from(arrayLike, mapFunc?, thisArg?)</code></li>
+  <li><code>Array.of(...items)</code></li>
+</ul>
+
+<p>New <code>Array.prototype</code> methods:</p>
+
+<ul>
+  <li>Iterating:
+    <ul>
+      <li><code>Array.prototype.entries()</code></li>
+      <li><code>Array.prototype.keys()</code></li>
+      <li><code>Array.prototype.values()</code></li>
+    </ul>
+  </li>
+  <li>Searching for elements:
+    <ul>
+      <li><code>Array.prototype.find(predicate, thisArg?)</code></li>
+      <li><code>Array.prototype.findIndex(predicate, thisArg?)</code></li>
+    </ul>
+  </li>
+  <li><code>Array.prototype.copyWithin(target, start, end=this.length)</code></li>
+  <li><code>Array.prototype.fill(value, start=0, end=this.length)</code></li>
+</ul>
+
+
+<h3 id="sec_new-static-array-methods">
+<span class="section-number">18.2 </span>New static <code>Array</code> methods <a class="header-anchor" href="ch_arrays.html#sec_new-static-array-methods" aria-hidden="true">#</a></h3>
+
+<p>The object <code>Array</code> has new methods.</p>
+
+<h4 id="Array_from">
+<span class="section-number">18.2.1 </span><code>Array.from(arrayLike, mapFunc?, thisArg?)</code>
+ <a class="header-anchor" href="ch_arrays.html#Array_from" aria-hidden="true">#</a></h4>
+
+<p><code>Array.from()</code>&#x2019;s basic functionality is to convert two kinds of values to Arrays:</p>
+
+<ul>
+  <li>
+<a href="http://speakingjs.com/es5/ch18.html#_pitfall_array_like_objects">Array-like values</a>, which have a property <code>length</code> and indexed elements. Examples include the results of DOM operations such as <code>document.getElementsByClassName()</code>.</li>
+  <li>
+<a href="ch_iteration.html#ch_iteration">Iterable values</a>, whose contents can be retrieved one element at a time. Strings and Arrays are iterable, as are ECMAScript&#x2019;s new data structures <code>Map</code> and <code>Set</code>.</li>
+</ul>
+
+<p>The following is an example of converting an Array-like object to an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arrayLike</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">length</code><code class="o">:</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">0</code><code class="o">:</code> <code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="mi">1</code><code class="o">:</code> <code class="s1">&apos;b&apos;</code> <code class="p">};</code>
+
+<code class="c1">// for-of only works with iterable values</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">arrayLike</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// TypeError</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">from</code><code class="p">(</code><code class="nx">arrayLike</code><code class="p">);</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">arr</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// OK, iterable</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_mapping-via-arrayfrom">
+<span class="section-number">18.2.1.1 </span>Mapping via <code>Array.from()</code>
+ <a class="header-anchor" href="ch_arrays.html#_mapping-via-arrayfrom" aria-hidden="true">#</a></h5>
+
+<p><code>Array.from()</code> is also a convenient alternative to using <code>map()</code> <a href="http://speakingjs.com/es5/ch17.html#generic_method">generically</a>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">spans</code> <code class="o">=</code> <code class="nb">document</code><code class="p">.</code><code class="nx">querySelectorAll</code><code class="p">(</code><code class="s1">&apos;span.name&apos;</code><code class="p">);</code>
+
+<code class="c1">// map(), generically:</code>
+<code class="kr">const</code> <code class="nx">names1</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">map</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nx">spans</code><code class="p">,</code> <code class="nx">s</code> <code class="o">=&gt;</code> <code class="nx">s</code><code class="p">.</code><code class="nx">textContent</code><code class="p">);</code>
+
+<code class="c1">// Array.from():</code>
+<code class="kr">const</code> <code class="nx">names2</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">from</code><code class="p">(</code><code class="nx">spans</code><code class="p">,</code> <code class="nx">s</code> <code class="o">=&gt;</code> <code class="nx">s</code><code class="p">.</code><code class="nx">textContent</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>In this example, the result of <code>document.querySelectorAll()</code> is again an Array-like object, not an Array, which is why we couldn&#x2019;t invoke <code>map()</code> on it. Previously, we converted the Array-like object to an Array in order to call <code>forEach()</code>. Here, we skipped that intermediate step via a generic method call and via the two-parameter version of <code>Array.from()</code>.</p>
+
+<h5 id="_from-in-subclasses-of-array">
+<span class="section-number">18.2.1.2 </span><code>from()</code> in subclasses of Array <a class="header-anchor" href="ch_arrays.html#_from-in-subclasses-of-array" aria-hidden="true">#</a></h5>
+
+<p>Another use case for <code>Array.from()</code> is to convert an Array-like or iterable value to an instance of a subclass of <code>Array</code>. For example, if you create a subclass <code>MyArray</code> of <code>Array</code> and want to convert such an object to an instance of <code>MyArray</code>, you simply use <code>MyArray.from()</code>. The reason that that works is because constructors inherit from each other in ECMAScript 6 (a super-constructor is the prototype of its sub-constructors).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">MyArray</code> <code class="kr">extends</code> <code class="nb">Array</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+<code class="kr">const</code> <code class="nx">instanceOfMyArray</code> <code class="o">=</code> <code class="nx">MyArray</code><code class="p">.</code><code class="nx">from</code><code class="p">(</code><code class="nx">anIterable</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>You can also combine this functionality with mapping, to get a map operation where you control the result&#x2019;s constructor:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// from() &#x2013; determine the result&#x2019;s constructor via the receiver</code>
+<code class="c1">// (in this case, MyArray)</code>
+<code class="kr">const</code> <code class="nx">instanceOfMyArray</code> <code class="o">=</code> <code class="nx">MyArray</code><code class="p">.</code><code class="nx">from</code><code class="p">([</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">3</code><code class="p">],</code> <code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">x</code><code class="p">);</code>
+
+<code class="c1">// map(): the result is always an instance of Array</code>
+<code class="kr">const</code> <code class="nx">instanceOfArray</code>   <code class="o">=</code> <code class="p">[</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">3</code><code class="p">].</code><code class="nx">map</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">x</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>The species pattern lets you configure what instances non-static built-in methods (such as <code>slice()</code>, <code>filter()</code> and <code>map()</code>) return. It is explained in Sect. &#x201C;<a href="ch_classes.html#sec_species-pattern">The species pattern</a>&#x201D; in Chap. &#x201C;Classes&#x201D;.</p>
+
+<h4 id="_arrayofitems">
+<span class="section-number">18.2.2 </span><code>Array.of(...items)</code>
+ <a class="header-anchor" href="ch_arrays.html#_arrayofitems" aria-hidden="true">#</a></h4>
+
+<p><code>Array.of(item_0, item_1, &#xB7;&#xB7;&#xB7;)</code> creates an Array whose elements are <code>item_0</code>, <code>item_1</code>, etc.</p>
+
+<h5 id="_arrayof-as-an-array-literal-for-subclasses-of-array">
+<span class="section-number">18.2.2.1 </span><code>Array.of()</code> as an Array literal for subclasses of <code>Array</code>
+ <a class="header-anchor" href="ch_arrays.html#_arrayof-as-an-array-literal-for-subclasses-of-array" aria-hidden="true">#</a></h5>
+
+<p>If you want to turn several values into an Array, you should always use an Array literal, especially since the Array constructor doesn&#x2019;t work properly if there is a single value that is a number (<a href="http://speakingjs.com/es5/ch18.html#array_constructor">more information</a> on this quirk):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; new Array(3, 11, 8)
+[ 3, 11, 8 ]
+&gt; new Array(3)
+[ , ,  ,]
+&gt; new Array(3.1)
+RangeError: Invalid array length
+</pre></div>
+
+</figure>
+
+<p>But how are you supposed to turn values into an instance of a sub-constructor of <code>Array</code> then? This is where <code>Array.of()</code> helps (remember that sub-constructors of <code>Array</code> inherit all of <code>Array</code>&#x2019;s methods, including <code>of()</code>).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">MyArray</code> <code class="kr">extends</code> <code class="nb">Array</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">MyArray</code><code class="p">.</code><code class="k">of</code><code class="p">(</code><code class="mi">3</code><code class="p">,</code> <code class="mi">11</code><code class="p">,</code> <code class="mi">8</code><code class="p">)</code> <code class="k">instanceof</code> <code class="nx">MyArray</code><code class="p">);</code> <code class="c1">// true</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">MyArray</code><code class="p">.</code><code class="k">of</code><code class="p">(</code><code class="mi">3</code><code class="p">).</code><code class="nx">length</code> <code class="o">===</code> <code class="mi">1</code><code class="p">);</code> <code class="c1">// true</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_new-array-prototype-methods">
+<span class="section-number">18.3 </span>New <code>Array.prototype</code> methods <a class="header-anchor" href="ch_arrays.html#sec_new-array-prototype-methods" aria-hidden="true">#</a></h3>
+
+<p>Several new methods are available for Array instances.</p>
+
+<h4 id="_iterating-over-arrays">
+<span class="section-number">18.3.1 </span>Iterating over Arrays <a class="header-anchor" href="ch_arrays.html#_iterating-over-arrays" aria-hidden="true">#</a></h4>
+
+<p>The following methods help with iterating over Arrays:</p>
+
+<ul>
+  <li><code>Array.prototype.entries()</code></li>
+  <li><code>Array.prototype.keys()</code></li>
+  <li><code>Array.prototype.values()</code></li>
+</ul>
+
+<p>The result of each of the aforementioned methods is a sequence of values, but they are not returned as an Array; they are revealed one by one, via an iterator. Let&#x2019;s look at an example. I&#x2019;m using <code>Array.from()</code> to put the iterators&#x2019; contents into Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Array.from([&apos;a&apos;, &apos;b&apos;].keys())
+[ 0, 1 ]
+&gt; Array.from([&apos;a&apos;, &apos;b&apos;].values())
+[ &apos;a&apos;, &apos;b&apos; ]
+&gt; Array.from([&apos;a&apos;, &apos;b&apos;].entries())
+[ [ 0, &apos;a&apos; ],
+  [ 1, &apos;b&apos; ] ]
+</pre></div>
+
+</figure>
+
+<p>I could also have used <a href="ch_parameter-handling.html#sec_spread-operator">the spread operator (<code>...</code>)</a> to convert iterators to Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [...[&apos;a&apos;, &apos;b&apos;].keys()]
+[ 0, 1 ]
+</pre></div>
+
+</figure>
+
+<h5 id="_iterating-over-index-element-pairs">
+<span class="section-number">18.3.1.1 </span>Iterating over <code>[index, element]</code> pairs <a class="header-anchor" href="ch_arrays.html#_iterating-over-index-element-pairs" aria-hidden="true">#</a></h5>
+
+<p>You can combine <code>entries()</code> with ECMAScript 6&#x2019;s <code>for-of</code> loop and destructuring to conveniently iterate over <code>[index, element]</code> pairs:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">index</code><code class="p">,</code> <code class="nx">element</code><code class="p">]</code> <code class="k">of</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">].</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">index</code><code class="p">,</code> <code class="nx">element</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_searching-for-array-elements">
+<span class="section-number">18.3.2 </span>Searching for Array elements <a class="header-anchor" href="ch_arrays.html#_searching-for-array-elements" aria-hidden="true">#</a></h4>
+
+<p><code>Array.prototype.find(predicate, thisArg?)</code><br>
+Returns the first Array element for which the callback <code>predicate</code> returns <code>true</code>. If there is no such element, it returns <code>undefined</code>. Example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [6, -5, 8].find(x =&gt; x &lt; 0)
+-5
+&gt; [6, 5, 8].find(x =&gt; x &lt; 0)
+undefined
+</pre></div>
+
+</figure>
+
+<p id="Array_prototype_findIndex"><code>Array.prototype.findIndex(predicate, thisArg?)</code><br>
+Returns the index of the first element for which the callback <code>predicate</code> returns <code>true</code>. If there is no such element, it returns <code>-1</code>. Example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [6, -5, 8].findIndex(x =&gt; x &lt; 0)
+1
+&gt; [6, 5, 8].findIndex(x =&gt; x &lt; 0)
+-1
+</pre></div>
+
+</figure>
+
+<p>The full signature of the callback <code>predicate</code> is:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">predicate</code><code class="p">(</code><code class="nx">element</code><code class="p">,</code> <code class="nx">index</code><code class="p">,</code> <code class="nx">array</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_finding-nan-via-findindex">
+<span class="section-number">18.3.2.1 </span>Finding <code>NaN</code> via <code>findIndex()</code>
+ <a class="header-anchor" href="ch_arrays.html#_finding-nan-via-findindex" aria-hidden="true">#</a></h5>
+
+<p>A well-known <a href="http://speakingjs.com/es5/ch18.html#_searching_for_values_nondestructive">limitation</a> of <code>Array.prototype.indexOf()</code> is that it can&#x2019;t find <code>NaN</code>, because it searches for elements via <code>===</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [NaN].indexOf(NaN)
+-1
+</pre></div>
+
+</figure>
+
+<p>With <code>findIndex()</code>, you can use <code>Object.is()</code> (explained in <a href="ch_oop-besides-classes.html#Object_is">the chapter on OOP</a>) and will have no such problem:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [NaN].findIndex(y =&gt; Object.is(NaN, y))
+0
+</pre></div>
+
+</figure>
+
+<p>You can also adopt a more general approach, by creating a helper function <code>elemIs()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; function elemIs(x) { return Object.is.bind(Object, x) }
+&gt; [NaN].findIndex(elemIs(NaN))
+0
+</pre></div>
+
+</figure>
+
+<h4 id="_arrayprototypecopywithin">
+<span class="section-number">18.3.3 </span><code>Array.prototype.copyWithin()</code>
+ <a class="header-anchor" href="ch_arrays.html#_arrayprototypecopywithin" aria-hidden="true">#</a></h4>
+
+<p>The signature of this method is:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">copyWithin</code><code class="p">(</code><code class="nx">target</code> <code class="o">:</code> <code class="nx">number</code><code class="p">,</code>
+    <code class="nx">start</code> <code class="o">:</code> <code class="nx">number</code><code class="p">,</code> <code class="nx">end</code> <code class="o">=</code> <code class="k">this</code><code class="p">.</code><code class="nx">length</code><code class="p">)</code> <code class="o">:</code> <code class="nx">This</code>
+</pre></div>
+
+</figure>
+
+<p>It copies the elements whose indices are in the range [<code>start</code>,<code>end</code>) to index <code>target</code> and subsequent indices. If the two index ranges overlap, care is taken that all source elements are copied before they are overwritten.</p>
+
+<p>Example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="mi">0</code><code class="p">,</code><code class="mi">1</code><code class="p">,</code><code class="mi">2</code><code class="p">,</code><code class="mi">3</code><code class="p">];</code>
+<code class="o">&gt;</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">copyWithin</code><code class="p">(</code><code class="mi">2</code><code class="p">,</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">2</code><code class="p">)</code>
+<code class="p">[</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">1</code><code class="p">,</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">1</code> <code class="p">]</code>
+<code class="o">&gt;</code> <code class="nx">arr</code>
+<code class="p">[</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">1</code><code class="p">,</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">1</code> <code class="p">]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_arrayprototypefill">
+<span class="section-number">18.3.4 </span><code>Array.prototype.fill()</code>
+ <a class="header-anchor" href="ch_arrays.html#_arrayprototypefill" aria-hidden="true">#</a></h4>
+
+<p>The signature of this method is:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">fill</code><code class="p">(</code><code class="nx">value</code> <code class="o">:</code> <code class="nx">any</code><code class="p">,</code> <code class="nx">start</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">end</code><code class="o">=</code><code class="k">this</code><code class="p">.</code><code class="nx">length</code><code class="p">)</code> <code class="o">:</code> <code class="nx">This</code>
+</pre></div>
+
+</figure>
+
+<p>It fills an Array with the given <code>value</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const arr = [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;];
+&gt; arr.fill(7)
+[ 7, 7, 7 ]
+&gt; arr
+[ 7, 7, 7 ]
+</pre></div>
+
+</figure>
+
+<p>Optionally, you can restrict where the filling starts and ends:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;].fill(7, 1, 2)
+[ &apos;a&apos;, 7, &apos;c&apos; ]
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_array-holes">
+<span class="section-number">18.4 </span>ES6 and holes in Arrays <a class="header-anchor" href="ch_arrays.html#sec_array-holes" aria-hidden="true">#</a></h3>
+
+<p>Holes are indices &#x201C;inside&#x201D; an Array that have no associated element. In other words: An Array <code>arr</code> is said to have a hole at index <code>i</code> if:</p>
+
+<ul>
+  <li>0 &#x2264; <code>i</code> &lt; <code>arr.length</code>
+</li>
+  <li><code>!(i in arr)</code></li>
+</ul>
+
+<p>For example: The following Array has a hole at index 1.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const arr = [&apos;a&apos;,,&apos;b&apos;]
+&apos;use strict&apos;
+&gt; 0 in arr
+true
+&gt; 1 in arr
+false
+&gt; 2 in arr
+true
+&gt; arr[1]
+undefined
+</pre></div>
+
+</figure>
+
+<p>You&#x2019;ll see lots of examples involving holes in this section. Should anything ever be unclear, you can consult Sect. &#x201C;<a href="http://speakingjs.com/es5/ch18.html#array_holes">Holes in Arrays</a>&#x201D; in &#x201C;Speaking JavaScript&#x201D; for more information.</p>
+
+<aside class="generic_inbar blurb eye icon-eye">
+    <p>ES6 pretends that holes don&#x2019;t exist (as much as it can while being backward-compatible). And so should you &#x2013; especially if you consider that holes can also affect performance negatively. Then you don&#x2019;t have to burden your brain with the numerous and inconsistent rules around holes.</p>
+
+</aside>
+
+
+<h4 id="_ecmascript-6-treats-holes-like-undefined-elements">
+<span class="section-number">18.4.1 </span>ECMAScript 6 treats holes like <code>undefined</code> elements <a class="header-anchor" href="ch_arrays.html#_ecmascript-6-treats-holes-like-undefined-elements" aria-hidden="true">#</a></h4>
+
+<p>The general rule for Array methods that are new in ES6 is: each hole is treated as if it were the element <code>undefined</code>. Examples:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Array.from([&apos;a&apos;,,&apos;b&apos;])
+[ &apos;a&apos;, undefined, &apos;b&apos; ]
+&gt; [,&apos;a&apos;].findIndex(x =&gt; x === undefined)
+0
+&gt; [...[,&apos;a&apos;].entries()]
+[ [ 0, undefined ], [ 1, &apos;a&apos; ] ]
+</pre></div>
+
+</figure>
+
+<p>The idea is to steer people away from holes and to simplify long-term. Unfortunately that means that things are even more inconsistent now.</p>
+
+
+<h4 id="_array-operations-and-holes">
+<span class="section-number">18.4.2 </span>Array operations and holes <a class="header-anchor" href="ch_arrays.html#_array-operations-and-holes" aria-hidden="true">#</a></h4>
+
+<h5 id="_iteration">
+<span class="section-number">18.4.2.1 </span>Iteration <a class="header-anchor" href="ch_arrays.html#_iteration" aria-hidden="true">#</a></h5>
+
+<p>The iterator created by <code>Array.prototype[Symbol.iterator]</code> treats each hole as if it were the element <code>undefined</code>. Take, for example, the following iterator <code>iter</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; var arr = [, &apos;a&apos;];
+&gt; var iter = arr[Symbol.iterator]();
+</pre></div>
+
+</figure>
+
+<p>If we invoke <code>next()</code> twice, we get the hole at index 0 and the element <code>&apos;a&apos;</code> at index 1. As you can see, the former produces <code>undefined</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; iter.next()
+{ value: undefined, done: false }
+&gt; iter.next()
+{ value: &apos;a&apos;, done: false }
+</pre></div>
+
+</figure>
+
+<p>Among others, two operations are based on <a href="ch_iteration.html#ch_iteration">the iteration protocol</a>. Therefore, these operations also treat holes as <code>undefined</code> elements.</p>
+
+<p>First, the spread operator (<code>...</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [...[, &apos;a&apos;]]
+[ undefined, &apos;a&apos; ]
+</pre></div>
+
+</figure>
+
+<p>Second, the <code>for-of</code> loop:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="p">[,</code> <code class="s1">&apos;a&apos;</code><code class="p">])</code> <code class="p">{</code>
+  <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// undefined</code>
+<code class="c1">// a</code>
+</pre></div>
+
+</figure>
+
+<p>Note that the Array prototype methods (<code>filter()</code> etc.) do not use the iteration protocol.</p>
+
+<h5 id="_arrayfrom">
+<span class="section-number">18.4.2.2 </span><code>Array.from()</code>
+ <a class="header-anchor" href="ch_arrays.html#_arrayfrom" aria-hidden="true">#</a></h5>
+
+<p>If its argument is iterable, <code>Array.from()</code> uses iteration to convert it to an Array. Then it works exactly like the spread operator:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Array.from([, &apos;a&apos;])
+[ undefined, &apos;a&apos; ]
+</pre></div>
+
+</figure>
+
+<p>But <code>Array.from()</code> can also convert <a href="http://speakingjs.com/es5/ch17.html#array-like_objects">Array-like objects</a> to Arrays. Then holes become <code>undefined</code>, too:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Array.from({1: &apos;a&apos;, length: 2})
+[ undefined, &apos;a&apos; ]
+</pre></div>
+
+</figure>
+
+<p>With a second argument, <code>Array.from()</code> works mostly like <code>Array.prototype.map()</code>.</p>
+
+<p>However, <code>Array.from()</code> treats holes as <code>undefined</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Array.from([,&apos;a&apos;], x =&gt; x)
+[ undefined, &apos;a&apos; ]
+&gt; Array.from([,&apos;a&apos;], (x,i) =&gt; i)
+[ 0, 1 ]
+</pre></div>
+
+</figure>
+
+<p><code>Array.prototype.map()</code> skips them, but preserves them:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [,&apos;a&apos;].map(x =&gt; x)
+[ , &apos;a&apos; ]
+&gt; [,&apos;a&apos;].map((x,i) =&gt; i)
+[ , 1 ]
+</pre></div>
+
+</figure>
+
+<h5 id="_arrayprototype-methods">
+<span class="section-number">18.4.2.3 </span><code>Array.prototype</code> methods <a class="header-anchor" href="ch_arrays.html#_arrayprototype-methods" aria-hidden="true">#</a></h5>
+
+<p>In ECMAScript 5, behavior already varied slightly. For example:</p>
+
+<ul>
+  <li>
+<code>forEach()</code>, <code>filter()</code>, <code>every()</code> and <code>some()</code> ignore holes.</li>
+  <li>
+<code>map()</code> skips but preserves holes.</li>
+  <li>
+<code>join()</code> and <code>toString()</code> treat holes as if they were <code>undefined</code> elements, but interprets both <code>null</code> and <code>undefined</code> as empty strings.</li>
+</ul>
+
+<p>ECMAScript 6 adds new kinds of behaviors:</p>
+
+<ul>
+  <li>
+<code>copyWithin()</code> creates holes when copying holes (i.e., it deletes elements if necessary).</li>
+  <li>
+<code>entries()</code>, <code>keys()</code>, <code>values()</code> treat each hole as if it was the element <code>undefined</code>.</li>
+  <li>
+<code>find()</code> and <code>findIndex()</code> do the same.</li>
+  <li>
+<code>fill()</code> doesn&#x2019;t care whether there are elements at indices or not.</li>
+</ul>
+
+<p>The following table describes how <code>Array.prototype</code> methods handle holes.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Holes are</th>
+      <th>&#xA0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>concat</code></td>
+      <td>Preserved</td>
+      <td><code>[&apos;a&apos;,,&apos;b&apos;].concat([&apos;c&apos;,,&apos;d&apos;]) &#x2192; [&apos;a&apos;,,&apos;b&apos;,&apos;c&apos;,,&apos;d&apos;]</code></td>
+    </tr>
+    <tr>
+      <td>
+<code>copyWithin</code><sup>ES6</sup>
+</td>
+      <td>Preserved</td>
+      <td><code>[,&apos;a&apos;,&apos;b&apos;,,].copyWithin(2,0) &#x2192; [,&apos;a&apos;,,&apos;a&apos;]</code></td>
+    </tr>
+    <tr>
+      <td>
+<code>entries</code><sup>ES6</sup>
+</td>
+      <td>Elements</td>
+      <td><code>[...[,&apos;a&apos;].entries()] &#x2192; [[0,undefined], [1,&apos;a&apos;]]</code></td>
+    </tr>
+    <tr>
+      <td><code>every</code></td>
+      <td>Ignored</td>
+      <td><code>[,&apos;a&apos;].every(x =&gt; x===&apos;a&apos;) &#x2192; true</code></td>
+    </tr>
+    <tr>
+      <td>
+<code>fill</code><sup>ES6</sup>
+</td>
+      <td>Filled</td>
+      <td><code>new Array(3).fill(&apos;a&apos;) &#x2192; [&apos;a&apos;,&apos;a&apos;,&apos;a&apos;]</code></td>
+    </tr>
+    <tr>
+      <td><code>filter</code></td>
+      <td>Removed</td>
+      <td><code>[&apos;a&apos;,,&apos;b&apos;].filter(x =&gt; true) &#x2192; [&apos;a&apos;,&apos;b&apos;]</code></td>
+    </tr>
+    <tr>
+      <td>
+<code>find</code><sup>ES6</sup>
+</td>
+      <td>Elements</td>
+      <td><code>[,&apos;a&apos;].find(x =&gt; true) &#x2192; undefined</code></td>
+    </tr>
+    <tr>
+      <td>
+<code>findIndex</code><sup>ES6</sup>
+</td>
+      <td>Elements</td>
+      <td><code>[,&apos;a&apos;].findIndex(x =&gt; true) &#x2192; 0</code></td>
+    </tr>
+    <tr>
+      <td><code>forEach</code></td>
+      <td>Ignored</td>
+      <td><code>[,&apos;a&apos;].forEach((x,i) =&gt; log(i)); &#x2192; 1</code></td>
+    </tr>
+    <tr>
+      <td><code>indexOf</code></td>
+      <td>Ignored</td>
+      <td><code>[,&apos;a&apos;].indexOf(undefined) &#x2192; -1</code></td>
+    </tr>
+    <tr>
+      <td><code>join</code></td>
+      <td>Elements</td>
+      <td><code>[,&apos;a&apos;,undefined,null].join(&apos;#&apos;) &#x2192; &apos;#a##&apos;</code></td>
+    </tr>
+    <tr>
+      <td>
+<code>keys</code><sup>ES6</sup>
+</td>
+      <td>Elements</td>
+      <td><code>[...[,&apos;a&apos;].keys()] &#x2192; [0,1]</code></td>
+    </tr>
+    <tr>
+      <td><code>lastIndexOf</code></td>
+      <td>Ignored</td>
+      <td><code>[,&apos;a&apos;].lastIndexOf(undefined) &#x2192; -1</code></td>
+    </tr>
+    <tr>
+      <td><code>map</code></td>
+      <td>Preserved</td>
+      <td><code>[,&apos;a&apos;].map(x =&gt; 1) &#x2192; [,1]</code></td>
+    </tr>
+    <tr>
+      <td><code>pop</code></td>
+      <td>Elements</td>
+      <td><code>[&apos;a&apos;,,].pop() &#x2192; undefined</code></td>
+    </tr>
+    <tr>
+      <td><code>push</code></td>
+      <td>Preserved</td>
+      <td><code>new Array(1).push(&apos;a&apos;) &#x2192; 2</code></td>
+    </tr>
+    <tr>
+      <td><code>reduce</code></td>
+      <td>Ignored</td>
+      <td><code>[&apos;#&apos;,,undefined].reduce((x,y)=&gt;x+y) &#x2192; &apos;#undefined&apos;</code></td>
+    </tr>
+    <tr>
+      <td><code>reduceRight</code></td>
+      <td>Ignored</td>
+      <td><code>[&apos;#&apos;,,undefined].reduceRight((x,y)=&gt;x+y) &#x2192; &apos;undefined#&apos;</code></td>
+    </tr>
+    <tr>
+      <td><code>reverse</code></td>
+      <td>Preserved</td>
+      <td><code>[&apos;a&apos;,,&apos;b&apos;].reverse() &#x2192; [&apos;b&apos;,,&apos;a&apos;]</code></td>
+    </tr>
+    <tr>
+      <td><code>shift</code></td>
+      <td>Elements</td>
+      <td><code>[,&apos;a&apos;].shift() &#x2192; undefined</code></td>
+    </tr>
+    <tr>
+      <td><code>slice</code></td>
+      <td>Preserved</td>
+      <td><code>[,&apos;a&apos;].slice(0,1) &#x2192; [,]</code></td>
+    </tr>
+    <tr>
+      <td><code>some</code></td>
+      <td>Ignored</td>
+      <td><code>[,&apos;a&apos;].some(x =&gt; x !== &apos;a&apos;) &#x2192; false</code></td>
+    </tr>
+    <tr>
+      <td><code>sort</code></td>
+      <td>Preserved</td>
+      <td><code>[,undefined,&apos;a&apos;].sort() &#x2192; [&apos;a&apos;,undefined,,]</code></td>
+    </tr>
+    <tr>
+      <td><code>splice</code></td>
+      <td>Preserved</td>
+      <td><code>[&apos;a&apos;,,].splice(1,1) &#x2192; [,]</code></td>
+    </tr>
+    <tr>
+      <td><code>toString</code></td>
+      <td>Elements</td>
+      <td><code>[,&apos;a&apos;,undefined,null].toString() &#x2192; &apos;,a,,&apos;</code></td>
+    </tr>
+    <tr>
+      <td><code>unshift</code></td>
+      <td>Preserved</td>
+      <td><code>[,&apos;a&apos;].unshift(&apos;b&apos;) &#x2192; 3</code></td>
+    </tr>
+    <tr>
+      <td>
+<code>values</code><sup>ES6</sup>
+</td>
+      <td>Elements</td>
+      <td><code>[...[,&apos;a&apos;].values()] &#x2192; [undefined,&apos;a&apos;]</code></td>
+    </tr>
+  </tbody>
+
+</table>
+
+<p>Notes:</p>
+
+<ul>
+  <li>ES6 methods are marked via the superscript &#x201C;ES6&#x201D;.</li>
+  <li>JavaScript ignores a trailing comma in an Array literal: <code>[&apos;a&apos;,,].length &#x2192; 2</code>
+</li>
+  <li>Helper function used in the table: <code>const log = console.log.bind(console);</code>
+</li>
+</ul>
+
+
+<h4 id="sec_creating-filled-arrays">
+<span class="section-number">18.4.3 </span>Creating Arrays filled with values <a class="header-anchor" href="ch_arrays.html#sec_creating-filled-arrays" aria-hidden="true">#</a></h4>
+
+<p>Holes being treated as <code>undefined</code> elements by the new ES6 operations helps with creating Arrays that are filled with values.</p>
+
+<h5 id="_filling-with-a-fixed-value">
+<span class="section-number">18.4.3.1 </span>Filling with a fixed value <a class="header-anchor" href="ch_arrays.html#_filling-with-a-fixed-value" aria-hidden="true">#</a></h5>
+
+<p><code>Array.prototype.fill()</code> replaces all Array elements (incl. holes) with a fixed value:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; new Array(3).fill(7)
+[ 7, 7, 7 ]
+</pre></div>
+
+</figure>
+
+<p><code>new Array(3)</code> creates an Array with three holes and <code>fill()</code> replaces each hole with the value <code>7</code>.</p>
+
+<h5 id="_filling-with-ascending-numbers">
+<span class="section-number">18.4.3.2 </span>Filling with ascending numbers <a class="header-anchor" href="ch_arrays.html#_filling-with-ascending-numbers" aria-hidden="true">#</a></h5>
+
+<p><code>Array.prototype.keys()</code> reports keys even if an Array only has holes. It returns an iterable, which you can convert to an Array via the spread operator:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [...new Array(3).keys()]
+[ 0, 1, 2 ]
+</pre></div>
+
+</figure>
+
+<h5 id="_filling-with-computed-values">
+<span class="section-number">18.4.3.3 </span>Filling with computed values <a class="header-anchor" href="ch_arrays.html#_filling-with-computed-values" aria-hidden="true">#</a></h5>
+
+<p>The mapping function in the second parameter of <code>Array.from()</code> is notified of holes. Therefore, you can use <code>Array.from()</code> for more sophisticated filling:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Array.from(new Array(5), (x,i) =&gt; i*2)
+[ 0, 2, 4, 6, 8 ]
+</pre></div>
+
+</figure>
+
+<h5 id="_filling-with-undefined">
+<span class="section-number">18.4.3.4 </span>Filling with <code>undefined</code>
+ <a class="header-anchor" href="ch_arrays.html#_filling-with-undefined" aria-hidden="true">#</a></h5>
+
+<p>If you need an Array that is filled with <code>undefined</code>, you can use the fact that iteration (as triggered by the spread operator) converts holes to <code>undefined</code>s:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [...new Array(3)]
+[ undefined, undefined, undefined ]
+</pre></div>
+
+</figure>
+
+
+<h4 id="_removing-holes-from-arrays">
+<span class="section-number">18.4.4 </span>Removing holes from Arrays <a class="header-anchor" href="ch_arrays.html#_removing-holes-from-arrays" aria-hidden="true">#</a></h4>
+
+<p>The ES5 method <code>filter()</code> lets you remove holes:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [&apos;a&apos;,,&apos;c&apos;].filter(() =&gt; true)
+[ &apos;a&apos;, &apos;c&apos; ]
+</pre></div>
+
+</figure>
+
+<p>ES6 iteration (triggered via the spread operator) lets you convert holes to <code>undefined</code> elements:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [...[&apos;a&apos;,,&apos;c&apos;]]
+[ &apos;a&apos;, undefined, &apos;c&apos; ]
+</pre></div>
+
+</figure>
+
+
+<h3 id="Symbol_isConcatSpreadable">
+<span class="section-number">18.5 </span>Configuring which objects are spread by <code>concat()</code> (<code>Symbol.isConcatSpreadable</code>) <a class="header-anchor" href="ch_arrays.html#Symbol_isConcatSpreadable" aria-hidden="true">#</a></h3>
+
+<p>You can configure how <code>Array.prototype.concat()</code> treats objects by adding an (own or inherited) property whose key is the well-known symbol <code>Symbol.isConcatSpreadable</code> and whose value is a boolean.</p>
+
+<h4 id="_default-for-arrays-spreading">
+<span class="section-number">18.5.1 </span>Default for Arrays: spreading <a class="header-anchor" href="ch_arrays.html#_default-for-arrays-spreading" aria-hidden="true">#</a></h4>
+
+<p>By default, <code>Array.prototype.concat()</code> <em>spreads</em> Arrays into its result: their indexed elements become elements of the result:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr1</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;c&apos;</code><code class="p">,</code> <code class="s1">&apos;d&apos;</code><code class="p">];</code>
+<code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">].</code><code class="nx">concat</code><code class="p">(</code><code class="nx">arr1</code><code class="p">,</code> <code class="s1">&apos;e&apos;</code><code class="p">);</code>
+    <code class="c1">// [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos;]</code>
+</pre></div>
+
+</figure>
+
+<p>With <code>Symbol.isConcatSpreadable</code>, you can override the default and avoid spreading for Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr2</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;c&apos;</code><code class="p">,</code> <code class="s1">&apos;d&apos;</code><code class="p">];</code>
+<code class="nx">arr2</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">isConcatSpreadable</code><code class="p">]</code> <code class="o">=</code> <code class="kc">false</code><code class="p">;</code>
+<code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">].</code><code class="nx">concat</code><code class="p">(</code><code class="nx">arr2</code><code class="p">,</code> <code class="s1">&apos;e&apos;</code><code class="p">);</code>
+    <code class="c1">// [&apos;a&apos;, &apos;b&apos;, [&apos;c&apos;,&apos;d&apos;], &apos;e&apos;]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_default-for-non-arrays-no-spreading">
+<span class="section-number">18.5.2 </span>Default for non-Arrays: no spreading <a class="header-anchor" href="ch_arrays.html#_default-for-non-arrays-no-spreading" aria-hidden="true">#</a></h4>
+
+<p>For non-Arrays, the default is not to spread:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arrayLike</code> <code class="o">=</code> <code class="p">{</code><code class="nx">length</code><code class="o">:</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">0</code><code class="o">:</code> <code class="s1">&apos;c&apos;</code><code class="p">,</code> <code class="mi">1</code><code class="o">:</code> <code class="s1">&apos;d&apos;</code><code class="p">};</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">].</code><code class="nx">concat</code><code class="p">(</code><code class="nx">arrayLike</code><code class="p">,</code> <code class="s1">&apos;e&apos;</code><code class="p">));</code>
+    <code class="c1">// [&apos;a&apos;, &apos;b&apos;, arrayLike, &apos;e&apos;]</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">concat</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code>
+    <code class="nx">arrayLike</code><code class="p">,</code> <code class="p">[</code><code class="s1">&apos;e&apos;</code><code class="p">,</code><code class="s1">&apos;f&apos;</code><code class="p">],</code> <code class="s1">&apos;g&apos;</code><code class="p">));</code>
+    <code class="c1">// [arrayLike, &apos;e&apos;, &apos;f&apos;, &apos;g&apos;]</code>
+</pre></div>
+
+</figure>
+
+<p>You can use <code>Symbol.isConcatSpreadable</code> to force spreading:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">arrayLike</code><code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">isConcatSpreadable</code><code class="p">]</code> <code class="o">=</code> <code class="kc">true</code><code class="p">;</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">].</code><code class="nx">concat</code><code class="p">(</code><code class="nx">arrayLike</code><code class="p">,</code> <code class="s1">&apos;e&apos;</code><code class="p">));</code>
+    <code class="c1">// [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos;]</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nb">Array</code><code class="p">.</code><code class="nx">prototype</code><code class="p">.</code><code class="nx">concat</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code>
+    <code class="nx">arrayLike</code><code class="p">,</code> <code class="p">[</code><code class="s1">&apos;e&apos;</code><code class="p">,</code><code class="s1">&apos;f&apos;</code><code class="p">],</code> <code class="s1">&apos;g&apos;</code><code class="p">));</code>
+    <code class="c1">// [&apos;c&apos;, &apos;d&apos;, &apos;e&apos;, &apos;f&apos;, &apos;g&apos;]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_detecting-arrays">
+<span class="section-number">18.5.3 </span>Detecting Arrays <a class="header-anchor" href="ch_arrays.html#_detecting-arrays" aria-hidden="true">#</a></h4>
+
+<p>How does <code>concat()</code> determine if a parameter is an Array? It uses the same algorithm as <code>Array.isArray()</code>. Whether or not <code>Array.prototype</code> is in the prototype chain makes no difference for that algorithm. That is important, because, in ES5 and earlier, hacks were used to subclass <code>Array</code> and those must continue to work (<a href="ch_oop-besides-classes.html#sec_proto">see the section on <code>__proto__</code> in this book</a>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const arr = [];
+&gt; Array.isArray(arr)
+true
+
+&gt; Object.setPrototypeOf(arr, null);
+&gt; Array.isArray(arr)
+true
+</pre></div>
+
+</figure>
+
+<h4 id="_symbolisconcatspreadable-in-the-standard-library">
+<span class="section-number">18.5.4 </span><code>Symbol.isConcatSpreadable</code> in the standard library <a class="header-anchor" href="ch_arrays.html#_symbolisconcatspreadable-in-the-standard-library" aria-hidden="true">#</a></h4>
+
+<p>No object in the ES6 standard library has a property with the key <code>Symbol.isConcatSpreadable</code>. This mechanism therefore exists purely for browser APIs and user code.</p>
+
+<p>Consequences:</p>
+
+<ul>
+  <li>Subclasses of <code>Array</code> are spread by default (because their instances are Array objects).</li>
+  <li>A subclass of <code>Array</code> can prevent its instances from being spread by setting a property to <code>false</code> whose key is <code>Symbol.isConcatSpreadable</code>. That property can be a prototype property or an instance property.</li>
+  <li>Other Array-like objects are spread by <code>concat()</code> if property <code>[Symbol.isConcatSpreadable]</code> is <code>true</code>. That would enable one, for example, to turn on spreading for some Array-like DOM collections.</li>
+  <li>Typed Arrays are not spread. They don&#x2019;t have a method <code>concat()</code>, either.</li>
+</ul>
+
+<aside class="generic_inbar blurb gears icon-gears">
+    <h3 id="_symbolisconcatspreadable-in-the-es6-spec">
+<code>Symbol.isConcatSpreadable</code> in the ES6 spec <a class="header-anchor" href="ch_arrays.html#_symbolisconcatspreadable-in-the-es6-spec" aria-hidden="true">#</a></h3>
+
+  <ul>
+    <li>In <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-array.prototype.concat">the description of <code>Array.prototype.concat()</code></a>, you can see that spreading requires an object to be Array-like (property <code>length</code> plus indexed elements).</li>
+    <li>Whether or not to spread an object is determined via <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-isconcatspreadable">the spec operation <code>IsConcatSpreadable()</code></a>. The last step is the default (equivalent to <code>Array.isArray()</code>) and the property <code>[Symbol.isConcatSpreadable]</code> is retrieved via a normal <code>Get()</code> operation, meaning that it doesn&#x2019;t matter whether it is own or inherited.</li>
+  </ul>
+
+</aside>
+
+
+<h3 id="sec_range-of-array-indices">
+<span class="section-number">18.6 </span>The numeric range of Array indices <a class="header-anchor" href="ch_arrays.html#sec_range-of-array-indices" aria-hidden="true">#</a></h3>
+
+<p>For Arrays, ES6 still has <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-array-exotic-objects">the same rules</a> as ES5:</p>
+
+<ul>
+  <li>Array lengths <code>l</code> are in the range 0 &#x2264; <code>l</code> &#x2264; 2<sup>32</sup>&#x2212;1.</li>
+  <li>Array indices <code>i</code> are in the range 0 &#x2264; <code>i</code> &lt; 2<sup>32</sup>&#x2212;1.</li>
+</ul>
+
+<p>However, Typed Arrays have a larger range of indices: 0 &#x2264; <code>i</code> &lt; 2<sup>32</sup>&#x2212;1 (2<sup>53</sup>&#x2212;1 is the largest integer that JavaScript&#x2019;s floating point numbers can safely represent). That&#x2019;s why generic Array methods such as <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-array.prototype.push"><code>push()</code></a> and <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-array.prototype.unshift"><code>unshift()</code></a> allow a larger range of indices. Range checks appropriate for Arrays are performed <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-arraysetlength">elsewhere</a>, whenever <code>length</code> is set.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_maps-sets.html">19. Maps and Sets</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

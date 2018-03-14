@@ -1,0 +1,1938 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>30. An overview of what’s new in ES6</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>30. An overview of what’s new in ES6</b><br>
+        <a href="index.html#toc_ch_overviews">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_overviews">
+<span class="section-number">30. </span>An overview of what&#x2019;s new in ES6 <a class="header-anchor" href="ch_overviews.html#ch_overviews" aria-hidden="true">#</a></h2>
+
+<p>This chapter collects the overview sections of all the chapters in this book.</p>
+
+<hr class="scene-break">
+
+<ul>
+  <li>30.1. <a href="ch_overviews.html#overview-entry-about-es6.md">Categories of ES6 features</a>
+</li>
+  <li>30.2. <a href="ch_overviews.html#overview-entry-numbers.md">New number and <code>Math</code> features</a>
+    <ul>
+      <li>30.2.1. New integer literals</li>
+      <li>30.2.2. New <code>Number</code> properties</li>
+      <li>30.2.3. New <code>Math</code> methods</li>
+    </ul>
+  </li>
+  <li>30.3. <a href="ch_overviews.html#overview-entry-strings.md">New string features</a>
+</li>
+  <li>30.4. <a href="ch_overviews.html#overview-entry-symbols.md">Symbols</a>
+    <ul>
+      <li>30.4.1. Use case 1: unique property keys</li>
+      <li>30.4.2. Use case 2: constants representing concepts</li>
+      <li>30.4.3. Pitfall: you can&#x2019;t coerce symbols to strings</li>
+      <li>30.4.4. Which operations related to property keys are aware of symbols?</li>
+    </ul>
+  </li>
+  <li>30.5. <a href="ch_overviews.html#overview-entry-template-literals.md">Template literals</a>
+</li>
+  <li>30.6. <a href="ch_overviews.html#overview-entry-variables.md">Variables and scoping</a>
+    <ul>
+      <li>30.6.1. <code>let</code>
+</li>
+      <li>30.6.2. <code>const</code>
+</li>
+      <li>30.6.3. Ways of declaring variables</li>
+    </ul>
+  </li>
+  <li>30.7. <a href="ch_overviews.html#overview-entry-destructuring.md">Destructuring</a>
+    <ul>
+      <li>30.7.1. Object destructuring</li>
+      <li>30.7.2. Array destructuring</li>
+      <li>30.7.3. Where can destructuring be used?</li>
+    </ul>
+  </li>
+  <li>30.8. <a href="ch_overviews.html#overview-entry-parameter-handling.md">Parameter handling</a>
+    <ul>
+      <li>30.8.1. Default parameter values</li>
+      <li>30.8.2. Rest parameters</li>
+      <li>30.8.3. Named parameters via destructuring</li>
+      <li>30.8.4. Spread operator (<code>...</code>)</li>
+    </ul>
+  </li>
+  <li>30.9. <a href="ch_overviews.html#overview-entry-callables.md">Callable entities in ECMAScript 6</a>
+</li>
+  <li>30.10. <a href="ch_overviews.html#overview-entry-arrow-functions.md">Arrow functions</a>
+</li>
+  <li>30.11. <a href="ch_overviews.html#overview-entry-oop-besides-classes.md">New OOP features besides classes</a>
+    <ul>
+      <li>30.11.1. New object literal features</li>
+      <li>30.11.2. New methods in <code>Object</code>
+</li>
+    </ul>
+  </li>
+  <li>30.12. <a href="ch_overviews.html#overview-entry-classes.md">Classes</a>
+</li>
+  <li>30.13. <a href="ch_overviews.html#overview-entry-modules.md">Modules</a>
+    <ul>
+      <li>30.13.1. Multiple named exports</li>
+      <li>30.13.2. Single default export</li>
+      <li>30.13.3. Browsers: scripts versus modules</li>
+    </ul>
+  </li>
+  <li>30.14. <a href="ch_overviews.html#overview-entry-for-of.md">The <code>for-of</code> loop</a>
+</li>
+  <li>30.15. <a href="ch_overviews.html#overview-entry-arrays.md">New Array features</a>
+</li>
+  <li>30.16. <a href="ch_overviews.html#overview-entry-maps-sets.md">Maps and Sets</a>
+    <ul>
+      <li>30.16.1. Maps</li>
+      <li>30.16.2. Sets</li>
+      <li>30.16.3. WeakMaps</li>
+    </ul>
+  </li>
+  <li>30.17. <a href="ch_overviews.html#overview-entry-typed-arrays.md">Typed Arrays</a>
+</li>
+  <li>30.18. <a href="ch_overviews.html#overview-entry-iteration.md">Iterables and iterators</a>
+    <ul>
+      <li>30.18.1. Iterable values</li>
+      <li>30.18.2. Constructs supporting iteration</li>
+    </ul>
+  </li>
+  <li>30.19. <a href="ch_overviews.html#overview-entry-generators.md">Generators</a>
+    <ul>
+      <li>30.19.1. What are generators?</li>
+      <li>30.19.2. Kinds of generators</li>
+      <li>30.19.3. Use case: implementing iterables</li>
+      <li>30.19.4. Use case: simpler asynchronous code</li>
+      <li>30.19.5. Use case: receiving asynchronous data</li>
+    </ul>
+  </li>
+  <li>30.20. <a href="ch_overviews.html#overview-entry-regexp.md">New regular expression features</a>
+</li>
+  <li>30.21. <a href="ch_overviews.html#overview-entry-promises.md">Promises for asynchronous programming</a>
+    <ul>
+      <li>30.21.1. Chaining <code>then()</code> calls</li>
+      <li>30.21.2. Executing asynchronous functions in parallel</li>
+      <li>30.21.3. Glossary: Promises</li>
+    </ul>
+  </li>
+  <li>30.22. <a href="ch_overviews.html#overview-entry-proxies.md">Metaprogramming with proxies</a>
+</li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="_categories-of-es6-features-overview-entry-about-es6md">
+<span class="section-number">30.1 </span>Categories of ES6 features {#overview-entry-about-es6.md} <a class="header-anchor" href="ch_overviews.html#_categories-of-es6-features-overview-entry-about-es6md" aria-hidden="true">#</a></h3>
+
+<p>The introduction of the ES6 specification lists all new features:</p>
+
+<blockquote>
+  <p>Some of [ECMAScript 6&#x2019;s] major enhancements include modules, class declarations, lexical block scoping, iterators and generators, promises for asynchronous programming, destructuring patterns, and proper tail calls. The ECMAScript library of built-ins has been expanded to support additional data abstractions including maps, sets, and arrays of binary numeric values as well as additional support for Unicode supplemental characters in strings and regular expressions. The built-ins are now extensible via subclassing.</p>
+</blockquote>
+
+<p>There are three major categories of features:</p>
+
+<ul>
+  <li>Better syntax for features that already exist (e.g. via libraries). For example:
+    <ul>
+      <li><a href="ch_classes.html#ch_classes">Classes</a></li>
+      <li><a href="ch_modules.html#ch_modules">Modules</a></li>
+    </ul>
+  </li>
+  <li>New functionality in the standard library. For example:
+    <ul>
+      <li>New methods for <a href="ch_strings.html#ch_strings">strings</a> and <a href="ch_arrays.html#ch_arrays">Arrays</a>
+</li>
+      <li><a href="ch_promises.html#ch_promises">Promises</a></li>
+      <li><a href="ch_maps-sets.html#ch_maps-sets">Maps, Sets</a></li>
+    </ul>
+  </li>
+  <li>Completely new features. For example:
+    <ul>
+      <li><a href="ch_generators.html#ch_generators">Generators</a></li>
+      <li><a href="ch_proxies.html#ch_proxies">Proxies</a></li>
+      <li><a href="ch_maps-sets.html#sec_weakmap">WeakMaps</a></li>
+    </ul>
+  </li>
+</ul>
+
+
+<h3 id="_new-number-and-math-features-overview-entry-numbersmd">
+<span class="section-number">30.2 </span>New number and <code>Math</code> features {#overview-entry-numbers.md} <a class="header-anchor" href="ch_overviews.html#_new-number-and-math-features-overview-entry-numbersmd" aria-hidden="true">#</a></h3>
+
+<h4 id="_new-integer-literals-1">
+<span class="section-number">30.2.1 </span>New integer literals <a class="header-anchor" href="ch_overviews.html#_new-integer-literals-1" aria-hidden="true">#</a></h4>
+
+<p>You can now specify integers in binary and octal notation:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; 0xFF // ES5: hexadecimal
+255
+&gt; 0b11 // ES6: binary
+3
+&gt; 0o10 // ES6: octal
+8
+</pre></div>
+
+</figure>
+
+<h4 id="_new-number-properties-1">
+<span class="section-number">30.2.2 </span>New <code>Number</code> properties <a class="header-anchor" href="ch_overviews.html#_new-number-properties-1" aria-hidden="true">#</a></h4>
+
+<p>The global object <code>Number</code> gained a few new properties:</p>
+
+<ul>
+  <li>
+<code>Number.EPSILON</code> for comparing floating point numbers with a tolerance for rounding errors.</li>
+  <li>
+<code>Number.isInteger(num)</code> checks whether <code>num</code> is an integer (a number without a decimal fraction):
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; Number.isInteger(1.05)
+  false
+  &gt; Number.isInteger(1)
+  true
+
+  &gt; Number.isInteger(-3.1)
+  false
+  &gt; Number.isInteger(-3)
+  true
+</pre></div>
+
+    </figure>
+  </li>
+  <li>A method and constants for determining whether a JavaScript integer is <em>safe</em> (within the signed 53 bit range in which there is no loss of precision):
+    <ul>
+      <li><code>Number.isSafeInteger(number)</code></li>
+      <li><code>Number.MIN_SAFE_INTEGER</code></li>
+      <li><code>Number.MAX_SAFE_INTEGER</code></li>
+    </ul>
+  </li>
+  <li>
+<code>Number.isNaN(num)</code> checks whether <code>num</code> is the value <code>NaN</code>. In contrast to the global function <code>isNaN()</code>, it doesn&#x2019;t coerce its argument to a number and is therefore safer for non-numbers:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; isNaN(&apos;???&apos;)
+  true
+  &gt; Number.isNaN(&apos;???&apos;)
+  false
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Three additional methods of <code>Number</code> are mostly equivalent to the global functions with the same names: <code>Number.isFinite</code>, <code>Number.parseFloat</code>, <code>Number.parseInt</code>.</li>
+</ul>
+
+<h4 id="_new-math-methods-1">
+<span class="section-number">30.2.3 </span>New <code>Math</code> methods <a class="header-anchor" href="ch_overviews.html#_new-math-methods-1" aria-hidden="true">#</a></h4>
+
+<p>The global object <code>Math</code> has new methods for numerical, trigonometric and bitwise operations. Let&#x2019;s look at four examples.</p>
+
+<p><code>Math.sign()</code> returns the sign of a number:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.sign(-8)
+-1
+&gt; Math.sign(0)
+0
+&gt; Math.sign(3)
+1
+</pre></div>
+
+</figure>
+
+<p><code>Math.trunc()</code> removes the decimal fraction of a number:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.trunc(3.1)
+3
+&gt; Math.trunc(3.9)
+3
+&gt; Math.trunc(-3.1)
+-3
+&gt; Math.trunc(-3.9)
+-3
+</pre></div>
+
+</figure>
+
+
+<p><code>Math.log10()</code> computes the logarithm to base 10:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.log10(100)
+2
+</pre></div>
+
+</figure>
+
+<p><code>Math.hypot()</code> Computes the square root of the sum of the squares of its arguments (Pythagoras&#x2019; theorem):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.hypot(3, 4)
+5    
+</pre></div>
+
+</figure>
+
+
+<h3 id="_new-string-features-overview-entry-stringsmd">
+<span class="section-number">30.3 </span>New string features {#overview-entry-strings.md} <a class="header-anchor" href="ch_overviews.html#_new-string-features-overview-entry-stringsmd" aria-hidden="true">#</a></h3>
+
+<p>New string methods:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; &apos;hello&apos;.startsWith(&apos;hell&apos;)
+true
+&gt; &apos;hello&apos;.endsWith(&apos;ello&apos;)
+true
+&gt; &apos;hello&apos;.includes(&apos;ell&apos;)
+true
+&gt; &apos;doo &apos;.repeat(3)
+&apos;doo doo doo &apos;
+</pre></div>
+
+</figure>
+
+<p>ES6 has a new kind of string literal, the <em>template literal</em>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// String interpolation via template literals (in backticks)</code>
+<code class="kr">const</code> <code class="nx">first</code> <code class="o">=</code> <code class="s1">&apos;Jane&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">last</code> <code class="o">=</code> <code class="s1">&apos;Doe&apos;</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`Hello </code><code class="si">${</code><code class="nx">first</code><code class="si">}</code><code class="sb"> </code><code class="si">${</code><code class="nx">last</code><code class="si">}</code><code class="sb">!`</code><code class="p">);</code>
+    <code class="c1">// Hello Jane Doe!</code>
+
+<code class="c1">// Template literals also let you create strings with multiple lines</code>
+<code class="kr">const</code> <code class="nx">multiLine</code> <code class="o">=</code> <code class="sb">`</code>
+<code class="sb">This is</code>
+<code class="sb">a string</code>
+<code class="sb">with multiple</code>
+<code class="sb">lines`</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="_symbols-overview-entry-symbolsmd">
+<span class="section-number">30.4 </span>Symbols {#overview-entry-symbols.md} <a class="header-anchor" href="ch_overviews.html#_symbols-overview-entry-symbolsmd" aria-hidden="true">#</a></h3>
+
+<p>Symbols are a new primitive type in ECMAScript 6. They are created via a factory function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">mySymbol</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;mySymbol&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>Every time you call the factory function, a new and unique symbol is created. The optional parameter is a descriptive string that is shown when printing the symbol (it has no other purpose):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; mySymbol
+Symbol(mySymbol)
+</pre></div>
+
+</figure>
+
+<h4 id="_use-case-1-unique-property-keys-1">
+<span class="section-number">30.4.1 </span>Use case 1: unique property keys <a class="header-anchor" href="ch_overviews.html#_use-case-1-unique-property-keys-1" aria-hidden="true">#</a></h4>
+
+<p>Symbols are mainly used as unique property keys &#x2013; a symbol never clashes with any other property key (symbol or string). For example, you can make an object <em>iterable</em> (usable via the <code>for-of</code> loop and other language mechanisms), by using the symbol stored in <code>Symbol.iterator</code> as the key of a method (more information on iterables is given in <a href="ch_iteration.html#ch_iteration">the chapter on iteration</a>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">iterableObject</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code> <code class="c1">// (A)</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterableObject</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// hello</code>
+<code class="c1">// world</code>
+</pre></div>
+
+</figure>
+
+<p>In line A, a symbol is used as the key of the method. This unique marker makes the object iterable and enables us to use the <code>for-of</code> loop.</p>
+
+<h4 id="_use-case-2-constants-representing-concepts-1">
+<span class="section-number">30.4.2 </span>Use case 2: constants representing concepts <a class="header-anchor" href="ch_overviews.html#_use-case-2-constants-representing-concepts-1" aria-hidden="true">#</a></h4>
+
+<p>In ECMAScript 5, you may have used strings to represent concepts such as colors. In ES6, you can use symbols and be sure that they are always unique:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">COLOR_RED</code>    <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Red&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_ORANGE</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Orange&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_YELLOW</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Yellow&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_GREEN</code>  <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Green&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_BLUE</code>   <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Blue&apos;</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">COLOR_VIOLET</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;Violet&apos;</code><code class="p">);</code>
+
+<code class="kd">function</code> <code class="nx">getComplement</code><code class="p">(</code><code class="nx">color</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">switch</code> <code class="p">(</code><code class="nx">color</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">case</code> <code class="nx">COLOR_RED</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_GREEN</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_ORANGE</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_BLUE</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_YELLOW</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_VIOLET</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_GREEN</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_RED</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_BLUE</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_ORANGE</code><code class="p">;</code>
+        <code class="k">case</code> <code class="nx">COLOR_VIOLET</code><code class="o">:</code>
+            <code class="k">return</code> <code class="nx">COLOR_YELLOW</code><code class="p">;</code>
+        <code class="k">default</code><code class="o">:</code>
+            <code class="k">throw</code> <code class="k">new</code> <code class="nx">Exception</code><code class="p">(</code><code class="s1">&apos;Unknown color: &apos;</code><code class="o">+</code><code class="nx">color</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Every time you call <code>Symbol(&apos;Red&apos;)</code>, a new symbol is created. Therefore, <code>COLOR_RED</code> can never be mistaken for another value. That would be different if it were the string <code>&apos;Red&apos;</code>.</p>
+
+<h4 id="_pitfall-you-cant-coerce-symbols-to-strings-1">
+<span class="section-number">30.4.3 </span>Pitfall: you can&#x2019;t coerce symbols to strings <a class="header-anchor" href="ch_overviews.html#_pitfall-you-cant-coerce-symbols-to-strings-1" aria-hidden="true">#</a></h4>
+
+<p>Coercing (implicitly converting) symbols to strings throws exceptions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">sym</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">(</code><code class="s1">&apos;desc&apos;</code><code class="p">);</code>
+
+<code class="kr">const</code> <code class="nx">str1</code> <code class="o">=</code> <code class="s1">&apos;&apos;</code> <code class="o">+</code> <code class="nx">sym</code><code class="p">;</code> <code class="c1">// TypeError</code>
+<code class="kr">const</code> <code class="nx">str2</code> <code class="o">=</code> <code class="sb">`</code><code class="si">${</code><code class="nx">sym</code><code class="si">}</code><code class="sb">`</code><code class="p">;</code> <code class="c1">// TypeError</code>
+</pre></div>
+
+</figure>
+
+<p>The only solution is to convert explicitly:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">str2</code> <code class="o">=</code> <code class="nb">String</code><code class="p">(</code><code class="nx">sym</code><code class="p">);</code> <code class="c1">// &apos;Symbol(desc)&apos;</code>
+<code class="kr">const</code> <code class="nx">str3</code> <code class="o">=</code> <code class="nx">sym</code><code class="p">.</code><code class="nx">toString</code><code class="p">();</code> <code class="c1">// &apos;Symbol(desc)&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>Forbidding coercion prevents some errors, but also makes working with symbols more complicated.</p>
+
+<h4 id="_which-operations-related-to-property-keys-are-aware-of-symbols-1">
+<span class="section-number">30.4.4 </span>Which operations related to property keys are aware of symbols? <a class="header-anchor" href="ch_overviews.html#_which-operations-related-to-property-keys-are-aware-of-symbols-1" aria-hidden="true">#</a></h4>
+
+<p>The following operations are aware of symbols as property keys:</p>
+
+<ul>
+  <li><code>Reflect.ownKeys()</code></li>
+  <li>Property access via <code>[]</code>
+</li>
+  <li><code>Object.assign()</code></li>
+</ul>
+
+<p>The following operations ignore symbols as property keys:</p>
+
+<ul>
+  <li><code>Object.keys()</code></li>
+  <li><code>Object.getOwnPropertyNames()</code></li>
+  <li>
+<code>for-in</code> loop</li>
+</ul>
+
+
+<h3 id="_template-literals-overview-entry-template-literalsmd">
+<span class="section-number">30.5 </span>Template literals {#overview-entry-template-literals.md} <a class="header-anchor" href="ch_overviews.html#_template-literals-overview-entry-template-literalsmd" aria-hidden="true">#</a></h3>
+
+<p>ES6 has two new kinds of literals: <em>template literals</em> and <em>tagged template literals</em>. These two literals have similar names and look similar, but they are quite different. It is therefore important to distinguish:</p>
+
+<ul>
+  <li>Template literals (code): multi-line string literals that support interpolation</li>
+  <li>Tagged template literals (code): function calls</li>
+  <li>Web templates (data): HTML with blanks to be filled in</li>
+</ul>
+
+<p><em>Template literals</em> are string literals that can stretch across multiple lines and include interpolated expressions (inserted via <code>${&#xB7;&#xB7;&#xB7;}</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">firstName</code> <code class="o">=</code> <code class="s1">&apos;Jane&apos;</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`Hello </code><code class="si">${</code><code class="nx">firstName</code><code class="si">}</code><code class="sb">!</code>
+<code class="sb">How are you</code>
+<code class="sb">today?`</code><code class="p">);</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// Hello Jane!</code>
+<code class="c1">// How are you</code>
+<code class="c1">// today?</code>
+</pre></div>
+
+</figure>
+
+<p><em>Tagged template literals</em> (short: <em>tagged templates</em>) are created by mentioning a function before a template literal:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; String.raw`A \tagged\ template`
+&apos;A \\tagged\\ template&apos;
+</pre></div>
+
+</figure>
+
+<p>Tagged templates are function calls. In the previous example, the method <code>String.raw</code> is called to produce the result of the tagged template.</p>
+
+
+<h3 id="_variables-and-scoping-overview-entry-variablesmd">
+<span class="section-number">30.6 </span>Variables and scoping {#overview-entry-variables.md} <a class="header-anchor" href="ch_overviews.html#_variables-and-scoping-overview-entry-variablesmd" aria-hidden="true">#</a></h3>
+
+<p>ES6 provides two new ways of declaring variables: <code>let</code> and <code>const</code>, which mostly replace the ES5 way of declaring variables, <code>var</code>.</p>
+
+<h4 id="_let-1">
+<span class="section-number">30.6.1 </span><code>let</code>
+ <a class="header-anchor" href="ch_overviews.html#_let-1" aria-hidden="true">#</a></h4>
+
+<p><code>let</code> works similarly to <code>var</code>, but the variable it declares is <em>block-scoped</em>,  it only exists within the current block. <code>var</code> is <em>function-scoped</em>.</p>
+
+<p>In the following code, you can see that the <code>let</code>-declared variable <code>tmp</code> only exists inside the block that starts in line A:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">order</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">x</code> <code class="o">&gt;</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// (A)</code>
+        <code class="kd">let</code> <code class="nx">tmp</code> <code class="o">=</code> <code class="nx">x</code><code class="p">;</code>
+        <code class="nx">x</code> <code class="o">=</code> <code class="nx">y</code><code class="p">;</code>
+        <code class="nx">y</code> <code class="o">=</code> <code class="nx">tmp</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">tmp</code><code class="o">===</code><code class="nx">x</code><code class="p">);</code> <code class="c1">// ReferenceError: tmp is not defined</code>
+    <code class="k">return</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">];</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_const-1">
+<span class="section-number">30.6.2 </span><code>const</code>
+ <a class="header-anchor" href="ch_overviews.html#_const-1" aria-hidden="true">#</a></h4>
+
+<p><code>const</code> works like <code>let</code>, but the variable you declare must be immediately initialized, with a value that can&#x2019;t be changed afterwards.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">foo</code><code class="p">;</code>
+    <code class="c1">// SyntaxError: missing = in const declaration</code>
+
+<code class="kr">const</code> <code class="nx">bar</code> <code class="o">=</code> <code class="mi">123</code><code class="p">;</code>
+<code class="nx">bar</code> <code class="o">=</code> <code class="mi">456</code><code class="p">;</code>
+    <code class="c1">// TypeError: `bar` is read-only</code>
+</pre></div>
+
+</figure>
+
+<p>Since <code>for-of</code> creates one <em>binding</em> (storage space for a variable) per loop iteration, it is OK to <code>const</code>-declare the loop variable:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">])</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_ways-of-declaring-variables-1">
+<span class="section-number">30.6.3 </span>Ways of declaring variables <a class="header-anchor" href="ch_overviews.html#_ways-of-declaring-variables-1" aria-hidden="true">#</a></h4>
+
+<p>The following table gives an overview of six ways in which variables can be declared in ES6 (inspired by <a href="https://twitter.com/kangax/status/567330097603284992">a table by kangax</a>):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>&#xA0;</th>
+      <th>Hoisting</th>
+      <th>Scope</th>
+      <th>Creates global properties</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>var</code></td>
+      <td>Declaration</td>
+      <td>Function</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>let</code></td>
+      <td>Temporal dead zone</td>
+      <td>Block</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><code>const</code></td>
+      <td>Temporal dead zone</td>
+      <td>Block</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><code>function</code></td>
+      <td>Complete</td>
+      <td>Block</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><code>class</code></td>
+      <td>No</td>
+      <td>Block</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><code>import</code></td>
+      <td>Complete</td>
+      <td>Module-global</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+
+</table>
+
+
+<h3 id="_destructuring-overview-entry-destructuringmd">
+<span class="section-number">30.7 </span>Destructuring {#overview-entry-destructuring.md} <a class="header-anchor" href="ch_overviews.html#_destructuring-overview-entry-destructuringmd" aria-hidden="true">#</a></h3>
+
+<p><em>Destructuring</em> is a convenient way of extracting multiple values from data stored in (possibly nested) objects and Arrays. It can be used in locations that receive data (such as the left-hand side of an assignment). How to extract the values is specified via patterns (read on for examples).</p>
+
+<h4 id="_object-destructuring-1">
+<span class="section-number">30.7.1 </span>Object destructuring <a class="header-anchor" href="ch_overviews.html#_object-destructuring-1" aria-hidden="true">#</a></h4>
+
+<p>Destructuring objects:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;Jane&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;Doe&apos;</code> <code class="p">};</code>
+<code class="kr">const</code> <code class="p">{</code><code class="nx">first</code><code class="o">:</code> <code class="nx">f</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="nx">l</code><code class="p">}</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">;</code>
+    <code class="c1">// f = &apos;Jane&apos;; l = &apos;Doe&apos;</code>
+
+<code class="c1">// {prop} is short for {prop: prop}</code>
+<code class="kr">const</code> <code class="p">{</code><code class="nx">first</code><code class="p">,</code> <code class="nx">last</code><code class="p">}</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">;</code>
+    <code class="c1">// first = &apos;Jane&apos;; last = &apos;Doe&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>Destructuring helps with processing return values:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code> <code class="p">};</code>
+
+<code class="kr">const</code> <code class="p">{</code><code class="nx">writable</code><code class="p">,</code> <code class="nx">configurable</code><code class="p">}</code> <code class="o">=</code>
+    <code class="nb">Object</code><code class="p">.</code><code class="nx">getOwnPropertyDescriptor</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="s1">&apos;foo&apos;</code><code class="p">);</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">writable</code><code class="p">,</code> <code class="nx">configurable</code><code class="p">);</code> <code class="c1">// true true</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_array-destructuring-1">
+<span class="section-number">30.7.2 </span>Array destructuring <a class="header-anchor" href="ch_overviews.html#_array-destructuring-1" aria-hidden="true">#</a></h4>
+
+<p>Array destructuring (works for all iterable values):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="nx">iterable</code><code class="p">;</code>
+    <code class="c1">// x = &apos;a&apos;; y = &apos;b&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>Destructuring helps with processing return values:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="p">[</code><code class="nx">all</code><code class="p">,</code> <code class="nx">year</code><code class="p">,</code> <code class="nx">month</code><code class="p">,</code> <code class="nx">day</code><code class="p">]</code> <code class="o">=</code>
+    <code class="sr">/^(\d\d\d\d)-(\d\d)-(\d\d)$/</code>
+    <code class="p">.</code><code class="nx">exec</code><code class="p">(</code><code class="s1">&apos;2999-12-31&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_where-can-destructuring-be-used-1">
+<span class="section-number">30.7.3 </span>Where can destructuring be used? <a class="header-anchor" href="ch_overviews.html#_where-can-destructuring-be-used-1" aria-hidden="true">#</a></h4>
+
+<p>Destructuring can be used in the following locations (I&#x2019;m showing Array patterns to demonstrate; object patterns work just as well):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Variable declarations:</code>
+<code class="kr">const</code> <code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">];</code>
+<code class="kd">let</code> <code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">];</code>
+<code class="kd">var</code> <code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">];</code>
+
+<code class="c1">// Assignments:</code>
+<code class="p">[</code><code class="nx">x</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">];</code>
+
+<code class="c1">// Parameter definitions:</code>
+<code class="kd">function</code> <code class="nx">f</code><code class="p">([</code><code class="nx">x</code><code class="p">])</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+<code class="nx">f</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">]);</code>
+</pre></div>
+
+</figure>
+
+<p>You can also destructure in a <code>for-of</code> loop:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">index</code><code class="p">,</code> <code class="nx">element</code><code class="p">]</code> <code class="k">of</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">index</code><code class="p">,</code> <code class="nx">element</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// 0 a</code>
+<code class="c1">// 1 b</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="_parameter-handling-overview-entry-parameter-handlingmd">
+<span class="section-number">30.8 </span>Parameter handling {#overview-entry-parameter-handling.md} <a class="header-anchor" href="ch_overviews.html#_parameter-handling-overview-entry-parameter-handlingmd" aria-hidden="true">#</a></h3>
+
+<p>Parameter handling has been significantly upgraded in ECMAScript 6. It now supports parameter default values, rest parameters (varargs) and destructuring.</p>
+
+<p>Additionally, the spread operator helps with function/method/constructor calls and Array literals.</p>
+
+<h4 id="_default-parameter-values-1">
+<span class="section-number">30.8.1 </span>Default parameter values <a class="header-anchor" href="ch_overviews.html#_default-parameter-values-1" aria-hidden="true">#</a></h4>
+
+<p>A <em>default parameter value</em> is specified for a parameter via an equals sign (<code>=</code>). If a caller doesn&#x2019;t provide a value for the parameter, the default value is used. In the following example, the default parameter value of <code>y</code> is 0:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">func</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">];</code>
+<code class="p">}</code>
+<code class="nx">func</code><code class="p">(</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">);</code> <code class="c1">// [1, 2]</code>
+<code class="nx">func</code><code class="p">(</code><code class="mi">1</code><code class="p">);</code> <code class="c1">// [1, 0]</code>
+<code class="nx">func</code><code class="p">();</code> <code class="c1">// [undefined, 0]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_rest-parameters-1">
+<span class="section-number">30.8.2 </span>Rest parameters <a class="header-anchor" href="ch_overviews.html#_rest-parameters-1" aria-hidden="true">#</a></h4>
+
+<p>If you prefix a parameter name with the rest operator (<code>...</code>), that parameter receives all remaining parameters via an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">format</code><code class="p">(</code><code class="nx">pattern</code><code class="p">,</code> <code class="p">...</code><code class="nx">params</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="p">{</code><code class="nx">pattern</code><code class="p">,</code> <code class="nx">params</code><code class="p">};</code>
+<code class="p">}</code>
+<code class="nx">format</code><code class="p">(</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">3</code><code class="p">);</code>
+    <code class="c1">// { pattern: 1, params: [ 2, 3 ] }</code>
+<code class="nx">format</code><code class="p">();</code>
+    <code class="c1">// { pattern: undefined, params: [] }</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_named-parameters-via-destructuring-1">
+<span class="section-number">30.8.3 </span>Named parameters via destructuring <a class="header-anchor" href="ch_overviews.html#_named-parameters-via-destructuring-1" aria-hidden="true">#</a></h4>
+
+<p>You can simulate named parameters if you destructure with an object pattern in the parameter list:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">start</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">end</code><code class="o">=-</code><code class="mi">1</code><code class="p">,</code> <code class="nx">step</code><code class="o">=</code><code class="mi">1</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{})</code> <code class="p">{</code> <code class="c1">// (A)</code>
+    <code class="c1">// The object pattern is an abbreviation of:</code>
+    <code class="c1">// { start: start=0, end: end=-1, step: step=1 }</code>
+
+    <code class="c1">// Use the variables `start`, `end` and `step` here</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+
+<code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">start</code><code class="o">:</code> <code class="mi">10</code><code class="p">,</code> <code class="nx">end</code><code class="o">:</code> <code class="mi">30</code><code class="p">,</code> <code class="nx">step</code><code class="o">:</code> <code class="mi">2</code> <code class="p">});</code>
+<code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">step</code><code class="o">:</code> <code class="mi">3</code> <code class="p">});</code>
+<code class="nx">selectEntries</code><code class="p">({});</code>
+<code class="nx">selectEntries</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p>The <code>= {}</code> in line A enables you to call <code>selectEntries()</code> without paramters.</p>
+
+<h4 id="_spread-operator--1">
+<span class="section-number">30.8.4 </span>Spread operator (<code>...</code>) <a class="header-anchor" href="ch_overviews.html#_spread-operator--1" aria-hidden="true">#</a></h4>
+
+<p>In function and constructor calls, the spread operator turns iterable values into arguments:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">max</code><code class="p">(</code><code class="o">-</code><code class="mi">1</code><code class="p">,</code> <code class="mi">5</code><code class="p">,</code> <code class="mi">11</code><code class="p">,</code> <code class="mi">3</code><code class="p">)</code>
+<code class="mi">11</code>
+<code class="o">&gt;</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">max</code><code class="p">(...[</code><code class="o">-</code><code class="mi">1</code><code class="p">,</code> <code class="mi">5</code><code class="p">,</code> <code class="mi">11</code><code class="p">,</code> <code class="mi">3</code><code class="p">])</code>
+<code class="mi">11</code>
+<code class="o">&gt;</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">max</code><code class="p">(</code><code class="o">-</code><code class="mi">1</code><code class="p">,</code> <code class="p">...[</code><code class="o">-</code><code class="mi">1</code><code class="p">,</code> <code class="mi">5</code><code class="p">,</code> <code class="mi">11</code><code class="p">],</code> <code class="mi">3</code><code class="p">)</code>
+<code class="mi">11</code>
+</pre></div>
+
+</figure>
+
+<p>In Array literals, the spread operator turns iterable values into Array elements:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="p">[</code><code class="mi">1</code><code class="p">,</code> <code class="p">...[</code><code class="mi">2</code><code class="p">,</code><code class="mi">3</code><code class="p">],</code> <code class="mi">4</code><code class="p">]</code>
+<code class="p">[</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">3</code><code class="p">,</code> <code class="mi">4</code><code class="p">]</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="_callable-entities-in-ecmascript-6-overview-entry-callablesmd">
+<span class="section-number">30.9 </span>Callable entities in ECMAScript 6 {#overview-entry-callables.md} <a class="header-anchor" href="ch_overviews.html#_callable-entities-in-ecmascript-6-overview-entry-callablesmd" aria-hidden="true">#</a></h3>
+
+<p>In ES5, a single construct, the (traditional) function, played three roles:</p>
+
+<ul>
+  <li>Real (non-method) function</li>
+  <li>Method</li>
+  <li>Constructor</li>
+</ul>
+
+<p>In ES6, there is more specialization. The three duties are now handled as follows (a class definition is either one of the two constructs for creating classes &#x2013; a class declaration or a class expression):</p>
+
+<ul>
+  <li>Real (non-method) function:
+    <ul>
+      <li>Arrow functions (only have an expression form)</li>
+      <li>Traditional functions (created via function expressions and function declarations)</li>
+      <li>Generator functions (created via generator function expressions and generator function declarations)</li>
+    </ul>
+  </li>
+  <li>Method:
+    <ul>
+      <li>Methods (created by method definitions in object literals and class definitions)</li>
+      <li>Generator methods (created by generator method definitions in object literals and class definitions)</li>
+    </ul>
+  </li>
+  <li>Constructor:
+    <ul>
+      <li>Classes (created via class definitions)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>This list is a simplification. There are quite a few libraries that use <code>this</code> as an implicit parameter for callbacks. Then you have to use traditional functions.</p>
+
+<p>Note that I distinguish:</p>
+
+<ul>
+  <li>The entity: e.g. traditional function</li>
+  <li>The syntax that creates the entity: e.g. function expression and function declaration</li>
+</ul>
+
+<p>Even though their behaviors differ (as explained later), all of these entities are functions. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; typeof (() =&gt; {}) // arrow function
+&apos;function&apos;
+&gt; typeof function* () {} // generator function
+&apos;function&apos;
+&gt; typeof class {} // class
+&apos;function&apos;
+</pre></div>
+
+</figure>
+
+
+<h3 id="_arrow-functions-overview-entry-arrow-functionsmd">
+<span class="section-number">30.10 </span>Arrow functions {#overview-entry-arrow-functions.md} <a class="header-anchor" href="ch_overviews.html#_arrow-functions-overview-entry-arrow-functionsmd" aria-hidden="true">#</a></h3>
+
+<p>There are two benefits to arrow functions.</p>
+
+<p>First, they are less verbose than traditional function expressions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">3</code><code class="p">];</code>
+<code class="kr">const</code> <code class="nx">squares</code> <code class="o">=</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">x</code><code class="p">);</code>
+
+<code class="c1">// Traditional function expression:</code>
+<code class="kr">const</code> <code class="nx">squares</code> <code class="o">=</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="kd">function</code> <code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code> <code class="k">return</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">x</code> <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>Second, their <code>this</code> is picked up from surroundings (<em>lexical</em>). Therefore, you don&#x2019;t need <code>bind()</code> or <code>that = this</code>, anymore.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">UiComponent</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">button</code> <code class="o">=</code> <code class="nb">document</code><code class="p">.</code><code class="nx">getElementById</code><code class="p">(</code><code class="s1">&apos;myButton&apos;</code><code class="p">);</code>
+    <code class="nx">button</code><code class="p">.</code><code class="nx">addEventListener</code><code class="p">(</code><code class="s1">&apos;click&apos;</code><code class="p">,</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;CLICK&apos;</code><code class="p">);</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">handleClick</code><code class="p">();</code> <code class="c1">// lexical `this`</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The following variables are all lexical inside arrow functions:</p>
+
+<ul>
+  <li><code>arguments</code></li>
+  <li><code>super</code></li>
+  <li><code>this</code></li>
+  <li><code>new.target</code></li>
+</ul>
+
+
+<h3 id="_new-oop-features-besides-classes-overview-entry-oop-besides-classesmd">
+<span class="section-number">30.11 </span>New OOP features besides classes {#overview-entry-oop-besides-classes.md} <a class="header-anchor" href="ch_overviews.html#_new-oop-features-besides-classes-overview-entry-oop-besides-classesmd" aria-hidden="true">#</a></h3>
+
+<h4 id="_new-object-literal-features-1">
+<span class="section-number">30.11.1 </span>New object literal features <a class="header-anchor" href="ch_overviews.html#_new-object-literal-features-1" aria-hidden="true">#</a></h4>
+
+<p>Method definitions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">myMethod</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Property value shorthands:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">first</code> <code class="o">=</code> <code class="s1">&apos;Jane&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">last</code> <code class="o">=</code> <code class="s1">&apos;Doe&apos;</code><code class="p">;</code>
+
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">first</code><code class="p">,</code> <code class="nx">last</code> <code class="p">};</code>
+<code class="c1">// Same as:</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="nx">first</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="nx">last</code> <code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>Computed property keys:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">propKey</code> <code class="o">=</code> <code class="s1">&apos;foo&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">propKey</code><code class="p">]</code><code class="o">:</code> <code class="kc">true</code><code class="p">,</code>
+    <code class="p">[</code><code class="s1">&apos;b&apos;</code><code class="o">+</code><code class="s1">&apos;ar&apos;</code><code class="p">]</code><code class="o">:</code> <code class="mi">123</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>This new syntax can also be used for method definitions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="p">[</code><code class="s1">&apos;h&apos;</code><code class="o">+</code><code class="s1">&apos;ello&apos;</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="s1">&apos;hi&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">.</code><code class="nx">hello</code><code class="p">());</code> <code class="c1">// hi</code>
+</pre></div>
+
+</figure>
+
+<p>The main use case for computed property keys is to make it easy to use symbols as property keys.</p>
+
+<h4 id="_new-methods-in-object-1">
+<span class="section-number">30.11.2 </span>New methods in <code>Object</code>
+ <a class="header-anchor" href="ch_overviews.html#_new-methods-in-object-1" aria-hidden="true">#</a></h4>
+
+<p>The most important new method of <code>Object</code> is <code>assign()</code>. Traditionally, this functionality was called <code>extend()</code> in the JavaScript world. In contrast to how this classic operation works, <code>Object.assign()</code> only considers <em>own</em> (non-inherited) properties.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">foo</code><code class="o">:</code> <code class="mi">123</code> <code class="p">};</code>
+<code class="nb">Object</code><code class="p">.</code><code class="nx">assign</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="p">{</code> <code class="nx">bar</code><code class="o">:</code> <code class="kc">true</code> <code class="p">});</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">JSON</code><code class="p">.</code><code class="nx">stringify</code><code class="p">(</code><code class="nx">obj</code><code class="p">));</code>
+    <code class="c1">// {&quot;foo&quot;:123,&quot;bar&quot;:true}</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="_classes-overview-entry-classesmd">
+<span class="section-number">30.12 </span>Classes {#overview-entry-classes.md} <a class="header-anchor" href="ch_overviews.html#_classes-overview-entry-classesmd" aria-hidden="true">#</a></h3>
+
+<p>A class and a subclass:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">x</code> <code class="o">=</code> <code class="nx">x</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">y</code> <code class="o">=</code> <code class="nx">y</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="sb">`(</code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">x</code><code class="si">}</code><code class="sb">, </code><code class="si">${</code><code class="k">this</code><code class="p">.</code><code class="nx">y</code><code class="si">}</code><code class="sb">)`</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="kr">class</code> <code class="nx">ColorPoint</code> <code class="kr">extends</code> <code class="nx">Point</code> <code class="p">{</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">,</code> <code class="nx">color</code><code class="p">)</code> <code class="p">{</code>
+        <code class="kr">super</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">);</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">color</code> <code class="o">=</code> <code class="nx">color</code><code class="p">;</code>
+    <code class="p">}</code>
+    <code class="nx">toString</code><code class="p">()</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="kr">super</code><code class="p">.</code><code class="nx">toString</code><code class="p">()</code> <code class="o">+</code> <code class="s1">&apos; in &apos;</code> <code class="o">+</code> <code class="k">this</code><code class="p">.</code><code class="nx">color</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Using the classes:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const cp = new ColorPoint(25, 8, &apos;green&apos;);
+
+&gt; cp.toString();
+&apos;(25, 8) in green&apos;
+
+&gt; cp instanceof ColorPoint
+true
+&gt; cp instanceof Point
+true
+</pre></div>
+
+</figure>
+
+<p>Under the hood, ES6 classes are not something that is radically new: They mainly provide more convenient syntax to create old-school constructor functions. You can see that if you use <code>typeof</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; typeof Point
+&apos;function&apos;
+</pre></div>
+
+</figure>
+
+
+<h3 id="_modules-overview-entry-modulesmd">
+<span class="section-number">30.13 </span>Modules {#overview-entry-modules.md} <a class="header-anchor" href="ch_overviews.html#_modules-overview-entry-modulesmd" aria-hidden="true">#</a></h3>
+
+<p>JavaScript has had modules for a long time. However, they were implemented via libraries, not built into the language. ES6 is the first time that JavaScript has built-in modules.</p>
+
+<p>ES6 modules are stored in files. There is exactly one module per file and one file per module. You have two ways of exporting things from a module. <a href="ch_modules.html#sec_mixing-named-and-default-exports">These two ways can be mixed</a>, but it is usually better to use them separately.</p>
+
+<h4 id="_multiple-named-exports-1">
+<span class="section-number">30.13.1 </span>Multiple named exports <a class="header-anchor" href="ch_overviews.html#_multiple-named-exports-1" aria-hidden="true">#</a></h4>
+
+<p>There can be multiple <em>named exports</em>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//------ lib.js ------</code>
+<code class="kr">export</code> <code class="kr">const</code> <code class="nx">sqrt</code> <code class="o">=</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">sqrt</code><code class="p">;</code>
+<code class="kr">export</code> <code class="kd">function</code> <code class="nx">square</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">x</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kr">export</code> <code class="kd">function</code> <code class="nx">diag</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">sqrt</code><code class="p">(</code><code class="nx">square</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="o">+</code> <code class="nx">square</code><code class="p">(</code><code class="nx">y</code><code class="p">));</code>
+<code class="p">}</code>
+
+<code class="c1">//------ main.js ------</code>
+<code class="kr">import</code> <code class="p">{</code> <code class="nx">square</code><code class="p">,</code> <code class="nx">diag</code> <code class="p">}</code> <code class="nx">from</code> <code class="s1">&apos;lib&apos;</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">square</code><code class="p">(</code><code class="mi">11</code><code class="p">));</code> <code class="c1">// 121</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">diag</code><code class="p">(</code><code class="mi">4</code><code class="p">,</code> <code class="mi">3</code><code class="p">));</code> <code class="c1">// 5</code>
+</pre></div>
+
+</figure>
+
+<p>You can also import the complete module:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//------ main.js ------</code>
+<code class="kr">import</code> <code class="o">*</code> <code class="nx">as</code> <code class="nx">lib</code> <code class="nx">from</code> <code class="s1">&apos;lib&apos;</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">lib</code><code class="p">.</code><code class="nx">square</code><code class="p">(</code><code class="mi">11</code><code class="p">));</code> <code class="c1">// 121</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">lib</code><code class="p">.</code><code class="nx">diag</code><code class="p">(</code><code class="mi">4</code><code class="p">,</code> <code class="mi">3</code><code class="p">));</code> <code class="c1">// 5</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_single-default-export-1">
+<span class="section-number">30.13.2 </span>Single default export <a class="header-anchor" href="ch_overviews.html#_single-default-export-1" aria-hidden="true">#</a></h4>
+
+<p>There can be a single <em>default export</em>. For example, a function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//------ myFunc.js ------</code>
+<code class="kr">export</code> <code class="k">default</code> <code class="kd">function</code> <code class="p">()</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code> <code class="c1">// no semicolon!</code>
+
+<code class="c1">//------ main1.js ------</code>
+<code class="kr">import</code> <code class="nx">myFunc</code> <code class="nx">from</code> <code class="s1">&apos;myFunc&apos;</code><code class="p">;</code>
+<code class="nx">myFunc</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p>Or a class:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//------ MyClass.js ------</code>
+<code class="kr">export</code> <code class="k">default</code> <code class="kr">class</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code> <code class="c1">// no semicolon!</code>
+
+<code class="c1">//------ main2.js ------</code>
+<code class="kr">import</code> <code class="nx">MyClass</code> <code class="nx">from</code> <code class="s1">&apos;MyClass&apos;</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">inst</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">MyClass</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p>Note that there is no semicolon at the end if you default-export a function or a class (which are anonymous declarations).</p>
+
+<h4 id="_browsers-scripts-versus-modules-1">
+<span class="section-number">30.13.3 </span>Browsers: scripts versus modules <a class="header-anchor" href="ch_overviews.html#_browsers-scripts-versus-modules-1" aria-hidden="true">#</a></h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>&#xA0;</th>
+      <th>Scripts</th>
+      <th>Modules</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>HTML element</td>
+      <td><code>&lt;script&gt;</code></td>
+      <td><code>&lt;script type=&quot;module&quot;&gt;</code></td>
+    </tr>
+    <tr>
+      <td>Default mode</td>
+      <td>non-strict</td>
+      <td>strict</td>
+    </tr>
+    <tr>
+      <td>Top-level variables are</td>
+      <td>global</td>
+      <td>local to module</td>
+    </tr>
+    <tr>
+      <td>Value of <code>this</code> at top level</td>
+      <td><code>window</code></td>
+      <td><code>undefined</code></td>
+    </tr>
+    <tr>
+      <td>Executed</td>
+      <td>synchronously</td>
+      <td>asynchronously</td>
+    </tr>
+    <tr>
+      <td>Declarative imports (<code>import</code> statement)</td>
+      <td>no</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Programmatic imports (Promise-based API)</td>
+      <td>yes</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>File extension</td>
+      <td><code>.js</code></td>
+      <td><code>.js</code></td>
+    </tr>
+  </tbody>
+
+</table>
+
+
+
+<h3 id="_the-for-of-loop-overview-entry-for-ofmd">
+<span class="section-number">30.14 </span>The <code>for-of</code> loop {#overview-entry-for-of.md} <a class="header-anchor" href="ch_overviews.html#_the-for-of-loop-overview-entry-for-ofmd" aria-hidden="true">#</a></h3>
+
+<p><code>for-of</code> is a new loop in ES6 that replaces both <code>for-in</code> and <code>forEach()</code> and supports the new iteration protocol.</p>
+
+<p>Use it to loop over <em>iterable</em> objects (Arrays, strings, Maps, Sets, etc.; see Chap. &#x201C;<a href="ch_iteration.html#ch_iteration">Iterables and iterators</a>&#x201D;):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">iterable</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="nx">iterable</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+<code class="c1">// b</code>
+</pre></div>
+
+</figure>
+
+<p><code>break</code> and <code>continue</code> work inside <code>for-of</code> loops:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">])</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">x</code><code class="p">.</code><code class="nx">length</code> <code class="o">===</code> <code class="mi">0</code><code class="p">)</code> <code class="k">break</code><code class="p">;</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// a</code>
+</pre></div>
+
+</figure>
+
+<p>Access both elements and their indices while looping over an Array (the square brackets before <code>of</code> mean that we are using <a href="ch_destructuring.html#ch_destructuring">destructuring</a>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">index</code><code class="p">,</code> <code class="nx">element</code><code class="p">]</code> <code class="k">of</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`</code><code class="si">${</code><code class="nx">index</code><code class="si">}</code><code class="sb">. </code><code class="si">${</code><code class="nx">element</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// 0. a</code>
+<code class="c1">// 1. b</code>
+</pre></div>
+
+</figure>
+
+<p>Looping over the [key, value] entries in a Map (the square brackets before <code>of</code> mean that we are using <a href="ch_destructuring.html#ch_destructuring">destructuring</a>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">([</code>
+    <code class="p">[</code><code class="kc">false</code><code class="p">,</code> <code class="s1">&apos;no&apos;</code><code class="p">],</code>
+    <code class="p">[</code><code class="kc">true</code><code class="p">,</code> <code class="s1">&apos;yes&apos;</code><code class="p">],</code>
+<code class="p">]);</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">key</code><code class="p">,</code> <code class="nx">value</code><code class="p">]</code> <code class="k">of</code> <code class="nx">map</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`</code><code class="si">${</code><code class="nx">key</code><code class="si">}</code><code class="sb"> =&gt; </code><code class="si">${</code><code class="nx">value</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// false =&gt; no</code>
+<code class="c1">// true =&gt; yes</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="_new-array-features-overview-entry-arraysmd">
+<span class="section-number">30.15 </span>New Array features {#overview-entry-arrays.md} <a class="header-anchor" href="ch_overviews.html#_new-array-features-overview-entry-arraysmd" aria-hidden="true">#</a></h3>
+
+<p>New static <code>Array</code> methods:</p>
+
+<ul>
+  <li><code>Array.from(arrayLike, mapFunc?, thisArg?)</code></li>
+  <li><code>Array.of(...items)</code></li>
+</ul>
+
+<p>New <code>Array.prototype</code> methods:</p>
+
+<ul>
+  <li>Iterating:
+    <ul>
+      <li><code>Array.prototype.entries()</code></li>
+      <li><code>Array.prototype.keys()</code></li>
+      <li><code>Array.prototype.values()</code></li>
+    </ul>
+  </li>
+  <li>Searching for elements:
+    <ul>
+      <li><code>Array.prototype.find(predicate, thisArg?)</code></li>
+      <li><code>Array.prototype.findIndex(predicate, thisArg?)</code></li>
+    </ul>
+  </li>
+  <li><code>Array.prototype.copyWithin(target, start, end=this.length)</code></li>
+  <li><code>Array.prototype.fill(value, start=0, end=this.length)</code></li>
+</ul>
+
+
+<h3 id="_maps-and-sets-overview-entry-maps-setsmd">
+<span class="section-number">30.16 </span>Maps and Sets {#overview-entry-maps-sets.md} <a class="header-anchor" href="ch_overviews.html#_maps-and-sets-overview-entry-maps-setsmd" aria-hidden="true">#</a></h3>
+
+<p>Among others, the following four data structures are new in ECMAScript 6: <code>Map</code>, <code>WeakMap</code>, <code>Set</code> and <code>WeakSet</code>.</p>
+
+<h4 id="_maps-2">
+<span class="section-number">30.16.1 </span>Maps <a class="header-anchor" href="ch_overviews.html#_maps-2" aria-hidden="true">#</a></h4>
+
+<p>The keys of a Map can be arbitrary values:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const map = new Map(); // create an empty Map
+&gt; const KEY = {};
+
+&gt; map.set(KEY, 123);
+&gt; map.get(KEY)
+123
+&gt; map.has(KEY)
+true
+&gt; map.delete(KEY);
+true
+&gt; map.has(KEY)
+false
+</pre></div>
+
+</figure>
+
+<p>You can use an Array (or any iterable) with [key, value] pairs to set up the initial data in the Map:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">([</code>
+    <code class="p">[</code> <code class="mi">1</code><code class="p">,</code> <code class="s1">&apos;one&apos;</code> <code class="p">],</code>
+    <code class="p">[</code> <code class="mi">2</code><code class="p">,</code> <code class="s1">&apos;two&apos;</code> <code class="p">],</code>
+    <code class="p">[</code> <code class="mi">3</code><code class="p">,</code> <code class="s1">&apos;three&apos;</code> <code class="p">],</code> <code class="c1">// trailing comma is ignored</code>
+<code class="p">]);</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_sets-2">
+<span class="section-number">30.16.2 </span>Sets <a class="header-anchor" href="ch_overviews.html#_sets-2" aria-hidden="true">#</a></h4>
+
+<p>A Set is a collection of unique elements:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>const arr = [5, 1, 5, 7, 7, 5];
+const unique = [...new Set(arr)]; // [ 5, 1, 7 ]
+</pre></div>
+
+</figure>
+
+<p>As you can see, you can initialize a Set with elements if you hand the constructor an iterable (<code>arr</code> in the example) over those elements.</p>
+
+<h4 id="_weakmaps-1">
+<span class="section-number">30.16.3 </span>WeakMaps <a class="header-anchor" href="ch_overviews.html#_weakmaps-1" aria-hidden="true">#</a></h4>
+
+<p>A WeakMap is a Map that doesn&#x2019;t prevent its keys from being garbage-collected. That means that you can associate data with objects without having to worry about memory leaks. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">//----- Manage listeners</code>
+
+<code class="kr">const</code> <code class="nx">_objToListeners</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">WeakMap</code><code class="p">();</code>
+
+<code class="kd">function</code> <code class="nx">addListener</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="nx">listener</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="o">!</code> <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">has</code><code class="p">(</code><code class="nx">obj</code><code class="p">))</code> <code class="p">{</code>
+        <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">set</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">());</code>
+    <code class="p">}</code>
+    <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">obj</code><code class="p">).</code><code class="nx">add</code><code class="p">(</code><code class="nx">listener</code><code class="p">);</code>
+<code class="p">}</code>
+
+<code class="kd">function</code> <code class="nx">triggerListeners</code><code class="p">(</code><code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">listeners</code> <code class="o">=</code> <code class="nx">_objToListeners</code><code class="p">.</code><code class="nx">get</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">listeners</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">listener</code> <code class="k">of</code> <code class="nx">listeners</code><code class="p">)</code> <code class="p">{</code>
+            <code class="nx">listener</code><code class="p">();</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="c1">//----- Example: attach listeners to an object</code>
+
+<code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="nx">addListener</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;hello&apos;</code><code class="p">));</code>
+<code class="nx">addListener</code><code class="p">(</code><code class="nx">obj</code><code class="p">,</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;world&apos;</code><code class="p">));</code>
+
+<code class="c1">//----- Example: trigger listeners</code>
+
+<code class="nx">triggerListeners</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// hello</code>
+<code class="c1">// world</code>
+</pre></div>
+
+</figure>
+
+
+
+<h3 id="_typed-arrays-overview-entry-typed-arraysmd">
+<span class="section-number">30.17 </span>Typed Arrays {#overview-entry-typed-arrays.md} <a class="header-anchor" href="ch_overviews.html#_typed-arrays-overview-entry-typed-arraysmd" aria-hidden="true">#</a></h3>
+
+<p>Typed Arrays are an ECMAScript 6 API for handling binary data.</p>
+
+<p>Code example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">typedArray</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Uint8Array</code><code class="p">([</code><code class="mi">0</code><code class="p">,</code><code class="mi">1</code><code class="p">,</code><code class="mi">2</code><code class="p">]);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">typedArray</code><code class="p">.</code><code class="nx">length</code><code class="p">);</code> <code class="c1">// 3</code>
+<code class="nx">typedArray</code><code class="p">[</code><code class="mi">0</code><code class="p">]</code> <code class="o">=</code> <code class="mi">5</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">normalArray</code> <code class="o">=</code> <code class="p">[...</code><code class="nx">typedArray</code><code class="p">];</code> <code class="c1">// [5,1,2]</code>
+
+<code class="c1">// The elements are stored in typedArray.buffer.</code>
+<code class="c1">// Get a different view on the same data:</code>
+<code class="kr">const</code> <code class="nx">dataView</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">DataView</code><code class="p">(</code><code class="nx">typedArray</code><code class="p">.</code><code class="nx">buffer</code><code class="p">);</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">dataView</code><code class="p">.</code><code class="nx">getUint8</code><code class="p">(</code><code class="mi">0</code><code class="p">));</code> <code class="c1">// 5</code>
+</pre></div>
+
+</figure>
+
+<p>Instances of <code>ArrayBuffer</code> store the binary data to be processed. Two kinds of <em>views</em> are used to access the data:</p>
+
+<ul>
+  <li>Typed Arrays (<code>Uint8Array</code>, <code>Int16Array</code>, <code>Float32Array</code>, etc.) interpret the ArrayBuffer as an indexed sequence of elements of a single type.</li>
+  <li>Instances of <code>DataView</code> let you access data as elements of several types (<code>Uint8</code>, <code>Int16</code>, <code>Float32</code>, etc.), at any byte offset inside an ArrayBuffer.</li>
+</ul>
+
+<p>The following browser APIs support Typed Arrays (<a href="ch_typed-arrays.html#sec_browser-apis-supporting-typed-arrays">details are mentioned in a dedicated section</a>):</p>
+
+<ul>
+  <li>File API</li>
+  <li>XMLHttpRequest</li>
+  <li>Fetch API</li>
+  <li>Canvas</li>
+  <li>WebSockets</li>
+  <li>And more</li>
+</ul>
+
+
+<h3 id="_iterables-and-iterators-overview-entry-iterationmd">
+<span class="section-number">30.18 </span>Iterables and iterators {#overview-entry-iteration.md} <a class="header-anchor" href="ch_overviews.html#_iterables-and-iterators-overview-entry-iterationmd" aria-hidden="true">#</a></h3>
+
+<p>ES6 introduces a new mechanism for traversing data: <em>iteration</em>. Two concepts are central to iteration:</p>
+
+<ul>
+  <li>An <em>iterable</em> is a data structure that wants to make its elements accessible to the public. It does so by implementing a method whose key is <code>Symbol.iterator</code>. That method is a factory for <em>iterators</em>.</li>
+  <li>An <em>iterator</em> is a pointer for traversing the elements of a data structure (think cursors in databases).</li>
+</ul>
+
+<p>Expressed as interfaces in TypeScript notation, these roles look like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">interface</code> <code class="nx">Iterable</code> <code class="p">{</code>
+    <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="o">:</code> <code class="nx">Iterator</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kr">interface</code> <code class="nx">Iterator</code> <code class="p">{</code>
+    <code class="nx">next</code><code class="p">()</code> <code class="o">:</code> <code class="nx">IteratorResult</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kr">interface</code> <code class="nx">IteratorResult</code> <code class="p">{</code>
+    <code class="nx">value</code><code class="o">:</code> <code class="nx">any</code><code class="p">;</code>
+    <code class="nx">done</code><code class="o">:</code> <code class="kr">boolean</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_iterable-values-1">
+<span class="section-number">30.18.1 </span>Iterable values <a class="header-anchor" href="ch_overviews.html#_iterable-values-1" aria-hidden="true">#</a></h4>
+
+<p>The following values are iterable:</p>
+
+<ul>
+  <li>Arrays</li>
+  <li>Strings</li>
+  <li>Maps</li>
+  <li>Sets</li>
+  <li>DOM data structures (work in progress)</li>
+</ul>
+
+<p>Plain objects are not iterable (why is explained in <a href="ch_iteration.html#sec_plain-objects-not-iterable">a dedicated section</a>).</p>
+
+<h4 id="_constructs-supporting-iteration-1">
+<span class="section-number">30.18.2 </span>Constructs supporting iteration <a class="header-anchor" href="ch_overviews.html#_constructs-supporting-iteration-1" aria-hidden="true">#</a></h4>
+
+<p>Language constructs that access data via iteration:</p>
+
+<ul>
+  <li>Destructuring via an Array pattern:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="p">[</code><code class="nx">a</code><code class="p">,</code><code class="nx">b</code><code class="p">]</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">]);</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>
+<code>for-of</code> loop:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">x</code> <code class="k">of</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">])</code> <code class="p">{</code>
+      <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code><code class="p">);</code>
+  <code class="p">}</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>
+<code>Array.from()</code>:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">from</code><code class="p">(</code><code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">]));</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Spread operator (<code>...</code>):
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[...</code><code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">])];</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Constructors of Maps and Sets:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">map</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">([[</code><code class="kc">false</code><code class="p">,</code> <code class="s1">&apos;no&apos;</code><code class="p">],</code> <code class="p">[</code><code class="kc">true</code><code class="p">,</code> <code class="s1">&apos;yes&apos;</code><code class="p">]]);</code>
+  <code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">]);</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>
+<code>Promise.all()</code>, <code>Promise.race()</code>:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">(</code><code class="nx">iterableOverPromises</code><code class="p">).</code><code class="nx">then</code><code class="p">(</code><code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">);</code>
+  <code class="nb">Promise</code><code class="p">.</code><code class="nx">race</code><code class="p">(</code><code class="nx">iterableOverPromises</code><code class="p">).</code><code class="nx">then</code><code class="p">(</code><code class="err">&#xB7;&#xB7;&#xB7;</code><code class="p">);</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>
+<code>yield*</code>:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="k">yield</code><code class="o">*</code> <code class="nx">anIterable</code><code class="p">;</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+
+<h3 id="_generators-overview-entry-generatorsmd">
+<span class="section-number">30.19 </span>Generators {#overview-entry-generators.md} <a class="header-anchor" href="ch_overviews.html#_generators-overview-entry-generatorsmd" aria-hidden="true">#</a></h3>
+
+<h4 id="_what-are-generators-1">
+<span class="section-number">30.19.1 </span>What are generators? <a class="header-anchor" href="ch_overviews.html#_what-are-generators-1" aria-hidden="true">#</a></h4>
+
+<p>You can think of generators as processes (pieces of code) that you can pause and resume:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code><code class="o">*</code> <code class="nx">genFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="c1">// (A)</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;First&apos;</code><code class="p">);</code>
+    <code class="k">yield</code><code class="p">;</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;Second&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Note the new syntax: <code>function*</code> is a new &#x201C;keyword&#x201D; for <em>generator functions</em> (there are also <em>generator methods</em>). <code>yield</code> is an operator with which a generator can pause itself. Additionally, generators can also receive input and send output via <code>yield</code>.</p>
+
+<p>When you call a generator function <code>genFunc()</code>, you get a <em>generator object</em> <code>genObj</code> that you can use to control the process:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">genObj</code> <code class="o">=</code> <code class="nx">genFunc</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p>The process is initially paused in line A. <code>genObj.next()</code> resumes execution, a <code>yield</code> inside <code>genFunc()</code> pauses execution:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">genObj</code><code class="p">.</code><code class="nx">next</code><code class="p">();</code>
+<code class="c1">// Output: First</code>
+<code class="nx">genObj</code><code class="p">.</code><code class="nx">next</code><code class="p">();</code>
+<code class="c1">// output: Second</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_kinds-of-generators-1">
+<span class="section-number">30.19.2 </span>Kinds of generators <a class="header-anchor" href="ch_overviews.html#_kinds-of-generators-1" aria-hidden="true">#</a></h4>
+
+<p>There are four kinds of generators:</p>
+
+<ol class="numeric">
+  <li>Generator function declarations:
+    <figure class="code">
+<div class="highlight"><pre><code></code> <code class="kd">function</code><code class="o">*</code> <code class="nx">genFunc</code><code class="p">()</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">}</code>
+ <code class="kr">const</code> <code class="nx">genObj</code> <code class="o">=</code> <code class="nx">genFunc</code><code class="p">();</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Generator function expressions:
+    <figure class="code">
+<div class="highlight"><pre><code></code> <code class="kr">const</code> <code class="nx">genFunc</code> <code class="o">=</code> <code class="kd">function</code><code class="o">*</code> <code class="p">()</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">};</code>
+ <code class="kr">const</code> <code class="nx">genObj</code> <code class="o">=</code> <code class="nx">genFunc</code><code class="p">();</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Generator method definitions in object literals:
+    <figure class="code">
+<div class="highlight"><pre><code></code> <code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+     <code class="o">*</code> <code class="nx">generatorMethod</code><code class="p">()</code> <code class="p">{</code>
+         <code class="err">&#xB7;&#xB7;&#xB7;</code>
+     <code class="p">}</code>
+ <code class="p">};</code>
+ <code class="kr">const</code> <code class="nx">genObj</code> <code class="o">=</code> <code class="nx">obj</code><code class="p">.</code><code class="nx">generatorMethod</code><code class="p">();</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Generator method definitions in class definitions (class declarations or class expressions):
+    <figure class="code">
+<div class="highlight"><pre><code></code> <code class="kr">class</code> <code class="nx">MyClass</code> <code class="p">{</code>
+     <code class="o">*</code> <code class="nx">generatorMethod</code><code class="p">()</code> <code class="p">{</code>
+         <code class="err">&#xB7;&#xB7;&#xB7;</code>
+     <code class="p">}</code>
+ <code class="p">}</code>
+ <code class="kr">const</code> <code class="nx">myInst</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">MyClass</code><code class="p">();</code>
+ <code class="kr">const</code> <code class="nx">genObj</code> <code class="o">=</code> <code class="nx">myInst</code><code class="p">.</code><code class="nx">generatorMethod</code><code class="p">();</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ol>
+
+<h4 id="_use-case-implementing-iterables-1">
+<span class="section-number">30.19.3 </span>Use case: implementing iterables <a class="header-anchor" href="ch_overviews.html#_use-case-implementing-iterables-1" aria-hidden="true">#</a></h4>
+
+<p>The objects returned by generators are iterable; each <code>yield</code> contributes to the sequence of iterated values. Therefore, you can use generators to implement iterables, which can be consumed by various ES6 language mechanisms: <code>for-of</code> loop, spread operator (<code>...</code>), etc.</p>
+
+<p>The following function returns an iterable over the properties of an object, one [key, value] pair per property:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code><code class="o">*</code> <code class="nx">objectEntries</code><code class="p">(</code><code class="nx">obj</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">propKeys</code> <code class="o">=</code> <code class="nx">Reflect</code><code class="p">.</code><code class="nx">ownKeys</code><code class="p">(</code><code class="nx">obj</code><code class="p">);</code>
+
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">propKey</code> <code class="k">of</code> <code class="nx">propKeys</code><code class="p">)</code> <code class="p">{</code>
+        <code class="c1">// `yield` returns a value and then pauses</code>
+        <code class="c1">// the generator. Later, execution continues</code>
+        <code class="c1">// where it was previously paused.</code>
+        <code class="k">yield</code> <code class="p">[</code><code class="nx">propKey</code><code class="p">,</code> <code class="nx">obj</code><code class="p">[</code><code class="nx">propKey</code><code class="p">]];</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><code>objectEntries()</code> is used like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">jane</code> <code class="o">=</code> <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;Jane&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;Doe&apos;</code> <code class="p">};</code>
+<code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">key</code><code class="p">,</code><code class="nx">value</code><code class="p">]</code> <code class="k">of</code> <code class="nx">objectEntries</code><code class="p">(</code><code class="nx">jane</code><code class="p">))</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`</code><code class="si">${</code><code class="nx">key</code><code class="si">}</code><code class="sb">: </code><code class="si">${</code><code class="nx">value</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="c1">// Output:</code>
+<code class="c1">// first: Jane</code>
+<code class="c1">// last: Doe</code>
+</pre></div>
+
+</figure>
+
+<p>How exactly <code>objectEntries()</code> works is explained in <a href="ch_generators.html#objectEntries_generator">a dedicated section</a>. Implementing the same functionality without generators is much more work.</p>
+
+<h4 id="_use-case-simpler-asynchronous-code-1">
+<span class="section-number">30.19.4 </span>Use case: simpler asynchronous code <a class="header-anchor" href="ch_overviews.html#_use-case-simpler-asynchronous-code-1" aria-hidden="true">#</a></h4>
+
+<p>You can use generators to tremendously simplify working with Promises. Let&#x2019;s look at a Promise-based function <code>fetchJson()</code> and how it can be improved via generators.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">fetchJson</code><code class="p">(</code><code class="nx">url</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">fetch</code><code class="p">(</code><code class="nx">url</code><code class="p">)</code>
+    <code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">request</code> <code class="o">=&gt;</code> <code class="nx">request</code><code class="p">.</code><code class="nx">text</code><code class="p">())</code>
+    <code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">text</code> <code class="o">=&gt;</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">JSON</code><code class="p">.</code><code class="nx">parse</code><code class="p">(</code><code class="nx">text</code><code class="p">);</code>
+    <code class="p">})</code>
+    <code class="p">.</code><code class="k">catch</code><code class="p">(</code><code class="nx">error</code> <code class="o">=&gt;</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`ERROR: </code><code class="si">${</code><code class="nx">error</code><code class="p">.</code><code class="nx">stack</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+    <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>With <a href="https://github.com/tj/co">the library co</a> and a generator, this asynchronous code looks synchronous:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">fetchJson</code> <code class="o">=</code> <code class="nx">co</code><code class="p">.</code><code class="nx">wrap</code><code class="p">(</code><code class="kd">function</code><code class="o">*</code> <code class="p">(</code><code class="nx">url</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">try</code> <code class="p">{</code>
+        <code class="kd">let</code> <code class="nx">request</code> <code class="o">=</code> <code class="k">yield</code> <code class="nx">fetch</code><code class="p">(</code><code class="nx">url</code><code class="p">);</code>
+        <code class="kd">let</code> <code class="nx">text</code> <code class="o">=</code> <code class="k">yield</code> <code class="nx">request</code><code class="p">.</code><code class="nx">text</code><code class="p">();</code>
+        <code class="k">return</code> <code class="nx">JSON</code><code class="p">.</code><code class="nx">parse</code><code class="p">(</code><code class="nx">text</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="k">catch</code> <code class="p">(</code><code class="nx">error</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`ERROR: </code><code class="si">${</code><code class="nx">error</code><code class="p">.</code><code class="nx">stack</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>ECMAScript 2017 will have async functions which are internally based on generators. With them, the code looks like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">async</code> <code class="kd">function</code> <code class="nx">fetchJson</code><code class="p">(</code><code class="nx">url</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">try</code> <code class="p">{</code>
+        <code class="kd">let</code> <code class="nx">request</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">fetch</code><code class="p">(</code><code class="nx">url</code><code class="p">);</code>
+        <code class="kd">let</code> <code class="nx">text</code> <code class="o">=</code> <code class="nx">await</code> <code class="nx">request</code><code class="p">.</code><code class="nx">text</code><code class="p">();</code>
+        <code class="k">return</code> <code class="nx">JSON</code><code class="p">.</code><code class="nx">parse</code><code class="p">(</code><code class="nx">text</code><code class="p">);</code>
+    <code class="p">}</code>
+    <code class="k">catch</code> <code class="p">(</code><code class="nx">error</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`ERROR: </code><code class="si">${</code><code class="nx">error</code><code class="p">.</code><code class="nx">stack</code><code class="si">}</code><code class="sb">`</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>All versions can be invoked like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">fetchJson</code><code class="p">(</code><code class="s1">&apos;http://example.com/some_file.json&apos;</code><code class="p">)</code>
+<code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">obj</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">obj</code><code class="p">));</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_use-case-receiving-asynchronous-data-1">
+<span class="section-number">30.19.5 </span>Use case: receiving asynchronous data <a class="header-anchor" href="ch_overviews.html#_use-case-receiving-asynchronous-data-1" aria-hidden="true">#</a></h4>
+
+<p>Generators can receive input from <code>next()</code> via <code>yield</code>. That means that you can wake up a generator whenever new data arrives asynchronously and to the generator it feels like it receives the data synchronously.</p>
+
+
+<h3 id="_new-regular-expression-features-overview-entry-regexpmd">
+<span class="section-number">30.20 </span>New regular expression features {#overview-entry-regexp.md} <a class="header-anchor" href="ch_overviews.html#_new-regular-expression-features-overview-entry-regexpmd" aria-hidden="true">#</a></h3>
+
+<p>The following regular expression features are new in ECMAScript 6:</p>
+
+<ul>
+  <li>The new flag <code>/y</code> (sticky) anchors each match of a regular expression to the end of the previous match.</li>
+  <li>The new flag <code>/u</code> (unicode) handles surrogate pairs (such as <code>\uD83D\uDE80</code>) as code points and lets you use Unicode code point escapes (such as <code>\u{1F680}</code>) in regular expressions.</li>
+  <li>The new data property <code>flags</code> gives you access to the flags of a regular expression, just like <code>source</code> already gives you access to the pattern in ES5:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; /abc/ig.source // ES5
+  &apos;abc&apos;
+  &gt; /abc/ig.flags // ES6
+  &apos;gi&apos;
+</pre></div>
+
+    </figure>
+  </li>
+  <li>You can use the constructor <code>RegExp()</code> to make a copy of a regular expression:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  &gt; new RegExp(/abc/ig).flags
+  &apos;gi&apos;
+  &gt; new RegExp(/abc/ig, &apos;i&apos;).flags // change flags
+  &apos;i&apos;
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+
+<h3 id="_promises-for-asynchronous-programming-overview-entry-promisesmd">
+<span class="section-number">30.21 </span>Promises for asynchronous programming {#overview-entry-promises.md} <a class="header-anchor" href="ch_overviews.html#_promises-for-asynchronous-programming-overview-entry-promisesmd" aria-hidden="true">#</a></h3>
+
+<p>Promises are an alternative to callbacks for delivering the results of an asynchronous computation. They require more effort from implementors of asynchronous functions, but provide several benefits for users of those functions.</p>
+
+<p>The following function returns a result asynchronously, via a Promise:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">asyncFunc</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="k">new</code> <code class="nb">Promise</code><code class="p">(</code>
+        <code class="kd">function</code> <code class="p">(</code><code class="nx">resolve</code><code class="p">,</code> <code class="nx">reject</code><code class="p">)</code> <code class="p">{</code>
+            <code class="err">&#xB7;&#xB7;&#xB7;</code>
+            <code class="nx">resolve</code><code class="p">(</code><code class="nx">result</code><code class="p">);</code>
+            <code class="err">&#xB7;&#xB7;&#xB7;</code>
+            <code class="nx">reject</code><code class="p">(</code><code class="nx">error</code><code class="p">);</code>
+        <code class="p">});</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>You call <code>asyncFunc()</code> as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">asyncFunc</code><code class="p">()</code>
+<code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">result</code> <code class="o">=&gt;</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">})</code>
+<code class="p">.</code><code class="k">catch</code><code class="p">(</code><code class="nx">error</code> <code class="o">=&gt;</code> <code class="p">{</code> <code class="err">&#xB7;&#xB7;&#xB7;</code> <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_chaining-then-calls-1">
+<span class="section-number">30.21.1 </span>Chaining <code>then()</code> calls <a class="header-anchor" href="ch_overviews.html#_chaining-then-calls-1" aria-hidden="true">#</a></h4>
+
+<p><code>then()</code> always returns a Promise, which enables you to chain method calls:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">asyncFunc1</code><code class="p">()</code>
+<code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">result1</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="c1">// Use result1</code>
+    <code class="k">return</code> <code class="nx">asyncFunction2</code><code class="p">();</code> <code class="c1">// (A)</code>
+<code class="p">})</code>
+<code class="p">.</code><code class="nx">then</code><code class="p">(</code><code class="nx">result2</code> <code class="o">=&gt;</code> <code class="p">{</code> <code class="c1">// (B)</code>
+    <code class="c1">// Use result2</code>
+<code class="p">})</code>
+<code class="p">.</code><code class="k">catch</code><code class="p">(</code><code class="nx">error</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="c1">// Handle errors of asyncFunc1() and asyncFunc2()</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>How the Promise P returned by <code>then()</code> is settled depends on what its callback does:</p>
+
+<ul>
+  <li>If it returns a Promise (as in line A), the settlement of that Promise is forwarded to P. That&#x2019;s why the callback from line B can pick up the settlement of <code>asyncFunction2</code>&#x2019;s Promise.</li>
+  <li>If it returns a different value, that value is used to settle P.</li>
+  <li>If throws an exception then P is rejected with that exception.</li>
+</ul>
+
+<p>Furthermore, note how <code>catch()</code> handles the errors of two asynchronous function calls (<code>asyncFunction1()</code> and <code>asyncFunction2()</code>). That is, uncaught errors are passed on until there is an error handler.</p>
+
+<h4 id="_executing-asynchronous-functions-in-parallel-1">
+<span class="section-number">30.21.2 </span>Executing asynchronous functions in parallel <a class="header-anchor" href="ch_overviews.html#_executing-asynchronous-functions-in-parallel-1" aria-hidden="true">#</a></h4>
+
+<p>If you chain asynchronous function calls via <code>then()</code>, they are executed sequentially, one at a time:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">asyncFunc1</code><code class="p">()</code>
+<code class="p">.</code><code class="nx">then</code><code class="p">(()</code> <code class="o">=&gt;</code> <code class="nx">asyncFunc2</code><code class="p">());</code>
+</pre></div>
+
+</figure>
+
+<p>If you don&#x2019;t do that and call all of them immediately, they are basically executed in parallel (a <em>fork</em> in Unix process terminology):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">asyncFunc1</code><code class="p">();</code>
+<code class="nx">asyncFunc2</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p><code>Promise.all()</code> enables you to be notified once all results are in (a <em>join</em> in Unix process terminology). Its input is an Array of Promises, its output a single Promise that is fulfilled with an Array of the results.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">([</code>
+    <code class="nx">asyncFunc1</code><code class="p">(),</code>
+    <code class="nx">asyncFunc2</code><code class="p">(),</code>
+<code class="p">])</code>
+<code class="p">.</code><code class="nx">then</code><code class="p">(([</code><code class="nx">result1</code><code class="p">,</code> <code class="nx">result2</code><code class="p">])</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">})</code>
+<code class="p">.</code><code class="k">catch</code><code class="p">(</code><code class="nx">err</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="c1">// Receives first rejection among the Promises</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_glossary-promises-1">
+<span class="section-number">30.21.3 </span>Glossary: Promises <a class="header-anchor" href="ch_overviews.html#_glossary-promises-1" aria-hidden="true">#</a></h4>
+
+
+<p>The Promise API is about delivering results asynchronously. A <em>Promise object</em> (short: Promise) is a stand-in for the result, which is delivered via that object.</p>
+
+<p>States:</p>
+
+<ul>
+  <li>A Promise is always in one of three mutually exclusive states:
+    <ul>
+      <li>Before the result is ready, the Promise is <em>pending</em>.</li>
+      <li>If a result is available, the Promise is <em>fulfilled</em>.</li>
+      <li>If an error happened, the Promise is <em>rejected</em>.</li>
+    </ul>
+  </li>
+  <li>A Promise is <em>settled</em> if &#x201C;things are done&#x201D; (if it is either fulfilled or rejected).</li>
+  <li>A Promise is settled exactly once and then remains unchanged.</li>
+</ul>
+
+<p>Reacting to state changes:</p>
+
+<ul>
+  <li>
+<em>Promise reactions</em> are callbacks that you register with the Promise method <code>then()</code>, to be notified of a fulfillment or a rejection.</li>
+  <li>A <em>thenable</em> is an object that has a Promise-style <code>then()</code> method. Whenever the API is only interested in being notified of settlements, it only demands thenables (e.g. the values returned from <code>then()</code> and <code>catch()</code>; or the values handed to <code>Promise.all()</code> and <code>Promise.race()</code>).</li>
+</ul>
+
+<p>Changing states: There are two operations for changing the state of a Promise. After you have invoked either one of them once, further invocations have no effect.</p>
+
+<ul>
+  <li>
+<em>Rejecting</em> a Promise means that the Promise becomes rejected.</li>
+  <li>
+<em>Resolving</em> a Promise has different effects, depending on what value you are resolving with:
+    <ul>
+      <li>Resolving with a normal (non-thenable) value fulfills the Promise.</li>
+      <li>Resolving a Promise P with a thenable T means that P can&#x2019;t be resolved anymore and will now follow T&#x2019;s state, including its fulfillment or rejection value. The appropriate P reactions will get called once T settles (or are called immediately if T is already settled).</li>
+    </ul>
+  </li>
+</ul>
+
+
+<h3 id="_metaprogramming-with-proxies-overview-entry-proxiesmd">
+<span class="section-number">30.22 </span>Metaprogramming with proxies {#overview-entry-proxies.md} <a class="header-anchor" href="ch_overviews.html#_metaprogramming-with-proxies-overview-entry-proxiesmd" aria-hidden="true">#</a></h3>
+
+<p>Proxies enable you to intercept and customize operations performed on objects (such as getting properties). They are a <em>metaprogramming</em> feature.</p>
+
+<p>In the following example, <code>proxy</code> is the object whose operations we are intercepting and <code>handler</code> is the object that handles the interceptions. In this case, we are only intercepting a single operation, <code>get</code> (getting properties).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">target</code> <code class="o">=</code> <code class="p">{};</code>
+<code class="kr">const</code> <code class="nx">handler</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="nx">get</code><code class="p">(</code><code class="nx">target</code><code class="p">,</code> <code class="nx">propKey</code><code class="p">,</code> <code class="nx">receiver</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;get &apos;</code> <code class="o">+</code> <code class="nx">propKey</code><code class="p">);</code>
+        <code class="k">return</code> <code class="mi">123</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="kr">const</code> <code class="nx">proxy</code> <code class="o">=</code> <code class="k">new</code> <code class="nb">Proxy</code><code class="p">(</code><code class="nx">target</code><code class="p">,</code> <code class="nx">handler</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>When we get the property <code>proxy.foo</code>, the handler intercepts that operation:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; proxy.foo
+get foo
+123
+</pre></div>
+
+</figure>
+
+<p>Consult <a href="ch_proxies.html#sec_reference-proxy-api">the reference for the complete API</a> for a list of operations that can be intercepted.</p>
+
+
+
+<!-- begin backmatter -->
+
+
+
+<div class="next-chapter">
+    Next: <a href="leanpub-endnotes.html">Notes</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

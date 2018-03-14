@@ -1,0 +1,492 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>27. Tail call optimization</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>27. Tail call optimization</b><br>
+        <a href="index.html#toc_ch_tail-calls">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_tail-calls">
+<span class="section-number">27. </span>Tail call optimization <a class="header-anchor" href="ch_tail-calls.html#ch_tail-calls" aria-hidden="true">#</a></h2>
+
+<p>ECMAScript 6 offers <em>tail call optimization</em>, where you can make some function calls without growing the call stack. This chapter explains how that works and what benefits it brings.</p>
+
+<hr class="scene-break">
+
+<ul>
+  <li>27.1. <a href="ch_tail-calls.html#sec_what-are-tail-calls">What is tail call optimization?</a>
+    <ul>
+      <li>27.1.1. Normal execution</li>
+      <li>27.1.2. Tail call optimization</li>
+    </ul>
+  </li>
+  <li>27.2. <a href="ch_tail-calls.html#sec_checking-for-tail-calls">Checking whether a function call is in a tail position</a>
+    <ul>
+      <li>27.2.1. Tail calls in expressions</li>
+      <li>27.2.2. Tail calls in statements</li>
+      <li>27.2.3. Tail call optimization can only be made in strict mode</li>
+      <li>27.2.4. Pitfall: solo function calls are never in tail position</li>
+    </ul>
+  </li>
+  <li>27.3. <a href="ch_tail-calls.html#sec_tail-recursive-functions">Tail-recursive functions</a>
+    <ul>
+      <li>27.3.1. Tail-recursive loops</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_what-are-tail-calls">
+<span class="section-number">27.1 </span>What is tail call optimization? <a class="header-anchor" href="ch_tail-calls.html#sec_what-are-tail-calls" aria-hidden="true">#</a></h3>
+
+<p>Roughly, whenever the last thing a function does is to call another function then the latter does not need to return to its caller. As a consequence, no information needs to be stored on the call stack and the function call is more of a goto (a jump). This kind of call is named <em>tail call</em>; not growing the stack is named <em>tail call optimization</em> (TCO).</p>
+
+<p>Let&#x2019;s look at an example to better understand TCO. I&#x2019;ll first explain how it is executed without TCO and then with TCO.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">id</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">x</code><code class="p">;</code> <code class="c1">// (A)</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">f</code><code class="p">(</code><code class="nx">a</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">b</code> <code class="o">=</code> <code class="nx">a</code> <code class="o">+</code> <code class="mi">1</code><code class="p">;</code>
+    <code class="k">return</code> <code class="nx">id</code><code class="p">(</code><code class="nx">b</code><code class="p">);</code> <code class="c1">// (B)</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">f</code><code class="p">(</code><code class="mi">2</code><code class="p">));</code> <code class="c1">// (C)</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_normal-execution">
+<span class="section-number">27.1.1 </span>Normal execution <a class="header-anchor" href="ch_tail-calls.html#_normal-execution" aria-hidden="true">#</a></h4>
+
+<p>Let&#x2019;s assume there is a JavaScript engine that manages function calls by storing local variables and return addresses on a stack. How would such an engine execute the code?</p>
+
+<p><strong>Step 1.</strong> Initially, there are only the global variables <code>id</code> and <code>f</code> on the stack.</p>
+
+
+<figure class="image center">
+  <img src="images/tail-calls----stack_frames_1.jpg" alt="" width="264.5" height="74.75">
+  <figcaption></figcaption>
+</figure>
+
+
+<p>The block of stack entries encodes the state (local variables, including parameters) of the current scope and is called a <em>stack frame</em>.</p>
+
+<p><strong>Step 2.</strong> In line C, <code>f()</code> is called: First, the location to return to is saved on the stack. Then <code>f</code>&#x2019;s parameters are allocated and execution jumps to its body. The stack now looks as follows.</p>
+
+
+<figure class="image center">
+  <img src="images/tail-calls----stack_frames_2.jpg" alt="" width="264.5" height="135.25">
+  <figcaption></figcaption>
+</figure>
+
+
+<p>There are now two frames on the stack: One for the global scope (bottom) and one for <code>f()</code> (top). <code>f</code>&#x2019;s stack frame includes the return address, line C.</p>
+
+<p><strong>Step 3.</strong> <code>id()</code> is called in line B. Again, a stack frame is created that contains the return address and <code>id</code>&#x2019;s parameter.</p>
+
+
+<figure class="image center">
+  <img src="images/tail-calls----stack_frames_3.jpg" alt="" width="264.5" height="182.25">
+  <figcaption></figcaption>
+</figure>
+
+
+<p><strong>Step 4.</strong> In line A, the result <code>x</code> is returned. <code>id</code>&#x2019;s stack frame is removed and execution jumps to the return address, line B. (There are several ways in which returning a value could be handled. Two common solutions are to leave the result on a stack or to hand it over in a register. I ignore this part of execution here.)</p>
+
+<p>The stack now looks as follows:</p>
+
+
+<figure class="image center">
+  <img src="images/tail-calls----stack_frames_2.jpg" alt="" width="264.5" height="135.25">
+  <figcaption></figcaption>
+</figure>
+
+
+<p><strong>Step 5.</strong> In line B, the value that was returned by <code>id</code> is returned to <code>f</code>&#x2019;s caller. Again, the topmost stack frame is removed and execution jumps to the return address, line C.</p>
+
+
+<figure class="image center">
+  <img src="images/tail-calls----stack_frames_1.jpg" alt="" width="264.5" height="74.75">
+  <figcaption></figcaption>
+</figure>
+
+
+<p><strong>Step 6.</strong> Line C receives the value <code>3</code> and logs it.</p>
+
+
+<h4 id="_tail-call-optimization">
+<span class="section-number">27.1.2 </span>Tail call optimization <a class="header-anchor" href="ch_tail-calls.html#_tail-call-optimization" aria-hidden="true">#</a></h4>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">id</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">x</code><code class="p">;</code> <code class="c1">// (A)</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">f</code><code class="p">(</code><code class="nx">a</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">b</code> <code class="o">=</code> <code class="nx">a</code> <code class="o">+</code> <code class="mi">1</code><code class="p">;</code>
+    <code class="k">return</code> <code class="nx">id</code><code class="p">(</code><code class="nx">b</code><code class="p">);</code> <code class="c1">// (B)</code>
+<code class="p">}</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">f</code><code class="p">(</code><code class="mi">2</code><code class="p">));</code> <code class="c1">// (C)</code>
+</pre></div>
+
+</figure>
+
+<p>If you look at the previous section then there is one step that is unnecessary &#x2013; step 5. All that happens in line B is that the value returned by <code>id()</code> is passed on to line C. Ideally, <code>id()</code> could do that itself and the intermediate step could be skipped.</p>
+
+<p>We can make this happen by implementing the function call in line B differently. Before the call happens, the stack looks as follows.</p>
+
+
+<figure class="image center">
+  <img src="images/tail-calls----stack_frames_2.jpg" alt="" width="264.5" height="135.25">
+  <figcaption></figcaption>
+</figure>
+
+
+<p>If we examine the call we see that it is the very last action in <code>f()</code>. Once <code>id()</code> is done, the only remaining action performed by <code>f()</code> is to pass <code>id</code>&#x2019;s result to <code>f</code>&#x2019;s caller. Therefore, <code>f</code>&#x2019;s variables are not needed, anymore and its stack frame can be removed before making the call. The return address given to <code>id()</code> is <code>f</code>&#x2019;s return address, line C. During the execution of <code>id()</code>, the stack looks like this:</p>
+
+
+<figure class="image center">
+  <img src="images/tail-calls----stack_frames_2_tco.jpg" alt="" width="266.5" height="122.75">
+  <figcaption></figcaption>
+</figure>
+
+
+<p>Then <code>id()</code> returns the value <code>3</code>. You could say that it returns that value for <code>f()</code>, because it transports it to <code>f</code>&#x2019;s caller, line C.</p>
+
+<p>Let&#x2019;s review: The function call in line B is a tail call. Such a call can be done with zero stack growth. To find out whether a function call is a tail call, we must check whether it is in a <em>tail position</em> (i.e., the last action in a function). How that is done is explained in the next section.</p>
+
+
+<h3 id="sec_checking-for-tail-calls">
+<span class="section-number">27.2 </span>Checking whether a function call is in a tail position <a class="header-anchor" href="ch_tail-calls.html#sec_checking-for-tail-calls" aria-hidden="true">#</a></h3>
+
+<p>We have just learned that tail calls are function calls that can be executed more efficiently. But what counts as a tail call?</p>
+
+<p>First, the way in which you call a function does not matter. The following calls can all be optimized if they appear in a tail position:</p>
+
+<ul>
+  <li>Function call: <code>func(&#xB7;&#xB7;&#xB7;)</code>
+</li>
+  <li>Dispatched method call: <code>obj.method(&#xB7;&#xB7;&#xB7;)</code>
+</li>
+  <li>Direct method call via <code>call()</code>: <code>func.call(&#xB7;&#xB7;&#xB7;)</code>
+</li>
+  <li>Direct method call via <code>apply()</code>: <code>func.apply(&#xB7;&#xB7;&#xB7;)</code>
+</li>
+</ul>
+
+
+<h4 id="_tail-calls-in-expressions">
+<span class="section-number">27.2.1 </span>Tail calls in expressions <a class="header-anchor" href="ch_tail-calls.html#_tail-calls-in-expressions" aria-hidden="true">#</a></h4>
+
+<p>Arrow functions can have expressions as bodies. For tail call optimization, we therefore have to figure out where function calls are in tail positions in expressions. Only the following expressions can contain tail calls:</p>
+
+<ul>
+  <li>The conditional operator (<code>? :</code>)</li>
+  <li>The logical Or operator (<code>||</code>)</li>
+  <li>The logical And operator (<code>&amp;&amp;</code>)</li>
+  <li>The comma operator (<code>,</code>)</li>
+</ul>
+
+<p>Let&#x2019;s look at an example for each one of them.</p>
+
+<h5 id="_the-conditional-operator--">
+<span class="section-number">27.2.1.1 </span>The conditional operator (<code>? :</code>) <a class="header-anchor" href="ch_tail-calls.html#_the-conditional-operator--" aria-hidden="true">#</a></h5>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">a</code> <code class="o">=</code> <code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code> <code class="o">?</code> <code class="nx">f</code><code class="p">()</code> <code class="o">:</code> <code class="nx">g</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p>Both <code>f()</code> and <code>g()</code> are in tail position.</p>
+
+<h5 id="_the-logical-or-operator-">
+<span class="section-number">27.2.1.2 </span>The logical Or operator (<code>||</code>) <a class="header-anchor" href="ch_tail-calls.html#_the-logical-or-operator-" aria-hidden="true">#</a></h5>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">a</code> <code class="o">=</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">f</code><code class="p">()</code> <code class="o">||</code> <code class="nx">g</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p><code>f()</code> is not in a tail position, but <code>g()</code> is in a tail position. To see why, take a look at the following code, which is equivalent to the previous code:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">a</code> <code class="o">=</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">fResult</code> <code class="o">=</code> <code class="nx">f</code><code class="p">();</code> <code class="c1">// not a tail call</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">fResult</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">fResult</code><code class="p">;</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">g</code><code class="p">();</code> <code class="c1">// tail call</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>The result of the logical Or operator depends on the result of <code>f()</code>, which is why that function call is not in a tail position (the caller does something with it other than returning it). However, <code>g()</code> is in a tail position.</p>
+
+<h5 id="_the-logical-and-operator">
+<span class="section-number">27.2.1.3 </span>The logical And operator <a class="header-anchor" href="ch_tail-calls.html#_the-logical-and-operator" aria-hidden="true">#</a></h5>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">a</code> <code class="o">=</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">f</code><code class="p">()</code> <code class="o">&amp;&amp;</code> <code class="nx">g</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p><code>f()</code> is not in a tail position, but <code>g()</code> is in a tail position. To see why, take a look at the following code, which is equivalent to the previous code:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">a</code> <code class="o">=</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">fResult</code> <code class="o">=</code> <code class="nx">f</code><code class="p">();</code> <code class="c1">// not a tail call</code>
+    <code class="k">if</code> <code class="p">(</code><code class="o">!</code><code class="nx">fResult</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">fResult</code><code class="p">;</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">g</code><code class="p">();</code> <code class="c1">// tail call</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>The result of the logical And operator depends on the result of <code>f()</code>, which is why that function call is not in a tail position (the caller does something with it other than returning it). However, <code>g()</code> is in a tail position.</p>
+
+<h5 id="_the-comma-operator-">
+<span class="section-number">27.2.1.4 </span>The comma operator (<code>,</code>) <a class="header-anchor" href="ch_tail-calls.html#_the-comma-operator-" aria-hidden="true">#</a></h5>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">a</code> <code class="o">=</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="p">(</code><code class="nx">f</code><code class="p">()</code> <code class="p">,</code> <code class="nx">g</code><code class="p">());</code>
+</pre></div>
+
+</figure>
+
+<p><code>f()</code> is not in a tail position, but <code>g()</code> is in a tail position. To see why, take a look at the following code, which is equivalent to the previous code:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">a</code> <code class="o">=</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="nx">f</code><code class="p">();</code>
+    <code class="k">return</code> <code class="nx">g</code><code class="p">();</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_tail-calls-in-statements">
+<span class="section-number">27.2.2 </span>Tail calls in statements <a class="header-anchor" href="ch_tail-calls.html#_tail-calls-in-statements" aria-hidden="true">#</a></h4>
+
+<p>For statements, the following rules apply.</p>
+
+<p>Only these compound statements can contain tail calls:</p>
+
+<ul>
+  <li>Blocks (as delimited by <code>{}</code>, with or without a label)</li>
+  <li>
+<code>if</code>: in either the &#x201C;then&#x201D; clause or the &#x201C;else&#x201D; clause.</li>
+  <li>
+<code>do-while</code>, <code>while</code>, <code>for</code>: in their bodies.</li>
+  <li>
+<code>switch</code>: in its body.</li>
+  <li>
+<code>try-catch</code>: only in the <code>catch</code> clause. The <code>try</code> clause has the <code>catch</code> clause as a context that can&#x2019;t be optimized away.</li>
+  <li>
+<code>try-finally</code>, <code>try-catch-finally</code>: only in the <code>finally</code> clause, which is a context of the other clauses that can&#x2019;t be optimized away.</li>
+</ul>
+
+<p>Of all the atomic (non-compound) statements, only <code>return</code> can contain a tail call. All other statements have context that can&#x2019;t be optimized away. The following statement contains a tail call if <code>expr</code> contains a tail call.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">return</code> <code class="err">&#xAB;</code><code class="nx">expr</code><code class="err">&#xBB;</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_tail-call-optimization-can-only-be-made-in-strict-mode">
+<span class="section-number">27.2.3 </span>Tail call optimization can only be made in strict mode <a class="header-anchor" href="ch_tail-calls.html#_tail-call-optimization-can-only-be-made-in-strict-mode" aria-hidden="true">#</a></h4>
+
+<p>In non-strict mode, most engines have the following two properties that allow you to examine the call stack:</p>
+
+<ul>
+  <li>
+<code>func.arguments</code>: contains the arguments of the most recent invocation of <code>func</code>.</li>
+  <li>
+<code>func.caller</code>: refers to the function that most recently called <code>func</code>.</li>
+</ul>
+
+<p>With tail call optimization, these properties don&#x2019;t work, because the information that they rely on may have been removed. Therefore, strict mode forbids these properties (<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-addrestrictedfunctionproperties">as described in the language specification</a>) and tail call optimization only works in strict mode.</p>
+
+
+<h4 id="_pitfall-solo-function-calls-are-never-in-tail-position">
+<span class="section-number">27.2.4 </span>Pitfall: solo function calls are never in tail position <a class="header-anchor" href="ch_tail-calls.html#_pitfall-solo-function-calls-are-never-in-tail-position" aria-hidden="true">#</a></h4>
+
+<p>The function call <code>bar()</code> in the following code is not in tail position:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{</code>
+    <code class="nx">bar</code><code class="p">();</code> <code class="c1">// this is not a tail call in JS</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The reason is that the last action of <code>foo()</code> is not the function call <code>bar()</code>, it is (implicitly) returning <code>undefined</code>. In other words, <code>foo()</code> behaves like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{</code>
+    <code class="nx">bar</code><code class="p">();</code>
+    <code class="k">return</code> <code class="kc">undefined</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Callers can rely on <code>foo()</code> always returning <code>undefined</code>. If <code>bar()</code> were to return a result for <code>foo()</code>, due to tail call optimization, then that would change <code>foo</code>&#x2019;s behavior.</p>
+
+<p>Therefore, if we want <code>bar()</code> to be a tail call, we have to change <code>foo()</code> as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">bar</code><code class="p">();</code> <code class="c1">// tail call</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_tail-recursive-functions">
+<span class="section-number">27.3 </span>Tail-recursive functions <a class="header-anchor" href="ch_tail-calls.html#sec_tail-recursive-functions" aria-hidden="true">#</a></h3>
+
+<p>A function is <em>tail-recursive</em> if the main recursive calls it makes are in tail positions.</p>
+
+<p>For example, the following function is not tail recursive, because the main recursive call in line A is not in a tail position:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">factorial</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">x</code> <code class="o">&lt;=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="mi">1</code><code class="p">;</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">factorial</code><code class="p">(</code><code class="nx">x</code><code class="o">-</code><code class="mi">1</code><code class="p">);</code> <code class="c1">// (A)</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><code>factorial()</code> can be implemented via a tail-recursive helper function <code>facRec()</code>. The main recursive call in line A is in a tail position.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">factorial</code><code class="p">(</code><code class="nx">n</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">facRec</code><code class="p">(</code><code class="nx">n</code><code class="p">,</code> <code class="mi">1</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">facRec</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">acc</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">x</code> <code class="o">&lt;=</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">acc</code><code class="p">;</code>
+    <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+        <code class="k">return</code> <code class="nx">facRec</code><code class="p">(</code><code class="nx">x</code><code class="o">-</code><code class="mi">1</code><code class="p">,</code> <code class="nx">x</code><code class="o">*</code><code class="nx">acc</code><code class="p">);</code> <code class="c1">// (A)</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>That is, some non-tail-recursive functions can be transformed into tail-recursive functions.</p>
+
+
+<h4 id="_tail-recursive-loops">
+<span class="section-number">27.3.1 </span>Tail-recursive loops <a class="header-anchor" href="ch_tail-calls.html#_tail-recursive-loops" aria-hidden="true">#</a></h4>
+
+<p>Tail call optimization makes it possible to implement loops via recursion without growing the stack. The following are two examples.</p>
+
+<h5 id="_foreach">
+<span class="section-number">27.3.1.1 </span><code>forEach()</code>
+ <a class="header-anchor" href="ch_tail-calls.html#_foreach" aria-hidden="true">#</a></h5>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">forEach</code><code class="p">(</code><code class="nx">arr</code><code class="p">,</code> <code class="nx">callback</code><code class="p">,</code> <code class="nx">start</code> <code class="o">=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="mi">0</code> <code class="o">&lt;=</code> <code class="nx">start</code> <code class="o">&amp;&amp;</code> <code class="nx">start</code> <code class="o">&lt;</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">length</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">callback</code><code class="p">(</code><code class="nx">arr</code><code class="p">[</code><code class="nx">start</code><code class="p">],</code> <code class="nx">start</code><code class="p">,</code> <code class="nx">arr</code><code class="p">);</code>
+        <code class="k">return</code> <code class="nx">forEach</code><code class="p">(</code><code class="nx">arr</code><code class="p">,</code> <code class="nx">callback</code><code class="p">,</code> <code class="nx">start</code><code class="o">+</code><code class="mi">1</code><code class="p">);</code> <code class="c1">// tail call</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="nx">forEach</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">],</code> <code class="p">(</code><code class="nx">elem</code><code class="p">,</code> <code class="nx">i</code><code class="p">)</code> <code class="o">=&gt;</code> <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`</code><code class="si">${</code><code class="nx">i</code><code class="si">}</code><code class="sb">. </code><code class="si">${</code><code class="nx">elem</code><code class="si">}</code><code class="sb">`</code><code class="p">));</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// 0. a</code>
+<code class="c1">// 1. b</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_findindex">
+<span class="section-number">27.3.1.2 </span><code>findIndex()</code>
+ <a class="header-anchor" href="ch_tail-calls.html#_findindex" aria-hidden="true">#</a></h5>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">findIndex</code><code class="p">(</code><code class="nx">arr</code><code class="p">,</code> <code class="nx">predicate</code><code class="p">,</code> <code class="nx">start</code> <code class="o">=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="mi">0</code> <code class="o">&lt;=</code> <code class="nx">start</code> <code class="o">&amp;&amp;</code> <code class="nx">start</code> <code class="o">&lt;</code> <code class="nx">arr</code><code class="p">.</code><code class="nx">length</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">predicate</code><code class="p">(</code><code class="nx">arr</code><code class="p">[</code><code class="nx">start</code><code class="p">]))</code> <code class="p">{</code>
+            <code class="k">return</code> <code class="nx">start</code><code class="p">;</code>
+        <code class="p">}</code>
+        <code class="k">return</code> <code class="nx">findIndex</code><code class="p">(</code><code class="nx">arr</code><code class="p">,</code> <code class="nx">predicate</code><code class="p">,</code> <code class="nx">start</code><code class="o">+</code><code class="mi">1</code><code class="p">);</code> <code class="c1">// tail call</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+<code class="nx">findIndex</code><code class="p">([</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">],</code> <code class="nx">x</code> <code class="o">=&gt;</code> <code class="nx">x</code> <code class="o">===</code> <code class="s1">&apos;b&apos;</code><code class="p">);</code> <code class="c1">// 1</code>
+</pre></div>
+
+</figure>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_proxies.html">28. Metaprogramming with proxies</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Exploring ES2016 and ES2017</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet">
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+    <div id="top-bar-content">
+        <a href="../es2016-es2017.html">Homepage</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es2016-es2017/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+
+<div id="page-content">
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<h1>Exploring ES2016 and ES2017</h1>
+
+<h2>Table of contents</h2>
+
+
+           <ol class="toc has-parts">
+  <li>
+    
+    <ol>
+      <li>
+        <a href="ch_about-book.html" id="toc_ch_about-book">What you need to know about this book</a>
+        <ol>
+          <li>
+            <a href="ch_about-book.html#_support">Support</a>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <a href="ch_about-author.html" id="toc_ch_about-author">About the author</a>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <a href="pt_background.html" id="toc_pt_background"><span class="section-number">I </span>Background</a>
+    <ol>
+      <li>
+        <a href="ch_tc39-process.html" id="toc_ch_tc39-process"><span class="section-number">1. </span>The TC39 process for ECMAScript features</a>
+        <ol>
+          <li>
+            <a href="ch_tc39-process.html#tc39"><span class="section-number">1.1 </span>Who designs ECMAScript?</a>
+          </li>
+          <li>
+            <a href="ch_tc39-process.html#tc39-process"><span class="section-number">1.2 </span>How is ECMAScript designed?</a>
+            <ol>
+              <li>
+                <a href="ch_tc39-process.html#_problem-ecmascript-2015-es6-was-too-large-a-release"><span class="section-number">1.2.1 </span>Problem: ECMAScript 2015 (ES6) was too large a release</a>
+              </li>
+              <li>
+                <a href="ch_tc39-process.html#_solution-the-tc39-process"><span class="section-number">1.2.2 </span>Solution: the TC39 process</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_tc39-process.html#_dont-call-them-ecmascript-20xx-features"><span class="section-number">1.3 </span>Don&#x2019;t call them ECMAScript 20xx features</a>
+          </li>
+          <li>
+            <a href="ch_tc39-process.html#_further-reading"><span class="section-number">1.4 </span>Further reading</a>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <a href="ch_faq.html" id="toc_ch_faq"><span class="section-number">2. </span>FAQ: ES2016 and ES2017</a>
+        <ol>
+          <li>
+            <a href="ch_faq.html#_isnt-ecmascript-2016-too-small"><span class="section-number">2.1 </span>Isn&#x2019;t ECMAScript 2016 too small?</a>
+          </li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <a href="pt_es2016.html" id="toc_pt_es2016"><span class="section-number">II </span>ECMAScript 2016</a>
+    <ol>
+      <li>
+        <a href="ch_array-prototype-includes.html" id="toc_ch_array-prototype-includes"><span class="section-number">3. </span><code>Array.prototype.includes</code></a>
+        <ol>
+          <li>
+            <a href="ch_array-prototype-includes.html#_overview"><span class="section-number">3.1 </span>Overview</a>
+          </li>
+          <li>
+            <a href="ch_array-prototype-includes.html#_the-array-method-includes"><span class="section-number">3.2 </span>The Array method <code>includes</code></a>
+          </li>
+          <li>
+            <a href="ch_array-prototype-includes.html#_frequently-asked-questions"><span class="section-number">3.3 </span>Frequently asked questions</a>
+          </li>
+          <li>
+            <a href="ch_array-prototype-includes.html#_further-reading-1"><span class="section-number">3.4 </span>Further reading</a>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <a href="ch_exponentiation-operator.html" id="toc_ch_exponentiation-operator"><span class="section-number">4. </span>Exponentiation operator (<code>**</code>)</a>
+        <ol>
+          <li>
+            <a href="ch_exponentiation-operator.html#_overview-1"><span class="section-number">4.1 </span>Overview</a>
+          </li>
+          <li>
+            <a href="ch_exponentiation-operator.html#_an-infix-operator-for-exponentiation"><span class="section-number">4.2 </span>An infix operator for exponentiation</a>
+          </li>
+          <li>
+            <a href="ch_exponentiation-operator.html#_examples"><span class="section-number">4.3 </span>Examples</a>
+          </li>
+          <li>
+            <a href="ch_exponentiation-operator.html#_precedence"><span class="section-number">4.4 </span>Precedence</a>
+          </li>
+          <li>
+            <a href="ch_exponentiation-operator.html#_further-reading-2"><span class="section-number">4.5 </span>Further reading</a>
+          </li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <a href="pt_es2017.html" id="toc_pt_es2017"><span class="section-number">III </span>ECMAScript 2017</a>
+    <ol>
+      <li>
+        <a href="ch_async-functions.html" id="toc_ch_async-functions"><span class="section-number">5. </span>Async functions</a>
+        <ol>
+          <li>
+            <a href="ch_async-functions.html#_overview-2"><span class="section-number">5.1 </span>Overview</a>
+            <ol>
+              <li>
+                <a href="ch_async-functions.html#_variants"><span class="section-number">5.1.1 </span>Variants</a>
+              </li>
+              <li>
+                <a href="ch_async-functions.html#_async-functions-always-return-promises"><span class="section-number">5.1.2 </span>Async functions always return Promises</a>
+              </li>
+              <li>
+                <a href="ch_async-functions.html#_handling-results-and-errors-of-asynchronous-computations-via-await"><span class="section-number">5.1.3 </span>Handling results and errors of asynchronous computations via <code>await</code></a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_async-functions.html#_understanding-async-functions"><span class="section-number">5.2 </span>Understanding async functions</a>
+            <ol>
+              <li>
+                <a href="ch_async-functions.html#_writing-asynchronous-code-via-generators"><span class="section-number">5.2.1 </span>Writing asynchronous code via generators</a>
+              </li>
+              <li>
+                <a href="ch_async-functions.html#_writing-asynchronous-code-via-async-functions"><span class="section-number">5.2.2 </span>Writing asynchronous code via async functions</a>
+              </li>
+              <li>
+                <a href="ch_async-functions.html#_async-functions-are-started-synchronously-settled-asynchronously"><span class="section-number">5.2.3 </span>Async functions are started synchronously, settled asynchronously</a>
+              </li>
+              <li>
+                <a href="ch_async-functions.html#_returned-promises-are-not-wrapped"><span class="section-number">5.2.4 </span>Returned Promises are not wrapped</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_async-functions.html#_tips-for-using-await"><span class="section-number">5.3 </span>Tips for using <code>await</code></a>
+            <ol>
+              <li>
+                <a href="ch_async-functions.html#_dont-forget-await"><span class="section-number">5.3.1 </span>Don&#x2019;t forget <code>await</code></a>
+              </li>
+              <li>
+                <a href="ch_async-functions.html#_you-dont-need-await-if-you-fire-and-forget"><span class="section-number">5.3.2 </span>You don&#x2019;t need <code>await</code> if you &#x201C;fire and forget&#x201D;</a>
+              </li>
+              <li>
+                <a href="ch_async-functions.html#_await-is-sequential-promiseall-is-parallel"><span class="section-number">5.3.3 </span><code>await</code> is sequential, <code>Promise.all()</code> is parallel</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_async-functions.html#_async-functions-and-callbacks"><span class="section-number">5.4 </span>Async functions and callbacks</a>
+            <ol>
+              <li>
+                <a href="ch_async-functions.html#_arrayprototypemap"><span class="section-number">5.4.1 </span><code>Array.prototype.map()</code></a>
+              </li>
+              <li>
+                <a href="ch_async-functions.html#_arrayprototypeforeach"><span class="section-number">5.4.2 </span><code>Array.prototype.forEach()</code></a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_async-functions.html#_tips-for-using-async-functions"><span class="section-number">5.5 </span>Tips for using async functions</a>
+            <ol>
+              <li>
+                <a href="ch_async-functions.html#_know-your-promises"><span class="section-number">5.5.1 </span>Know your Promises</a>
+              </li>
+              <li>
+                <a href="ch_async-functions.html#_immediately-invoked-async-function-expressions"><span class="section-number">5.5.2 </span>Immediately Invoked Async Function Expressions</a>
+              </li>
+              <li>
+                <a href="ch_async-functions.html#_unit-testing-with-async-functions"><span class="section-number">5.5.3 </span>Unit testing with async functions</a>
+              </li>
+              <li>
+                <a href="ch_async-functions.html#_dont-worry-about-unhandled-rejections"><span class="section-number">5.5.4 </span>Don&#x2019;t worry about unhandled rejections</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_async-functions.html#_further-reading-3"><span class="section-number">5.6 </span>Further reading</a>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <a href="ch_shared-array-buffer.html" id="toc_ch_shared-array-buffer"><span class="section-number">6. </span>Shared memory and atomics</a>
+        <ol>
+          <li>
+            <a href="ch_shared-array-buffer.html#_parallelism-vs-concurrency"><span class="section-number">6.1 </span>Parallelism vs. concurrency</a>
+            <ol>
+              <li>
+                <a href="ch_shared-array-buffer.html#_models-of-parallelism"><span class="section-number">6.1.1 </span>Models of parallelism</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_shared-array-buffer.html#_a-history-of-js-parallelism"><span class="section-number">6.2 </span>A history of JS parallelism</a>
+            <ol>
+              <li>
+                <a href="ch_shared-array-buffer.html#_the-next-step-sharedarraybuffer"><span class="section-number">6.2.1 </span>The next step: <code>SharedArrayBuffer</code></a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_shared-array-buffer.html#_shared-array-buffers"><span class="section-number">6.3 </span>Shared Array Buffers</a>
+            <ol>
+              <li>
+                <a href="ch_shared-array-buffer.html#_creating-and-sending-a-shared-array-buffer"><span class="section-number">6.3.1 </span>Creating and sending a Shared Array Buffer</a>
+              </li>
+              <li>
+                <a href="ch_shared-array-buffer.html#_receiving-a-shared-array-buffer"><span class="section-number">6.3.2 </span>Receiving a Shared Array Buffer</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_shared-array-buffer.html#_atomics-safely-accessing-shared-data"><span class="section-number">6.4 </span>Atomics: safely accessing shared data</a>
+            <ol>
+              <li>
+                <a href="ch_shared-array-buffer.html#_problem-optimizations-make-code-unpredictable-across-workers"><span class="section-number">6.4.1 </span>Problem: Optimizations make code unpredictable across workers</a>
+              </li>
+              <li>
+                <a href="ch_shared-array-buffer.html#_solution-atomics"><span class="section-number">6.4.2 </span>Solution: atomics</a>
+              </li>
+              <li>
+                <a href="ch_shared-array-buffer.html#_problem-torn-values"><span class="section-number">6.4.3 </span>Problem: torn values</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_shared-array-buffer.html#_shared-array-buffers-in-use"><span class="section-number">6.5 </span>Shared Array Buffers in use</a>
+            <ol>
+              <li>
+                <a href="ch_shared-array-buffer.html#_shared-array-buffers-and-the-run-to-completion-semantics-of-javascript"><span class="section-number">6.5.1 </span>Shared Array Buffers and the run-to-completion semantics of JavaScript</a>
+              </li>
+              <li>
+                <a href="ch_shared-array-buffer.html#_shared-array-buffers-and-asmjs-and-webassembly"><span class="section-number">6.5.2 </span>Shared Array Buffers and asm.js and WebAssembly</a>
+              </li>
+              <li>
+                <a href="ch_shared-array-buffer.html#_sharing-data-other-than-integers"><span class="section-number">6.5.3 </span>Sharing data other than integers</a>
+              </li>
+              <li>
+                <a href="ch_shared-array-buffer.html#_how-much-faster-is-code-that-uses-shared-array-buffers"><span class="section-number">6.5.4 </span>How much faster is code that uses Shared Array Buffers?</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_shared-array-buffer.html#_example"><span class="section-number">6.6 </span>Example</a>
+            <ol>
+              <li>
+                <a href="ch_shared-array-buffer.html#_using-a-shared-lock"><span class="section-number">6.6.1 </span>Using a shared lock</a>
+              </li>
+              <li>
+                <a href="ch_shared-array-buffer.html#_implementing-a-shared-lock"><span class="section-number">6.6.2 </span>Implementing a shared lock</a>
+              </li>
+              <li>
+                <a href="ch_shared-array-buffer.html#_conclusion-for-the-example"><span class="section-number">6.6.3 </span>Conclusion for the example</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_shared-array-buffer.html#_the-api-for-shared-memory-and-atomics"><span class="section-number">6.7 </span>The API for shared memory and atomics</a>
+            <ol>
+              <li>
+                <a href="ch_shared-array-buffer.html#_sharedarraybuffer"><span class="section-number">6.7.1 </span><code>SharedArrayBuffer</code></a>
+              </li>
+              <li>
+                <a href="ch_shared-array-buffer.html#_atomics"><span class="section-number">6.7.2 </span><code>Atomics</code></a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_shared-array-buffer.html#_faq"><span class="section-number">6.8 </span>FAQ</a>
+            <ol>
+              <li>
+                <a href="ch_shared-array-buffer.html#_what-browsers-support-shared-array-buffers"><span class="section-number">6.8.1 </span>What browsers support Shared Array Buffers?</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_shared-array-buffer.html#_further-reading-4"><span class="section-number">6.9 </span>Further reading</a>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <a href="ch_object-entries-object-values.html" id="toc_ch_object-entries-object-values"><span class="section-number">7. </span><code>Object.entries()</code> and <code>Object.values()</code></a>
+        <ol>
+          <li>
+            <a href="ch_object-entries-object-values.html#_overview-3"><span class="section-number">7.1 </span>Overview</a>
+            <ol>
+              <li>
+                <a href="ch_object-entries-object-values.html#_objectentries"><span class="section-number">7.1.1 </span><code>Object.entries()</code></a>
+              </li>
+              <li>
+                <a href="ch_object-entries-object-values.html#_objectvalues"><span class="section-number">7.1.2 </span><code>Object.values()</code></a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_object-entries-object-values.html#_objectentries-1"><span class="section-number">7.2 </span><code>Object.entries()</code></a>
+            <ol>
+              <li>
+                <a href="ch_object-entries-object-values.html#_setting-up-maps-via-objectentries"><span class="section-number">7.2.1 </span>Setting up Maps via <code>Object.entries()</code></a>
+              </li>
+              <li>
+                <a href="ch_object-entries-object-values.html#_faq-objectentries"><span class="section-number">7.2.2 </span>FAQ: <code>Object.entries()</code></a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_object-entries-object-values.html#_objectvalues-1"><span class="section-number">7.3 </span><code>Object.values()</code></a>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <a href="ch_string-padding.html" id="toc_ch_string-padding"><span class="section-number">8. </span>New string methods: <code>padStart</code> and <code>padEnd</code></a>
+        <ol>
+          <li>
+            <a href="ch_string-padding.html#_overview-4"><span class="section-number">8.1 </span>Overview</a>
+          </li>
+          <li>
+            <a href="ch_string-padding.html#_why-pad-strings"><span class="section-number">8.2 </span>Why pad strings?</a>
+          </li>
+          <li>
+            <a href="ch_string-padding.html#_stringprototypepadstartmaxlength-fillstring-"><span class="section-number">8.3 </span><code>String.prototype.padStart(maxLength, fillString=&apos; &apos;)</code></a>
+            <ol>
+              <li>
+                <a href="ch_string-padding.html#_a-simple-implementation-of-padstart"><span class="section-number">8.3.1 </span>A simple implementation of <code>padStart()</code></a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_string-padding.html#_stringprototypepadendmaxlength-fillstring-"><span class="section-number">8.4 </span><code>String.prototype.padEnd(maxLength, fillString=&apos; &apos;)</code></a>
+          </li>
+          <li>
+            <a href="ch_string-padding.html#_faq-padstart-and-padend"><span class="section-number">8.5 </span>FAQ: <code>padStart</code> and <code>padEnd</code></a>
+            <ol>
+              <li>
+                <a href="ch_string-padding.html#_why-arent-the-padding-methods-called-padleft-and-padright"><span class="section-number">8.5.1 </span>Why aren&#x2019;t the padding methods called <code>padLeft</code> and <code>padRight</code>?</a>
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <a href="ch_object-getownpropertydescriptors.html" id="toc_ch_object-getownpropertydescriptors"><span class="section-number">9. </span><code>Object.getOwnPropertyDescriptors()</code></a>
+        <ol>
+          <li>
+            <a href="ch_object-getownpropertydescriptors.html#_overview-5"><span class="section-number">9.1 </span>Overview</a>
+          </li>
+          <li>
+            <a href="ch_object-getownpropertydescriptors.html#_objectgetownpropertydescriptors"><span class="section-number">9.2 </span><code>Object.getOwnPropertyDescriptors()</code></a>
+          </li>
+          <li>
+            <a href="ch_object-getownpropertydescriptors.html#_use-cases-for-objectgetownpropertydescriptors"><span class="section-number">9.3 </span>Use cases for <code>Object.getOwnPropertyDescriptors()</code></a>
+            <ol>
+              <li>
+                <a href="ch_object-getownpropertydescriptors.html#_use-case-copying-properties-into-an-object"><span class="section-number">9.3.1 </span>Use case: copying properties into an object</a>
+              </li>
+              <li>
+                <a href="ch_object-getownpropertydescriptors.html#_use-case-cloning-objects"><span class="section-number">9.3.2 </span>Use case: cloning objects</a>
+              </li>
+              <li>
+                <a href="ch_object-getownpropertydescriptors.html#_use-case-cross-platform-object-literals-with-arbitrary-prototypes"><span class="section-number">9.3.3 </span>Use case: cross-platform object literals with arbitrary prototypes</a>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <a href="ch_object-getownpropertydescriptors.html#_pitfall-copying-methods-that-use-super"><span class="section-number">9.4 </span>Pitfall: copying methods that use <code>super</code></a>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <a href="ch_trailing-comma-parameters.html" id="toc_ch_trailing-comma-parameters"><span class="section-number">10. </span>Trailing commas in function parameter lists and calls</a>
+        <ol>
+          <li>
+            <a href="ch_trailing-comma-parameters.html#_overview-6"><span class="section-number">10.1 </span>Overview</a>
+          </li>
+          <li>
+            <a href="ch_trailing-comma-parameters.html#_trailing-commas-in-object-literals-and-array-literals"><span class="section-number">10.2 </span>Trailing commas in object literals and Array literals</a>
+          </li>
+          <li>
+            <a href="ch_trailing-comma-parameters.html#_feature-allow-trailing-commas-in-parameter-definitions-and-function-calls"><span class="section-number">10.3 </span>Feature: allow trailing commas in parameter definitions and function calls</a>
+          </li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+</ol>
+
+         
+
+<div class="verso">&#xA9; 2016 - 2018 Axel Rauschmayer</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

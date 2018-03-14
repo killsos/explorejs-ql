@@ -1,0 +1,1195 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>8. Template literals</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>8. Template literals</b><br>
+        <a href="index.html#toc_ch_template-literals">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_template-literals">
+<span class="section-number">8. </span>Template literals <a class="header-anchor" href="ch_template-literals.html#ch_template-literals" aria-hidden="true">#</a></h2>
+
+<hr class="scene-break">
+
+<ul>
+  <li>8.1. <a href="ch_template-literals.html#sec_overview-template-literals">Overview</a>
+</li>
+  <li>8.2. <a href="ch_template-literals.html#sec_introduction-template-literals">Introduction</a>
+    <ul>
+      <li>8.2.1. Template literals</li>
+      <li>8.2.2. Escaping in template literals</li>
+      <li>8.2.3. Line terminators in template literals are always LF (<code>\n</code>)</li>
+      <li>8.2.4. Tagged template literals</li>
+    </ul>
+  </li>
+  <li>8.3. <a href="ch_template-literals.html#sec_tagged-templates-examples">Examples of using tagged template literals</a>
+    <ul>
+      <li>8.3.1. Raw strings</li>
+      <li>8.3.2. Shell commands</li>
+      <li>8.3.3. Byte strings</li>
+      <li>8.3.4. HTTP requests</li>
+      <li>8.3.5. More powerful regular expressions</li>
+      <li>8.3.6. Query languages</li>
+      <li>8.3.7. React JSX via tagged templates</li>
+      <li>8.3.8. Facebook GraphQL</li>
+      <li>8.3.9. Text localization (L10N)</li>
+      <li>8.3.10. Text templating via untagged template literals</li>
+      <li>8.3.11. A tag function for HTML templating</li>
+    </ul>
+  </li>
+  <li>8.4. <a href="ch_template-literals.html#sec_implementing-tag-functions">Implementing tag functions</a>
+    <ul>
+      <li>8.4.1. Number of template strings versus number of substitutions</li>
+      <li>8.4.2. Escaping in tagged template literals: cooked versus raw</li>
+      <li>8.4.3. Example: <code>String.raw</code>
+</li>
+      <li>8.4.4. Example: implementing a tag function for HTML templating</li>
+      <li>8.4.5. Example: assembling regular expressions</li>
+    </ul>
+  </li>
+  <li>8.5. <a href="ch_template-literals.html#sec_faq-template-literals">FAQ: template literals and tagged template literals</a>
+    <ul>
+      <li>8.5.1. Where do template literals and tagged template literals come from?</li>
+      <li>8.5.2. What is the difference between macros and tagged template literals?</li>
+      <li>8.5.3. Can I load a template literal from an external source?</li>
+      <li>8.5.4. Why are backticks the delimiters for template literals?</li>
+      <li>8.5.5. Weren&#x2019;t template literals once called template strings?</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-template-literals">
+<span class="section-number">8.1 </span>Overview <a class="header-anchor" href="ch_template-literals.html#sec_overview-template-literals" aria-hidden="true">#</a></h3>
+
+<p>ES6 has two new kinds of literals: <em>template literals</em> and <em>tagged template literals</em>. These two literals have similar names and look similar, but they are quite different. It is therefore important to distinguish:</p>
+
+<ul>
+  <li>Template literals (code): multi-line string literals that support interpolation</li>
+  <li>Tagged template literals (code): function calls</li>
+  <li>Web templates (data): HTML with blanks to be filled in</li>
+</ul>
+
+<p><em>Template literals</em> are string literals that can stretch across multiple lines and include interpolated expressions (inserted via <code>${&#xB7;&#xB7;&#xB7;}</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">firstName</code> <code class="o">=</code> <code class="s1">&apos;Jane&apos;</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`Hello </code><code class="si">${</code><code class="nx">firstName</code><code class="si">}</code><code class="sb">!</code>
+<code class="sb">How are you</code>
+<code class="sb">today?`</code><code class="p">);</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// Hello Jane!</code>
+<code class="c1">// How are you</code>
+<code class="c1">// today?</code>
+</pre></div>
+
+</figure>
+
+<p><em>Tagged template literals</em> (short: <em>tagged templates</em>) are created by mentioning a function before a template literal:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; String.raw`A \tagged\ template`
+&apos;A \\tagged\\ template&apos;
+</pre></div>
+
+</figure>
+
+<p>Tagged templates are function calls. In the previous example, the method <code>String.raw</code> is called to produce the result of the tagged template.</p>
+
+
+<h3 id="sec_introduction-template-literals">
+<span class="section-number">8.2 </span>Introduction <a class="header-anchor" href="ch_template-literals.html#sec_introduction-template-literals" aria-hidden="true">#</a></h3>
+
+<p>Literals are syntactic constructs that produce values. Examples include string literals (which produce strings) and regular expression literals (which produce regular expression objects). ECMAScript 6 has two new literals:</p>
+
+<ul>
+  <li>
+<em>Template literals</em> are string literals with support for interpolation and multiple lines.</li>
+  <li>
+<em>Tagged template literals</em> (short: <em>tagged templates</em>): are function calls whose parameters are provided via template literals.</li>
+</ul>
+
+<p>It is important to keep in mind that the names of template literals and tagged templates are slightly misleading. They have nothing to do with <em>templates</em>, as often used in web development: text files with blanks that can be filled in via (e.g.) JSON data.</p>
+
+<h4 id="_template-literals">
+<span class="section-number">8.2.1 </span>Template literals <a class="header-anchor" href="ch_template-literals.html#_template-literals" aria-hidden="true">#</a></h4>
+
+<p>A template literal is a new kind of string literal that can span multiple lines and <em>interpolate</em> expressions (include their results). For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">firstName</code> <code class="o">=</code> <code class="s1">&apos;Jane&apos;</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="sb">`Hello </code><code class="si">${</code><code class="nx">firstName</code><code class="si">}</code><code class="sb">!</code>
+<code class="sb">How are you</code>
+<code class="sb">today?`</code><code class="p">);</code>
+
+<code class="c1">// Output:</code>
+<code class="c1">// Hello Jane!</code>
+<code class="c1">// How are you</code>
+<code class="c1">// today?</code>
+</pre></div>
+
+</figure>
+
+<p>The literal itself is delimited by backticks (<code>`</code>), the interpolated expressions inside the literal are delimited by <code>${</code> and <code>}</code>. Template literals always produce strings.</p>
+
+<h4 id="_escaping-in-template-literals">
+<span class="section-number">8.2.2 </span>Escaping in template literals <a class="header-anchor" href="ch_template-literals.html#_escaping-in-template-literals" aria-hidden="true">#</a></h4>
+
+<p>The backslash is used for escaping inside template literals.</p>
+
+<p>It enables you to mention backticks and <code>${</code> inside template literals:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; `\``
+&apos;`&apos;
+&gt; `$` // OK
+&apos;$&apos;
+&gt; `<code class="cp">${</code><code class="err">`</code>
+<code class="ne">SyntaxError</code>
+<code class="o">&gt;</code> <code class="sb">`\${`</code>
+<code class="s1">&apos;${&apos;</code>
+<code class="o">&gt;</code> <code class="err">`</code>\<code class="err">$</code><code class="p">{</code><code class="cp">}</code>`
+&apos;${}&apos;
+</pre></div>
+
+</figure>
+
+<p>Other than that, the backslash works like in string literals:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; `\\`
+&apos;\\&apos;
+&gt; `\n`
+&apos;\n&apos;
+&gt; `\u{58}`
+&apos;X&apos;
+</pre></div>
+
+</figure>
+
+<h4 id="_line-terminators-in-template-literals-are-always-lf-n">
+<span class="section-number">8.2.3 </span>Line terminators in template literals are always LF (<code>\n</code>) <a class="header-anchor" href="ch_template-literals.html#_line-terminators-in-template-literals-are-always-lf-n" aria-hidden="true">#</a></h4>
+
+<p>Common ways of terminating lines are:</p>
+
+<ul>
+  <li>Line feed (LF, <code>\n</code>, U+000A): used by Unix (incl. current macOS)</li>
+  <li>Carriage return (CR, <code>\r</code>, U+000D): used by the old Mac OS.</li>
+  <li>CRLF (<code>\r\n</code>): used by Windows.</li>
+</ul>
+
+<p>All of these line terminators are normalized to LF in template literals. That is, the following code logs <code>true</code> on all platforms:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">str</code> <code class="o">=</code> <code class="sb">`BEFORE</code>
+<code class="sb">AFTER`</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">str</code> <code class="o">===</code> <code class="s1">&apos;BEFORE\nAFTER&apos;</code><code class="p">);</code> <code class="c1">// true</code>
+</pre></div>
+
+</figure>
+
+<aside class="generic_inbar blurb gears icon-gears">
+    <h3 id="_spec-line-terminators-in-template-literals">Spec: line terminators in template literals <a class="header-anchor" href="ch_template-literals.html#_spec-line-terminators-in-template-literals" aria-hidden="true">#</a></h3>
+
+  <p>In the ECMAScript specification, Sect. &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-static-semantics-tv-and-trv">Static Semantics: TV and TRV</a>&#x201D; defines how line terminators are to be interpreted in template literals:</p>
+
+  <ul>
+    <li>The TRV of LineTerminatorSequence :: <code>&lt;LF&gt;</code> is the code unit value 0x000A.</li>
+    <li>The TRV of LineTerminatorSequence :: <code>&lt;CR&gt;</code> is the code unit value 0x000A.</li>
+    <li>The TRV of LineTerminatorSequence :: <code>&lt;CR&gt;&lt;LF&gt;</code> is the sequence consisting of the code unit value 0x000A.</li>
+  </ul>
+
+</aside>
+
+<h4 id="_tagged-template-literals">
+<span class="section-number">8.2.4 </span>Tagged template literals <a class="header-anchor" href="ch_template-literals.html#_tagged-template-literals" aria-hidden="true">#</a></h4>
+
+<p>The following is a <em>tagged template literal</em> (short: <em>tagged template</em>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">tagFunction</code><code class="sb">`Hello </code><code class="si">${</code><code class="nx">firstName</code><code class="si">}</code><code class="sb"> </code><code class="si">${</code><code class="nx">lastName</code><code class="si">}</code><code class="sb">!`</code>
+</pre></div>
+
+</figure>
+
+<p>Putting a template literal after an expression triggers a function call, similar to how a parameter list (comma-separated values in parentheses) triggers a function call. The previous code is equivalent to the following function call (in reality, first parameter is more than just an Array, but that is explained later).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">tagFunction</code><code class="p">([</code><code class="s1">&apos;Hello &apos;</code><code class="p">,</code> <code class="s1">&apos; &apos;</code><code class="p">,</code> <code class="s1">&apos;!&apos;</code><code class="p">],</code> <code class="nx">firstName</code><code class="p">,</code> <code class="nx">lastName</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<p>Thus, the name before the content in backticks is the name of a function to call, the <em>tag function</em>. The tag function receives two different kinds of data:</p>
+
+<ul>
+  <li>
+<em>Template strings</em> such as <code>&apos;Hello &apos;</code>.</li>
+  <li>
+<em>Substitutions</em> such as <code>firstName</code> (delimited by <code>${}</code>). A substitution can be any expression.</li>
+</ul>
+
+<p>Template strings are known statically (at compile time), substitutions are only known at runtime. The tag function can do with its parameters as it pleases: It can completely ignore the template strings, return values of any type, etc.</p>
+
+<p>Additionally, tag functions get two versions of each template string:</p>
+
+<ul>
+  <li>A &#x201C;raw&#x201D; version in which backslashes are not interpreted (<code>`\n`</code> becomes <code>&apos;\\n&apos;</code>, a string of length 2)</li>
+  <li>A &#x201C;cooked&#x201D; version in which backslashes are special (<code>`\n`</code> becomes a string with just a newline in it).</li>
+</ul>
+
+<p>That allows <code>String.raw</code> (which is explained later) to do its work:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; String.raw`\n` === &apos;\\n&apos;
+true
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_tagged-templates-examples">
+<span class="section-number">8.3 </span>Examples of using tagged template literals <a class="header-anchor" href="ch_template-literals.html#sec_tagged-templates-examples" aria-hidden="true">#</a></h3>
+
+<p>Tagged template literals allow you to implement custom embedded sub-languages (which are sometimes called <em>domain-specific languages</em>) with little effort, because JavaScript does much of the parsing for you. You only have to write a function that receives the results.</p>
+
+<p>Let&#x2019;s look at examples. Some of them are inspired by <a href="http://wiki.ecmascript.org/doku.php?id=harmony:quasis">the original proposal</a> for template literals, which refers to them via their old name, <em>quasi-literals</em>.</p>
+
+
+<h4 id="_raw-strings">
+<span class="section-number">8.3.1 </span>Raw strings <a class="header-anchor" href="ch_template-literals.html#_raw-strings" aria-hidden="true">#</a></h4>
+
+<p>ES6 includes the tag function <code>String.raw</code> for <em>raw strings</em>, where backslashes have no special meaning:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">str</code> <code class="o">=</code> <code class="nb">String</code><code class="p">.</code><code class="nx">raw</code><code class="sb">`This is a text</code>
+<code class="sb">with multiple lines.</code>
+<code class="sb">Escapes are not interpreted,</code>
+<code class="err">\</code><code class="sb">n is not a newline.`</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>This is useful whenever you need to create strings that have backslashes in them. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">createNumberRegExp</code><code class="p">(</code><code class="nx">english</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">PERIOD</code> <code class="o">=</code> <code class="nx">english</code> <code class="o">?</code> <code class="nb">String</code><code class="p">.</code><code class="nx">raw</code><code class="sb">`</code><code class="err">\</code><code class="sb">.`</code> <code class="o">:</code> <code class="s1">&apos;,&apos;</code><code class="p">;</code> <code class="c1">// (A)</code>
+    <code class="k">return</code> <code class="k">new</code> <code class="nb">RegExp</code><code class="p">(</code><code class="sb">`[0-9]+(</code><code class="si">${</code><code class="nx">PERIOD</code><code class="si">}</code><code class="sb">[0-9]+)?`</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In line A, <code>String.raw</code> enables us to write the backslash as we would in a regular expression literal. With normal string literals, we have to escape twice: First, we need to escape the dot for the regular expression. Second, we need to escape the backslash for the string literal.</p>
+
+
+<h4 id="_shell-commands">
+<span class="section-number">8.3.2 </span>Shell commands <a class="header-anchor" href="ch_template-literals.html#_shell-commands" aria-hidden="true">#</a></h4>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">proc</code> <code class="o">=</code> <code class="nx">sh</code><code class="sb">`ps ax | grep </code><code class="si">${</code><code class="nx">pid</code><code class="si">}</code><code class="sb">`</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>(Source: <a href="https://gist.github.com/dherman/6165867">David Herman</a>)</p>
+
+
+<h4 id="_byte-strings">
+<span class="section-number">8.3.3 </span>Byte strings <a class="header-anchor" href="ch_template-literals.html#_byte-strings" aria-hidden="true">#</a></h4>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">buffer</code> <code class="o">=</code> <code class="nx">bytes</code><code class="sb">`455336465457210a`</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>(Source: <a href="https://gist.github.com/dherman/6165867">David Herman</a>)</p>
+
+
+<h4 id="_http-requests">
+<span class="section-number">8.3.4 </span>HTTP requests <a class="header-anchor" href="ch_template-literals.html#_http-requests" aria-hidden="true">#</a></h4>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">POST</code><code class="sb">`http://foo.org/bar?a=</code><code class="si">${</code><code class="nx">a</code><code class="si">}</code><code class="sb">&amp;b=</code><code class="si">${</code><code class="nx">b</code><code class="si">}</code><code class="sb"></code>
+<code class="sb">     Content-Type: application/json</code>
+<code class="sb">     X-Credentials: </code><code class="si">${</code><code class="nx">credentials</code><code class="si">}</code><code class="sb"></code>
+
+<code class="sb">     { &quot;foo&quot;: </code><code class="si">${</code><code class="nx">foo</code><code class="si">}</code><code class="sb">,</code>
+<code class="sb">       &quot;bar&quot;: </code><code class="si">${</code><code class="nx">bar</code><code class="si">}</code><code class="sb">}</code>
+<code class="sb">     `</code>
+     <code class="p">(</code><code class="nx">myOnReadyStateChangeHandler</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>(Source: <a href="https://github.com/lukehoban/es6features#template-strings">Luke Hoban</a>)</p>
+
+
+<h4 id="_more-powerful-regular-expressions">
+<span class="section-number">8.3.5 </span>More powerful regular expressions <a class="header-anchor" href="ch_template-literals.html#_more-powerful-regular-expressions" aria-hidden="true">#</a></h4>
+
+<p>Steven Levithan has given <a href="https://gist.github.com/4222600">an example</a> of how tagged template literals could be used for his regular expression library <a href="http://xregexp.com">XRegExp</a>.</p>
+
+<aside class="information blurb">
+    <p>XRegExp is highly recommended if you are working with regular expressions. You get many advanced features, but there is only a small performance penalty &#x2013; once at creation time &#x2013; because XRegExp compiles its input to native regular expressions.</p>
+
+</aside>
+
+<p>Without tagged templates, you write code such as the following:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">parts</code> <code class="o">=</code> <code class="s1">&apos;/2015/10/Page.html&apos;</code><code class="p">.</code><code class="nx">match</code><code class="p">(</code><code class="nx">XRegExp</code><code class="p">(</code>
+  <code class="s1">&apos;^ # match at start of string only \n&apos;</code> <code class="o">+</code>
+  <code class="s1">&apos;/ (?&lt;year&gt; [^/]+ ) # capture top dir name as year \n&apos;</code> <code class="o">+</code>
+  <code class="s1">&apos;/ (?&lt;month&gt; [^/]+ ) # capture subdir name as month \n&apos;</code> <code class="o">+</code>
+  <code class="s1">&apos;/ (?&lt;title&gt; [^/]+ ) # capture base name as title \n&apos;</code> <code class="o">+</code>
+  <code class="s1">&apos;\\.html? $ # .htm or .html file ext at end of path &apos;</code><code class="p">,</code> <code class="s1">&apos;x&apos;</code>
+<code class="p">));</code>
+
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">parts</code><code class="p">.</code><code class="nx">year</code><code class="p">);</code> <code class="c1">// 2015</code>
+</pre></div>
+
+</figure>
+
+<p>We can see that XRegExp gives us named groups (<code>year</code>, <code>month</code>, <code>title</code>) and the <code>x</code> flag. With that flag, most whitespace is ignored and comments can be inserted.</p>
+
+<p>There are two reasons that string literals don&#x2019;t work well here. First, we have to type every regular expression backslash twice, to escape it for the string literal. Second, it is cumbersome to enter multiple lines.</p>
+
+<p>Instead of adding strings, you can also continue a string literal in the next line if you end the current line with a backslash. But that still involves much visual clutter, especially because you still need the explicit newline via <code>\n</code> at the end of each line.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">parts</code> <code class="o">=</code> <code class="s1">&apos;/2015/10/Page.html&apos;</code><code class="p">.</code><code class="nx">match</code><code class="p">(</code><code class="nx">XRegExp</code><code class="p">(</code>
+  <code class="s1">&apos;^ # match at start of string only \n\</code>
+<code class="s1">  / (?&lt;year&gt; [^/]+ ) # capture top dir name as year \n\</code>
+<code class="s1">  / (?&lt;month&gt; [^/]+ ) # capture subdir name as month \n\</code>
+<code class="s1">  / (?&lt;title&gt; [^/]+ ) # capture base name as title \n\</code>
+<code class="s1">  \\.html? $ # .htm or .html file ext at end of path &apos;</code><code class="p">,</code> <code class="s1">&apos;x&apos;</code>
+<code class="p">));</code>
+</pre></div>
+
+</figure>
+
+<p>Problems with backslashes and multiple lines go away with tagged templates:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">parts</code> <code class="o">=</code> <code class="s1">&apos;/2015/10/Page.html&apos;</code><code class="p">.</code><code class="nx">match</code><code class="p">(</code><code class="nx">XRegExp</code><code class="p">.</code><code class="nx">rx</code><code class="sb">`</code>
+<code class="sb">    ^ # match at start of string only</code>
+<code class="sb">    / (?&lt;year&gt; [^/]+ ) # capture top dir name as year</code>
+<code class="sb">    / (?&lt;month&gt; [^/]+ ) # capture subdir name as month</code>
+<code class="sb">    / (?&lt;title&gt; [^/]+ ) # capture base name as title</code>
+<code class="sb">    </code><code class="err">\</code><code class="sb">.html? $ # .htm or .html file ext at end of path</code>
+<code class="sb">`</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>Additionally, tagged templates let you insert values <code>v</code> via <code>${v}</code>. I&#x2019;d expect a regular expression library to escape strings and to insert regular expressions verbatim. For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">str</code>   <code class="o">=</code> <code class="s1">&apos;really?&apos;</code><code class="p">;</code>
+<code class="kd">var</code> <code class="nx">regex</code> <code class="o">=</code> <code class="nx">XRegExp</code><code class="p">.</code><code class="nx">rx</code><code class="sb">`(</code><code class="si">${</code><code class="nx">str</code><code class="si">}</code><code class="sb">)*`</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>This would be equivalent to</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">var</code> <code class="nx">regex</code> <code class="o">=</code> <code class="nx">XRegExp</code><code class="p">.</code><code class="nx">rx</code><code class="sb">`(really</code><code class="err">\</code><code class="sb">?)*`</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="_query-languages">
+<span class="section-number">8.3.6 </span>Query languages <a class="header-anchor" href="ch_template-literals.html#_query-languages" aria-hidden="true">#</a></h4>
+
+<p>Example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">$</code><code class="sb">`a.</code><code class="si">${</code><code class="nx">className</code><code class="si">}</code><code class="sb">[href*=&apos;//</code><code class="si">${</code><code class="nx">domain</code><code class="si">}</code><code class="sb">/&apos;]`</code>
+</pre></div>
+
+</figure>
+
+<p>This is a DOM query that looks for all <code>&lt;a&gt;</code> tags whose CSS class is <code>className</code> and whose target is a URL with the given domain. The tag function <code>$</code> ensures that the arguments are correctly escaped, making this approach safer than manual string concatenation.</p>
+
+
+<h4 id="_react-jsx-via-tagged-templates">
+<span class="section-number">8.3.7 </span>React JSX via tagged templates <a class="header-anchor" href="ch_template-literals.html#_react-jsx-via-tagged-templates" aria-hidden="true">#</a></h4>
+
+<p><a href="https://facebook.github.io/react/">Facebook React</a> is &#x201C;a JavaScript library for building user interfaces&#x201D;. It has the optional language extension JSX that enables you to build <em>virtual</em> DOM trees for user interfaces. This extension makes your code more concise, but it is also non-standard and breaks compatibility with the rest of the JavaScript ecosystem.</p>
+
+<p>The library t7.js provides an alternative to JSX and uses templates tagged with <code>t7</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">t7</code><code class="p">.</code><code class="nx">module</code><code class="p">(</code><code class="kd">function</code><code class="p">(</code><code class="nx">t7</code><code class="p">)</code> <code class="p">{</code>
+  <code class="kd">function</code> <code class="nx">MyWidget</code><code class="p">(</code><code class="nx">props</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">t7</code><code class="sb">`</code>
+<code class="sb">      &lt;div&gt;</code>
+<code class="sb">        &lt;span&gt;I&apos;m a widget </code><code class="si">${</code> <code class="nx">props</code><code class="p">.</code><code class="nx">welcome</code> <code class="si">}</code><code class="sb">&lt;/span&gt;</code>
+<code class="sb">      &lt;/div&gt;</code>
+<code class="sb">    `</code><code class="p">;</code>
+  <code class="p">}</code>
+
+  <code class="nx">t7</code><code class="p">.</code><code class="nx">assign</code><code class="p">(</code><code class="s1">&apos;Widget&apos;</code><code class="p">,</code> <code class="nx">MyWidget</code><code class="p">);</code>
+
+  <code class="nx">t7</code><code class="sb">`</code>
+<code class="sb">    &lt;div&gt;</code>
+<code class="sb">      &lt;header&gt;</code>
+<code class="sb">        &lt;Widget welcome=&quot;Hello world&quot; /&gt;</code>
+<code class="sb">      &lt;/header&gt;</code>
+<code class="sb">    &lt;/div&gt;</code>
+<code class="sb">  `</code><code class="p">;</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>In &#x201C;<a href="https://facebook.github.io/jsx/#why-not-template-literals">Why not Template Literals?</a>&#x201D;, the React team explains why they opted not to use template literals. One challenge is accessing components inside tagged templates. For example, <code>MyWidget</code> is accessed from the second tagged template in the previous example. One verbose way of doing so would be:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&lt;</code><code class="nx">$</code><code class="p">{</code><code class="nx">MyWidget</code><code class="p">}</code> <code class="nx">welcome</code><code class="o">=</code><code class="s2">&quot;Hello world&quot;</code> <code class="o">/&gt;</code>
+</pre></div>
+
+</figure>
+
+<p>Instead, t7.js uses a registry which is filled via <code>t7.assign()</code>. That requires extra configuration, but the template literals look nicer; especially if there is both an opening and a closing tag.</p>
+
+
+<h4 id="_facebook-graphql">
+<span class="section-number">8.3.8 </span>Facebook GraphQL <a class="header-anchor" href="ch_template-literals.html#_facebook-graphql" aria-hidden="true">#</a></h4>
+
+<p><a href="https://facebook.github.io/relay/">Facebook Relay</a> is a &#x201C;JavaScript framework for building data-driven React applications&#x201D;. One of its parts is the query language GraphQL whose queries can be created via templates tagged with <code>Relay.QL</code>. For example (<a href="https://facebook.github.io/relay/">borrowed from the Relay homepage</a>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">class</code> <code class="nx">Tea</code> <code class="kr">extends</code> <code class="nx">React</code><code class="p">.</code><code class="nx">Component</code> <code class="p">{</code>
+  <code class="nx">render</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kd">var</code> <code class="p">{</code><code class="nx">name</code><code class="p">,</code> <code class="nx">steepingTime</code><code class="p">}</code> <code class="o">=</code> <code class="k">this</code><code class="p">.</code><code class="nx">props</code><code class="p">.</code><code class="nx">tea</code><code class="p">;</code>
+    <code class="k">return</code> <code class="p">(</code>
+      <code class="o">&lt;</code><code class="nx">li</code> <code class="nx">key</code><code class="o">=</code><code class="p">{</code><code class="nx">name</code><code class="p">}</code><code class="o">&gt;</code>
+        <code class="p">{</code><code class="nx">name</code><code class="p">}</code> <code class="p">(</code><code class="o">&lt;</code><code class="nx">em</code><code class="o">&gt;</code><code class="p">{</code><code class="nx">steepingTime</code><code class="p">}</code> <code class="nx">min</code><code class="o">&lt;</code><code class="err">/em&gt;)</code>
+      <code class="o">&lt;</code><code class="err">/li&gt;</code>
+    <code class="p">);</code>
+  <code class="p">}</code>
+<code class="p">}</code>
+<code class="nx">Tea</code> <code class="o">=</code> <code class="nx">Relay</code><code class="p">.</code><code class="nx">createContainer</code><code class="p">(</code><code class="nx">Tea</code><code class="p">,</code> <code class="p">{</code>
+  <code class="nx">fragments</code><code class="o">:</code> <code class="p">{</code> <code class="c1">// (A)</code>
+    <code class="nx">tea</code><code class="o">:</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">Relay</code><code class="p">.</code><code class="nx">QL</code><code class="sb">`</code>
+<code class="sb">      fragment on Tea {</code>
+<code class="sb">        name,</code>
+<code class="sb">        steepingTime,</code>
+<code class="sb">      }</code>
+<code class="sb">    `</code><code class="p">,</code>
+  <code class="p">},</code>
+<code class="p">});</code>
+
+<code class="kr">class</code> <code class="nx">TeaStore</code> <code class="kr">extends</code> <code class="nx">React</code><code class="p">.</code><code class="nx">Component</code> <code class="p">{</code>
+  <code class="nx">render</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="o">&lt;</code><code class="nx">ul</code><code class="o">&gt;</code>
+      <code class="p">{</code><code class="k">this</code><code class="p">.</code><code class="nx">props</code><code class="p">.</code><code class="nx">store</code><code class="p">.</code><code class="nx">teas</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code>
+        <code class="nx">tea</code> <code class="o">=&gt;</code> <code class="o">&lt;</code><code class="nx">Tea</code> <code class="nx">tea</code><code class="o">=</code><code class="p">{</code><code class="nx">tea</code><code class="p">}</code> <code class="o">/&gt;</code>
+      <code class="p">)}</code>
+    <code class="o">&lt;</code><code class="err">/ul&gt;;</code>
+  <code class="p">}</code>
+<code class="p">}</code>
+<code class="nx">TeaStore</code> <code class="o">=</code> <code class="nx">Relay</code><code class="p">.</code><code class="nx">createContainer</code><code class="p">(</code><code class="nx">TeaStore</code><code class="p">,</code> <code class="p">{</code>
+  <code class="nx">fragments</code><code class="o">:</code> <code class="p">{</code> <code class="c1">// (B)</code>
+    <code class="nx">store</code><code class="o">:</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">Relay</code><code class="p">.</code><code class="nx">QL</code><code class="sb">`</code>
+<code class="sb">      fragment on Store {</code>
+<code class="sb">        teas { </code><code class="si">${</code><code class="nx">Tea</code><code class="p">.</code><code class="nx">getFragment</code><code class="p">(</code><code class="s1">&apos;tea&apos;</code><code class="p">)</code><code class="si">}</code><code class="sb"> },</code>
+<code class="sb">      }</code>
+<code class="sb">    `</code><code class="p">,</code>
+  <code class="p">},</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>The objects starting in line A and line B define <em>fragments</em>, which are defined via callbacks that return queries. The result of fragment <code>tea</code> is put into <code>this.props.tea</code>. The result of fragment <code>store</code> is put into <code>this.props.store</code>.</p>
+
+<p>This is the data that the queries operates on:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">STORE</code> <code class="o">=</code> <code class="p">{</code>
+  <code class="nx">teas</code><code class="o">:</code> <code class="p">[</code>
+    <code class="p">{</code><code class="nx">name</code><code class="o">:</code> <code class="s1">&apos;Earl Grey Blue Star&apos;</code><code class="p">,</code> <code class="nx">steepingTime</code><code class="o">:</code> <code class="mi">5</code><code class="p">},</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+  <code class="p">],</code>
+<code class="p">};</code>
+</pre></div>
+
+</figure>
+
+<p>This data is wrapped in an instance of <code>GraphQLSchema</code>, where it gets the name <code>Store</code> (as mentioned in <code>fragment on Store</code>).</p>
+
+
+<h4 id="_text-localization-l10n">
+<span class="section-number">8.3.9 </span>Text localization (L10N) <a class="header-anchor" href="ch_template-literals.html#_text-localization-l10n" aria-hidden="true">#</a></h4>
+
+<p>This section describes a simple approach to text localization that supports different languages and different locales (how to format numbers, time, etc.). Given the following message.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">alert</code><code class="p">(</code><code class="nx">msg</code><code class="sb">`Welcome to </code><code class="si">${</code><code class="nx">siteName</code><code class="si">}</code><code class="sb">, you are visitor</code>
+<code class="sb">          number </code><code class="si">${</code><code class="nx">visitorNumber</code><code class="si">}</code><code class="sb">:d!`</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>The tag function <code>msg</code> would work as follows.</p>
+
+<p>First, The literal parts are concatenated to form a string that can be used to look up a translation in a table. The lookup string for the previous example is:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="s1">&apos;Welcome to {0}, you are visitor number {1}!&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>This lookup string could, for example, be mapped to a German translation::</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="s1">&apos;Besucher Nr. {1}, willkommen bei {0}!&apos;</code>
+</pre></div>
+
+</figure>
+
+<p>The English &#x201C;translation&#x201D; would be the same as the lookup string.</p>
+
+<p>Second, the result from the lookup is used to display the substitutions. Because a lookup result includes indices, it can rearrange the order of the substitutions. That has been done in German, where the visitor number comes before the site name. How the substitutions are formatted can be influenced via annotations such as <code>:d</code>. This annotation means that a locale-specific decimal separator should be used for <code>visitorNumber</code>. Thus, a possible English result is:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>Welcome to ACME Corp., you are visitor number 1,300!
+</pre></div>
+
+</figure>
+
+<p>In German, we have results such as:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>Besucher Nr. 1.300, willkommen bei ACME Corp.!
+</pre></div>
+
+</figure>
+
+<h4 id="_text-templating-via-untagged-template-literals">
+<span class="section-number">8.3.10 </span>Text templating via untagged template literals <a class="header-anchor" href="ch_template-literals.html#_text-templating-via-untagged-template-literals" aria-hidden="true">#</a></h4>
+
+<p>Let&#x2019;s say we want to create HTML that displays the following data in a table:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">data</code> <code class="o">=</code> <code class="p">[</code>
+    <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;&lt;Jane&gt;&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;Bond&apos;</code> <code class="p">},</code>
+    <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;Lars&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;&lt;Croft&gt;&apos;</code> <code class="p">},</code>
+<code class="p">];</code>
+</pre></div>
+
+</figure>
+
+<p>As explained previously, template literals are not templates:</p>
+
+<ul>
+  <li>A template literal is code that is executed immediately.</li>
+  <li>A template is text with holes that you can fill with data.</li>
+</ul>
+
+<p>A template is basically a function: data in, text out. And that description gives us a clue how we can turn a template literal into an actual template. Let&#x2019;s implement a template <code>tmpl</code> as a function that maps an Array <code>addrs</code> to a string:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">tmpl</code> <code class="o">=</code> <code class="nx">addrs</code> <code class="o">=&gt;</code> <code class="sb">`</code>
+<code class="sb">    &lt;table&gt;</code>
+<code class="sb">    </code><code class="si">${</code><code class="nx">addrs</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">addr</code> <code class="o">=&gt;</code> <code class="sb">`</code>
+<code class="sb">        &lt;tr&gt;&lt;td&gt;</code><code class="si">${</code><code class="nx">addr</code><code class="p">.</code><code class="nx">first</code><code class="si">}</code><code class="sb">&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="sb">        &lt;tr&gt;&lt;td&gt;</code><code class="si">${</code><code class="nx">addr</code><code class="p">.</code><code class="nx">last</code><code class="si">}</code><code class="sb">&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="sb">    `</code><code class="p">).</code><code class="nx">join</code><code class="p">(</code><code class="s1">&apos;&apos;</code><code class="p">)</code><code class="si">}</code><code class="sb"></code>
+<code class="sb">    &lt;/table&gt;</code>
+<code class="sb">`</code><code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">tmpl</code><code class="p">(</code><code class="nx">data</code><code class="p">));</code>
+<code class="c1">// Output:</code>
+<code class="c1">// &lt;table&gt;</code>
+<code class="c1">//</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;&lt;Jane&gt;&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;Bond&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;Lars&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;&lt;Croft&gt;&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//</code>
+<code class="c1">// &lt;/table&gt;</code>
+</pre></div>
+
+</figure>
+
+<p>The outer template literal provides the bracketing <code>&lt;table&gt;</code> and <code>&lt;/table&gt;</code>. Inside, we are embedding JavaScript code that produces a string by joining an Array of strings. The Array is created by mapping each address to two table rows. Note that the plain text pieces <code>&lt;Jane&gt;</code> and <code>&lt;Croft&gt;</code> are not properly escaped. How to do that via a tagged template is explained in the next section.</p>
+
+<h5 id="_should-i-use-this-technique-in-production-code">
+<span class="section-number">8.3.10.1 </span>Should I use this technique in production code? <a class="header-anchor" href="ch_template-literals.html#_should-i-use-this-technique-in-production-code" aria-hidden="true">#</a></h5>
+
+<p>This is a useful quick solution for smaller templating tasks. For larger tasks, you may want more powerful solutions such as the templating engine <a href="http://handlebarsjs.com/">Handlebars.js</a> or the JSX syntax used in React.</p>
+
+<p><strong>Acknowledgement:</strong> This approach to text templating is based on <a href="https://mail.mozilla.org/pipermail/es-discuss/2012-August/024328.html">an idea</a> by Claus Reinke.</p>
+
+
+<h4 id="_a-tag-function-for-html-templating">
+<span class="section-number">8.3.11 </span>A tag function for HTML templating <a class="header-anchor" href="ch_template-literals.html#_a-tag-function-for-html-templating" aria-hidden="true">#</a></h4>
+
+<p>Compared to using untagged templates for HTML templating, like we did in the previous section, tagged templates bring two advantages:</p>
+
+<ul>
+  <li>They can escape characters for us if we prefix <code>${}</code> with an exclamation mark. That is needed for the names, which contain characters that need to be escaped (<code>&lt;Jane&gt;</code>).</li>
+  <li>They can automatically <code>join()</code> Arrays for us, so that we don&#x2019;t have to call that method ourselves.</li>
+</ul>
+
+<p>Then the code for the template looks as follows. The name of the tag function is <code>html</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">tmpl</code> <code class="o">=</code> <code class="nx">addrs</code> <code class="o">=&gt;</code> <code class="nx">html</code><code class="sb">`</code>
+<code class="sb">    &lt;table&gt;</code>
+<code class="sb">    </code><code class="si">${</code><code class="nx">addrs</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">addr</code> <code class="o">=&gt;</code> <code class="nx">html</code><code class="sb">`</code>
+<code class="sb">        &lt;tr&gt;&lt;td&gt;!</code><code class="si">${</code><code class="nx">addr</code><code class="p">.</code><code class="nx">first</code><code class="si">}</code><code class="sb">&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="sb">        &lt;tr&gt;&lt;td&gt;!</code><code class="si">${</code><code class="nx">addr</code><code class="p">.</code><code class="nx">last</code><code class="si">}</code><code class="sb">&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="sb">    `</code><code class="p">)</code><code class="si">}</code><code class="sb"></code>
+<code class="sb">    &lt;/table&gt;</code>
+<code class="sb">`</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">data</code> <code class="o">=</code> <code class="p">[</code>
+    <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;&lt;Jane&gt;&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;Bond&apos;</code> <code class="p">},</code>
+    <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;Lars&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;&lt;Croft&gt;&apos;</code> <code class="p">},</code>
+<code class="p">];</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">tmpl</code><code class="p">(</code><code class="nx">data</code><code class="p">));</code>
+<code class="c1">// Output:</code>
+<code class="c1">// &lt;table&gt;</code>
+<code class="c1">//</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;&amp;lt;Jane&amp;gt;&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;Bond&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;Lars&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;&amp;lt;Croft&amp;gt;&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//</code>
+<code class="c1">// &lt;/table&gt;</code>
+</pre></div>
+
+</figure>
+
+<p>Note that the angle brackets around <code>Jane</code> and <code>Croft</code> are escaped, whereas those around <code>tr</code> and <code>td</code> aren&#x2019;t.</p>
+
+<p>If you prefix a substitution with an exclamation mark (<code>!${addr.first}</code>) then it will be HTML-escaped. The tag function checks the text preceding a substitution in order to determine whether to escape or not.</p>
+
+<p>An implementation of <code>html</code> <a href="ch_template-literals.html#sec_html-tag-function-implementation">is shown later</a>.</p>
+
+
+<h3 id="sec_implementing-tag-functions">
+<span class="section-number">8.4 </span>Implementing tag functions <a class="header-anchor" href="ch_template-literals.html#sec_implementing-tag-functions" aria-hidden="true">#</a></h3>
+
+<p>The following is a tagged template literal:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">tagFunction</code><code class="sb">`lit1</code><code class="err">\</code><code class="sb">n</code><code class="si">${</code><code class="nx">subst1</code><code class="si">}</code><code class="sb"> lit2 </code><code class="si">${</code><code class="nx">subst2</code><code class="si">}</code><code class="sb">`</code>
+</pre></div>
+
+</figure>
+
+<p>This literal triggers (roughly) the following function call:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">tagFunction</code><code class="p">([</code><code class="s1">&apos;lit1\n&apos;</code><code class="p">,</code>  <code class="s1">&apos; lit2 &apos;</code><code class="p">,</code> <code class="s1">&apos;&apos;</code><code class="p">],</code> <code class="nx">subst1</code><code class="p">,</code> <code class="nx">subst2</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<p>The exact function call looks more like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// Globally: add template object to per-realm template map</code>
+<code class="p">{</code>
+    <code class="c1">// &#x201C;Cooked&#x201D; template strings: backslash is interpreted</code>
+    <code class="kr">const</code> <code class="nx">templateObject</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;lit1\n&apos;</code><code class="p">,</code>  <code class="s1">&apos; lit2 &apos;</code><code class="p">,</code> <code class="s1">&apos;&apos;</code><code class="p">];</code>
+    <code class="c1">// &#x201C;Raw&#x201D; template strings: backslash is verbatim</code>
+    <code class="nx">templateObject</code><code class="p">.</code><code class="nx">raw</code>   <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;lit1\\n&apos;</code><code class="p">,</code> <code class="s1">&apos; lit2 &apos;</code><code class="p">,</code> <code class="s1">&apos;&apos;</code><code class="p">];</code>
+
+    <code class="c1">// The Arrays with template strings are frozen</code>
+    <code class="nb">Object</code><code class="p">.</code><code class="nx">freeze</code><code class="p">(</code><code class="nx">templateObject</code><code class="p">.</code><code class="nx">raw</code><code class="p">);</code>
+    <code class="nb">Object</code><code class="p">.</code><code class="nx">freeze</code><code class="p">(</code><code class="nx">templateObject</code><code class="p">);</code>
+
+    <code class="nx">__templateMap__</code><code class="p">[</code><code class="mi">716</code><code class="p">]</code> <code class="o">=</code> <code class="nx">templateObject</code><code class="p">;</code>
+<code class="p">}</code>
+
+<code class="c1">// In-place: invocation of tag function</code>
+<code class="nx">tagFunction</code><code class="p">(</code><code class="nx">__templateMap__</code><code class="p">[</code><code class="mi">716</code><code class="p">],</code> <code class="nx">subst1</code><code class="p">,</code> <code class="nx">subst2</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<p>There are two kinds of input that the tag function receives:</p>
+
+<ol class="numeric">
+  <li>Template strings (first parameter): the static parts of tagged templates that don&#x2019;t change (e.g. <code>&apos; lit2 &apos;</code>). A template object stores two versions of the template strings:
+    <ul>
+      <li>Cooked: with escapes such as <code>\n</code> interpreted. Stored in <code>templateObject[0]</code> etc.</li>
+      <li>Raw: with uninterpreted escapes. Stored in <code>templateObject.raw[0]</code> etc.</li>
+    </ul>
+  </li>
+  <li>Substitutions (remaining parameters): the values that are embedded inside template literals via <code>${}</code> (e.g. <code>subst1</code>). Substitutions are dynamic, they can change with each invocation.</li>
+</ol>
+
+<p>The idea behind a global template object is that the same tagged template might be executed multiple times (e.g. in a loop or a function). The template object enables the tag function to cache data from previous invocations: It can put data it derived from input kind #1 (template strings) into the object, to avoid recomputing it. Caching happens per <em>realm</em> (think frame in a browser). That is, there is one template object per call site and realm.</p>
+
+<aside class="generic_inbar blurb gears icon-gears">
+    <h3 id="_tagged-template-literals-in-the-spec">Tagged template literals in the spec <a class="header-anchor" href="ch_template-literals.html#_tagged-template-literals-in-the-spec" aria-hidden="true">#</a></h3>
+
+  <p><a href="http://www.ecma-international.org/ecma-262/6.0/#sec-tagged-templates">A section on tagged template literals</a> explains how they are interpreted as function calls. <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-template-literals-runtime-semantics-argumentlistevaluation">A separate section</a> explains how a template literal is turned into a list of arguments: the template object and the substitutions.</p>
+
+</aside>
+
+
+<h4 id="_number-of-template-strings-versus-number-of-substitutions">
+<span class="section-number">8.4.1 </span>Number of template strings versus number of substitutions <a class="header-anchor" href="ch_template-literals.html#_number-of-template-strings-versus-number-of-substitutions" aria-hidden="true">#</a></h4>
+
+<p>Let&#x2019;s use the following tag function to explore how many template strings there are compared to substitutions.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">tagFunc</code><code class="p">(</code><code class="nx">templateObject</code><code class="p">,</code> <code class="p">...</code><code class="nx">substs</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="p">{</code> <code class="nx">templateObject</code><code class="p">,</code> <code class="nx">substs</code> <code class="p">};</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The number of template strings is always one plus the number of substitutions. In other words: every substitution is always surrounded by two template strings.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">templateObject</code><code class="p">.</code><code class="nx">length</code> <code class="o">===</code> <code class="nx">substs</code><code class="p">.</code><code class="nx">length</code> <code class="o">+</code> <code class="mi">1</code>
+</pre></div>
+
+</figure>
+
+<p>If a substitution is first in a literal, it is prefixed by an empty template string:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; tagFunc`<code class="cp">${</code><code class="s1">&apos;subst&apos;</code><code class="cp">}</code>xyz`
+{ templateObject: [ &apos;&apos;, &apos;xyz&apos; ], substs: [ &apos;subst&apos; ] }
+</pre></div>
+
+</figure>
+
+<p>If a substitution is last in a literal, it is suffixed by an empty template string:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; tagFunc`abc<code class="cp">${</code><code class="s1">&apos;subst&apos;</code><code class="cp">}</code>`
+{ templateObject: [ &apos;abc&apos;, &apos;&apos; ], substs: [ &apos;subst&apos; ] }
+</pre></div>
+
+</figure>
+
+<p>An empty template literal produces one template string and no substitutions:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; tagFunc``
+{ templateObject: [ &apos;&apos; ], substs: [] }
+</pre></div>
+
+</figure>
+
+
+<h4 id="_escaping-in-tagged-template-literals-cooked-versus-raw">
+<span class="section-number">8.4.2 </span>Escaping in tagged template literals: cooked versus raw <a class="header-anchor" href="ch_template-literals.html#_escaping-in-tagged-template-literals-cooked-versus-raw" aria-hidden="true">#</a></h4>
+
+<p>Template strings are available in two interpretations &#x2013; cooked and raw. These interpretations influence escaping:</p>
+
+<ul>
+  <li>In both cooked and raw interpretation, a backslash (<code>\</code>) in front of <code>${</code> prevents it from being interpreted as starting a substitution.</li>
+  <li>In both cooked and raw interpretation, backticks are also escaped via backslashes.</li>
+  <li>However, every single backslash is mentioned in the raw interpretation, even the ones that escape substitutions and backticks.</li>
+</ul>
+
+<p>The tag function <code>describe</code> allows us to explore what that means.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">describe</code><code class="p">(</code><code class="nx">tmplObj</code><code class="p">,</code> <code class="p">...</code><code class="nx">substs</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="p">{</code>
+        <code class="nx">Cooked</code><code class="o">:</code> <code class="nx">merge</code><code class="p">(</code><code class="nx">tmplObj</code><code class="p">,</code> <code class="nx">substs</code><code class="p">),</code>
+        <code class="nx">Raw</code><code class="o">:</code> <code class="nx">merge</code><code class="p">(</code><code class="nx">tmplObj</code><code class="p">.</code><code class="nx">raw</code><code class="p">,</code> <code class="nx">substs</code><code class="p">),</code>
+    <code class="p">};</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">merge</code><code class="p">(</code><code class="nx">tmplStrs</code><code class="p">,</code> <code class="nx">substs</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// There is always at least one element in tmplStrs</code>
+    <code class="kd">let</code> <code class="nx">result</code> <code class="o">=</code> <code class="nx">tmplStrs</code><code class="p">[</code><code class="mi">0</code><code class="p">];</code>
+    <code class="nx">substs</code><code class="p">.</code><code class="nx">forEach</code><code class="p">((</code><code class="nx">subst</code><code class="p">,</code> <code class="nx">i</code><code class="p">)</code> <code class="o">=&gt;</code> <code class="p">{</code>
+        <code class="nx">result</code> <code class="o">+=</code> <code class="nb">String</code><code class="p">(</code><code class="nx">subst</code><code class="p">);</code>
+        <code class="nx">result</code> <code class="o">+=</code> <code class="nx">tmplStrs</code><code class="p">[</code><code class="nx">i</code><code class="o">+</code><code class="mi">1</code><code class="p">];</code>
+    <code class="p">});</code>
+    <code class="k">return</code> <code class="nx">result</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Let&#x2019;s use this tag function:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; describe`<code class="cp">${</code><code class="mi">3</code><code class="o">+</code><code class="mi">3</code><code class="cp">}</code>`
+{ Cooked: &apos;6&apos;, Raw: &apos;6&apos; }
+
+&gt; describe`\<code class="cp">${</code><code class="mi">3</code><code class="o">+</code><code class="mi">3</code><code class="cp">}</code>`
+{ Cooked: &apos;<code class="cp">${</code><code class="mi">3</code><code class="o">+</code><code class="mi">3</code><code class="cp">}</code>&apos;, Raw: &apos;\\<code class="cp">${</code><code class="mi">3</code><code class="o">+</code><code class="mi">3</code><code class="cp">}</code>&apos; }
+
+&gt; describe`\\<code class="cp">${</code><code class="mi">3</code><code class="o">+</code><code class="mi">3</code><code class="cp">}</code>`
+{ Cooked: &apos;\\6&apos;, Raw: &apos;\\\\6&apos; }
+
+&gt; describe`\``
+{ Cooked: &apos;`&apos;, Raw: &apos;\\`&apos; }
+</pre></div>
+
+</figure>
+
+<p>As you can see, whenever the cooked interpretation has a substitution or a backtick then so does the raw interpretation. However, all backslashes from the literal appear in the raw interpretation.</p>
+
+<p>Other occurrences of the backslash are interpreted as follows:</p>
+
+<ul>
+  <li>In cooked mode, the backslash is handled like in string literals.</li>
+  <li>In raw mode, the backslash is used verbatim.</li>
+</ul>
+
+<p>For example:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; describe`\\`
+{ Cooked: &apos;\\&apos;, Raw: &apos;\\\\&apos; }
+
+&gt; describe`\n`
+{ Cooked: &apos;\n&apos;, Raw: &apos;\\n&apos; }
+
+&gt; describe`\u{58}`
+{ Cooked: &apos;X&apos;, Raw: &apos;\\u{58}&apos; }
+</pre></div>
+
+</figure>
+
+<p>To summarize: The only effect the backslash has in raw mode is that it escapes substitutions and backticks.</p>
+
+<aside class="generic_inbar blurb gears icon-gears">
+    <h3 id="_escaping-in-tagged-template-literals-in-the-spec">Escaping in tagged template literals in the spec <a class="header-anchor" href="ch_template-literals.html#_escaping-in-tagged-template-literals-in-the-spec" aria-hidden="true">#</a></h3>
+
+  <p>In <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-template-literal-lexical-components">the grammar for template literals</a>, you can see that, within a template literal, there must be no open curly brace (<code>{</code>) after a dollar sign (<code>$</code>). However, an escaped dollar sign (<code>\$</code>) can be followed by an open curly brace. The rules for interpreting the characters of a template literal are explained in <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-static-semantics-tv-and-trv">a separate section</a>.</p>
+
+</aside>
+
+
+<h4 id="_example-stringraw">
+<span class="section-number">8.4.3 </span>Example: <code>String.raw</code>
+ <a class="header-anchor" href="ch_template-literals.html#_example-stringraw" aria-hidden="true">#</a></h4>
+
+<p>The following is how you&#x2019;d implement <code>String.raw</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">raw</code><code class="p">(</code><code class="nx">strs</code><code class="p">,</code> <code class="p">...</code><code class="nx">substs</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="nx">result</code> <code class="o">=</code> <code class="nx">strs</code><code class="p">.</code><code class="nx">raw</code><code class="p">[</code><code class="mi">0</code><code class="p">];</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="p">[</code><code class="nx">i</code><code class="p">,</code><code class="nx">subst</code><code class="p">]</code> <code class="k">of</code> <code class="nx">substs</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+        <code class="nx">result</code> <code class="o">+=</code> <code class="nx">subst</code><code class="p">;</code>
+        <code class="nx">result</code> <code class="o">+=</code> <code class="nx">strs</code><code class="p">.</code><code class="nx">raw</code><code class="p">[</code><code class="nx">i</code><code class="o">+</code><code class="mi">1</code><code class="p">];</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="nx">result</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h4 id="sec_html-tag-function-implementation">
+<span class="section-number">8.4.4 </span>Example: implementing a tag function for HTML templating <a class="header-anchor" href="ch_template-literals.html#sec_html-tag-function-implementation" aria-hidden="true">#</a></h4>
+
+<p>I previously demonstrated the tag function <code>html</code> for HTML templating:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">tmpl</code> <code class="o">=</code> <code class="nx">addrs</code> <code class="o">=&gt;</code> <code class="nx">html</code><code class="sb">`</code>
+<code class="sb">    &lt;table&gt;</code>
+<code class="sb">    </code><code class="si">${</code><code class="nx">addrs</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">addr</code> <code class="o">=&gt;</code> <code class="nx">html</code><code class="sb">`</code>
+<code class="sb">        &lt;tr&gt;&lt;td&gt;!</code><code class="si">${</code><code class="nx">addr</code><code class="p">.</code><code class="nx">first</code><code class="si">}</code><code class="sb">&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="sb">        &lt;tr&gt;&lt;td&gt;!</code><code class="si">${</code><code class="nx">addr</code><code class="p">.</code><code class="nx">last</code><code class="si">}</code><code class="sb">&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="sb">    `</code><code class="p">)</code><code class="si">}</code><code class="sb"></code>
+<code class="sb">    &lt;/table&gt;</code>
+<code class="sb">`</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">data</code> <code class="o">=</code> <code class="p">[</code>
+    <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;&lt;Jane&gt;&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;Bond&apos;</code> <code class="p">},</code>
+    <code class="p">{</code> <code class="nx">first</code><code class="o">:</code> <code class="s1">&apos;Lars&apos;</code><code class="p">,</code> <code class="nx">last</code><code class="o">:</code> <code class="s1">&apos;&lt;Croft&gt;&apos;</code> <code class="p">},</code>
+<code class="p">];</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">tmpl</code><code class="p">(</code><code class="nx">data</code><code class="p">));</code>
+<code class="c1">// Output:</code>
+<code class="c1">// &lt;table&gt;</code>
+<code class="c1">//</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;&amp;lt;Jane&amp;gt;&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;Bond&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;Lars&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//     &lt;tr&gt;&lt;td&gt;&amp;lt;Croft&amp;gt;&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="c1">//</code>
+<code class="c1">// &lt;/table&gt;</code>
+</pre></div>
+
+</figure>
+
+<p>If you precede a substitution with an exclamation mark (<code>!${addr.first}</code>), it will be HTML-escaped. The tag function checks the text preceding a substitution in order to determine whether to escape or not.</p>
+
+<p>This is an implementation of <code>html</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">html</code><code class="p">(</code><code class="nx">templateObject</code><code class="p">,</code> <code class="p">...</code><code class="nx">substs</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// Use raw template strings: we don&#x2019;t want</code>
+    <code class="c1">// backslashes (\n etc.) to be interpreted</code>
+    <code class="kr">const</code> <code class="nx">raw</code> <code class="o">=</code> <code class="nx">templateObject</code><code class="p">.</code><code class="nx">raw</code><code class="p">;</code>
+
+    <code class="kd">let</code> <code class="nx">result</code> <code class="o">=</code> <code class="s1">&apos;&apos;</code><code class="p">;</code>
+
+    <code class="nx">substs</code><code class="p">.</code><code class="nx">forEach</code><code class="p">((</code><code class="nx">subst</code><code class="p">,</code> <code class="nx">i</code><code class="p">)</code> <code class="o">=&gt;</code> <code class="p">{</code>
+        <code class="c1">// Retrieve the template string preceding</code>
+        <code class="c1">// the current substitution</code>
+        <code class="kd">let</code> <code class="nx">lit</code> <code class="o">=</code> <code class="nx">raw</code><code class="p">[</code><code class="nx">i</code><code class="p">];</code>
+
+        <code class="c1">// In the example, map() returns an Array:</code>
+        <code class="c1">// If `subst` is an Array (and not a string),</code>
+        <code class="c1">// we turn it into a string</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nb">Array</code><code class="p">.</code><code class="nx">isArray</code><code class="p">(</code><code class="nx">subst</code><code class="p">))</code> <code class="p">{</code>
+            <code class="nx">subst</code> <code class="o">=</code> <code class="nx">subst</code><code class="p">.</code><code class="nx">join</code><code class="p">(</code><code class="s1">&apos;&apos;</code><code class="p">);</code>
+        <code class="p">}</code>
+
+        <code class="c1">// If the substitution is preceded by an exclamation</code>
+        <code class="c1">// mark, we escape special characters in it</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">lit</code><code class="p">.</code><code class="nx">endsWith</code><code class="p">(</code><code class="s1">&apos;!&apos;</code><code class="p">))</code> <code class="p">{</code>
+            <code class="nx">subst</code> <code class="o">=</code> <code class="nx">htmlEscape</code><code class="p">(</code><code class="nx">subst</code><code class="p">);</code>
+            <code class="nx">lit</code> <code class="o">=</code> <code class="nx">lit</code><code class="p">.</code><code class="nx">slice</code><code class="p">(</code><code class="mi">0</code><code class="p">,</code> <code class="o">-</code><code class="mi">1</code><code class="p">);</code>
+        <code class="p">}</code>
+        <code class="nx">result</code> <code class="o">+=</code> <code class="nx">lit</code><code class="p">;</code>
+        <code class="nx">result</code> <code class="o">+=</code> <code class="nx">subst</code><code class="p">;</code>
+    <code class="p">});</code>
+    <code class="c1">// Take care of last template string</code>
+    <code class="nx">result</code> <code class="o">+=</code> <code class="nx">raw</code><code class="p">[</code><code class="nx">raw</code><code class="p">.</code><code class="nx">length</code><code class="o">-</code><code class="mi">1</code><code class="p">];</code> <code class="c1">// (A)</code>
+
+    <code class="k">return</code> <code class="nx">result</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>There is always one more template string than substitutions, which is why we need to append the last template string in line A.</p>
+
+<p>The following is a simple implementation of <code>htmlEscape()</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">htmlEscape</code><code class="p">(</code><code class="nx">str</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">str</code><code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="sr">/&amp;/g</code><code class="p">,</code> <code class="s1">&apos;&amp;amp;&apos;</code><code class="p">)</code> <code class="c1">// first!</code>
+              <code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="sr">/&gt;/g</code><code class="p">,</code> <code class="s1">&apos;&amp;gt;&apos;</code><code class="p">)</code>
+              <code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="sr">/&lt;/g</code><code class="p">,</code> <code class="s1">&apos;&amp;lt;&apos;</code><code class="p">)</code>
+              <code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="sr">/&quot;/g</code><code class="p">,</code> <code class="s1">&apos;&amp;quot;&apos;</code><code class="p">)</code>
+              <code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="sr">/&apos;/g</code><code class="p">,</code> <code class="s1">&apos;&amp;#39;&apos;</code><code class="p">)</code>
+              <code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="sr">/`/g</code><code class="p">,</code> <code class="s1">&apos;&amp;#96;&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_more-ideas">
+<span class="section-number">8.4.4.1 </span>More ideas <a class="header-anchor" href="ch_template-literals.html#_more-ideas" aria-hidden="true">#</a></h5>
+
+<p>There are more things you can do with this approach to templating:</p>
+
+<ul>
+  <li>This approach isn&#x2019;t limited to HTML, it would work just as well for other kinds of text. Obviously, escaping would have to be adapted.</li>
+  <li>if-then-else inside the template can be done via the ternary operator (<code>cond?then:else</code>) or via the logical Or operator (<code>||</code>):
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="o">!</code><code class="nx">$</code><code class="p">{</code><code class="nx">addr</code><code class="p">.</code><code class="nx">first</code> <code class="o">?</code> <code class="nx">addr</code><code class="p">.</code><code class="nx">first</code> <code class="o">:</code> <code class="s1">&apos;(No first name)&apos;</code><code class="p">}</code>
+  <code class="o">!</code><code class="nx">$</code><code class="p">{</code><code class="nx">addr</code><code class="p">.</code><code class="nx">first</code> <code class="o">||</code> <code class="s1">&apos;(No first name)&apos;</code><code class="p">}</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Dedenting: Some of the leading whitespace in each line can be removed if the first non-whitespace character defines in which column the text starts. For example:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">theHtml</code> <code class="o">=</code> <code class="nx">html</code><code class="sb">`</code>
+<code class="sb">      &lt;div&gt;</code>
+<code class="sb">          Hello!</code>
+<code class="sb">      &lt;/div&gt;`</code><code class="p">;</code>
+</pre></div>
+
+    </figure>
+
+    <p>The first non-whitespace characters are <code>&lt;div&gt;</code>, which means that the text starts in column 4 (the leftmost column is column 0). The tag function <code>html</code> could automatically remove all preceding columns. Then the previous tagged template would be equivalent to:</p>
+
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="kr">const</code> <code class="nx">theHtml</code> <code class="o">=</code>
+  <code class="nx">html</code><code class="sb">`&lt;div&gt;</code>
+<code class="sb">      Hello!</code>
+<code class="sb">  &lt;/div&gt;`</code><code class="p">;</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>You can use destructuring to extract data from parameters of functions:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="c1">// Without destructuring</code>
+  <code class="nx">$</code><code class="p">{</code><code class="nx">addrs</code><code class="p">.</code><code class="nx">map</code><code class="p">((</code><code class="nx">person</code><code class="p">)</code> <code class="o">=&gt;</code> <code class="nx">html</code><code class="sb">`</code>
+<code class="sb">      &lt;tr&gt;&lt;td&gt;!</code><code class="si">${</code><code class="nx">person</code><code class="p">.</code><code class="nx">first</code><code class="si">}</code><code class="sb">&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="sb">      &lt;tr&gt;&lt;td&gt;!</code><code class="si">${</code><code class="nx">person</code><code class="p">.</code><code class="nx">last</code><code class="si">}</code><code class="sb">&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="sb">  `</code><code class="p">)}</code>
+
+  <code class="c1">// With destructuring</code>
+  <code class="nx">$</code><code class="p">{</code><code class="nx">addrs</code><code class="p">.</code><code class="nx">map</code><code class="p">(({</code><code class="nx">first</code><code class="p">,</code><code class="nx">last</code><code class="p">})</code> <code class="o">=&gt;</code> <code class="nx">html</code><code class="sb">`</code>
+<code class="sb">      &lt;tr&gt;&lt;td&gt;!</code><code class="si">${</code><code class="nx">first</code><code class="si">}</code><code class="sb">&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="sb">      &lt;tr&gt;&lt;td&gt;!</code><code class="si">${</code><code class="nx">last</code><code class="si">}</code><code class="sb">&lt;/td&gt;&lt;/tr&gt;</code>
+<code class="sb">  `</code><code class="p">)}</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+
+<h4 id="_example-assembling-regular-expressions">
+<span class="section-number">8.4.5 </span>Example: assembling regular expressions <a class="header-anchor" href="ch_template-literals.html#_example-assembling-regular-expressions" aria-hidden="true">#</a></h4>
+
+<p>There are two ways of creating regular expression instances.</p>
+
+<ul>
+  <li>Statically (at compile time), via a regular expression literal: <code>/^abc$/i</code>
+</li>
+  <li>Dynamically (at runtime), via the <code>RegExp</code> constructor: <code>new RegExp(&apos;^abc$&apos;, &apos;i&apos;)</code>
+</li>
+</ul>
+
+<p>If you use the latter, it is because you have to wait until runtime so that all necessary ingredients are available. You are creating the regular expression by concatenating three kinds of pieces:</p>
+
+<ol class="numeric">
+  <li>Static text</li>
+  <li>Dynamic regular expressions</li>
+  <li>Dynamic text</li>
+</ol>
+
+<p>For #3, special characters (dots, square brackets, etc.) have to be escaped, while #1 and #2 can be used verbatim. A regular expression tag function <code>regex</code> can help with this task:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">INTEGER</code> <code class="o">=</code> <code class="sr">/\d+/</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">decimalPoint</code> <code class="o">=</code> <code class="s1">&apos;.&apos;</code><code class="p">;</code> <code class="c1">// locale-specific! E.g. &apos;,&apos; in Germany</code>
+<code class="kr">const</code> <code class="nx">NUMBER</code> <code class="o">=</code> <code class="nx">regex</code><code class="sb">`</code><code class="si">${</code><code class="nx">INTEGER</code><code class="si">}</code><code class="sb">(</code><code class="si">${</code><code class="nx">decimalPoint</code><code class="si">}${</code><code class="nx">INTEGER</code><code class="si">}</code><code class="sb">)?`</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p><code>regex</code> looks like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">regex</code><code class="p">(</code><code class="nx">tmplObj</code><code class="p">,</code> <code class="p">...</code><code class="nx">substs</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// Static text: verbatim</code>
+    <code class="kd">let</code> <code class="nx">regexText</code> <code class="o">=</code> <code class="nx">tmplObj</code><code class="p">.</code><code class="nx">raw</code><code class="p">[</code><code class="mi">0</code><code class="p">];</code>
+    <code class="k">for</code> <code class="p">([</code><code class="nx">i</code><code class="p">,</code> <code class="nx">subst</code><code class="p">]</code> <code class="k">of</code> <code class="nx">substs</code><code class="p">.</code><code class="nx">entries</code><code class="p">())</code> <code class="p">{</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">subst</code> <code class="k">instanceof</code> <code class="nb">RegExp</code><code class="p">)</code> <code class="p">{</code>
+            <code class="c1">// Dynamic regular expressions: verbatim</code>
+            <code class="nx">regexText</code> <code class="o">+=</code> <code class="nb">String</code><code class="p">(</code><code class="nx">subst</code><code class="p">);</code>
+        <code class="p">}</code> <code class="k">else</code> <code class="p">{</code>
+            <code class="c1">// Other dynamic data: escaped</code>
+            <code class="nx">regexText</code> <code class="o">+=</code> <code class="nx">quoteText</code><code class="p">(</code><code class="nb">String</code><code class="p">(</code><code class="nx">subst</code><code class="p">));</code>
+        <code class="p">}</code>
+        <code class="c1">// Static text: verbatim</code>
+        <code class="nx">regexText</code> <code class="o">+=</code> <code class="nx">tmplObj</code><code class="p">.</code><code class="nx">raw</code><code class="p">[</code><code class="nx">i</code><code class="o">+</code><code class="mi">1</code><code class="p">];</code>
+    <code class="p">}</code>
+    <code class="k">return</code> <code class="k">new</code> <code class="nb">RegExp</code><code class="p">(</code><code class="nx">regexText</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">quoteText</code><code class="p">(</code><code class="nx">text</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">text</code><code class="p">.</code><code class="nx">replace</code><code class="p">(</code><code class="sr">/[\\^$.*+?()[\]{}|=!&lt;&gt;:-]/g</code><code class="p">,</code> <code class="s1">&apos;\\$&amp;&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_faq-template-literals">
+<span class="section-number">8.5 </span>FAQ: template literals and tagged template literals <a class="header-anchor" href="ch_template-literals.html#sec_faq-template-literals" aria-hidden="true">#</a></h3>
+
+<h4 id="_where-do-template-literals-and-tagged-template-literals-come-from">
+<span class="section-number">8.5.1 </span>Where do template literals and tagged template literals come from? <a class="header-anchor" href="ch_template-literals.html#_where-do-template-literals-and-tagged-template-literals-come-from" aria-hidden="true">#</a></h4>
+
+<p>Template literals and tagged template literals were borrowed from the language E, which calls this feature <a href="http://www.erights.org/elang/grammar/quasi-overview.html"><em>quasi literals</em></a>.</p>
+
+<h4 id="_what-is-the-difference-between-macros-and-tagged-template-literals">
+<span class="section-number">8.5.2 </span>What is the difference between macros and tagged template literals? <a class="header-anchor" href="ch_template-literals.html#_what-is-the-difference-between-macros-and-tagged-template-literals" aria-hidden="true">#</a></h4>
+
+<p>Macros allow you to implement language constructs that have custom syntax. It&#x2019;s difficult to provide macros for a programming language whose syntax is as complex as JavaScript&#x2019;s. Research in this area is ongoing (see Mozilla&#x2019;s <a href="http://sweetjs.org/">sweet.js</a>).</p>
+
+<p>While macros are much more powerful for implementing sub-languages than tagged templates, they depend on the tokenization of the language. Therefore, tagged templates are complementary, because they specialize on text content.</p>
+
+<h4 id="_can-i-load-a-template-literal-from-an-external-source">
+<span class="section-number">8.5.3 </span>Can I load a template literal from an external source? <a class="header-anchor" href="ch_template-literals.html#_can-i-load-a-template-literal-from-an-external-source" aria-hidden="true">#</a></h4>
+
+<p>What if I want to load a template literal such as <code>`Hello ${name}!`</code> from an external source (e.g., a file)?</p>
+
+<p>You are abusing template literals if you do so. Given that a template literal can contain arbitrary expressions and is a literal, loading it from somewhere else is similar to loading an expression or a string literal &#x2013; you have to use <code>eval()</code> or something similar.</p>
+
+<h4 id="_why-are-backticks-the-delimiters-for-template-literals">
+<span class="section-number">8.5.4 </span>Why are backticks the delimiters for template literals? <a class="header-anchor" href="ch_template-literals.html#_why-are-backticks-the-delimiters-for-template-literals" aria-hidden="true">#</a></h4>
+
+<p>The backtick was one of the few ASCII characters that were still unused in JavaScript. The syntax <code>${}</code> for interpolation is very common (Unix shells, etc.).</p>
+
+<h4 id="sec_old-terminology-template-string">
+<span class="section-number">8.5.5 </span>Weren&#x2019;t template literals once called template strings? <a class="header-anchor" href="ch_template-literals.html#sec_old-terminology-template-string" aria-hidden="true">#</a></h4>
+
+<p>The template literal terminology changed relatively late during the creation of the ES6 spec. The following are the old terms:</p>
+
+<ul>
+  <li>Template string (literal): the old name for <em>template literal</em>.</li>
+  <li>Tagged template string (literal): the old name for <em>tagged template literal</em>.</li>
+  <li>Template handler: the old name for <em>tag function</em>.</li>
+  <li>Literal section: the old name for <em>template string</em> (the term <em>substitution</em> remains the same).</li>
+</ul>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_variables.html">9. Variables and scoping</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

@@ -1,0 +1,708 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>6. Shared memory and atomics</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+    <div id="top-bar-content">
+        <a href="index.html#toc_ch_shared-array-buffer">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es2016-es2017/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="page-content">
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+
+<h2 id="ch_shared-array-buffer">
+<span class="section-number">6. </span>Shared memory and atomics <a class="header-anchor" href="ch_shared-array-buffer.html#ch_shared-array-buffer" aria-hidden="true">#</a></h2>
+
+<p>The ECMAScript 2017 feature &#x201C;<a href="https://github.com/tc39/ecmascript_sharedmem">Shared memory and atomics</a>&#x201D; was designed by Lars T. Hansen. It introduces a new constructor <code>SharedArrayBuffer</code> and a namespace object <code>Atomics</code> with helper functions. This chapter explains the details.</p>
+
+
+
+<h3 id="_parallelism-vs-concurrency">
+<span class="section-number">6.1 </span>Parallelism vs. concurrency <a class="header-anchor" href="ch_shared-array-buffer.html#_parallelism-vs-concurrency" aria-hidden="true">#</a></h3>
+
+
+<p>Before we begin, let&#x2019;s clarify two terms that are similar, yet distinct: &#x201C;parallelism&#x201D; and &#x201C;concurrency&#x201D;. Many definitions for them exist; I&#x2019;m using them as follows:</p>
+
+<ul>
+  <li>Parallelism (parallel vs. serial): execute multiple tasks simultaneously</li>
+  <li>Concurrency (concurrent vs. sequential): execute several tasks during overlapping periods of time (and not one after another).</li>
+</ul>
+
+<p>Both are closely related, but not the same:</p>
+
+<ul>
+  <li>Parallelism without concurrency: single instruction, multiple data (SIMD). Multiple computations happen in parallel, but only a single task (instruction) is executed at any given moment.</li>
+  <li>Concurrency without parallelism: multitasking via time-sharing on a single-core CPU.</li>
+</ul>
+
+<p>However, it is difficult to use these terms precisely, which is why interchanging them is usually not a problem.</p>
+
+<h4 id="_models-of-parallelism">
+<span class="section-number">6.1.1 </span>Models of parallelism <a class="header-anchor" href="ch_shared-array-buffer.html#_models-of-parallelism" aria-hidden="true">#</a></h4>
+
+<p>Two models of parallelism are:</p>
+
+<ul>
+  <li>Data parallelism: The same piece of code is executed several times in parallel. The instances operate on different elements of the same dataset. For example: MapReduce is a data-parallel programming model.</li>
+  <li>Task parallelism: Different pieces of code are executed in parallel. Examples: web workers and the Unix model of spawning processes.</li>
+</ul>
+
+
+<h3 id="_a-history-of-js-parallelism">
+<span class="section-number">6.2 </span>A history of JS parallelism <a class="header-anchor" href="ch_shared-array-buffer.html#_a-history-of-js-parallelism" aria-hidden="true">#</a></h3>
+
+<ul>
+  <li>JavaScript started as being executed in a single thread. Some tasks could be performed asynchronously: browsers usually ran those tasks in separate threads and later fed their results back into the single thread, via callbacks.</li>
+  <li>Web workers brought task parallelism to JavaScript: They are relatively heavweight processes. Each worker has its own global environment. By default, nothing is shared. Communication between workers (or between workers and the main thread) evolved:
+    <ul>
+      <li>At first, you could only send and receive strings.</li>
+      <li>Then, structured cloning was introduced: copies of data could be sent and received. <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm">Structured cloning works for most data</a> (JSON data, Typed Arrays, regular expressions, <code>Blob</code> objects, <code>ImageData</code> objects, etc.). It can even handle cyclic references between objects correctly. However, error objects, function objects and DOM nodes cannot be cloned.</li>
+      <li>Transferables move data between workers: the sending party loses access as the receiving party gains access to data.</li>
+    </ul>
+  </li>
+  <li>Computing on GPUs (which tend to do data parallelism well) via <a href="https://www.khronos.org/registry/webgl/specs/latest/2.0/">WebGL</a>: <a href="http://blog.stevensanderson.com/2014/06/11/write-massively-parallel-gpu-code-for-the-browser-with-webgl-ndc-2014/">It&#x2019;s a bit of a hack and works as follows.</a>
+    <ul>
+      <li>Input: your data, converted into an image (pixel by pixel).</li>
+      <li>Processing: OpenGL pixel shaders can perform arbitrary computations on GPUs. Your pixel shader transforms the input image.</li>
+      <li>Output: again an image that you can convert back to your kind of data.</li>
+    </ul>
+  </li>
+  <li>SIMD (low-level data parallelism): is supported via <a href="http://2ality.com/2013/12/simd-js.html">the ECMAScript proposal SIMD.js</a>. It allows you to perform operations (such as addition and square root) on several integers or floats at the same time.</li>
+  <li>PJS (codenamed River Trail): the plan of this ultimately abandoned project was to bring high-level data parallelism (think map-reduce via pure functions) to JavaScript. However, there was not enough interest from developers and engine implementers. Without implementations, one could not experiment with this API, because it can&#x2019;t be polyfilled. On 2015-01-05, Lars T. Hansen <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1117724">announced</a> that an experimental implementation was going to be removed from Firefox.</li>
+</ul>
+
+<h4 id="_the-next-step-sharedarraybuffer">
+<span class="section-number">6.2.1 </span>The next step: <code>SharedArrayBuffer</code>
+ <a class="header-anchor" href="ch_shared-array-buffer.html#_the-next-step-sharedarraybuffer" aria-hidden="true">#</a></h4>
+
+<p>What&#x2019;s next? For low-level parallelism, the direction is quite clear: support SIMD and GPUs as well as possible. However, for high-level parallelism, things are much less clear, especially after the failure of PJS.</p>
+
+<p>What is needed is a way to try out many approaches, to find out how to best bring high-level parallelism to JavaScript. Following the principles of the extensible web manifesto, the proposal &#x201C;shared memory and atomics&#x201D; (a.k.a. &#x201C;Shared Array Buffers&#x201D;) does so by providing low-level primitives that can be used to implement higher-level constructs.</p>
+
+
+<h3 id="_shared-array-buffers">
+<span class="section-number">6.3 </span>Shared Array Buffers <a class="header-anchor" href="ch_shared-array-buffer.html#_shared-array-buffers" aria-hidden="true">#</a></h3>
+
+<p>Shared Array Buffers are a primitive building block for higher-level concurrency abstractions. They allow you to share the bytes of a <code>SharedArrayBuffer</code> object between multiple workers and the main thread (the buffer is shared, to access the bytes, wrap it in a Typed Array). This kind of sharing has two benefits:</p>
+
+<ul>
+  <li>You can share data between workers more quickly.</li>
+  <li>Coordination between workers becomes simpler and faster (compared to <code>postMessage()</code>).</li>
+</ul>
+
+<h4 id="_creating-and-sending-a-shared-array-buffer">
+<span class="section-number">6.3.1 </span>Creating and sending a Shared Array Buffer <a class="header-anchor" href="ch_shared-array-buffer.html#_creating-and-sending-a-shared-array-buffer" aria-hidden="true">#</a></h4>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// main.js</code>
+
+<code class="kr">const</code> <code class="nx">worker</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Worker</code><code class="p">(</code><code class="s1">&apos;worker.js&apos;</code><code class="p">);</code>
+
+<code class="c1">// To be shared</code>
+<code class="kr">const</code> <code class="nx">sharedBuffer</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">SharedArrayBuffer</code><code class="p">(</code> <code class="c1">// (A)</code>
+    <code class="mi">10</code> <code class="o">*</code> <code class="nx">Int32Array</code><code class="p">.</code><code class="nx">BYTES_PER_ELEMENT</code><code class="p">);</code> <code class="c1">// 10 elements</code>
+
+<code class="c1">// Share sharedBuffer with the worker</code>
+<code class="nx">worker</code><code class="p">.</code><code class="nx">postMessage</code><code class="p">({</code><code class="nx">sharedBuffer</code><code class="p">});</code> <code class="c1">// clone</code>
+
+<code class="c1">// Local only</code>
+<code class="kr">const</code> <code class="nx">sharedArray</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Int32Array</code><code class="p">(</code><code class="nx">sharedBuffer</code><code class="p">);</code> <code class="c1">// (B)</code>
+</pre></div>
+
+</figure>
+
+<p>You create a Shared Array Buffer the same way you create a normal Array Buffer: by invoking the constructor and specifying the size of the buffer in bytes (line A). What you share with workers is the buffer. For your own, local, use, you normally wrap Shared Array Buffers in Typed Arrays (line B).</p>
+
+<p><strong>Warning:</strong> Cloning a Shared Array Buffer is the correct way of sharing it, but some engines still implement an older version of the API and require you to transfer it:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">worker</code><code class="p">.</code><code class="nx">postMessage</code><code class="p">({</code><code class="nx">sharedBuffer</code><code class="p">},</code> <code class="p">[</code><code class="nx">sharedBuffer</code><code class="p">]);</code> <code class="c1">// transfer (deprecated)</code>
+</pre></div>
+
+</figure>
+
+<p>In the final version of the API, transferring a Shared Array Buffer means that you lose access to it.</p>
+
+<h4 id="_receiving-a-shared-array-buffer">
+<span class="section-number">6.3.2 </span>Receiving a Shared Array Buffer <a class="header-anchor" href="ch_shared-array-buffer.html#_receiving-a-shared-array-buffer" aria-hidden="true">#</a></h4>
+
+<p>The implementation of the worker looks as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// worker.js</code>
+
+<code class="nx">self</code><code class="p">.</code><code class="nx">addEventListener</code><code class="p">(</code><code class="s1">&apos;message&apos;</code><code class="p">,</code> <code class="kd">function</code> <code class="p">(</code><code class="nx">event</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="p">{</code><code class="nx">sharedBuffer</code><code class="p">}</code> <code class="o">=</code> <code class="nx">event</code><code class="p">.</code><code class="nx">data</code><code class="p">;</code>
+    <code class="kr">const</code> <code class="nx">sharedArray</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Int32Array</code><code class="p">(</code><code class="nx">sharedBuffer</code><code class="p">);</code> <code class="c1">// (A)</code>
+
+    <code class="c1">// &#xB7;&#xB7;&#xB7;</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>We first extract the Shared Array Buffer that was sent to us and then wrap it in a Typed Array (line A), so that we can use it locally.</p>
+
+
+<h3 id="_atomics-safely-accessing-shared-data">
+<span class="section-number">6.4 </span>Atomics: safely accessing shared data <a class="header-anchor" href="ch_shared-array-buffer.html#_atomics-safely-accessing-shared-data" aria-hidden="true">#</a></h3>
+
+<h4 id="_problem-optimizations-make-code-unpredictable-across-workers">
+<span class="section-number">6.4.1 </span>Problem: Optimizations make code unpredictable across workers <a class="header-anchor" href="ch_shared-array-buffer.html#_problem-optimizations-make-code-unpredictable-across-workers" aria-hidden="true">#</a></h4>
+
+<p>In single threads, compilers can make optimizations that break multi-threaded code.</p>
+
+<p>Take, for example the following code:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">while</code> <code class="p">(</code><code class="nx">sharedArray</code><code class="p">[</code><code class="mi">0</code><code class="p">]</code> <code class="o">===</code> <code class="mi">123</code><code class="p">)</code> <code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>In a single thread, the value of <code>sharedArray[0]</code> never changes while the loop runs (if <code>sharedArray</code> is an Array or Typed Array that wasn&#x2019;t patched in some manner). Therefore, the code can be optimized as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">tmp</code> <code class="o">=</code> <code class="nx">sharedArray</code><code class="p">[</code><code class="mi">0</code><code class="p">];</code>
+<code class="k">while</code> <code class="p">(</code><code class="nx">tmp</code> <code class="o">===</code> <code class="mi">123</code><code class="p">)</code> <code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>However, in a multi-threaded setting, this optimization prevents us from using this pattern to wait for changes made in another thread.</p>
+
+<p>Another example is the following code:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// main.js</code>
+<code class="nx">sharedArray</code><code class="p">[</code><code class="mi">1</code><code class="p">]</code> <code class="o">=</code> <code class="mi">11</code><code class="p">;</code>
+<code class="nx">sharedArray</code><code class="p">[</code><code class="mi">2</code><code class="p">]</code> <code class="o">=</code> <code class="mi">22</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<p>In a single thread, you can rearrange these write operations, because nothing is read in-between. For multiple threads, you get into trouble whenever you expect the writes to be done in a specific order:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// worker.js</code>
+<code class="k">while</code> <code class="p">(</code><code class="nx">sharedArray</code><code class="p">[</code><code class="mi">2</code><code class="p">]</code> <code class="o">!==</code> <code class="mi">22</code><code class="p">)</code> <code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">sharedArray</code><code class="p">[</code><code class="mi">1</code><code class="p">]);</code> <code class="c1">// 0 or 11</code>
+</pre></div>
+
+</figure>
+
+<p>These kinds of optimizations make it virtually impossible to synchronize the activity of multiple workers operating on the same Shared Array Buffer.</p>
+
+<h4 id="_solution-atomics">
+<span class="section-number">6.4.2 </span>Solution: atomics <a class="header-anchor" href="ch_shared-array-buffer.html#_solution-atomics" aria-hidden="true">#</a></h4>
+
+<p>The proposal provides the global variable <code>Atomics</code> whose methods have three main use cases.</p>
+
+<h5 id="_use-case-synchronization">
+<span class="section-number">6.4.2.1 </span>Use case: synchronization <a class="header-anchor" href="ch_shared-array-buffer.html#_use-case-synchronization" aria-hidden="true">#</a></h5>
+
+<p><code>Atomics</code> methods can be used to synchronize with other workers. For example, the following two operations let you read and write data and are never rearranged by compilers:</p>
+
+<ul>
+  <li><code>Atomics.load(ta : TypedArray&lt;T&gt;, index) : T</code></li>
+  <li><code>Atomics.store(ta : TypedArray&lt;T&gt;, index, value : T) : T</code></li>
+</ul>
+
+<p>The idea is to use normal operations to read and write most data, while <code>Atomics</code> operations (<code>load</code>, <code>store</code> and others) ensure that the reading and writing is done safely. Often, you&#x2019;ll use custom synchronization mechanisms, such as locks, whose implementations are based on <code>Atomics</code>.</p>
+
+<p>This is a very simple example that always works, thanks to <code>Atomics</code> (I&#x2019;ve omitted setting up <code>sharedArray</code>):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// main.js</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;notifying...&apos;</code><code class="p">);</code>
+<code class="nx">Atomics</code><code class="p">.</code><code class="nx">store</code><code class="p">(</code><code class="nx">sharedArray</code><code class="p">,</code> <code class="mi">0</code><code class="p">,</code> <code class="mi">123</code><code class="p">);</code>
+
+<code class="c1">// worker.js</code>
+<code class="k">while</code> <code class="p">(</code><code class="nx">Atomics</code><code class="p">.</code><code class="nx">load</code><code class="p">(</code><code class="nx">sharedArray</code><code class="p">,</code> <code class="mi">0</code><code class="p">)</code> <code class="o">!==</code> <code class="mi">123</code><code class="p">)</code> <code class="p">;</code>
+<code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;notified&apos;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_use-case-waiting-to-be-notified">
+<span class="section-number">6.4.2.2 </span>Use case: waiting to be notified <a class="header-anchor" href="ch_shared-array-buffer.html#_use-case-waiting-to-be-notified" aria-hidden="true">#</a></h5>
+
+<p>Using a <code>while</code> loop to wait for a notification is not very efficient, which is why <code>Atomics</code> has operations that help:</p>
+
+<ul>
+  <li>
+<code>Atomics.wait(ta: Int32Array, index, value, timeout)</code><br>
+waits for a notification at <code>ta[index]</code>, but only if <code>ta[index]</code> is <code>value</code>.</li>
+  <li>
+<code>Atomics.wake(ta : Int32Array, index, count)</code><br>
+wakes up <code>count</code> workers that are waiting at <code>ta[index]</code>.</li>
+</ul>
+
+<h5 id="_use-case-atomic-operations">
+<span class="section-number">6.4.2.3 </span>Use case: atomic operations <a class="header-anchor" href="ch_shared-array-buffer.html#_use-case-atomic-operations" aria-hidden="true">#</a></h5>
+
+<p>Several <code>Atomics</code> operations perform arithmetic and can&#x2019;t be interrupted while doing so, which helps with synchronization. For example:</p>
+
+<ul>
+  <li><code>Atomics.add(ta : TypedArray&lt;T&gt;, index, value) : T</code></li>
+</ul>
+
+<p>Roughly, this operation performs:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">ta</code><code class="p">[</code><code class="nx">index</code><code class="p">]</code> <code class="o">+=</code> <code class="nx">value</code><code class="p">;</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_problem-torn-values">
+<span class="section-number">6.4.3 </span>Problem: torn values <a class="header-anchor" href="ch_shared-array-buffer.html#_problem-torn-values" aria-hidden="true">#</a></h4>
+
+<p>Another problematic effect with shared memory is <em>torn values</em> (garbage): when reading, you may see an intermediate value &#x2013; neither the value before a new value was written to memory nor the new value.</p>
+
+<p>Sect &#x201C;Tear-Free Reads&#x201D; in the spec states that there is no tear if and only if:</p>
+
+<ul>
+  <li>Both reading and writing happens via Typed Arrays (not DataViews).</li>
+  <li>Both Typed Arrays are <em>aligned</em> with their Shared Array Buffers:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="nx">sharedArray</code><code class="p">.</code><code class="nx">byteOffset</code> <code class="o">%</code> <code class="nx">sharedArray</code><code class="p">.</code><code class="nx">BYTES_PER_ELEMENT</code> <code class="o">===</code> <code class="mi">0</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>Both Typed Arrays have the same number of bytes per element.</li>
+</ul>
+
+<p>In other words, torn values are an issue whenever the same Shared Array Buffer is accessed via:</p>
+
+<ul>
+  <li>One or more DateViews</li>
+  <li>One or more unaligned Typed Arrays</li>
+  <li>Typed Arrays with different element sizes</li>
+</ul>
+
+<p>To avoid torn values in these cases, use <code>Atomics</code> or synchronize.</p>
+
+
+<h3 id="_shared-array-buffers-in-use">
+<span class="section-number">6.5 </span>Shared Array Buffers in use <a class="header-anchor" href="ch_shared-array-buffer.html#_shared-array-buffers-in-use" aria-hidden="true">#</a></h3>
+
+<h4 id="_shared-array-buffers-and-the-run-to-completion-semantics-of-javascript">
+<span class="section-number">6.5.1 </span>Shared Array Buffers and the run-to-completion semantics of JavaScript <a class="header-anchor" href="ch_shared-array-buffer.html#_shared-array-buffers-and-the-run-to-completion-semantics-of-javascript" aria-hidden="true">#</a></h4>
+
+<p>JavaScript has so-called <em>run-to-completion semantics</em>: every function can rely on not being interrupted by another thread until it is finished. Functions become transactions and can perform complete algorithms without anyone seeing the data they operate on in an intermediate state.</p>
+
+<p>Shared Array Buffers break run to completion (RTC): data a function is working on can be changed by another thread during the runtime of the function. However, code has complete control over whether or not this violation of RTC happens: if it doesn&#x2019;t use Shared Array Buffers, it is safe.</p>
+
+<p>This is loosely similar to how async functions violate RTC. There, you opt into a blocking operation via the keyword <code>await</code>.</p>
+
+<h4 id="_shared-array-buffers-and-asmjs-and-webassembly">
+<span class="section-number">6.5.2 </span>Shared Array Buffers and asm.js and WebAssembly <a class="header-anchor" href="ch_shared-array-buffer.html#_shared-array-buffers-and-asmjs-and-webassembly" aria-hidden="true">#</a></h4>
+
+<p>Shared Array Buffers enable emscripten to compile pthreads to asm.js. Quoting <a href="https://kripken.github.io/emscripten-site/docs/porting/pthreads.html">an emscripten documentation page</a>:</p>
+
+<blockquote>
+  <p>[Shared Array Buffers allow] Emscripten applications to share the main memory heap between web workers. This along with primitives for low level atomics and futex support enables Emscripten to implement support for the Pthreads (POSIX threads) API.</p>
+</blockquote>
+
+<p>That is, you can compile multithreaded C and C++ code to asm.js.</p>
+
+<p>Discussion on how to best bring multi-threading to WebAssembly is <a href="https://github.com/WebAssembly/design/issues/104">ongoing</a>. Given that web workers are relatively heavyweight, it is possible that WebAssembly will introduce lightweight threads. You can also see that threads are <a href="http://webassembly.org/docs/future-features/">on the roadmap for WebAssembly&#x2019;s future</a>.</p>
+
+<h4 id="_sharing-data-other-than-integers">
+<span class="section-number">6.5.3 </span>Sharing data other than integers <a class="header-anchor" href="ch_shared-array-buffer.html#_sharing-data-other-than-integers" aria-hidden="true">#</a></h4>
+
+<p>At the moment, only Arrays of integers (up to 32 bits long) can be shared. That means that the only way of sharing other kinds of data is by encoding them as integers. Tools that may help include:</p>
+
+<ul>
+  <li>
+<a href="https://encoding.spec.whatwg.org/#api"><code>TextEncoder</code> and <code>TextDecoder</code></a>: The former converts strings to instances of <code>Uint8Array</code>. The latter does the opposite.</li>
+  <li>
+<a href="https://github.com/madmurphy/stringview.js">stringview.js</a>: a library that handles strings as arrays of characters. Uses Array Buffers.</li>
+  <li>
+<a href="https://github.com/lars-t-hansen/flatjs">FlatJS</a>: enhances JavaScript with ways of storing complex data structures (structs, classes and arrays) in flat memory (<code>ArrayBuffer</code> and <code>SharedArrayBuffer</code>). JavaScript+FlatJS is compiled to plain JavaScript. JavaScript dialects (TypeScript etc.) are supported.</li>
+  <li>
+<a href="https://dump.01alchemist.com/2016/12/31/future-webhpc-parallel-programming-with-javascript-the-new-era-about-to-begin/">TurboScript</a>: is a JavaScript dialect for fast parallel programming. It compiles to asm.js and WebAssembly.</li>
+</ul>
+
+<p>Eventually, there will probably be additional &#x2013; higher-level &#x2013; mechanisms for sharing data. And experiments will continue to figure out what these mechanisms should look like.</p>
+
+<h4 id="_how-much-faster-is-code-that-uses-shared-array-buffers">
+<span class="section-number">6.5.4 </span>How much faster is code that uses Shared Array Buffers? <a class="header-anchor" href="ch_shared-array-buffer.html#_how-much-faster-is-code-that-uses-shared-array-buffers" aria-hidden="true">#</a></h4>
+
+<p>Lars T. Hansen has written two implementations of the Mandelbrot algorithm (as documented in his article &#x201C;<a href="https://hacks.mozilla.org/2016/05/a-taste-of-javascripts-new-parallel-primitives/">A Taste of JavaScript&#x2019;s New Parallel Primitives</a>&#x201D; where you can try them out online): A serial version and a parallel version that uses multiple web workers. For up to 4 web workers (and therefore processor cores), speed-up improves almost linearly, from 6.9 frames per seconds (1 web worker) to 25.4 frames per seconds (4 web workers). More web workers bring additional performance improvements, but more modest ones.</p>
+
+<p>Hansen notes that the speed-ups are impressive, but going parallel comes at the cost of the code being more complex.</p>
+
+
+<h3 id="_example">
+<span class="section-number">6.6 </span>Example <a class="header-anchor" href="ch_shared-array-buffer.html#_example" aria-hidden="true">#</a></h3>
+
+<p>Let&#x2019;s look at a more comprehensive example. Its code is available on GitHub, in the repository <a href="https://github.com/rauschma/shared-array-buffer-demo"><code>shared-array-buffer-demo</code></a>. <a href="https://rauschma.github.io/shared-array-buffer-demo/">And you can run it online.</a></p>
+
+<h4 id="_using-a-shared-lock">
+<span class="section-number">6.6.1 </span>Using a shared lock <a class="header-anchor" href="ch_shared-array-buffer.html#_using-a-shared-lock" aria-hidden="true">#</a></h4>
+
+<p>In the main thread, we set up shared memory so that it encodes a closed lock and send it to a worker (line A). Once the user clicks, we open the lock (line B).</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// main.js</code>
+
+<code class="c1">// Set up the shared memory</code>
+<code class="kr">const</code> <code class="nx">sharedBuffer</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">SharedArrayBuffer</code><code class="p">(</code>
+    <code class="mi">1</code> <code class="o">*</code> <code class="nx">Int32Array</code><code class="p">.</code><code class="nx">BYTES_PER_ELEMENT</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">sharedArray</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Int32Array</code><code class="p">(</code><code class="nx">sharedBuffer</code><code class="p">);</code>
+
+<code class="c1">// Set up the lock</code>
+<code class="nx">Lock</code><code class="p">.</code><code class="nx">initialize</code><code class="p">(</code><code class="nx">sharedArray</code><code class="p">,</code> <code class="mi">0</code><code class="p">);</code>
+<code class="kr">const</code> <code class="nx">lock</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Lock</code><code class="p">(</code><code class="nx">sharedArray</code><code class="p">,</code> <code class="mi">0</code><code class="p">);</code>
+<code class="nx">lock</code><code class="p">.</code><code class="nx">lock</code><code class="p">();</code> <code class="c1">// writes to sharedBuffer</code>
+
+<code class="nx">worker</code><code class="p">.</code><code class="nx">postMessage</code><code class="p">({</code><code class="nx">sharedBuffer</code><code class="p">});</code> <code class="c1">// (A)</code>
+
+<code class="nb">document</code><code class="p">.</code><code class="nx">getElementById</code><code class="p">(</code><code class="s1">&apos;unlock&apos;</code><code class="p">).</code><code class="nx">addEventListener</code><code class="p">(</code>
+    <code class="s1">&apos;click&apos;</code><code class="p">,</code> <code class="nx">event</code> <code class="p">=&gt;</code> <code class="p">{</code>
+        <code class="nx">event</code><code class="p">.</code><code class="nx">preventDefault</code><code class="p">();</code>
+        <code class="nx">lock</code><code class="p">.</code><code class="nx">unlock</code><code class="p">();</code> <code class="c1">// (B)</code>
+    <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>In the worker, we set up a local version of the lock (whose state is shared with the main thread via a Shared Array Buffer). In line B, we wait until the lock is unlocked. In lines A and C, we send text to the main thread, which displays it on the page for us (how it does that is not shown in the previous code fragment). That is, we are using <code>self.postMessage()</code> much like <code>console.log()</code> in these two lines.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// worker.js</code>
+
+<code class="nx">self</code><code class="p">.</code><code class="nx">addEventListener</code><code class="p">(</code><code class="s1">&apos;message&apos;</code><code class="p">,</code> <code class="kd">function</code> <code class="p">(</code><code class="nx">event</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="p">{</code><code class="nx">sharedBuffer</code><code class="p">}</code> <code class="o">=</code> <code class="nx">event</code><code class="p">.</code><code class="nx">data</code><code class="p">;</code>
+    <code class="kr">const</code> <code class="nx">lock</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Lock</code><code class="p">(</code><code class="k">new</code> <code class="nx">Int32Array</code><code class="p">(</code><code class="nx">sharedBuffer</code><code class="p">),</code> <code class="mi">0</code><code class="p">);</code>
+
+    <code class="nx">self</code><code class="p">.</code><code class="nx">postMessage</code><code class="p">(</code><code class="s1">&apos;Waiting for lock...&apos;</code><code class="p">);</code> <code class="c1">// (A)</code>
+    <code class="nx">lock</code><code class="p">.</code><code class="nx">lock</code><code class="p">();</code> <code class="c1">// (B) blocks!</code>
+    <code class="nx">self</code><code class="p">.</code><code class="nx">postMessage</code><code class="p">(</code><code class="s1">&apos;Unlocked&apos;</code><code class="p">);</code> <code class="c1">// (C)</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>It is noteworthy that waiting for the lock in line B stops the complete worker. That is real blocking, which hasn&#x2019;t existed in JavaScript until now (<code>await</code> in async functions is an approximation).</p>
+
+<h4 id="_implementing-a-shared-lock">
+<span class="section-number">6.6.2 </span>Implementing a shared lock <a class="header-anchor" href="ch_shared-array-buffer.html#_implementing-a-shared-lock" aria-hidden="true">#</a></h4>
+
+<p>Next, we&#x2019;ll look at an ES6-ified version of <a href="https://github.com/lars-t-hansen/parlib-simple/blob/master/src/lock.js">a <code>Lock</code> implementation by Lars T. Hansen</a> that is based on <code>SharedArrayBuffer</code>.</p>
+
+<p>In this section, we&#x2019;ll need (among others) the following <code>Atomics</code> function:</p>
+
+<ul>
+  <li>
+<code>Atomics.compareExchange(ta : TypedArray&lt;T&gt;, index, expectedValue, replacementValue) : T</code><br>
+If the current element of <code>ta</code> at <code>index</code> is <code>expectedValue</code>, replace it with <code>replacementValue</code>. Return the previous (or unchanged) element at <code>index</code>.</li>
+</ul>
+
+<p>The implementation starts with a few constants and the constructor:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">UNLOCKED</code> <code class="o">=</code> <code class="mi">0</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">LOCKED_NO_WAITERS</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code>
+<code class="kr">const</code> <code class="nx">LOCKED_POSSIBLE_WAITERS</code> <code class="o">=</code> <code class="mi">2</code><code class="p">;</code>
+
+<code class="c1">// Number of shared Int32 locations needed by the lock.</code>
+<code class="kr">const</code> <code class="nx">NUMINTS</code> <code class="o">=</code> <code class="mi">1</code><code class="p">;</code>
+
+<code class="kr">class</code> <code class="nx">Lock</code> <code class="p">{</code>
+
+    <code class="cm">/**</code>
+<code class="cm">     * @param iab an Int32Array wrapping a SharedArrayBuffer</code>
+<code class="cm">     * @param ibase an index inside iab, leaving enough room for NUMINTS</code>
+<code class="cm">     */</code>
+    <code class="nx">constructor</code><code class="p">(</code><code class="nx">iab</code><code class="p">,</code> <code class="nx">ibase</code><code class="p">)</code> <code class="p">{</code>
+        <code class="c1">// OMITTED: check parameters</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">iab</code> <code class="o">=</code> <code class="nx">iab</code><code class="p">;</code>
+        <code class="k">this</code><code class="p">.</code><code class="nx">ibase</code> <code class="o">=</code> <code class="nx">ibase</code><code class="p">;</code>
+    <code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The constructor mainly stores its parameters in instance properties.</p>
+
+<p>The method for locking looks as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="cm">/**</code>
+<code class="cm"> * Acquire the lock, or block until we can. Locking is not recursive:</code>
+<code class="cm"> * you must not hold the lock when calling this.</code>
+<code class="cm"> */</code>
+<code class="nx">lock</code><code class="p">()</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">iab</code> <code class="o">=</code> <code class="k">this</code><code class="p">.</code><code class="nx">iab</code><code class="p">;</code>
+    <code class="kr">const</code> <code class="nx">stateIdx</code> <code class="o">=</code> <code class="k">this</code><code class="p">.</code><code class="nx">ibase</code><code class="p">;</code>
+    <code class="kd">var</code> <code class="nx">c</code><code class="p">;</code>
+    <code class="k">if</code> <code class="p">((</code><code class="nx">c</code> <code class="o">=</code> <code class="nx">Atomics</code><code class="p">.</code><code class="nx">compareExchange</code><code class="p">(</code><code class="nx">iab</code><code class="p">,</code> <code class="nx">stateIdx</code><code class="p">,</code> <code class="c1">// (A)</code>
+    <code class="nx">UNLOCKED</code><code class="p">,</code> <code class="nx">LOCKED_NO_WAITERS</code><code class="p">))</code> <code class="o">!==</code> <code class="nx">UNLOCKED</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">do</code> <code class="p">{</code>
+            <code class="k">if</code> <code class="p">(</code><code class="nx">c</code> <code class="o">===</code> <code class="nx">LOCKED_POSSIBLE_WAITERS</code> <code class="c1">// (B)</code>
+            <code class="o">||</code> <code class="nx">Atomics</code><code class="p">.</code><code class="nx">compareExchange</code><code class="p">(</code><code class="nx">iab</code><code class="p">,</code> <code class="nx">stateIdx</code><code class="p">,</code>
+            <code class="nx">LOCKED_NO_WAITERS</code><code class="p">,</code> <code class="nx">LOCKED_POSSIBLE_WAITERS</code><code class="p">)</code> <code class="o">!==</code> <code class="nx">UNLOCKED</code><code class="p">)</code> <code class="p">{</code>
+                <code class="nx">Atomics</code><code class="p">.</code><code class="nx">wait</code><code class="p">(</code><code class="nx">iab</code><code class="p">,</code> <code class="nx">stateIdx</code><code class="p">,</code> <code class="c1">// (C)</code>
+                    <code class="nx">LOCKED_POSSIBLE_WAITERS</code><code class="p">,</code> <code class="nb">Number</code><code class="p">.</code><code class="nx">POSITIVE_INFINITY</code><code class="p">);</code>
+            <code class="p">}</code>
+        <code class="p">}</code> <code class="k">while</code> <code class="p">((</code><code class="nx">c</code> <code class="o">=</code> <code class="nx">Atomics</code><code class="p">.</code><code class="nx">compareExchange</code><code class="p">(</code><code class="nx">iab</code><code class="p">,</code> <code class="nx">stateIdx</code><code class="p">,</code>
+        <code class="nx">UNLOCKED</code><code class="p">,</code> <code class="nx">LOCKED_POSSIBLE_WAITERS</code><code class="p">))</code> <code class="o">!==</code> <code class="nx">UNLOCKED</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In line A, we change the lock to <code>LOCKED_NO_WAITERS</code> if its current value is <code>UNLOCKED</code>. We only enter the then-block if the lock is already locked (in which case <code>compareExchange()</code> did not change anything).</p>
+
+<p>In line B (inside a <code>do-while</code> loop), we check if the lock is locked with waiters or not unlocked. Given that we are about to wait, the <code>compareExchange()</code> also switches to <code>LOCKED_POSSIBLE_WAITERS</code> if the current value is <code>LOCKED_NO_WAITERS</code>.</p>
+
+<p>In line C, we wait if the lock value is <code>LOCKED_POSSIBLE_WAITERS</code>. The last parameter, <code>Number.POSITIVE_INFINITY</code>, means that waiting never times out.</p>
+
+<p>After waking up, we continue the loop if we are not unlocked. <code>compareExchange()</code> also switches to <code>LOCKED_POSSIBLE_WAITERS</code> if the lock is <code>UNLOCKED</code>. We use <code>LOCKED_POSSIBLE_WAITERS</code> and not <code>LOCKED_NO_WAITERS</code>, because we need to restore this value after <code>unlock()</code> temporarily set it to <code>UNLOCKED</code> and woke us up.</p>
+
+<p>The method for unlocking looks as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>    <code class="cm">/**</code>
+<code class="cm">     * Unlock a lock that is held.  Anyone can unlock a lock that</code>
+<code class="cm">     * is held; nobody can unlock a lock that is not held.</code>
+<code class="cm">     */</code>
+    <code class="nx">unlock</code><code class="p">()</code> <code class="p">{</code>
+        <code class="kr">const</code> <code class="nx">iab</code> <code class="o">=</code> <code class="k">this</code><code class="p">.</code><code class="nx">iab</code><code class="p">;</code>
+        <code class="kr">const</code> <code class="nx">stateIdx</code> <code class="o">=</code> <code class="k">this</code><code class="p">.</code><code class="nx">ibase</code><code class="p">;</code>
+        <code class="kd">var</code> <code class="nx">v0</code> <code class="o">=</code> <code class="nx">Atomics</code><code class="p">.</code><code class="nx">sub</code><code class="p">(</code><code class="nx">iab</code><code class="p">,</code> <code class="nx">stateIdx</code><code class="p">,</code> <code class="mi">1</code><code class="p">);</code> <code class="c1">// A</code>
+
+        <code class="c1">// Wake up a waiter if there are any</code>
+        <code class="k">if</code> <code class="p">(</code><code class="nx">v0</code> <code class="o">!==</code> <code class="nx">LOCKED_NO_WAITERS</code><code class="p">)</code> <code class="p">{</code>
+            <code class="nx">Atomics</code><code class="p">.</code><code class="nx">store</code><code class="p">(</code><code class="nx">iab</code><code class="p">,</code> <code class="nx">stateIdx</code><code class="p">,</code> <code class="nx">UNLOCKED</code><code class="p">);</code>
+            <code class="nx">Atomics</code><code class="p">.</code><code class="nx">wake</code><code class="p">(</code><code class="nx">iab</code><code class="p">,</code> <code class="nx">stateIdx</code><code class="p">,</code> <code class="mi">1</code><code class="p">);</code>
+        <code class="p">}</code>
+    <code class="p">}</code>
+
+    <code class="c1">// &#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In line A, <code>v0</code> gets the value that <code>iab[stateIdx]</code> had <em>before</em> 1 was subtracted from it. The subtraction means that we go (e.g.) from <code>LOCKED_NO_WAITERS</code> to <code>UNLOCKED</code> and from <code>LOCKED_POSSIBLE_WAITERS</code> to <code>LOCKED</code>.</p>
+
+<p>If the value was previously <code>LOCKED_NO_WAITERS</code> then it is now <code>UNLOCKED</code> and everything is fine (there is no one to wake up).</p>
+
+<p>Otherwise, the value was either <code>LOCKED_POSSIBLE_WAITERS</code> or <code>UNLOCKED</code>. In the former case, we are now unlocked and must wake up someone (who will usually lock again). In the latter case, we must fix the illegal value created by subtraction and the <code>wake()</code> simply does nothing.</p>
+
+<h4 id="_conclusion-for-the-example">
+<span class="section-number">6.6.3 </span>Conclusion for the example <a class="header-anchor" href="ch_shared-array-buffer.html#_conclusion-for-the-example" aria-hidden="true">#</a></h4>
+
+<p>This gives you a rough idea how locks based on <code>SharedArrayBuffer</code> work. Keep in mind that multithreaded code is notoriously difficult to write, because things can change at any time. Case in point: <code>lock.js</code> is based on a paper documenting a futex implementation for the Linux kernel. And the title of that paper is &#x201C;<a href="http://www.akkadia.org/drepper/futex.pdf">Futexes are tricky</a>&#x201D; (PDF).</p>
+
+<p>If you want to go deeper into parallel programming with Shared Array Buffers, take a look at <a href="https://github.com/lars-t-hansen/parlib-simple/blob/master/src/synchronic.js"><code>synchronic.js</code></a> and <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4195.pdf">the document it is based on (PDF)</a>.</p>
+
+
+<h3 id="_the-api-for-shared-memory-and-atomics">
+<span class="section-number">6.7 </span>The API for shared memory and atomics <a class="header-anchor" href="ch_shared-array-buffer.html#_the-api-for-shared-memory-and-atomics" aria-hidden="true">#</a></h3>
+
+<h4 id="_sharedarraybuffer">
+<span class="section-number">6.7.1 </span><code>SharedArrayBuffer</code>
+ <a class="header-anchor" href="ch_shared-array-buffer.html#_sharedarraybuffer" aria-hidden="true">#</a></h4>
+
+<p>Constructor:</p>
+
+<ul>
+  <li>
+<code>new SharedArrayBuffer(length)</code><br>
+Create a buffer for <code>length</code> bytes.</li>
+</ul>
+
+<p>Static property:</p>
+
+<ul>
+  <li>
+<code>get SharedArrayBuffer[Symbol.species]</code><br>
+Returns <code>this</code> by default. Override to control what <code>slice()</code> returns.</li>
+</ul>
+
+<p>Instance properties:</p>
+
+<ul>
+  <li>
+<code>get SharedArrayBuffer.prototype.byteLength()</code><br>
+Returns the length of the buffer in bytes.</li>
+  <li>
+<code>SharedArrayBuffer.prototype.slice(start, end)</code><br>
+Create a new instance of <code>this.constructor[Symbol.species]</code> and fill it with the bytes at the indices from (including) <code>start</code> to (excluding) <code>end</code>.</li>
+</ul>
+
+<h4 id="_atomics">
+<span class="section-number">6.7.2 </span><code>Atomics</code>
+ <a class="header-anchor" href="ch_shared-array-buffer.html#_atomics" aria-hidden="true">#</a></h4>
+
+<p>The main operand of <code>Atomics</code> functions must be an instance of <code>Int8Array</code>, <code>Uint8Array</code>, <code>Int16Array</code>, <code>Uint16Array</code>, <code>Int32Array</code> or <code>Uint32Array</code>. It must wrap a <code>SharedArrayBuffer</code>.</p>
+
+<p>All functions perform their operations atomically. The ordering of store operations is fixed and can&#x2019;t be reordered by compilers or CPUs.</p>
+
+<h5 id="_loading-and-storing">
+<span class="section-number">6.7.2.1 </span>Loading and storing <a class="header-anchor" href="ch_shared-array-buffer.html#_loading-and-storing" aria-hidden="true">#</a></h5>
+
+<ul>
+  <li>
+<code>Atomics.load(ta : TypedArray&lt;T&gt;, index) : T</code><br>
+Read and return the element of <code>ta</code> at <code>index</code>.</li>
+  <li>
+<code>Atomics.store(ta : TypedArray&lt;T&gt;, index, value : T) : T</code><br>
+Write <code>value</code> to <code>ta</code> at <code>index</code> and return <code>value</code>.</li>
+  <li>
+<code>Atomics.exchange(ta : TypedArray&lt;T&gt;, index, value : T) : T</code><br>
+Set the element of <code>ta</code> at <code>index</code> to <code>value</code> and return the previous value at that index.</li>
+</ul>
+
+
+<ul>
+  <li>
+<code>Atomics.compareExchange(ta : TypedArray&lt;T&gt;, index, expectedValue, replacementValue) : T</code><br>
+If the current element of <code>ta</code> at <code>index</code> is <code>expectedValue</code>, replace it with <code>replacementValue</code>. Return the previous (or unchanged) element at <code>index</code>.</li>
+</ul>
+
+<h5 id="_simple-modification-of-typed-array-elements">
+<span class="section-number">6.7.2.2 </span>Simple modification of Typed Array elements <a class="header-anchor" href="ch_shared-array-buffer.html#_simple-modification-of-typed-array-elements" aria-hidden="true">#</a></h5>
+
+<p>Each of the following functions changes a Typed Array element at a given index: It applies an operator to the element and a parameter and writes the result back to the element. It returns <em>the original value</em> of the element.</p>
+
+<ul>
+  <li>
+<code>Atomics.add(ta : TypedArray&lt;T&gt;, index, value) : T</code><br>
+Perform <code>ta[index] += value</code> and return the original value of <code>ta[index]</code>.</li>
+  <li>
+<code>Atomics.sub(ta : TypedArray&lt;T&gt;, index, value) : T</code><br>
+Perform <code>ta[index] -= value</code> and return the original value of <code>ta[index]</code>.</li>
+  <li>
+<code>Atomics.and(ta : TypedArray&lt;T&gt;, index, value) : T</code><br>
+Perform <code>ta[index] &amp;= value</code> and return the original value of <code>ta[index]</code>.</li>
+  <li>
+<code>Atomics.or(ta : TypedArray&lt;T&gt;, index, value) : T</code><br>
+Perform <code>ta[index] |= value</code> and return the original value of <code>ta[index]</code>.</li>
+  <li>
+<code>Atomics.xor(ta : TypedArray&lt;T&gt;, index, value) : T</code><br>
+Perform <code>ta[index] ^= value</code> and return the original value of <code>ta[index]</code>.</li>
+</ul>
+
+<h5 id="_waiting-and-waking">
+<span class="section-number">6.7.2.3 </span>Waiting and waking <a class="header-anchor" href="ch_shared-array-buffer.html#_waiting-and-waking" aria-hidden="true">#</a></h5>
+
+<p>Waiting and waking requires the parameter <code>ta</code> to be an instance of <code>Int32Array</code>.</p>
+
+<ul>
+  <li>
+<code>Atomics.wait(ta: Int32Array, index, value, timeout=Number.POSITIVE_INFINITY) : (&apos;not-equal&apos; | &apos;ok&apos; | &apos;timed-out&apos;)</code><br>
+If the current value at <code>ta[index]</code> is not <code>value</code>, return <code>&apos;not-equal&apos;</code>. Otherwise go to sleep until we are woken up via <code>Atomics.wake()</code> or until sleeping times out. In the former case, return <code>&apos;ok&apos;</code>. In the latter case, return <code>&apos;timed-out&apos;</code>. <code>timeout</code> is specified in milliseconds. Mnemonic for what this function does: &#x201C;wait if <code>ta[index]</code> is <code>value</code>&#x201D;.</li>
+  <li>
+<code>Atomics.wake(ta : Int32Array, index, count)</code><br>
+Wake up <code>count</code> workers that are waiting at <code>ta[index]</code>.</li>
+</ul>
+
+<h5 id="_miscellaneous">
+<span class="section-number">6.7.2.4 </span>Miscellaneous <a class="header-anchor" href="ch_shared-array-buffer.html#_miscellaneous" aria-hidden="true">#</a></h5>
+
+<ul>
+  <li>
+<code>Atomics.isLockFree(size)</code><br>
+This function lets you ask the JavaScript engine if operands with the given <code>size</code> (in bytes) can be manipulated without locking. That can inform algorithms whether they want to rely on built-in primitives (<code>compareExchange()</code> etc.) or use their own locking. <code>Atomics.isLockFree(4)</code> always returns <code>true</code>, because that&#x2019;s what all currently relevant supports.</li>
+</ul>
+
+
+<h3 id="_faq">
+<span class="section-number">6.8 </span>FAQ <a class="header-anchor" href="ch_shared-array-buffer.html#_faq" aria-hidden="true">#</a></h3>
+
+<h4 id="_what-browsers-support-shared-array-buffers">
+<span class="section-number">6.8.1 </span>What browsers support Shared Array Buffers? <a class="header-anchor" href="ch_shared-array-buffer.html#_what-browsers-support-shared-array-buffers" aria-hidden="true">#</a></h4>
+
+<p>At the moment, I&#x2019;m aware of:</p>
+
+<ul>
+  <li>Firefox (50.1.0+): go to <code>about:config</code> and set <code>javascript.options.shared_memory</code> to <code>true</code>
+</li>
+  <li>Safari Technology Preview (Release 21+): enabled by default.</li>
+  <li>Chrome Canary (58.0+): There are two ways to switch it on.
+    <ul>
+      <li>Via <code>chrome://flags/</code> (&#x201C;Experimental enabled SharedArrayBuffer support in JavaScript&#x201D;)</li>
+      <li><code>--js-flags=--harmony-sharedarraybuffer --enable-blink-feature=SharedArrayBuffer</code></li>
+    </ul>
+  </li>
+</ul>
+
+
+<h3 id="_further-reading-4">
+<span class="section-number">6.9 </span>Further reading <a class="header-anchor" href="ch_shared-array-buffer.html#_further-reading-4" aria-hidden="true">#</a></h3>
+
+<p>More information on Shared Array Buffers and supporting technologies:</p>
+
+<ul>
+  <li>&#x201C;<a href="https://github.com/tc39/ecmascript_sharedmem/blob/master/TUTORIAL.md">Shared memory &#x2013; a brief tutorial</a>&#x201D; by Lars T. Hansen</li>
+  <li>&#x201C;<a href="https://hacks.mozilla.org/2016/05/a-taste-of-javascripts-new-parallel-primitives/">A Taste of JavaScript&#x2019;s New Parallel Primitives</a>&#x201D; by Lars T. Hansen [a good intro to Shared Array Buffers]</li>
+  <li>&#x201C;<a href="http://tc39.github.io/ecmascript_sharedmem/presentation-nov-2016.pdf">SharedArrayBuffer and Atomics Stage 2.95 to Stage 3</a>&#x201D; (PDF), slides by Shu-yu Guo and Lars T. Hansen (2016-11-30) [slides accompanying the ES proposal]</li>
+  <li>&#x201C;<a href="https://www.html5rocks.com/en/tutorials/workers/basics/">The Basics of Web Workers</a>&#x201D; by Eric Bidelman [an introduction to web workers]</li>
+</ul>
+
+<p>Other JavaScript technologies related to parallelism:</p>
+
+<ul>
+  <li>&#x201C;<a href="https://blog.mozilla.org/javascript/2015/02/26/the-path-to-parallel-javascript/">The Path to Parallel JavaScript</a>&#x201D; by Dave Herman [a general overview of where JavaScript is heading after the abandonment of PJS]</li>
+  <li>&#x201C;<a href="http://blog.stevensanderson.com/2014/06/11/write-massively-parallel-gpu-code-for-the-browser-with-webgl-ndc-2014/">Write massively-parallel GPU code for the browser with WebGL</a>&#x201D; by Steve Sanderson [fascinating talk that explains how to get WebGL to do computations for you on the GPU]</li>
+</ul>
+
+<p>Background on parallelism:</p>
+
+<ul>
+  <li>&#x201C;<a href="https://blog.golang.org/concurrency-is-not-parallelism">Concurrency is not parallelism</a>&#x201D; by Rob Pike [Pike uses the terms &#x201C;concurrency&#x201D; and &#x201C;parallelism&#x201D; slightly differently than I do in this chapter, providing an interesting complementary view]</li>
+</ul>
+
+<p><strong>Acknowledgement:</strong> I&#x2019;m very grateful to Lars T. Hansen for reviewing this chapter and for answering my <code>SharedArrayBuffer</code>-related questions.</p>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="ch_object-entries-object-values.html">7. <code>Object.entries()</code> and <code>Object.values()</code></a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

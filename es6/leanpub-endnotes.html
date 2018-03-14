@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Notes</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>Notes</b><br>
+        <a href="index.html#toc_leanpub-endnotes">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h1 id="leanpub-endnotes" class="part">Notes <a class="header-anchor" href="leanpub-endnotes.html#leanpub-endnotes" aria-hidden="true">#</a></h1>
+<div class="footnotes">
+        <h1>Background</h1>  <p id="fn-introduction_1">    </p>
+<p><span class="endnote-number">1</span>This is not completely true: there are a few minor breaking changes that don&#x2019;t affect code on the web. These are detailed in <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-corrections-and-clarifications-with-possible-compatibility-impact">section D.1</a> and <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-additions-and-changes-that-introduce-incompatibilities-with-prior-editions">section E.1</a> of the ES6 specification.<a href="ch_about-es6.html#fnref-introduction_1" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-faq_1">    </p>
+<p><span class="endnote-number">2</span>Source: Tweet by Allen Wirfs-Brock. https://twitter.com/awbjs/status/574649464687734785<a href="ch_faq.html#fnref-faq_1" rel="rev-footnote">&#x21A9;</a></p>
+
+<h1>Data</h1>  <p id="fn-numbers_1">    </p>
+<p><span class="endnote-number">1</span>[Speaking JS] <code>parseFloat()</code> in (<a href="http://speakingjs.com/es5/ch11.html#parseFloat">&#x201C;Speaking JavaScript&#x201D;</a>).<a href="ch_numbers.html#fnref-numbers_1" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-numbers_2">    </p>
+<p><span class="endnote-number">2</span>[Speaking JS] <code>parseInt()</code> in (<a href="http://speakingjs.com/es5/ch11.html#parseInt">&#x201C;Speaking JavaScript&#x201D;</a>).<a href="ch_numbers.html#fnref-numbers_2" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-numbers_3">    </p>
+<p><span class="endnote-number">3</span>[Speaking JS] The details of rounding errors are explained in <a href="http://speakingjs.com/es5/ch11.html#rounding_errors">&#x201C;Speaking JavaScript&#x201D;</a>.<a href="ch_numbers.html#fnref-numbers_3" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-numbers_4">    </p>
+<p><span class="endnote-number">4</span>Internally, JavaScript has <a href="http://speakingjs.com/es5/ch11.html#two_zeros">two zeros</a>. <code>Math.sign(-0)</code> produces the result <code>-0</code> and <code>Math.sign(+0)</code> produces the result <code>+0</code>.<a href="ch_numbers.html#fnref-numbers_4" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-parameter-handling_1">    </p>
+<p><span class="endnote-number">5</span>Iterables are explained in <a href="ch_iteration.html#ch_iteration">another chapter</a>.<a href="ch_parameter-handling.html#fnref-parameter-handling_1" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-parameter-handling_2">    </p>
+<p><span class="endnote-number">6</span>Explained in <a href="ch_arrays.html#ch_arrays">the chapter on Arrays</a>.<a href="ch_parameter-handling.html#fnref-parameter-handling_2" rel="rev-footnote">&#x21A9;</a></p>
+
+<h1>Modularity</h1>  <p id="fn-arrow_functions_1">    </p>
+<p><span class="endnote-number">1</span>The exceptions are function expressions and object literals, which you have to put in parentheses, because they look like function declarations and code blocks.<a href="ch_arrow-functions.html#fnref-arrow_functions_1" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-modules_1">    </p>
+<p><span class="endnote-number">2</span>[Spec] Sect. &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-imports">Imports</a>&#x201D; starts with grammar rules and continues with semantics.<a href="ch_modules.html#fnref-modules_1" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-modules_2">    </p>
+<p><span class="endnote-number">3</span>[Spec] The specification method <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-getexportednames"><code>GetExportedNames()</code></a> collects the exports of a module. In step (7.d.i), a check prevents other modules&#x2019; default exports from being re-exported.<a href="ch_modules.html#fnref-modules_2" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-modules_3">    </p>
+<p><span class="endnote-number">4</span>[Spec] Sect. &#x201C;<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-exports">Exports</a>&#x201D; starts with grammar rules and continues with semantics.<a href="ch_modules.html#fnref-modules_3" rel="rev-footnote">&#x21A9;</a></p>
+
+<h1>Collections</h1>  <p id="fn-iteration_1">    </p>
+<p><span class="endnote-number">1</span>[Speaking JS] &#x201C;<a href="http://speakingjs.com/es5/ch17.html#_pitfalls_using_an_object_as_a_map">Pitfalls: Using an Object as a Map</a>&#x201D;<a href="ch_iteration.html#fnref-iteration_1" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-iteration_2">    </p>
+<p><span class="endnote-number">2</span>Based on &#x201C;<a href="https://github.com/rwaldron/tc39-notes/blob/master/es6/2014-06/closing-iterators.pdf">Closing iterators</a>&#x201D;, slides by David Herman.<a href="ch_iteration.html#fnref-iteration_2" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-iteration_3">    </p>
+<p><span class="endnote-number">3</span><code>throw()</code> is also an optional method, but is practically never used for iterators and therefore explained in <a href="ch_generators.html#ch_generators">the chapter on generators</a>)<a href="ch_iteration.html#fnref-iteration_3" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-iteration_4">    </p>
+<p><span class="endnote-number">4</span>&#x201C;<a href="https://wiki.haskell.org/Combinator">Combinator</a>&#x201D; (in HaskellWiki) describes what combinators are.<a href="ch_iteration.html#fnref-iteration_4" rel="rev-footnote">&#x21A9;</a></p>
+
+  <p id="fn-generators_1">    </p>
+<p><span class="endnote-number">5</span>Or rather, the function counts up until the number <code>start</code> overflows and becomes <code>Infinity</code>, at which point it doesn&#x2019;t change, anymore.<a href="ch_generators.html#fnref-generators_1" rel="rev-footnote">&#x21A9;</a></p>
+
+
+</div>
+
+
+
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>

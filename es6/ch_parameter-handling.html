@@ -1,0 +1,1015 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>11. Parameter handling</title>
+    <link href="stylesheet.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="images/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="images/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="images/favicon-16.png" sizes="16x16">
+</head>
+<body>
+
+<div id="top-bar">
+</div>
+<div id="top-bar">
+    <div id="top-bar-content">
+        <b>11. Parameter handling</b><br>
+        <a href="index.html#toc_ch_parameter-handling">Table of contents</a><br>
+        Please support this book:
+        <a href="https://leanpub.com/exploring-es6/">buy it (PDF, EPUB, MOBI)</a>
+        or
+        <a href="http://www.2ality.com/p/donate.html">donate</a>
+    </div>
+</div>
+
+<div id="adbox">
+<div id="adbox-explain">(Ad, please don’t block.)</div>
+
+    <script async type="text/javascript" src="http://cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=exploringjscom" id="_carbonads_js"></script>
+
+</div>
+
+<div id="page-content">
+
+
+<h2 id="ch_parameter-handling">
+<span class="section-number">11. </span>Parameter handling <a class="header-anchor" href="ch_parameter-handling.html#ch_parameter-handling" aria-hidden="true">#</a></h2>
+
+<aside class="generic_inbar blurb eye icon-eye">
+    <p>For this chapter, it is useful to be familiar with destructuring (which is explained in <a href="ch_destructuring.html#ch_destructuring">the previous chapter</a>).</p>
+
+</aside>
+
+<hr class="scene-break">
+
+<ul>
+  <li>11.1. <a href="ch_parameter-handling.html#sec_overview-parameter-handling">Overview</a>
+    <ul>
+      <li>11.1.1. Default parameter values</li>
+      <li>11.1.2. Rest parameters</li>
+      <li>11.1.3. Named parameters via destructuring</li>
+      <li>11.1.4. Spread operator (<code>...</code>)</li>
+    </ul>
+  </li>
+  <li>11.2. <a href="ch_parameter-handling.html#sec_parameter-handling-destructuring">Parameter handling as destructuring</a>
+</li>
+  <li>11.3. <a href="ch_parameter-handling.html#sec_parameter-default-values">Parameter default values</a>
+    <ul>
+      <li>11.3.1. Why does <code>undefined</code> trigger default values?</li>
+      <li>11.3.2. Referring to other parameters in default values</li>
+      <li>11.3.3. Referring to &#x201C;inner&#x201D; variables in default values</li>
+    </ul>
+  </li>
+  <li>11.4. <a href="ch_parameter-handling.html#sec_rest-parameters">Rest parameters</a>
+    <ul>
+      <li>11.4.1. No more <code>arguments</code>!</li>
+    </ul>
+  </li>
+  <li>11.5. <a href="ch_parameter-handling.html#sec_named-parameters">Simulating named parameters</a>
+    <ul>
+      <li>11.5.1. Named Parameters as Descriptions</li>
+      <li>11.5.2. Optional Named Parameters</li>
+      <li>11.5.3. Simulating Named Parameters in JavaScript</li>
+    </ul>
+  </li>
+  <li>11.6. <a href="ch_parameter-handling.html#sec_examples-destructuring-parameter-handling">Examples of destructuring in parameter handling</a>
+    <ul>
+      <li>11.6.1. forEach() and destructuring</li>
+      <li>11.6.2. Transforming Maps</li>
+      <li>11.6.3. Handling an Array returned via a Promise</li>
+    </ul>
+  </li>
+  <li>11.7. <a href="ch_parameter-handling.html#sec_parameter-handling-style-tips">Coding style tips</a>
+    <ul>
+      <li>11.7.1. Optional parameters</li>
+      <li>11.7.2. Required parameters</li>
+      <li>11.7.3. Enforcing a maximum arity</li>
+    </ul>
+  </li>
+  <li>11.8. <a href="ch_parameter-handling.html#sec_spread-operator">The spread operator (<code>...</code>)</a>
+    <ul>
+      <li>11.8.1. Spreading into function and method calls</li>
+      <li>11.8.2. Spreading into constructors</li>
+      <li>11.8.3. Spreading into Arrays</li>
+    </ul>
+  </li>
+</ul>
+
+<hr class="scene-break">
+
+
+<h3 id="sec_overview-parameter-handling">
+<span class="section-number">11.1 </span>Overview <a class="header-anchor" href="ch_parameter-handling.html#sec_overview-parameter-handling" aria-hidden="true">#</a></h3>
+
+<p>Parameter handling has been significantly upgraded in ECMAScript 6. It now supports parameter default values, rest parameters (varargs) and destructuring.</p>
+
+<p>Additionally, the spread operator helps with function/method/constructor calls and Array literals.</p>
+
+<h4 id="_default-parameter-values">
+<span class="section-number">11.1.1 </span>Default parameter values <a class="header-anchor" href="ch_parameter-handling.html#_default-parameter-values" aria-hidden="true">#</a></h4>
+
+<p>A <em>default parameter value</em> is specified for a parameter via an equals sign (<code>=</code>). If a caller doesn&#x2019;t provide a value for the parameter, the default value is used. In the following example, the default parameter value of <code>y</code> is 0:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">func</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">];</code>
+<code class="p">}</code>
+<code class="nx">func</code><code class="p">(</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">);</code> <code class="c1">// [1, 2]</code>
+<code class="nx">func</code><code class="p">(</code><code class="mi">1</code><code class="p">);</code> <code class="c1">// [1, 0]</code>
+<code class="nx">func</code><code class="p">();</code> <code class="c1">// [undefined, 0]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_rest-parameters">
+<span class="section-number">11.1.2 </span>Rest parameters <a class="header-anchor" href="ch_parameter-handling.html#_rest-parameters" aria-hidden="true">#</a></h4>
+
+<p>If you prefix a parameter name with the rest operator (<code>...</code>), that parameter receives all remaining parameters via an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">format</code><code class="p">(</code><code class="nx">pattern</code><code class="p">,</code> <code class="p">...</code><code class="nx">params</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="p">{</code><code class="nx">pattern</code><code class="p">,</code> <code class="nx">params</code><code class="p">};</code>
+<code class="p">}</code>
+<code class="nx">format</code><code class="p">(</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">3</code><code class="p">);</code>
+    <code class="c1">// { pattern: 1, params: [ 2, 3 ] }</code>
+<code class="nx">format</code><code class="p">();</code>
+    <code class="c1">// { pattern: undefined, params: [] }</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_named-parameters-via-destructuring">
+<span class="section-number">11.1.3 </span>Named parameters via destructuring <a class="header-anchor" href="ch_parameter-handling.html#_named-parameters-via-destructuring" aria-hidden="true">#</a></h4>
+
+<p>You can simulate named parameters if you destructure with an object pattern in the parameter list:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">start</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">end</code><code class="o">=-</code><code class="mi">1</code><code class="p">,</code> <code class="nx">step</code><code class="o">=</code><code class="mi">1</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{})</code> <code class="p">{</code> <code class="c1">// (A)</code>
+    <code class="c1">// The object pattern is an abbreviation of:</code>
+    <code class="c1">// { start: start=0, end: end=-1, step: step=1 }</code>
+
+    <code class="c1">// Use the variables `start`, `end` and `step` here</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+
+<code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">start</code><code class="o">:</code> <code class="mi">10</code><code class="p">,</code> <code class="nx">end</code><code class="o">:</code> <code class="mi">30</code><code class="p">,</code> <code class="nx">step</code><code class="o">:</code> <code class="mi">2</code> <code class="p">});</code>
+<code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">step</code><code class="o">:</code> <code class="mi">3</code> <code class="p">});</code>
+<code class="nx">selectEntries</code><code class="p">({});</code>
+<code class="nx">selectEntries</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p>The <code>= {}</code> in line A enables you to call <code>selectEntries()</code> without paramters.</p>
+
+<h4 id="_spread-operator-">
+<span class="section-number">11.1.4 </span>Spread operator (<code>...</code>) <a class="header-anchor" href="ch_parameter-handling.html#_spread-operator-" aria-hidden="true">#</a></h4>
+
+<p>In function and constructor calls, the spread operator turns iterable values into arguments:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">max</code><code class="p">(</code><code class="o">-</code><code class="mi">1</code><code class="p">,</code> <code class="mi">5</code><code class="p">,</code> <code class="mi">11</code><code class="p">,</code> <code class="mi">3</code><code class="p">)</code>
+<code class="mi">11</code>
+<code class="o">&gt;</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">max</code><code class="p">(...[</code><code class="o">-</code><code class="mi">1</code><code class="p">,</code> <code class="mi">5</code><code class="p">,</code> <code class="mi">11</code><code class="p">,</code> <code class="mi">3</code><code class="p">])</code>
+<code class="mi">11</code>
+<code class="o">&gt;</code> <code class="nb">Math</code><code class="p">.</code><code class="nx">max</code><code class="p">(</code><code class="o">-</code><code class="mi">1</code><code class="p">,</code> <code class="p">...[</code><code class="o">-</code><code class="mi">1</code><code class="p">,</code> <code class="mi">5</code><code class="p">,</code> <code class="mi">11</code><code class="p">],</code> <code class="mi">3</code><code class="p">)</code>
+<code class="mi">11</code>
+</pre></div>
+
+</figure>
+
+<p>In Array literals, the spread operator turns iterable values into Array elements:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="o">&gt;</code> <code class="p">[</code><code class="mi">1</code><code class="p">,</code> <code class="p">...[</code><code class="mi">2</code><code class="p">,</code><code class="mi">3</code><code class="p">],</code> <code class="mi">4</code><code class="p">]</code>
+<code class="p">[</code><code class="mi">1</code><code class="p">,</code> <code class="mi">2</code><code class="p">,</code> <code class="mi">3</code><code class="p">,</code> <code class="mi">4</code><code class="p">]</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_parameter-handling-destructuring">
+<span class="section-number">11.2 </span>Parameter handling as destructuring <a class="header-anchor" href="ch_parameter-handling.html#sec_parameter-handling-destructuring" aria-hidden="true">#</a></h3>
+
+<p>The ES6 way of handling parameters is equivalent to destructuring the actual parameters via the formal parameters. That is, the following function call:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">func</code><code class="p">(</code><code class="err">&#xAB;</code><code class="nx">FORMAL_PARAMETERS</code><code class="err">&#xBB;</code><code class="p">)</code> <code class="p">{</code>
+    <code class="err">&#xAB;</code><code class="nx">CODE</code><code class="err">&#xBB;</code>
+<code class="p">}</code>
+<code class="nx">func</code><code class="p">(</code><code class="err">&#xAB;</code><code class="nx">ACTUAL_PARAMETERS</code><code class="err">&#xBB;</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>is roughly equivalent to:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code>
+    <code class="kd">let</code> <code class="p">[</code><code class="err">&#xAB;</code><code class="nx">FORMAL_PARAMETERS</code><code class="err">&#xBB;</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="err">&#xAB;</code><code class="nx">ACTUAL_PARAMETERS</code><code class="err">&#xBB;</code><code class="p">];</code>
+    <code class="p">{</code>
+        <code class="err">&#xAB;</code><code class="nx">CODE</code><code class="err">&#xBB;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Example &#x2013; the following function call:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">logSum</code><code class="p">(</code><code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code> <code class="o">+</code> <code class="nx">y</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="nx">logSum</code><code class="p">(</code><code class="mi">7</code><code class="p">,</code> <code class="mi">8</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>becomes:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="p">{</code>
+    <code class="kd">let</code> <code class="p">[</code><code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">]</code> <code class="o">=</code> <code class="p">[</code><code class="mi">7</code><code class="p">,</code> <code class="mi">8</code><code class="p">];</code>
+    <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">x</code> <code class="o">+</code> <code class="nx">y</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Let&#x2019;s look at specific features next.</p>
+
+
+<h3 id="sec_parameter-default-values">
+<span class="section-number">11.3 </span>Parameter default values <a class="header-anchor" href="ch_parameter-handling.html#sec_parameter-default-values" aria-hidden="true">#</a></h3>
+
+<p>ECMAScript 6 lets you specify default values for parameters:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">f</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+  <code class="k">return</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">];</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Omitting the second parameter triggers the default value:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; f(1)
+[1, 0]
+&gt; f()
+[undefined, 0]
+</pre></div>
+
+</figure>
+
+<p>Watch out &#x2013; <code>undefined</code> triggers the default value, too:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; f(undefined, undefined)
+[undefined, 0]
+</pre></div>
+
+</figure>
+
+<p>The default value is computed on demand, only when it is actually needed:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; const log = console.log.bind(console);
+&gt; function g(x=log(&apos;x&apos;), y=log(&apos;y&apos;)) {return &apos;DONE&apos;}
+&gt; g()
+x
+y
+&apos;DONE&apos;
+&gt; g(1)
+y
+&apos;DONE&apos;
+&gt; g(1, 2)
+&apos;DONE&apos;
+</pre></div>
+
+</figure>
+
+<h4 id="_why-does-undefined-trigger-default-values">
+<span class="section-number">11.3.1 </span>Why does <code>undefined</code> trigger default values? <a class="header-anchor" href="ch_parameter-handling.html#_why-does-undefined-trigger-default-values" aria-hidden="true">#</a></h4>
+
+<p>It isn&#x2019;t immediately obvious why <code>undefined</code> should be interpreted as a missing parameter or a missing part of an object or Array. The rationale for doing so is that it enables you to delegate the definition of default values. Let&#x2019;s look at two examples.</p>
+
+<p>In the first example (source: <a href="https://github.com/rwaldron/tc39-notes/blob/master/es6/2012-07/july-24.md#413-destructuring-issues">Rick Waldron&#x2019;s TC39 meeting notes from 2012-07-24</a>), we don&#x2019;t have to define a default value in <code>setOptions()</code>, we can delegate that task to <code>setLevel()</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">setLevel</code><code class="p">(</code><code class="nx">newLevel</code> <code class="o">=</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">light</code><code class="p">.</code><code class="nx">intensity</code> <code class="o">=</code> <code class="nx">newLevel</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">setOptions</code><code class="p">(</code><code class="nx">options</code><code class="p">)</code> <code class="p">{</code>
+    <code class="c1">// Missing prop returns undefined =&gt; use default</code>
+    <code class="nx">setLevel</code><code class="p">(</code><code class="nx">options</code><code class="p">.</code><code class="nx">dimmerLevel</code><code class="p">);</code>
+    <code class="nx">setMotorSpeed</code><code class="p">(</code><code class="nx">options</code><code class="p">.</code><code class="nx">speed</code><code class="p">);</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+<code class="nx">setOptions</code><code class="p">({</code><code class="nx">speed</code><code class="o">:</code><code class="mi">5</code><code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>In the second example, <code>square()</code> doesn&#x2019;t have to define a default for <code>x</code>, it can delegate that task to <code>multiply()</code>:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">multiply</code><code class="p">(</code><code class="nx">x</code><code class="o">=</code><code class="mi">1</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">x</code> <code class="o">*</code> <code class="nx">y</code><code class="p">;</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">square</code><code class="p">(</code><code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">multiply</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">x</code><code class="p">);</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Default values further entrench the role of <code>undefined</code> as indicating that something doesn&#x2019;t exist, versus <code>null</code> indicating emptiness.</p>
+
+<h4 id="_referring-to-other-parameters-in-default-values">
+<span class="section-number">11.3.2 </span>Referring to other parameters in default values <a class="header-anchor" href="ch_parameter-handling.html#_referring-to-other-parameters-in-default-values" aria-hidden="true">#</a></h4>
+
+<p>Within a parameter default value, you can refer to any variable, including other parameters:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">x</code><code class="o">=</code><code class="mi">3</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="nx">x</code><code class="p">)</code> <code class="p">{}</code>
+<code class="nx">foo</code><code class="p">();</code>     <code class="c1">// x=3; y=3</code>
+<code class="nx">foo</code><code class="p">(</code><code class="mi">7</code><code class="p">);</code>    <code class="c1">// x=7; y=7</code>
+<code class="nx">foo</code><code class="p">(</code><code class="mi">7</code><code class="p">,</code> <code class="mi">2</code><code class="p">);</code> <code class="c1">// x=7; y=2</code>
+</pre></div>
+
+</figure>
+
+<p>However, order matters. Parameters are declared from left to right. &#x201C;Inside&#x201D; a default value, you get a <code>ReferenceError</code> if you access a parameter that hasn&#x2019;t been declared, yet:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">bar</code><code class="p">(</code><code class="nx">x</code><code class="o">=</code><code class="nx">y</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">4</code><code class="p">)</code> <code class="p">{}</code>
+<code class="nx">bar</code><code class="p">(</code><code class="mi">3</code><code class="p">);</code> <code class="c1">// OK</code>
+<code class="nx">bar</code><code class="p">();</code> <code class="c1">// ReferenceError: y is not defined</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_referring-to-inner-variables-in-default-values">
+<span class="section-number">11.3.3 </span>Referring to &#x201C;inner&#x201D; variables in default values <a class="header-anchor" href="ch_parameter-handling.html#_referring-to-inner-variables-in-default-values" aria-hidden="true">#</a></h4>
+
+<p>Default values exist in their own scope, which is between the &#x201C;outer&#x201D; scope surrounding the function and the &#x201C;inner&#x201D; scope of the function body. Therefore, you can&#x2019;t access &#x201C;inner&#x201D; variables from the default values:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">x</code> <code class="o">=</code> <code class="s1">&apos;outer&apos;</code><code class="p">;</code>
+<code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">a</code> <code class="o">=</code> <code class="nx">x</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kr">const</code> <code class="nx">x</code> <code class="o">=</code> <code class="s1">&apos;inner&apos;</code><code class="p">;</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">a</code><code class="p">);</code> <code class="c1">// outer</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>If there were no outer <code>x</code> in the previous example, the default value <code>x</code> would produce a <code>ReferenceError</code> (if triggered).</p>
+
+<p>This restriction is probably most surprising if default values are closures:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">QUX</code> <code class="o">=</code> <code class="mi">2</code><code class="p">;</code>
+<code class="kd">function</code> <code class="nx">bar</code><code class="p">(</code><code class="nx">callback</code> <code class="o">=</code> <code class="p">()</code> <code class="o">=&gt;</code> <code class="nx">QUX</code><code class="p">)</code> <code class="p">{</code> <code class="c1">// returns 2</code>
+    <code class="kr">const</code> <code class="nx">QUX</code> <code class="o">=</code> <code class="mi">3</code><code class="p">;</code>
+    <code class="nx">callback</code><code class="p">();</code>
+<code class="p">}</code>
+<code class="nx">bar</code><code class="p">();</code> <code class="c1">// ReferenceError</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_rest-parameters">
+<span class="section-number">11.4 </span>Rest parameters <a class="header-anchor" href="ch_parameter-handling.html#sec_rest-parameters" aria-hidden="true">#</a></h3>
+
+<p>Putting the rest operator (<code>...</code>) in front of the last formal parameter means that it will receive all remaining actual parameters in an Array.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">f</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="p">...</code><code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+<code class="nx">f</code><code class="p">(</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">);</code> <code class="c1">// x = &apos;a&apos;; y = [&apos;b&apos;, &apos;c&apos;]</code>
+</pre></div>
+
+</figure>
+
+<p>If there are no remaining parameters, the rest parameter will be set to the empty Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">f</code><code class="p">();</code> <code class="c1">// x = undefined; y = []</code>
+</pre></div>
+
+</figure>
+
+<aside class="information blurb">
+    <p><a href="ch_parameter-handling.html#sec_spread-operator">The spread operator (<code>...</code>)</a> looks exactly like the rest operator, but is used inside function calls and Array literals (not inside destructuring patterns).</p>
+
+</aside>
+
+<h4 id="_no-more-arguments">
+<span class="section-number">11.4.1 </span>No more <code>arguments</code>! <a class="header-anchor" href="ch_parameter-handling.html#_no-more-arguments" aria-hidden="true">#</a></h4>
+
+<p>Rest parameters can completely replace JavaScript&#x2019;s infamous special variable <code>arguments</code>. They have the advantage of always being Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1">// ECMAScript 5: arguments</code>
+<code class="kd">function</code> <code class="nx">logAllArguments</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kd">var</code> <code class="nx">i</code><code class="o">=</code><code class="mi">0</code><code class="p">;</code> <code class="nx">i</code> <code class="o">&lt;</code> <code class="nx">arguments</code><code class="p">.</code><code class="nx">length</code><code class="p">;</code> <code class="nx">i</code><code class="o">++</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">arguments</code><code class="p">[</code><code class="nx">i</code><code class="p">]);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+
+<code class="c1">// ECMAScript 6: rest parameter</code>
+<code class="kd">function</code> <code class="nx">logAllArguments</code><code class="p">(...</code><code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">for</code> <code class="p">(</code><code class="kr">const</code> <code class="nx">arg</code> <code class="k">of</code> <code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+        <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">arg</code><code class="p">);</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_combining-destructuring-and-access-to-the-destructured-value">
+<span class="section-number">11.4.1.1 </span>Combining destructuring and access to the destructured value <a class="header-anchor" href="ch_parameter-handling.html#_combining-destructuring-and-access-to-the-destructured-value" aria-hidden="true">#</a></h5>
+
+<p>One interesting feature of <code>arguments</code> is that you can have normal parameters and an Array of all parameters at the same time:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;Arity: &apos;</code><code class="o">+</code><code class="nx">arguments</code><code class="p">.</code><code class="nx">length</code><code class="p">);</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>You can avoid <code>arguments</code> in such cases if you combine a rest parameter with Array destructuring. The resulting code is longer, but more explicit:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">(...</code><code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="p">[</code><code class="nx">x</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">y</code><code class="o">=</code><code class="mi">0</code><code class="p">]</code> <code class="o">=</code> <code class="nx">args</code><code class="p">;</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="s1">&apos;Arity: &apos;</code><code class="o">+</code><code class="nx">args</code><code class="p">.</code><code class="nx">length</code><code class="p">);</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The same technique works for named parameters (options objects):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">bar</code><code class="p">(</code><code class="nx">options</code> <code class="o">=</code> <code class="p">{})</code> <code class="p">{</code>
+    <code class="kd">let</code> <code class="p">{</code> <code class="nx">namedParam1</code><code class="p">,</code> <code class="nx">namedParam2</code> <code class="p">}</code> <code class="o">=</code> <code class="nx">options</code><code class="p">;</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="k">if</code> <code class="p">(</code><code class="s1">&apos;extra&apos;</code> <code class="k">in</code> <code class="nx">options</code><code class="p">)</code> <code class="p">{</code>
+        <code class="err">&#xB7;&#xB7;&#xB7;</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h5 id="_arguments-is-iterable">
+<span class="section-number">11.4.1.2 </span><code>arguments</code> is iterable <a class="header-anchor" href="ch_parameter-handling.html#_arguments-is-iterable" aria-hidden="true">#</a></h5>
+
+<p><code>arguments</code> is <em>iterable</em><sup id="fnref-parameter-handling_1"><a href="leanpub-endnotes.html#fn-parameter-handling_1" rel="footnote">5</a></sup> in ECMAScript 6, which means that you can use <code>for-of</code> and the spread operator:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; (function () { return typeof arguments[Symbol.iterator] }())
+&apos;function&apos;
+&gt; (function () { return Array.isArray([...arguments]) }())
+true
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_named-parameters">
+<span class="section-number">11.5 </span>Simulating named parameters <a class="header-anchor" href="ch_parameter-handling.html#sec_named-parameters" aria-hidden="true">#</a></h3>
+
+<p>When calling a function (or method) in a programming language, you must map the actual parameters (specified by the caller) to the formal parameters (of a function definition). There are two common ways to do so:</p>
+
+<ul>
+  <li>
+<em>Positional parameters</em> are mapped by position. The first actual parameter is mapped to the first formal parameter, the second actual to the second formal, and so on:
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="nx">selectEntries</code><code class="p">(</code><code class="mi">3</code><code class="p">,</code> <code class="mi">20</code><code class="p">,</code> <code class="mi">2</code><code class="p">)</code>
+</pre></div>
+
+    </figure>
+  </li>
+  <li>
+<em>Named parameters</em> use <em>names</em> (labels) to perform the mapping. Formal parameters have labels. In a function call, these labels determine which value belongs to which formal parameter. It does not matter in which order named actual parameters appear, as long as they are labeled correctly. Simulating named parameters in JavaScript looks as follows.
+    <figure class="code">
+<div class="highlight"><pre><code></code>  <code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">start</code><code class="o">:</code> <code class="mi">3</code><code class="p">,</code> <code class="nx">end</code><code class="o">:</code> <code class="mi">20</code><code class="p">,</code> <code class="nx">step</code><code class="o">:</code> <code class="mi">2</code> <code class="p">})</code>
+</pre></div>
+
+    </figure>
+  </li>
+</ul>
+
+<p>Named parameters have two main benefits: they provide descriptions for arguments in function calls and they work well for optional parameters. I&#x2019;ll first explain the benefits and then show you how to simulate named parameters in JavaScript via object literals.</p>
+
+<h4 id="_named-parameters-as-descriptions">
+<span class="section-number">11.5.1 </span>Named Parameters as Descriptions <a class="header-anchor" href="ch_parameter-handling.html#_named-parameters-as-descriptions" aria-hidden="true">#</a></h4>
+
+<p>As soon as a function has more than one parameter, you might get confused about what each parameter is used for. For example, let&#x2019;s say you have a function, <code>selectEntries()</code>, that returns entries from a database. Given the function call:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">selectEntries</code><code class="p">(</code><code class="mi">3</code><code class="p">,</code> <code class="mi">20</code><code class="p">,</code> <code class="mi">2</code><code class="p">);</code>
+</pre></div>
+
+</figure>
+
+<p>what do these three numbers mean? Python supports named parameters, and they make it easy to figure out what is going on:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1"># Python syntax</code>
+<code class="n">selectEntries</code><code class="p">(</code><code class="n">start</code><code class="o">=</code><code class="mi">3</code><code class="p">,</code> <code class="n">end</code><code class="o">=</code><code class="mi">20</code><code class="p">,</code> <code class="n">step</code><code class="o">=</code><code class="mi">2</code><code class="p">)</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_optional-named-parameters">
+<span class="section-number">11.5.2 </span>Optional Named Parameters <a class="header-anchor" href="ch_parameter-handling.html#_optional-named-parameters" aria-hidden="true">#</a></h4>
+
+<p>Optional positional parameters work well only if they are omitted at the end. Anywhere else, you have to insert placeholders such as <code>null</code> so that the remaining parameters have correct positions.</p>
+
+<p>With optional named parameters, that is not an issue. You can easily omit any of them. Here are some examples:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="c1"># Python syntax</code>
+<code class="n">selectEntries</code><code class="p">(</code><code class="n">step</code><code class="o">=</code><code class="mi">2</code><code class="p">)</code>
+<code class="n">selectEntries</code><code class="p">(</code><code class="n">end</code><code class="o">=</code><code class="mi">20</code><code class="p">,</code> <code class="n">start</code><code class="o">=</code><code class="mi">3</code><code class="p">)</code>
+<code class="n">selectEntries</code><code class="p">()</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_simulating-named-parameters-in-javascript">
+<span class="section-number">11.5.3 </span>Simulating Named Parameters in JavaScript <a class="header-anchor" href="ch_parameter-handling.html#_simulating-named-parameters-in-javascript" aria-hidden="true">#</a></h4>
+
+<p>JavaScript does not have native support for named parameters, unlike Python and many other languages. But there is a reasonably elegant simulation: Each actual parameter is a property in an object literal whose result is passed as a single formal parameter to the callee. When you use this technique, an invocation of <code>selectEntries()</code> looks as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">start</code><code class="o">:</code> <code class="mi">3</code><code class="p">,</code> <code class="nx">end</code><code class="o">:</code> <code class="mi">20</code><code class="p">,</code> <code class="nx">step</code><code class="o">:</code> <code class="mi">2</code> <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>The function receives an object with the properties <code>start</code>, <code>end</code>, and <code>step</code>. You can omit any of them:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">step</code><code class="o">:</code> <code class="mi">2</code> <code class="p">});</code>
+<code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">end</code><code class="o">:</code> <code class="mi">20</code><code class="p">,</code> <code class="nx">start</code><code class="o">:</code> <code class="mi">3</code> <code class="p">});</code>
+<code class="nx">selectEntries</code><code class="p">();</code>
+</pre></div>
+
+</figure>
+
+<p>In ECMAScript 5, you&#x2019;d implement <code>selectEntries()</code> as follows:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">selectEntries</code><code class="p">(</code><code class="nx">options</code><code class="p">)</code> <code class="p">{</code>
+    <code class="nx">options</code> <code class="o">=</code> <code class="nx">options</code> <code class="o">||</code> <code class="p">{};</code>
+    <code class="kd">var</code> <code class="nx">start</code> <code class="o">=</code> <code class="nx">options</code><code class="p">.</code><code class="nx">start</code> <code class="o">||</code> <code class="mi">0</code><code class="p">;</code>
+    <code class="kd">var</code> <code class="nx">end</code> <code class="o">=</code> <code class="nx">options</code><code class="p">.</code><code class="nx">end</code> <code class="o">||</code> <code class="o">-</code><code class="mi">1</code><code class="p">;</code>
+    <code class="kd">var</code> <code class="nx">step</code> <code class="o">=</code> <code class="nx">options</code><code class="p">.</code><code class="nx">step</code> <code class="o">||</code> <code class="mi">1</code><code class="p">;</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In ECMAScript 6, you can use destructuring, which looks like this:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">start</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">end</code><code class="o">=-</code><code class="mi">1</code><code class="p">,</code> <code class="nx">step</code><code class="o">=</code><code class="mi">1</code> <code class="p">})</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>If you call <code>selectEntries()</code> with zero arguments, the destructuring fails, because you can&#x2019;t match an object pattern against <code>undefined</code>. That can be fixed via a default value. In the following code, the object pattern is matched against <code>{}</code> if the first parameter is missing.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">selectEntries</code><code class="p">({</code> <code class="nx">start</code><code class="o">=</code><code class="mi">0</code><code class="p">,</code> <code class="nx">end</code><code class="o">=-</code><code class="mi">1</code><code class="p">,</code> <code class="nx">step</code><code class="o">=</code><code class="mi">1</code> <code class="p">}</code> <code class="o">=</code> <code class="p">{})</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>You can also combine positional parameters with named parameters. It is customary for the latter to come last:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="nx">someFunc</code><code class="p">(</code><code class="nx">posArg1</code><code class="p">,</code> <code class="p">{</code> <code class="nx">namedArg1</code><code class="o">:</code> <code class="mi">7</code><code class="p">,</code> <code class="nx">namedArg2</code><code class="o">:</code> <code class="kc">true</code> <code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>In principle, JavaScript engines could optimize this pattern so that no intermediate object is created, because both the object literals at the call sites and the object patterns in the function definitions are static.</p>
+
+<aside class="information blurb">
+    <p>In JavaScript, the pattern for named parameters shown here is sometimes called <em>options</em> or <em>option object</em> (e.g., by the jQuery documentation).</p>
+
+</aside>
+
+
+<h3 id="sec_examples-destructuring-parameter-handling">
+<span class="section-number">11.6 </span>Examples of destructuring in parameter handling <a class="header-anchor" href="ch_parameter-handling.html#sec_examples-destructuring-parameter-handling" aria-hidden="true">#</a></h3>
+
+<h4 id="_foreach-and-destructuring">
+<span class="section-number">11.6.1 </span>forEach() and destructuring <a class="header-anchor" href="ch_parameter-handling.html#_foreach-and-destructuring" aria-hidden="true">#</a></h4>
+
+<p>You will probably mostly use the <code>for-of</code> loop in ECMAScript 6, but the Array method <code>forEach()</code> also profits from destructuring. Or rather, its callback does.</p>
+
+<p>First example: destructuring the Arrays in an Array.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">items</code> <code class="o">=</code> <code class="p">[</code> <code class="p">[</code><code class="s1">&apos;foo&apos;</code><code class="p">,</code> <code class="mi">3</code><code class="p">],</code> <code class="p">[</code><code class="s1">&apos;bar&apos;</code><code class="p">,</code> <code class="mi">9</code><code class="p">]</code> <code class="p">];</code>
+<code class="nx">items</code><code class="p">.</code><code class="nx">forEach</code><code class="p">(([</code><code class="nx">word</code><code class="p">,</code> <code class="nx">count</code><code class="p">])</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">word</code><code class="o">+</code><code class="s1">&apos; &apos;</code><code class="o">+</code><code class="nx">count</code><code class="p">);</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<p>Second example: destructuring the objects in an Array.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">items</code> <code class="o">=</code> <code class="p">[</code>
+    <code class="p">{</code> <code class="nx">word</code><code class="o">:</code><code class="s1">&apos;foo&apos;</code><code class="p">,</code> <code class="nx">count</code><code class="o">:</code><code class="mi">3</code> <code class="p">},</code>
+    <code class="p">{</code> <code class="nx">word</code><code class="o">:</code><code class="s1">&apos;bar&apos;</code><code class="p">,</code> <code class="nx">count</code><code class="o">:</code><code class="mi">9</code> <code class="p">},</code>
+<code class="p">];</code>
+<code class="nx">items</code><code class="p">.</code><code class="nx">forEach</code><code class="p">(({</code><code class="nx">word</code><code class="p">,</code> <code class="nx">count</code><code class="p">})</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="nx">console</code><code class="p">.</code><code class="nx">log</code><code class="p">(</code><code class="nx">word</code><code class="o">+</code><code class="s1">&apos; &apos;</code><code class="o">+</code><code class="nx">count</code><code class="p">);</code>
+<code class="p">});</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_transforming-maps">
+<span class="section-number">11.6.2 </span>Transforming Maps <a class="header-anchor" href="ch_parameter-handling.html#_transforming-maps" aria-hidden="true">#</a></h4>
+
+<p>An ECMAScript 6 Map doesn&#x2019;t have a method <code>map()</code> (like Arrays). Therefore, one has to:</p>
+
+<ul>
+  <li>Step 1: Convert it to an Array of <code>[key,value]</code> pairs.</li>
+  <li>Step 2: <code>map()</code> the Array.</li>
+  <li>Step 3: Convert the result back to a Map.</li>
+</ul>
+
+<p>This looks as follows.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">map0</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">([</code>
+    <code class="p">[</code><code class="mi">1</code><code class="p">,</code> <code class="s1">&apos;a&apos;</code><code class="p">],</code>
+    <code class="p">[</code><code class="mi">2</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">],</code>
+    <code class="p">[</code><code class="mi">3</code><code class="p">,</code> <code class="s1">&apos;c&apos;</code><code class="p">],</code>
+<code class="p">]);</code>
+
+<code class="kr">const</code> <code class="nx">map1</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Map</code><code class="p">(</code> <code class="c1">// step 3</code>
+    <code class="p">[...</code><code class="nx">map0</code><code class="p">]</code> <code class="c1">// step 1</code>
+    <code class="p">.</code><code class="nx">map</code><code class="p">(([</code><code class="nx">k</code><code class="p">,</code> <code class="nx">v</code><code class="p">])</code> <code class="o">=&gt;</code> <code class="p">[</code><code class="nx">k</code><code class="o">*</code><code class="mi">2</code><code class="p">,</code> <code class="s1">&apos;_&apos;</code><code class="o">+</code><code class="nx">v</code><code class="p">])</code> <code class="c1">// step 2</code>
+<code class="p">);</code>
+<code class="c1">// Resulting Map: {2 -&gt; &apos;_a&apos;, 4 -&gt; &apos;_b&apos;, 6 -&gt; &apos;_c&apos;}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_handling-an-array-returned-via-a-promise">
+<span class="section-number">11.6.3 </span>Handling an Array returned via a Promise <a class="header-anchor" href="ch_parameter-handling.html#_handling-an-array-returned-via-a-promise" aria-hidden="true">#</a></h4>
+
+<p>The tool method <code>Promise.all()</code> works as follows:</p>
+
+<ul>
+  <li>Input: an iterable of Promises.</li>
+  <li>Output: a Promise that is fulfilled with an Array as soon as the last input Promise is fulfilled. That Array contains the fulfillments of the input Promises.</li>
+</ul>
+
+<p>Destructuring helps with handling the Array that the result of <code>Promise.all()</code> is fulfilled with:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">urls</code> <code class="o">=</code> <code class="p">[</code>
+    <code class="s1">&apos;http://example.com/foo.html&apos;</code><code class="p">,</code>
+    <code class="s1">&apos;http://example.com/bar.html&apos;</code><code class="p">,</code>
+    <code class="s1">&apos;http://example.com/baz.html&apos;</code><code class="p">,</code>
+<code class="p">];</code>
+
+<code class="nb">Promise</code><code class="p">.</code><code class="nx">all</code><code class="p">(</code><code class="nx">urls</code><code class="p">.</code><code class="nx">map</code><code class="p">(</code><code class="nx">downloadUrl</code><code class="p">))</code>
+<code class="p">.</code><code class="nx">then</code><code class="p">(([</code><code class="nx">fooStr</code><code class="p">,</code> <code class="nx">barStr</code><code class="p">,</code> <code class="nx">bazStr</code><code class="p">])</code> <code class="o">=&gt;</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">});</code>
+
+<code class="c1">// This function returns a Promise that is fulfilled</code>
+<code class="c1">// with a string (the text)</code>
+<code class="kd">function</code> <code class="nx">downloadUrl</code><code class="p">(</code><code class="nx">url</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">fetch</code><code class="p">(</code><code class="nx">url</code><code class="p">).</code><code class="nx">then</code><code class="p">(</code><code class="nx">request</code> <code class="o">=&gt;</code> <code class="nx">request</code><code class="p">.</code><code class="nx">text</code><code class="p">());</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p><code>fetch()</code> is a Promise-based version of <code>XMLHttpRequest</code>. It is <a href="https://fetch.spec.whatwg.org/#fetch-api">part of the Fetch standard</a>.</p>
+
+
+<h3 id="sec_parameter-handling-style-tips">
+<span class="section-number">11.7 </span>Coding style tips <a class="header-anchor" href="ch_parameter-handling.html#sec_parameter-handling-style-tips" aria-hidden="true">#</a></h3>
+
+<p>This section mentions a few tricks for descriptive parameter definitions. They are clever, but they also have downsides: they add visual clutter and can make your code harder to understand.</p>
+
+<h4 id="_optional-parameters">
+<span class="section-number">11.7.1 </span>Optional parameters <a class="header-anchor" href="ch_parameter-handling.html#_optional-parameters" aria-hidden="true">#</a></h4>
+
+<p>Some parameters have no default values, but can be omitted. In that case, I occasionally use the default value <code>undefined</code> to make it obvious that the parameter is optional. That is redundant, but descriptive.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">requiredParam</code><code class="p">,</code> <code class="nx">optionalParam</code> <code class="o">=</code> <code class="kc">undefined</code><code class="p">)</code> <code class="p">{</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_required-parameters">
+<span class="section-number">11.7.2 </span>Required parameters <a class="header-anchor" href="ch_parameter-handling.html#_required-parameters" aria-hidden="true">#</a></h4>
+
+<p>In ECMAScript 5, you have a few options for ensuring that a required parameter has been provided, which are all quite clumsy:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">mustBeProvided</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">arguments</code><code class="p">.</code><code class="nx">length</code> <code class="o">&lt;</code> <code class="mi">1</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">();</code>
+    <code class="p">}</code>
+    <code class="k">if</code> <code class="p">(</code><code class="o">!</code> <code class="p">(</code><code class="mi">0</code> <code class="k">in</code> <code class="nx">arguments</code><code class="p">))</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">();</code>
+    <code class="p">}</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">mustBeProvided</code> <code class="o">===</code> <code class="kc">undefined</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">();</code>
+    <code class="p">}</code>
+    <code class="err">&#xB7;&#xB7;&#xB7;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>In ECMAScript 6, you can (ab)use default parameter values to achieve more concise code (credit: idea by Allen Wirfs-Brock):</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="cm">/**</code>
+<code class="cm"> * Called if a parameter is missing and</code>
+<code class="cm"> * the default value is evaluated.</code>
+<code class="cm"> */</code>
+<code class="kd">function</code> <code class="nx">mandatory</code><code class="p">()</code> <code class="p">{</code>
+    <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">(</code><code class="s1">&apos;Missing parameter&apos;</code><code class="p">);</code>
+<code class="p">}</code>
+<code class="kd">function</code> <code class="nx">foo</code><code class="p">(</code><code class="nx">mustBeProvided</code> <code class="o">=</code> <code class="nx">mandatory</code><code class="p">())</code> <code class="p">{</code>
+    <code class="k">return</code> <code class="nx">mustBeProvided</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Interaction:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; foo()
+Error: Missing parameter
+&gt; foo(123)
+123
+</pre></div>
+
+</figure>
+
+<h4 id="_enforcing-a-maximum-arity">
+<span class="section-number">11.7.3 </span>Enforcing a maximum arity <a class="header-anchor" href="ch_parameter-handling.html#_enforcing-a-maximum-arity" aria-hidden="true">#</a></h4>
+
+<p>This section presents three approaches to enforcing a maximum arity. The running example is a function <code>f</code> whose maximum arity is 2 &#x2013; if a caller provides more than 2 parameters, an error should be thrown.</p>
+
+<p>The first approach is to collect all actual parameters in the formal rest parameter <code>args</code> and to check its length.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">f</code><code class="p">(...</code><code class="nx">args</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">args</code><code class="p">.</code><code class="nx">length</code> <code class="o">&gt;</code> <code class="mi">2</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">();</code>
+    <code class="p">}</code>
+    <code class="c1">// Extract the real parameters</code>
+    <code class="kd">let</code> <code class="p">[</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">]</code> <code class="o">=</code> <code class="nx">args</code><code class="p">;</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The second approach relies on unwanted actual parameters appearing in the formal rest parameter <code>empty</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">f</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">,</code> <code class="p">...</code><code class="nx">empty</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">empty</code><code class="p">.</code><code class="nx">length</code> <code class="o">&gt;</code> <code class="mi">0</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">();</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>The third approach uses a sentinel value that is gone if there is a third parameter. One caveat is that the default value <code>OK</code> is also triggered if there is a third parameter whose value is <code>undefined</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">OK</code> <code class="o">=</code> <code class="nx">Symbol</code><code class="p">();</code>
+<code class="kd">function</code> <code class="nx">f</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">,</code> <code class="nx">arity</code><code class="o">=</code><code class="nx">OK</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">arity</code> <code class="o">!==</code> <code class="nx">OK</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">();</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+<p>Sadly, each one of these approaches introduces significant visual and conceptual clutter. I&#x2019;m tempted to recommend checking <code>arguments.length</code>, but I also want <code>arguments</code> to go away.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kd">function</code> <code class="nx">f</code><code class="p">(</code><code class="nx">x</code><code class="p">,</code> <code class="nx">y</code><code class="p">)</code> <code class="p">{</code>
+    <code class="k">if</code> <code class="p">(</code><code class="nx">arguments</code><code class="p">.</code><code class="nx">length</code> <code class="o">&gt;</code> <code class="mi">2</code><code class="p">)</code> <code class="p">{</code>
+        <code class="k">throw</code> <code class="k">new</code> <code class="nb">Error</code><code class="p">();</code>
+    <code class="p">}</code>
+<code class="p">}</code>
+</pre></div>
+
+</figure>
+
+
+<h3 id="sec_spread-operator">
+<span class="section-number">11.8 </span>The spread operator (<code>...</code>) <a class="header-anchor" href="ch_parameter-handling.html#sec_spread-operator" aria-hidden="true">#</a></h3>
+
+<p>The spread operator (<code>...</code>) looks exactly like the rest operator, but is its opposite:</p>
+
+<ul>
+  <li>Rest operator: collects the remaining items of an iterable into an Array and is used for <a href="ch_parameter-handling.html#sec_rest-parameters">rest parameters</a> and <a href="ch_destructuring.html#sec_rest-operator">destructuring</a>.</li>
+  <li>Spread operator: turns the items of an iterable into arguments of a function call or into elements of an Array.</li>
+</ul>
+
+<h4 id="_spreading-into-function-and-method-calls">
+<span class="section-number">11.8.1 </span>Spreading into function and method calls <a class="header-anchor" href="ch_parameter-handling.html#_spreading-into-function-and-method-calls" aria-hidden="true">#</a></h4>
+
+<p><code>Math.max()</code> is a good example for demonstrating how the spread operator works in method calls. <code>Math.max(x1, x2, &#xB7;&#xB7;&#xB7;)</code> returns the argument whose value is greatest. It accepts an arbitrary number of arguments, but can&#x2019;t be applied to Arrays. The spread operator fixes that:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.max(-1, 5, 11, 3)
+11
+&gt; Math.max(...[-1, 5, 11, 3])
+11
+</pre></div>
+
+</figure>
+
+<p>In contrast to the rest operator, you can use the spread operator anywhere in a sequence of parts:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; Math.max(-1, ...[-1, 5, 11], 3)
+11
+</pre></div>
+
+</figure>
+
+<p>Another example is JavaScript not having a way to destructively append the elements of one Array to another one. However, Arrays do have the method <code>push(x1, x2, &#xB7;&#xB7;&#xB7;)</code>, which appends all of its arguments to its receiver. The following code shows how you can use <code>push()</code> to append the elements of <code>arr2</code> to <code>arr1</code>.</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr1</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="kr">const</code> <code class="nx">arr2</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;c&apos;</code><code class="p">,</code> <code class="s1">&apos;d&apos;</code><code class="p">];</code>
+
+<code class="nx">arr1</code><code class="p">.</code><code class="nx">push</code><code class="p">(...</code><code class="nx">arr2</code><code class="p">);</code>
+<code class="c1">// arr1 is now [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;]</code>
+</pre></div>
+
+</figure>
+
+<h4 id="_spreading-into-constructors">
+<span class="section-number">11.8.2 </span>Spreading into constructors <a class="header-anchor" href="ch_parameter-handling.html#_spreading-into-constructors" aria-hidden="true">#</a></h4>
+
+<p>In addition to function and method calls, the spread operator also works for constructor calls:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="k">new</code> <code class="nb">Date</code><code class="p">(...[</code><code class="mi">1912</code><code class="p">,</code> <code class="mi">11</code><code class="p">,</code> <code class="mi">24</code><code class="p">])</code> <code class="c1">// Christmas Eve 1912</code>
+</pre></div>
+
+</figure>
+
+<p>That is something that is <a href="http://speakingjs.com/es5/ch17.html#apply_constructors">difficult to achieve in ECMAScript 5</a>.</p>
+
+<h4 id="_spreading-into-arrays">
+<span class="section-number">11.8.3 </span>Spreading into Arrays <a class="header-anchor" href="ch_parameter-handling.html#_spreading-into-arrays" aria-hidden="true">#</a></h4>
+
+<p>The spread operator can also be used inside Array literals:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code>&gt; [1, ...[2,3], 4]
+[1, 2, 3, 4]
+</pre></div>
+
+</figure>
+
+<p>That gives you a convenient way to concatenate Arrays:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">x</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;a&apos;</code><code class="p">,</code> <code class="s1">&apos;b&apos;</code><code class="p">];</code>
+<code class="kr">const</code> <code class="nx">y</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;c&apos;</code><code class="p">];</code>
+<code class="kr">const</code> <code class="nx">z</code> <code class="o">=</code> <code class="p">[</code><code class="s1">&apos;d&apos;</code><code class="p">,</code> <code class="s1">&apos;e&apos;</code><code class="p">];</code>
+
+<code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[...</code><code class="nx">x</code><code class="p">,</code> <code class="p">...</code><code class="nx">y</code><code class="p">,</code> <code class="p">...</code><code class="nx">z</code><code class="p">];</code> <code class="c1">// [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos;]</code>
+</pre></div>
+
+</figure>
+
+<p>One advantage of the spread operator is that its operand can be any iterable value (in contrast to the Array method <code>concat()</code>, which does not support iteration).</p>
+
+<h5 id="_converting-iterable-or-array-like-objects-to-arrays">
+<span class="section-number">11.8.3.1 </span>Converting iterable or Array-like objects to Arrays <a class="header-anchor" href="ch_parameter-handling.html#_converting-iterable-or-array-like-objects-to-arrays" aria-hidden="true">#</a></h5>
+
+<p>The spread operator lets you convert any iterable value to an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[...</code><code class="nx">someIterableObject</code><code class="p">];</code>
+</pre></div>
+
+</figure>
+
+<p>Let&#x2019;s convert a Set to an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">set</code> <code class="o">=</code> <code class="k">new</code> <code class="nx">Set</code><code class="p">([</code><code class="mi">11</code><code class="p">,</code> <code class="o">-</code><code class="mi">1</code><code class="p">,</code> <code class="mi">6</code><code class="p">]);</code>
+<code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[...</code><code class="nx">set</code><code class="p">];</code> <code class="c1">// [11, -1, 6]</code>
+</pre></div>
+
+</figure>
+
+<p>Your own iterable objects can be converted to Arrays in the same manner:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">obj</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="o">*</code> <code class="p">[</code><code class="nx">Symbol</code><code class="p">.</code><code class="nx">iterator</code><code class="p">]()</code> <code class="p">{</code>
+        <code class="k">yield</code> <code class="s1">&apos;a&apos;</code><code class="p">;</code>
+        <code class="k">yield</code> <code class="s1">&apos;b&apos;</code><code class="p">;</code>
+        <code class="k">yield</code> <code class="s1">&apos;c&apos;</code><code class="p">;</code>
+    <code class="p">}</code>
+<code class="p">};</code>
+<code class="kr">const</code> <code class="nx">arr</code> <code class="o">=</code> <code class="p">[...</code><code class="nx">obj</code><code class="p">];</code> <code class="c1">// [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;]</code>
+</pre></div>
+
+</figure>
+
+<p>Note that, just like the <code>for-of</code> loop, the spread operator only works for iterable values. All built-in data structures are iterable: Arrays, Maps and Sets. All Array-like DOM data structures are also iterable.</p>
+
+<p>Should you ever encounter something that is not iterable, but Array-like (indexed elements plus a property <code>length</code>), you can use <code>Array.from()</code><sup id="fnref-parameter-handling_2"><a href="leanpub-endnotes.html#fn-parameter-handling_2" rel="footnote">6</a></sup> to convert it to an Array:</p>
+
+<figure class="code">
+<div class="highlight"><pre><code></code><code class="kr">const</code> <code class="nx">arrayLike</code> <code class="o">=</code> <code class="p">{</code>
+    <code class="s1">&apos;0&apos;</code><code class="o">:</code> <code class="s1">&apos;a&apos;</code><code class="p">,</code>
+    <code class="s1">&apos;1&apos;</code><code class="o">:</code> <code class="s1">&apos;b&apos;</code><code class="p">,</code>
+    <code class="s1">&apos;2&apos;</code><code class="o">:</code> <code class="s1">&apos;c&apos;</code><code class="p">,</code>
+    <code class="nx">length</code><code class="o">:</code> <code class="mi">3</code>
+<code class="p">};</code>
+
+<code class="c1">// ECMAScript 5:</code>
+<code class="kd">var</code> <code class="nx">arr1</code> <code class="o">=</code> <code class="p">[].</code><code class="nx">slice</code><code class="p">.</code><code class="nx">call</code><code class="p">(</code><code class="nx">arrayLike</code><code class="p">);</code> <code class="c1">// [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;]</code>
+
+<code class="c1">// ECMAScript 6:</code>
+<code class="kr">const</code> <code class="nx">arr2</code> <code class="o">=</code> <code class="nb">Array</code><code class="p">.</code><code class="nx">from</code><code class="p">(</code><code class="nx">arrayLike</code><code class="p">);</code> <code class="c1">// [&apos;a&apos;, &apos;b&apos;, &apos;c&apos;]</code>
+
+<code class="c1">// TypeError: Cannot spread non-iterable value</code>
+<code class="kr">const</code> <code class="nx">arr3</code> <code class="o">=</code> <code class="p">[...</code><code class="nx">arrayLike</code><code class="p">];</code>
+</pre></div>
+
+</figure>
+
+
+
+
+
+
+<div class="next-chapter">
+    Next: <a href="pt_modularity.html">III Modularity</a>
+</div>
+
+
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-59555947-1', 'auto');
+  ga('send', 'pageview');
+</script>
+</body>
+</html>
